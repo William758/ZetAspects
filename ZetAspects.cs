@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using BepInEx;
 using BepInEx.Configuration;
 using R2API;
@@ -17,7 +17,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.0.0";
+        public const string ModVer = "1.0.1";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -26,6 +26,7 @@ namespace TPDespair.ZetAspects
         public static BuffIndex ZetShreddedDebuff { get; private set; }
 
         public static ConfigEntry<bool> ZetAspectEliteEquipmentCfg { get; set; }
+        public static ConfigEntry<bool> ZetAspectEquipmentConversionCfg { get; set; }
         public static ConfigEntry<float> ZetAspectEquipmentEffectCfg { get; set; }
         public static ConfigEntry<bool> ZetAspectRedTierCfg { get; set; }
         public static ConfigEntry<float> ZetAspectDropChanceCfg { get; set; }
@@ -110,6 +111,11 @@ namespace TPDespair.ZetAspects
                 "0a-General",
                 "eliteEquipment", false,
                 "Elites drop equipment instead of new items."
+            );
+            ZetAspectEquipmentConversionCfg = Config.Bind<bool>(
+                "0a-General",
+                "convertEquipment", true,
+                "Picking up the same elite equipment will convert into non-equipment item."
             );
             ZetAspectEquipmentEffectCfg = Config.Bind<float>(
                 "0a-General",
@@ -879,6 +885,85 @@ namespace TPDespair.ZetAspects
             };
         }
 
+        private static void EquipmentConversionHook()
+        {
+            IL.RoR2.GenericPickupController.AttemptGrant += (il) =>
+            {
+                ILCursor c = new ILCursor(il);
+
+                bool found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdcI4(1),
+                    x => x.MatchStfld<GenericPickupController>("consumed"),
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<GenericPickupController>("pickupIndex")
+                );
+
+                if (found)
+                {
+                    c.Index += 7;
+
+                    c.Emit(OpCodes.Ldarg, 0);
+                    c.Emit(OpCodes.Ldarg, 1);
+                    c.Emit(OpCodes.Ldloc, 2);
+                    c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((gpc, body, pickupDef) =>
+                    {
+                        if (!ZetAspectEquipmentConversionCfg.Value) return pickupDef;
+                        
+                        if (pickupDef.equipmentIndex != EquipmentIndex.None)
+                        {
+                            EquipmentIndex equip = body.inventory.currentEquipmentIndex;
+                            switch (pickupDef.equipmentIndex)
+                            {
+                                case EquipmentIndex.AffixWhite:
+                                    if(equip == EquipmentIndex.AffixWhite)
+                                    {
+                                        gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectIce.itemIndex);
+                                        return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                    }
+                                    break;
+                                case EquipmentIndex.AffixBlue:
+                                    if (equip == EquipmentIndex.AffixBlue)
+                                    {
+                                        gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectLightning.itemIndex);
+                                        return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                    }
+                                    break;
+                                case EquipmentIndex.AffixRed:
+                                    if (equip == EquipmentIndex.AffixRed)
+                                    {
+                                        gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectFire.itemIndex);
+                                        return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                    }
+                                    break;
+                                case EquipmentIndex.AffixHaunted:
+                                    if (equip == EquipmentIndex.AffixHaunted)
+                                    {
+                                        gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectCelestial.itemIndex);
+                                        return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                    }
+                                    break;
+                                case EquipmentIndex.AffixPoison:
+                                    if (equip == EquipmentIndex.AffixPoison)
+                                    {
+                                        gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectMalachite.itemIndex);
+                                        return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                    }
+                                    break;
+                            }
+                        }
+                        
+                        return pickupDef;
+                    });
+                    c.Emit(OpCodes.Stloc, 2);
+                }
+                else
+                {
+                    Debug.LogWarning("ZetAspect - Equipment Conversion Hook Failed");
+                }
+            };
+        }            
+
         private static void ChangeText()
         {
             LanguageAPI.Add("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + ZetAspectLeechSeedLgohCfg.Value + "</style> <style=cStack>(+" + ZetAspectLeechSeedLgohCfg.Value + " per stack)</style> <style=cIsHealing>health</style>.");
@@ -914,6 +999,7 @@ namespace TPDespair.ZetAspects
             SetDropChanceHook();
             InterceptAspectDropHook();
             ApplyNewAspectDebuffHook();
+            EquipmentConversionHook();
 
             ChangeText();
         }
