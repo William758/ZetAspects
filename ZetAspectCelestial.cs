@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using R2API;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -81,44 +81,21 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(0),
-					x => x.MatchLdarg(0),
-					x => x.MatchCallvirt<CharacterBody>("get_armor"),
 					x => x.MatchLdloc(22),
-					x => x.MatchConvR4()
+					x => x.MatchConvR4(),
+					x => x.MatchLdcR4(70f),
+					x => x.MatchMul(),
+					x => x.MatchAdd()
 				);
 
 				if (found)
 				{
-					c.Index += 8;
+					c.Index += 5;
 
 					c.Emit(OpCodes.Ldarg_0);
 					c.EmitDelegate<Func<float, CharacterBody, float>>((armor, self) =>
 					{
-						// increase armor
-						float addedArmor = 0f;
-						if (self.HasBuff(BuffIndex.AffixHaunted))
-						{
-							float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
-							addedArmor += ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value + ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value * (count - 1f);
-						}
-						else if (self.HasBuff(BuffIndex.AffixHauntedRecipient))
-						{
-							addedArmor += ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value;
-						}
-						//if (self.teamComponent.teamIndex != TeamIndex.Player) addedArmor *= 0.5f;
-						armor += addedArmor;
-
-						// reduce armor
-						addedArmor = 0f;
-						if (self.HasBuff(ZetAspectsPlugin.ZetShreddedDebuff))
-						{
-							addedArmor -= Mathf.Abs(ZetAspectsPlugin.ZetAspectGhostShredArmorCfg.Value);
-						}
-						if (self.teamComponent.teamIndex == TeamIndex.Player) addedArmor *= ZetAspectsPlugin.ZetAspectEffectPlayerDebuffMultCfg.Value;
-						armor += addedArmor;
-
-						return armor;
+						return armor + GetArmorDelta(self);
 					});
 				}
 				else
@@ -136,6 +113,32 @@ namespace TPDespair.ZetAspects
 
 				orig(self);
 			};
+		}
+
+		private static float GetArmorDelta(CharacterBody self)
+        {
+			// increase armor
+			float addedArmor = 0f;
+			if (self.HasBuff(BuffIndex.AffixHaunted))
+			{
+				float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
+				addedArmor += ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value + ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value * (count - 1f);
+			}
+			else if (self.HasBuff(BuffIndex.AffixHauntedRecipient))
+			{
+				addedArmor += ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value;
+			}
+			//if (self.teamComponent.teamIndex != TeamIndex.Player) addedArmor *= 0.5f;
+
+			// reduce armor
+			float lostArmor = 0f;
+			if (self.HasBuff(ZetAspectsPlugin.ZetShreddedDebuff))
+			{
+				lostArmor += Mathf.Abs(ZetAspectsPlugin.ZetAspectGhostShredArmorCfg.Value);
+			}
+			if (self.teamComponent.teamIndex == TeamIndex.Player) lostArmor *= ZetAspectsPlugin.ZetAspectEffectPlayerDebuffMultCfg.Value;
+
+			return addedArmor - lostArmor;
 		}
 	}
 }
