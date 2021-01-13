@@ -17,7 +17,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.0.1";
+        public const string ModVer = "1.1.0";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -482,14 +482,14 @@ namespace TPDespair.ZetAspects
 
                 // Health increase
                 bool found = c.TryGotoNext(
-                    x => x.MatchLdcR4(1f),
-                    x => x.MatchStloc(42)
+                    x => x.MatchLdloc(41),
+                    x => x.MatchLdloc(42),
+                    x => x.MatchMul(),
+                    x => x.MatchStloc(41)
                 );
 
                 if (found)
                 {
-                    c.Index += 2;
-
                     c.Emit(OpCodes.Ldarg, 0);
                     c.Emit(OpCodes.Ldloc, 42);
                     c.EmitDelegate<Func<CharacterBody, float, float>>((self, mult) =>
@@ -513,13 +513,19 @@ namespace TPDespair.ZetAspects
 
                 // Movement speed increase
                 bool found = c.TryGotoNext(
-                    x => x.MatchLdcR4(1f),
-                    x => x.MatchStloc(54)
+                    x => x.MatchLdloc(53),
+                    x => x.MatchLdloc(54),
+                    x => x.MatchLdloc(55),
+                    x => x.MatchDiv(),
+                    x => x.MatchMul(),
+                    x => x.MatchStloc(53)
                 );
 
                 if (found)
                 {
-                    c.Index += 2;
+                    c.Index += 1;
+
+                    c.Emit(OpCodes.Pop);
 
                     c.Emit(OpCodes.Ldarg, 0);
                     c.Emit(OpCodes.Ldloc, 54);
@@ -528,6 +534,8 @@ namespace TPDespair.ZetAspects
                         return mult + ZetHeadHunterBuffMovementSpeedCfg.Value * self.GetBuffCount(ZetHeadHunterBuff);
                     });
                     c.Emit(OpCodes.Stloc, 54);
+
+                    c.Emit(OpCodes.Ldloc, 53);
                 }
                 else
                 {
@@ -544,14 +552,14 @@ namespace TPDespair.ZetAspects
 
                 // Damage increase
                 bool found = c.TryGotoNext(
-                    x => x.MatchLdcR4(1f),
-                    x => x.MatchStloc(58)
+                    x => x.MatchLdloc(57),
+                    x => x.MatchLdloc(58),
+                    x => x.MatchMul(),
+                    x => x.MatchStloc(57)
                 );
 
                 if (found)
                 {
-                    c.Index += 2;
-
                     c.Emit(OpCodes.Ldarg, 0);
                     c.Emit(OpCodes.Ldloc, 58);
                     c.EmitDelegate<Func<CharacterBody, float, float>>((self, mult) =>
@@ -575,14 +583,14 @@ namespace TPDespair.ZetAspects
 
                 // Attack speed increase
                 bool found = c.TryGotoNext(
-                    x => x.MatchLdcR4(1f),
-                    x => x.MatchStloc(61)
+                    x => x.MatchLdloc(60),
+                    x => x.MatchLdloc(61),
+                    x => x.MatchMul(),
+                    x => x.MatchStloc(60)
                 );
 
                 if (found)
                 {
-                    c.Index += 2;
-
                     c.Emit(OpCodes.Ldarg, 0);
                     c.Emit(OpCodes.Ldloc, 61);
                     c.EmitDelegate<Func<CharacterBody, float, float>>((self, mult) =>
