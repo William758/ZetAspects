@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using R2API;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -165,14 +165,14 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdcR4(1f),
-					x => x.MatchStloc(42)
+					x => x.MatchLdloc(41),
+					x => x.MatchLdloc(42),
+					x => x.MatchMul(),
+					x => x.MatchStloc(41)
 				);
 
 				if (found)
 				{
-					c.Index += 2;
-
 					c.Emit(OpCodes.Ldarg_0);
 					c.Emit(OpCodes.Ldloc, 41);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, health) =>
