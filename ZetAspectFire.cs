@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using R2API;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -175,18 +175,19 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(53),
 					x => x.MatchLdloc(54),
-					x => x.MatchLdloc(27),
-					x => x.MatchConvR4(),
-					x => x.MatchLdcR4(0.1f),
+					x => x.MatchLdloc(55),
+					x => x.MatchDiv(),
 					x => x.MatchMul(),
-					x => x.MatchAdd(),
-					x => x.MatchStloc(54)
+					x => x.MatchStloc(53)
 				);
 
 				if (found)
 				{
-					c.Index += 7;
+					c.Index += 1;
+
+					c.Emit(OpCodes.Pop);
 
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, 54);
@@ -205,6 +206,8 @@ namespace TPDespair.ZetAspects
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, 54);
+
+					c.Emit(OpCodes.Ldloc, 53);
 				}
 				else
 				{
