@@ -34,6 +34,8 @@ Place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v1.1.0 - Fixed stat hooks not working with TILER2 installed.
+
 v1.0.1 - Picking up the same aspect equipment now grants the non-equipment version.
 
 v1.0.0 - Initial Release.
