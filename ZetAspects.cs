@@ -13,11 +13,11 @@ namespace TPDespair.ZetAspects
 {
     [BepInDependency("com.bepis.r2api")]
     [BepInPlugin(ModGuid, ModName, ModVer)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(ItemDropAPI), nameof(LanguageAPI))]
+    [R2APISubmoduleDependency(nameof(BuffAPI), nameof(ItemAPI), nameof(ItemDropAPI), nameof(LanguageAPI))]
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.1.0";
+        public const string ModVer = "1.2.0";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -80,9 +80,11 @@ namespace TPDespair.ZetAspects
         public static ConfigEntry<float> ZetAspectRedMovementGainCapCfg { get; set; }
         public static ConfigEntry<float> ZetAspectRedBurnDurationCfg { get; set; }
         public static ConfigEntry<bool> ZetAspectRedTrailCfg { get; set; }
+        public static ConfigEntry<bool> ZetAspectRedUseBaseCfg { get; set; }
         public static ConfigEntry<float> ZetAspectRedBaseDamageCfg { get; set; }
         public static ConfigEntry<float> ZetAspectRedStackDamageCfg { get; set; }
 
+        public static ConfigEntry<bool> ZetAspectGhostSlowEffectCfg { get; set; }
         public static ConfigEntry<float> ZetAspectGhostShredDurationCfg { get; set; }
         public static ConfigEntry<float> ZetAspectGhostShredArmorCfg { get; set; }
         public static ConfigEntry<float> ZetAspectGhostAllyArmorGainCfg { get; set; }
@@ -255,7 +257,7 @@ namespace TPDespair.ZetAspects
             ZetAspectEffectMonsterDamageMultCfg = Config.Bind<float>(
                 "20-Aspect Effects",
                 "effectMonsterDamageMult", 0.5f,
-                "Multiply Damage value of aspect effects from monsters."
+                "Multiply damage value of aspect effects from monsters."
             );
             ZetAspectEffectPlayerDebuffMultCfg = Config.Bind<float>(
                 "20-Aspect Effects",
@@ -268,7 +270,7 @@ namespace TPDespair.ZetAspects
             ZetAspectWhiteFreezeChanceCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
                 "freezeChance", 6.0f,
-                "Set freeze chance. Player Only."
+                "Set freeze chance. Player Only. Set to 0 to disable."
             );
             ZetAspectWhiteFreezeDurationCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
@@ -283,7 +285,7 @@ namespace TPDespair.ZetAspects
             ZetAspectWhiteBaseDamageCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
                 "baseTotalDamage", 0.50f,
-                "Base total damage of blades."
+                "Base total damage of blades. Set to 0 to disable."
             );
             ZetAspectWhiteStackDamageCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
@@ -296,7 +298,7 @@ namespace TPDespair.ZetAspects
             ZetAspectBlueSappedDurationCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
                 "sappedDuration", 4.0f,
-                "Set sapped duration in seconds."
+                "Set sapped duration in seconds. Set to 0 to disable."
             );
             ZetAspectBlueSappedDamageCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
@@ -311,7 +313,7 @@ namespace TPDespair.ZetAspects
             ZetAspectBlueBaseShieldGainCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
                 "baseShieldGained", 0.20f,
-                "Set shield gained from health."
+                "Set shield gained from health. Set to 0 to disable."
             );
             ZetAspectBlueStackShieldGainCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
@@ -326,7 +328,7 @@ namespace TPDespair.ZetAspects
             ZetAspectBlueBaseDamageCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
                 "baseTotalDamage", 0.50f,
-                "Base total damage of bombs."
+                "Base total damage of bombs. Set to 0 to disable."
             );
             ZetAspectBlueStackDamageCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
@@ -339,12 +341,12 @@ namespace TPDespair.ZetAspects
             ZetAspectRedExtraJumpCfg = Config.Bind<bool>(
                 "2c-Fire Aspect",
                 "extraJump", true,
-                "Extra Jump. Player Only"
+                "Extra jump. Player Only"
             );
             ZetAspectRedBaseMovementGainCfg = Config.Bind<float>(
                 "2c-Fire Aspect",
                 "baseMovementGained", 0.20f,
-                "Movement speed gained."
+                "Movement speed gained. Set to 0 to disable."
             );
             ZetAspectRedStackMovementGainCfg = Config.Bind<float>(
                 "2c-Fire Aspect",
@@ -364,12 +366,17 @@ namespace TPDespair.ZetAspects
             ZetAspectRedTrailCfg = Config.Bind<bool>(
                 "2c-Fire Aspect",
                 "playerTrail", false,
-                "Set Whether players leave fire trail."
+                "Set whether players leave fire trail."
+            );
+            ZetAspectRedUseBaseCfg = Config.Bind<bool>(
+                "2c-Fire Aspect",
+                "useBaseDamage", false,
+                "Set whether burn damage is based on BASE or TOTAL damage. Vanilla behavior is 200% BASE damage over 4 seconds."
             );
             ZetAspectRedBaseDamageCfg = Config.Bind<float>(
                 "2c-Fire Aspect",
                 "baseTotalDamage", 0.50f,
-                "Base total damage of burn over duration."
+                "Base total damage of burn over duration. Set to 0 to disable."
             );
             ZetAspectRedStackDamageCfg = Config.Bind<float>(
                 "2c-Fire Aspect",
@@ -379,10 +386,15 @@ namespace TPDespair.ZetAspects
 
 
 
+            ZetAspectGhostSlowEffectCfg = Config.Bind<bool>(
+                "2d-Celestial Aspect",
+                "slowEffect", false,
+                "Set whether applies slow. Shares duration with ice aspect."
+            );
             ZetAspectGhostShredDurationCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
                 "shredDuration", 4.0f,
-                "Set shred duration in seconds."
+                "Set shred duration in seconds. Set to 0 to disable."
             );
             ZetAspectGhostShredArmorCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
@@ -392,12 +404,12 @@ namespace TPDespair.ZetAspects
             ZetAspectGhostAllyArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
                 "allyArmor", 30f,
-                "Armor granted to nearby allies."
+                "Armor granted to nearby allies. Set to 0 to disable."
             );
             ZetAspectGhostBaseArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
                 "baseArmor", 60f,
-                "Armor gained."
+                "Armor gained. Set to 0 to disable."
             );
             ZetAspectGhostStackArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
@@ -415,17 +427,17 @@ namespace TPDespair.ZetAspects
             ZetAspectPoisonNullDamageTakenCfg = Config.Bind<float>(
                 "2e-Malachite Aspect",
                 "nullDamageTaken", 0.20f,
-                "Damage taken increase from nullification."
+                "Damage taken increase from nullification. Set to 0 to disable."
             );
             ZetAspectPoisonFireSpikesCfg = Config.Bind<bool>(
                 "2e-Malachite Aspect",
                 "playerSpikes", false,
-                "Set Whether players fire spike balls."
+                "Set whether players throw spike balls."
             );
             ZetAspectPoisonBaseHealthGainCfg = Config.Bind<float>(
                 "2e-Malachite Aspect",
                 "baseHealth", 400f,
-                "Health gained."
+                "Health gained. Set to 0 to disable."
             );
             ZetAspectPoisonStackHealthGainCfg = Config.Bind<float>(
                 "2e-Malachite Aspect",
@@ -435,7 +447,7 @@ namespace TPDespair.ZetAspects
             ZetAspectPoisonBaseLgohCfg = Config.Bind<int>(
                 "2e-Malachite Aspect",
                 "baseLifeGainOnHit", 8,
-                "Health gained on hit."
+                "Health gained on hit. Set to 0 to disable."
             );
             ZetAspectPoisonStackLgohCfg = Config.Bind<int>(
                 "2e-Malachite Aspect",
@@ -448,7 +460,7 @@ namespace TPDespair.ZetAspects
             ZetHypercritEnabledCfg = Config.Bind<bool>(
                 "3a-Hypercrit",
                 "enable", false,
-                "Hypercrit Enabled. Used to calculate ignite damage."
+                "Hypercrit. Used to calculate TOTAL burn damage past 100% crit."
             );
             ZetHypercritModeCfg = Config.Bind<int>(
                 "3a-Hypercrit",
@@ -853,44 +865,44 @@ namespace TPDespair.ZetAspects
             };
         }
 
-        private static void ApplyNewAspectDebuffHook()
+        private static void OnHitEnemyDebuffHook()
         {
             // Apply sapped and shreded debuffs
             On.RoR2.GlobalEventManager.OnHitEnemy += (orig, self, damageInfo, victimObject) =>
             {
-                bool execute = true;
-
-                if (damageInfo.procCoefficient == 0f || damageInfo.rejected) execute = false;
-                if (!NetworkServer.active) execute = false;
-
-                if (execute)
-                {
-                    if (damageInfo.attacker && damageInfo.procCoefficient > 0f)
-                    {
-                        CharacterBody attacker = damageInfo.attacker.GetComponent<CharacterBody>();
-                        CharacterBody victim = victimObject ? victimObject.GetComponent<CharacterBody>() : null;
-
-                        if (attacker && victim)
-                        {
-                            if (attacker.HasBuff(BuffIndex.AffixBlue))
-                            {
-                                float durationBlue = ZetAspectBlueSappedDurationCfg.Value;
-                                if (attacker.teamComponent.teamIndex != TeamIndex.Player) durationBlue *= damageInfo.procCoefficient;
-                                victim.AddTimedBuff(ZetSappedDebuff, durationBlue);
-                            }
-
-                            if (attacker.HasBuff(BuffIndex.AffixHaunted))
-                            {
-                                float durationGhost = ZetAspectGhostShredDurationCfg.Value;
-                                if (attacker.teamComponent.teamIndex != TeamIndex.Player) durationGhost *= damageInfo.procCoefficient;
-                                victim.AddTimedBuff(ZetShreddedDebuff, durationGhost);
-                            }
-                        }
-                    }
-                }
+                ApplyNewAspectDebuffs(damageInfo, victimObject);
 
                 orig(self, damageInfo, victimObject);
             };
+        }
+
+        private static void ApplyNewAspectDebuffs(DamageInfo damageInfo, GameObject victimObject)
+        {
+            if (!NetworkServer.active) return;
+            if (damageInfo.procCoefficient == 0f || damageInfo.rejected) return;
+
+            if (damageInfo.attacker)
+            {
+                CharacterBody attacker = damageInfo.attacker.GetComponent<CharacterBody>();
+                CharacterBody victim = victimObject ? victimObject.GetComponent<CharacterBody>() : null;
+
+                if (attacker && victim)
+                {
+                    if (attacker.HasBuff(BuffIndex.AffixBlue))
+                    {
+                        float durationBlue = ZetAspectBlueSappedDurationCfg.Value;
+                        if (attacker.teamComponent.teamIndex != TeamIndex.Player) durationBlue *= damageInfo.procCoefficient;
+                        if (durationBlue > 0.1f) victim.AddTimedBuff(ZetSappedDebuff, durationBlue);
+                    }
+
+                    if (attacker.HasBuff(BuffIndex.AffixHaunted))
+                    {
+                        float durationGhost = ZetAspectGhostShredDurationCfg.Value;
+                        if (attacker.teamComponent.teamIndex != TeamIndex.Player) durationGhost *= damageInfo.procCoefficient;
+                        if (durationGhost > 0.1f) victim.AddTimedBuff(ZetShreddedDebuff, durationGhost);
+                    }
+                }
+            }
         }
 
         private static void EquipmentConversionHook()
@@ -1006,7 +1018,7 @@ namespace TPDespair.ZetAspects
             RefreshAspectBuffsHook();
             SetDropChanceHook();
             InterceptAspectDropHook();
-            ApplyNewAspectDebuffHook();
+            OnHitEnemyDebuffHook();
             EquipmentConversionHook();
 
             ChangeText();
@@ -1027,35 +1039,24 @@ namespace TPDespair.ZetAspects
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
                     PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectIce.itemIndex), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectLightning.itemIndex), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectFire.itemIndex), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectCelestial.itemIndex), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectMalachite.itemIndex), transform.position, transform.forward * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectLightning.itemIndex), transform.position, transform.forward * 40f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectFire.itemIndex), transform.position, transform.right * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectCelestial.itemIndex), transform.position, transform.forward * -20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectMalachite.itemIndex), transform.position, transform.forward * -40f);
                 }
 
                 if (Input.GetKeyDown(KeyCode.F3))
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.HeadHunter), transform.position, transform.forward * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.ShieldOnly), transform.position, transform.forward * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.RepeatHeal), transform.position, transform.forward * -20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.HeadHunter), transform.position, transform.right * 20f);
                 }
 
                 if (Input.GetKeyDown(KeyCode.F4))
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.ShieldOnly), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.RepeatHeal), transform.position, transform.forward * -20f);
-                }
-
-                if (Input.GetKeyDown(KeyCode.F5))
-                {
-                    var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-                    //PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.CritGlasses), transform.position, transform.forward * 20f);
                     PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.Knurl), transform.position, transform.forward * 1f);
-                }
-
-                if (Input.GetKeyDown(KeyCode.F6))
-                {
-                    var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
                     PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.Pearl), transform.position, transform.forward * 20f);
                 }
             }
@@ -1116,7 +1117,7 @@ namespace TPDespair.ZetAspects
         public static string FormatSeconds(float seconds)
         {
             string s = seconds == 1.0f ? "" : "s";
-            return seconds + "second" + s;
+            return seconds + " second" + s;
         }
     }
 }
