@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using RoR2.Orbs;
 using R2API;
 using Mono.Cecil.Cil;
@@ -15,14 +15,13 @@ namespace TPDespair.ZetAspects
 		internal static void Init()
 		{
 			DefineItem();
-			SetHook();
+			FreezeHook();
+			SlowHook();
+			ProjectileHook();
 		}
 
 		private static void DefineItem()
 		{
-			string st1 = ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value == 1.0f ? "" : "s";
-			string st2 = ZetAspectsPlugin.ZetAspectWhiteFreezeDurationCfg.Value == 1.0f ? "" : "s";
-
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value) 
@@ -39,7 +38,7 @@ namespace TPDespair.ZetAspects
 				pickupIconPath = "Textures/ItemIcons/texAffixWhiteIcon",
 				nameToken = "Her Biting Embrace",
 				pickupToken = "Become an aspect of ice.",
-				descriptionToken = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for " + ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value + " second" + st1 + ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.\nAttacks have a <style=cIsUtility>" + ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value + "%</style> <style=cStack>(+" + ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value + "% per stack)</style> chance to <style=cIsUtility>freeze</style> for " + ZetAspectsPlugin.ZetAspectWhiteFreezeDurationCfg.Value + " second" + st2 + ".\nAttacks fire a <style=cIsDamage>blade</style> that deals <style=cIsDamage>" + (ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value * 100f) + "%</style> <style=cStack>(+" + (ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value * 100f) + "% per stack)</style> TOTAL damage.",
+				descriptionToken = BuildDescription(),
 				loreToken = "Become an aspect of ice.",
 				tags = tags
 			};
@@ -49,8 +48,37 @@ namespace TPDespair.ZetAspects
 			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
 		}
 
-		private static void SetHook()
-		{
+		public static string BuildDescription()
+        {
+			string output = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for ";
+			output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value);
+			output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
+			if (ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value > 0f)
+            {
+				output += "\nAttacks have a <style=cIsUtility>";
+				output += ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value;
+				output += "%</style> <style=cStack>(+";
+				output += ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value;
+				output += "% per stack)</style> chance to <style=cIsUtility>freeze</style> for ";
+				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectWhiteFreezeDurationCfg.Value) + ".";
+			}
+			if (ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value > 0f)
+            {
+				output += "\nAttacks fire a <style=cIsDamage>blade</style> that deals <style=cIsDamage>";
+				output += ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value * 100f + "%</style>";
+				if (ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value != 0f)
+				{
+					output += " <style=cStack>(+";
+					output += ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value * 100f + "% per stack)</style>";
+				}
+				output += " TOTAL damage.";
+			}
+
+			return output;
+		}
+
+		private static void FreezeHook()
+        {
 			// Add freeze chance
 			IL.RoR2.SetStateOnHurt.OnTakeDamageServer += (il) =>
 			{
@@ -76,7 +104,10 @@ namespace TPDespair.ZetAspects
 					{
 						CharacterBody attacker = damageReport.attackerBody;
 
-						if (attacker == null || attacker.teamComponent.teamIndex != TeamIndex.Player || !attacker.HasBuff(BuffIndex.AffixWhite) || !state.canBeFrozen || damageReport.damageInfo.procCoefficient < 0.15f) return;
+						if (!attacker.HasBuff(BuffIndex.AffixWhite)) return;
+						if (ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value <= 0f) return;
+
+						if (attacker == null || attacker.teamComponent.teamIndex != TeamIndex.Player || !state.canBeFrozen || damageReport.damageInfo.procCoefficient < 0.15f) return;
 
 						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, itemIndex);
 						float chance = ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value * count * damageReport.damageInfo.procCoefficient;
@@ -90,9 +121,10 @@ namespace TPDespair.ZetAspects
 					Debug.LogWarning("ZetAspect : Ice - Freeze Hook Failed");
 				}
 			};
+		}
 
-			// Set slow duration
-			// Fire projectile
+		private static void SlowHook()
+		{
 			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -111,7 +143,6 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 7;
 
-					// Handle slow duration
 					c.Emit(OpCodes.Pop);
 					c.Emit(OpCodes.Ldloc_0);
 					c.Emit(OpCodes.Ldarg_1);
@@ -122,15 +153,40 @@ namespace TPDespair.ZetAspects
 
 						return duration;
 					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspect : Ice - Slow Hook Failed");
+				}
+			};
+		}
 
-					c.Index += 1;
+		private static void ProjectileHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
 
-					// Handle Projectile
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcR4(1.5f),
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
+					x => x.MatchMul(),
+					x => x.MatchLdloc(8),
+					x => x.MatchConvR4(),
+					x => x.MatchMul()
+				);
+
+				if (found)
+				{
+					c.Index += 7;
+
 					c.Emit(OpCodes.Ldloc_0);
 					c.Emit(OpCodes.Ldarg_1);
 					c.EmitDelegate<Action<CharacterBody, DamageInfo>>((self, damageInfo) =>
 					{
 						if (!self.HasBuff(BuffIndex.AffixWhite)) return;
+						if (ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value <= 0f) return;
 
 						GameObject gameObject = self.gameObject;
 						TeamIndex teamIndex = self.teamComponent.teamIndex;
@@ -172,7 +228,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspect : Ice - Slow And Projectile Hook Failed");
+					Debug.LogWarning("ZetAspect : Ice - Projectile Hook Failed");
 				}
 			};
 		}
