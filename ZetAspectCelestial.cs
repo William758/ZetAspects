@@ -14,14 +14,13 @@ namespace TPDespair.ZetAspects
 		internal static void Init()
 		{
 			DefineItem();
-			SetHook();
+			SlowHook();
+			ArmorHook();
 			ItemBehaviorHook();
 		}
 
 		private static void DefineItem()
 		{
-			string st1 = ZetAspectsPlugin.ZetAspectGhostShredDurationCfg.Value == 1.0f ? "" : "s";
-
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
@@ -38,7 +37,7 @@ namespace TPDespair.ZetAspects
 				pickupIconPath = "Textures/ItemIcons/texAffixHauntedIcon",
 				nameToken = "Spectral Circlet",
 				pickupToken = "Become an aspect of incorporeality.",
-				descriptionToken = "<style=cDeath>Aspect of Incorporeality</style> :\nAttacks <style=cIsUtility>shred</style> on hit for " + ZetAspectsPlugin.ZetAspectGhostShredDurationCfg.Value + " second" + st1 + ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>"+ Mathf.Abs(ZetAspectsPlugin.ZetAspectGhostShredArmorCfg.Value) + "</style>.\n<style=cIsHealing>Increase armor</style> by <style=cIsHealing>" + ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value + "</style> <style=cStack>(+" + ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value + " per stack)</style>.\nGrants allies inside its spherical aura <style=cIsHealing>" + ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value + " armor</style>.",
+				descriptionToken = BuildDescription(),
 				loreToken = "Become an aspect of incorporeality.",
 				tags = tags
 			};
@@ -48,9 +47,44 @@ namespace TPDespair.ZetAspects
 			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
 		}
 
-		private static void SetHook()
+		public static string BuildDescription()
 		{
-			// Remove slow
+			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
+			if (ZetAspectsPlugin.ZetAspectGhostSlowEffectCfg.Value)
+			{
+				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
+				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value);
+				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
+			}
+			if (ZetAspectsPlugin.ZetAspectGhostShredDurationCfg.Value > 0f)
+			{
+				output += "\nAttacks <style=cIsUtility>shred</style> on hit for ";
+				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectGhostShredDurationCfg.Value);
+				output += ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>";
+				output += Mathf.Abs(ZetAspectsPlugin.ZetAspectGhostShredArmorCfg.Value) + "</style>.";
+			}
+			if (ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value > 0f)
+			{
+				output += "\nIncrease <style=cIsHealing>armor</style> by <style=cIsHealing>";
+				output += ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value + "</style>";
+				if (ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value != 0f)
+				{
+					output += " <style=cStack>(+";
+					output += ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value + " per stack)</style>";
+				}
+				output += ".";
+			}
+			if (ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value > 0f)
+			{
+				output += "\nGrants allies inside its spherical aura <style=cIsHealing>";
+				output += ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value + " armor</style>.";
+			}
+
+			return output;
+		}
+
+		private static void SlowHook()
+		{
 			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -65,17 +99,22 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 1;
 
-					// Celestial does not slow
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldc_I4, 0);
+					// Celestial slow
+					c.EmitDelegate<Func<int, int>>((value) =>
+					{
+						if (!ZetAspectsPlugin.ZetAspectGhostSlowEffectCfg.Value) return 0;
+						return value;
+					});
 				}
 				else
 				{
 					Debug.LogWarning("ZetAspect : Celestial - Slow Hook Failed");
 				}
 			};
+		}
 
-			// Modify armor values
+		private static void ArmorHook()
+		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -119,12 +158,12 @@ namespace TPDespair.ZetAspects
         {
 			// increase armor
 			float addedArmor = 0f;
-			if (self.HasBuff(BuffIndex.AffixHaunted))
+			if (self.HasBuff(BuffIndex.AffixHaunted) && ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value > 0f)
 			{
 				float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
 				addedArmor += ZetAspectsPlugin.ZetAspectGhostBaseArmorGainCfg.Value + ZetAspectsPlugin.ZetAspectGhostStackArmorGainCfg.Value * (count - 1f);
 			}
-			else if (self.HasBuff(BuffIndex.AffixHauntedRecipient))
+			else if (self.HasBuff(BuffIndex.AffixHauntedRecipient) && ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value > 0f)
 			{
 				addedArmor += ZetAspectsPlugin.ZetAspectGhostAllyArmorGainCfg.Value;
 			}
