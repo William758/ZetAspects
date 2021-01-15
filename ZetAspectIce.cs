@@ -104,10 +104,10 @@ namespace TPDespair.ZetAspects
 					{
 						CharacterBody attacker = damageReport.attackerBody;
 
-						if (!attacker.HasBuff(BuffIndex.AffixWhite)) return;
-						if (ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value <= 0f) return;
+						if (attacker == null) return;
 
-						if (attacker == null || attacker.teamComponent.teamIndex != TeamIndex.Player || !state.canBeFrozen || damageReport.damageInfo.procCoefficient < 0.15f) return;
+						if (!attacker.HasBuff(BuffIndex.AffixWhite) || ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value <= 0f) return;
+						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.15f) return;
 
 						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, itemIndex);
 						float chance = ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value * count * damageReport.damageInfo.procCoefficient;
