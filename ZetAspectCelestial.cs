@@ -11,6 +11,8 @@ namespace TPDespair.ZetAspects
 	{
 		public static ItemIndex itemIndex;
 
+		public static string nameToken = "ZETASPECTCELESTIAL";
+
 		internal static void Init()
 		{
 			DefineItem();
@@ -31,20 +33,25 @@ namespace TPDespair.ZetAspects
 
 			ItemDef itemDef = new ItemDef
 			{
-				name = "ZetAspectCelestial",
-				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
+				name = "ITEM_" + nameToken,
+				nameToken = "ITEM_" + nameToken + "_NAME",
+				pickupToken = "ITEM_" + nameToken + "_PICKUP",
+				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
+				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixHaunted",
 				pickupIconPath = "Textures/ItemIcons/texAffixHauntedIcon",
-				nameToken = "Spectral Circlet",
-				pickupToken = "Become an aspect of incorporeality.",
-				descriptionToken = BuildDescription(),
-				loreToken = "Become an aspect of incorporeality.",
+				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
 
 			ItemDisplayRuleDict disp = new ItemDisplayRuleDict(null);
 
 			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
+
+			LanguageAPI.Add("ITEM_" + nameToken + "_NAME", "Spectral Circlet");
+			LanguageAPI.Add("ITEM_" + nameToken + "_PICKUP", "Become an aspect of incorporeality.");
+			LanguageAPI.Add("ITEM_" + nameToken + "_DESCRIPTION", BuildDescription());
+			LanguageAPI.Add("ITEM_" + nameToken + "_LORE", "...");
 		}
 
 		public static string BuildDescription()
