@@ -11,6 +11,8 @@ namespace TPDespair.ZetAspects
 	{
 		public static ItemIndex itemIndex;
 
+		public static string nameToken = "ZETASPECTMALACHITE";
+
 		internal static void Init()
 		{
 			DefineItem();
@@ -33,20 +35,25 @@ namespace TPDespair.ZetAspects
 
 			ItemDef itemDef = new ItemDef
 			{
-				name = "ZetAspectMalachite",
-				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
+				name = "ITEM_" + nameToken,
+				nameToken = "ITEM_" + nameToken + "_NAME",
+				pickupToken = "ITEM_" + nameToken + "_PICKUP",
+				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
+				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixPoison",
 				pickupIconPath = "Textures/ItemIcons/texAffixPoisonIcon",
-				nameToken = "N'kuhana's Retort",
-				pickupToken = "Become an aspect of corruption.",
-				descriptionToken = BuildDescription(),
-				loreToken = "Become an aspect of corruption.",
+				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
 
 			ItemDisplayRuleDict disp = new ItemDisplayRuleDict(null);
 
 			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
+
+			LanguageAPI.Add("ITEM_" + nameToken + "_NAME", "N'kuhana's Retort");
+			LanguageAPI.Add("ITEM_" + nameToken + "_PICKUP", "Become an aspect of corruption.");
+			LanguageAPI.Add("ITEM_" + nameToken + "_DESCRIPTION", BuildDescription());
+			LanguageAPI.Add("ITEM_" + nameToken + "_LORE", "...");
 		}
 
 		public static string BuildDescription()
@@ -86,7 +93,6 @@ namespace TPDespair.ZetAspects
 				}
 				output += " health.";
 			}
-
 
 			return output;
 		}
