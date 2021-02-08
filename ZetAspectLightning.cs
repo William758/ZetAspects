@@ -12,6 +12,8 @@ namespace TPDespair.ZetAspects
 	{
 		public static ItemIndex itemIndex;
 
+		public static string nameToken = "ZETASPECTLIGHTNING";
+
 		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 
 		internal static void Init()
@@ -35,20 +37,25 @@ namespace TPDespair.ZetAspects
 
 			ItemDef itemDef = new ItemDef
 			{
-				name = "ZetAspectLightning",
-				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
+				name = "ITEM_" + nameToken,
+				nameToken = "ITEM_" + nameToken + "_NAME",
+				pickupToken = "ITEM_" + nameToken + "_PICKUP",
+				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
+				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixBlue",
 				pickupIconPath = "Textures/ItemIcons/texAffixBlueIcon",
-				nameToken = "Silence Between Two Strikes",
-				pickupToken = "Become an aspect of lightning.",
-				descriptionToken = BuildDescription(),
-				loreToken = "Become an aspect of lightning.",
+				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
 
 			ItemDisplayRuleDict disp = new ItemDisplayRuleDict(null);
 
 			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
+
+			LanguageAPI.Add("ITEM_" + nameToken + "_NAME", "Silence Between Two Strikes");
+			LanguageAPI.Add("ITEM_" + nameToken + "_PICKUP", "Become an aspect of lightning.");
+			LanguageAPI.Add("ITEM_" + nameToken + "_DESCRIPTION", BuildDescription());
+			LanguageAPI.Add("ITEM_" + nameToken + "_LORE", "...");
 		}
 
 		public static string BuildDescription()
