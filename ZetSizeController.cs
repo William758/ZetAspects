@@ -1,18 +1,34 @@
-﻿using RoR2;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using RoR2;
+using System;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace TPDespair.ZetAspects
 {
+    public class ZetSizeData : MonoBehaviour
+    {
+        public NetworkInstanceId netId;
+        public Vector3 size;
+        public float scale;
+        public float target;
+        public Vector3 offset;
+    }
+
     public static class ZetSizeController
     {
+        private static Vector3 cameraOffset = Vector3.zero;
+
+        public static bool globalShrink = false;
+
         internal static void Init()
         {
             RecalculateStatsHook();
             FixedUpdateHook();
             OnDestroyHook();
+            if (ZetAspectsPlugin.ZetEnableCameraModifyCfg.Value) CameraTargetPeramsHook();
         }
-
-
 
         private static void RecalculateStatsHook()
         {
@@ -44,6 +60,141 @@ namespace TPDespair.ZetAspects
             };
         }
 
+        private static void CameraTargetPeramsHook()
+        {
+            IL.RoR2.CameraTargetParams.Update += (il) =>
+            {
+                ILCursor c = new ILCursor(il);
+
+                // store camera offset
+                bool found = c.TryGotoNext(
+                    x => x.MatchStfld<CameraTargetParams>("recoil")
+                );
+
+                if (found)
+                {
+                    c.Index += 1;
+
+                    c.Emit(OpCodes.Ldarg, 0);
+                    c.EmitDelegate<Action<CameraTargetParams>>((cameraParams) =>
+                    {
+                        CharacterBody body = cameraParams.GetComponent<CharacterBody>();
+                        if (!body) return;
+                        ZetSizeData sizeData = body.GetComponent<ZetSizeData>();
+                        if (!sizeData) cameraOffset = Vector3.zero;
+                        else cameraOffset = sizeData.offset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook Store Offset Failed");
+                    Debug.LogWarning("ZetSizeController - Aborting Camera Hooks");
+                    return;
+                }
+
+                // standard
+                found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<CameraTargetParams>("cameraParams"),
+                    x => x.MatchLdfld<CharacterCameraParams>("standardLocalCameraPos")
+                );
+
+                if (found)
+                {
+                    c.Index += 3;
+
+                    c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
+                    {
+                        return cameraPos + cameraOffset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook 1 Failed");
+                }
+
+                // first person
+                found = c.TryGotoNext(
+                    x => x.MatchCall<Vector3>("get_zero")
+                );
+
+                if (found)
+                {
+                    c.Index += 1;
+
+                    c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
+                    {
+                        return cameraPos + cameraOffset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook 2 Failed");
+                }
+
+                // aura
+                found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<CameraTargetParams>("cameraParams"),
+                    x => x.MatchLdfld<CharacterCameraParams>("standardLocalCameraPos")
+                );
+
+                if (found)
+                {
+                    c.Index += 3;
+
+                    c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
+                    {
+                        return cameraPos + cameraOffset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook 3 Failed");
+                }
+
+                // sprinting
+                found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<CameraTargetParams>("cameraParams"),
+                    x => x.MatchLdfld<CharacterCameraParams>("standardLocalCameraPos")
+                );
+
+                if (found)
+                {
+                    c.Index += 3;
+
+                    c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
+                    {
+                        return cameraPos + cameraOffset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook 4 Failed");
+                }
+
+                // aim throw
+                found = c.TryGotoNext(
+                    x => x.MatchLdloc(1)
+                );
+
+                if (found)
+                {
+                    c.Index += 1;
+
+                    c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
+                    {
+                        return cameraPos + cameraOffset;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Camera Hook 5 Failed");
+                }
+            };
+        }
+
 
 
         private static void RecalculateStatsSize(CharacterBody self)
@@ -55,24 +206,41 @@ namespace TPDespair.ZetAspects
 
             if (!self.gameObject.GetComponent<ZetSizeData>())
             {
-                if (!HasModelSize(self) || !HasCamera(self)) return;
-                
+                if (!HasModelSize(self)) return;
+
                 newData = true;
 
                 sizeData = self.gameObject.AddComponent<ZetSizeData>();
                 sizeData.netId = self.netId;
                 sizeData.size = self.modelLocator.modelTransform.localScale;
-                sizeData.camera = self.gameObject.GetComponent<CameraTargetParams>().cameraParams.standardLocalCameraPos;
                 sizeData.scale = 1f;
                 sizeData.target = 1f;
-                sizeData.playerControlled = self.isPlayerControlled;
-                sizeData.cameraModified = false;
+                sizeData.offset = Vector3.zero;
 
                 if (self.isPlayerControlled) Debug.LogWarning("Created Player ZetSizeData : " + sizeData.netId);
             }
 
             sizeData = self.gameObject.GetComponent<ZetSizeData>();
 
+            float value = GetCharacterScale(self);
+
+            if (sizeData.target != value) sizeData.target = value;
+
+            if (newData) UpdateSize(self, true);
+        }
+
+        private static bool HasModelSize(CharacterBody self)
+        {
+            if (self.modelLocator)
+            {
+                if (self.modelLocator.modelTransform) return true;
+            }
+
+            return false;
+        }
+
+        private static float GetCharacterScale(CharacterBody self)
+        {
             float value = 1f, factor, count;
 
             if (self.inventory)
@@ -120,43 +288,28 @@ namespace TPDespair.ZetAspects
                 value *= factor;
             }
 
+            if (globalShrink) value *= 0.65f;
+
             float limit = ZetAspectsPlugin.ZetSizeLimitCfg.Value;
             limit = Mathf.Max(0.5f, limit);
             value = Mathf.Clamp(value, 0.5f, limit);
 
-            if (sizeData.target != value) sizeData.target = value;
-
-            if (newData)
-            {
-                if (sizeData.playerControlled) Debug.LogWarning("Camera Saved [" + sizeData.netId + "] : " + sizeData.camera);
-                UpdateSize(self, true);
-            }
+            return value;
         }
+
+
 
         private static void FixedUpdateSize(CharacterBody self)
-        {
-            if (!self) return;
-
-            UpdateSize(self);
-        }
-
-        private static void UpdateSize(CharacterBody self)
         {
             UpdateSize(self, false);
         }
 
         private static void UpdateSize(CharacterBody self, bool instant)
         {
-            if (!self.gameObject.GetComponent<ZetSizeData>()) return;
-
+            if (!self) return;
             ZetSizeData sizeData = self.gameObject.GetComponent<ZetSizeData>();
+            if (!sizeData) return;
             bool update = false;
-
-            if (!sizeData.playerControlled && self.isPlayerControlled)
-            {
-                Debug.LogWarning("Player Control - ZetSizeData : " + sizeData.netId);
-                sizeData.playerControlled = true;
-            }
 
             if (sizeData.scale != sizeData.target)
             {
@@ -166,7 +319,7 @@ namespace TPDespair.ZetAspects
                 {
                     sizeData.scale = sizeData.target;
 
-                    if (sizeData.playerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale);
+                    if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale);
                 }
                 else
                 {
@@ -181,7 +334,7 @@ namespace TPDespair.ZetAspects
                         sizeData.scale = Mathf.Max(sizeData.scale - delta, sizeData.target);
                     }
 
-                    if (sizeData.playerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale + " => " + sizeData.target);
+                    if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale + " => " + sizeData.target);
                 }
             }
 
@@ -192,53 +345,21 @@ namespace TPDespair.ZetAspects
 
                 self.modelLocator.modelTransform.localScale = new Vector3(size.x * scale, size.y * scale, size.z * scale);
 
-                if (sizeData.playerControlled)
-                {
-                    Vector3 camera = sizeData.camera;
-                    self.gameObject.GetComponent<CameraTargetParams>().cameraParams.standardLocalCameraPos = new Vector3(camera.x + 0f, camera.y + ((scale - 1f) * 2.75f), camera.z - ((scale - 1f) * 4f));
-                    if (!sizeData.cameraModified) sizeData.cameraModified = true;
-                }
+                sizeData.offset.y = (scale - 1f) * 2.75f;
+                sizeData.offset.z = (scale - 1f) * -4f;
             }
         }
+
+
 
         private static void DestroySizeData(CharacterBody self)
         {
             if (!self) return;
-
-            if (!self.gameObject.GetComponent<ZetSizeData>()) return;
-
             ZetSizeData sizeData = self.gameObject.GetComponent<ZetSizeData>();
+            if (!sizeData) return;
 
-            if (sizeData.cameraModified) self.gameObject.GetComponent<CameraTargetParams>().cameraParams.standardLocalCameraPos = sizeData.camera;
-            if (sizeData.playerControlled) Debug.LogWarning("Destroying Player ZetSizeData : " + sizeData.netId);
-            Object.Destroy(sizeData);
-        }
-
-        private static bool HasModelSize(CharacterBody self)
-        {
-            if (self.modelLocator)
-            {
-                if (self.modelLocator.modelTransform)
-                {
-                    if (self.modelLocator.modelTransform.localScale != null) return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool HasCamera(CharacterBody self)
-        {
-            if (!self.gameObject.GetComponent<CameraTargetParams>()) return false;
-
-            var camera = self.gameObject.GetComponent<CameraTargetParams>();
-
-            if (camera.cameraParams)
-            {
-                if (camera.cameraParams.standardLocalCameraPos != null) return true;
-            }
-
-            return false;
+            if (self.isPlayerControlled) Debug.LogWarning("Destroying Player ZetSizeData : " + sizeData.netId);
+            UnityEngine.Object.Destroy(sizeData);
         }
     }
 }
