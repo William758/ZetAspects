@@ -34,6 +34,8 @@ Place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v1.3.0 - Redo SizeController Camera. Use language tokens.
+
 v1.2.1 - Fixed fall damage not making sound.
 
 v1.2.0 - Load BuffAPI. Configs allow disabling more effects. Item descriptions hide disabled effects.
