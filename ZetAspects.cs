@@ -17,7 +17,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.2.1";
+        public const string ModVer = "1.3.0";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -36,6 +36,7 @@ namespace TPDespair.ZetAspects
         public static ConfigEntry<int> ZetAspectLeechSeedLgohCfg { get; set; }
 
         public static ConfigEntry<bool> ZetEnableSizeControllerCfg { get; set; }
+        public static ConfigEntry<bool> ZetEnableCameraModifyCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectBaseCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectAspectCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectAspectEquipmentCfg { get; set; }
@@ -159,6 +160,11 @@ namespace TPDespair.ZetAspects
                 "0c-SizeController",
                 "enable", false,
                 "Allow various items and effects to change character size."
+            );
+            ZetEnableCameraModifyCfg = Config.Bind<bool>(
+                "0c-SizeController",
+                "modifyCamera", true,
+                "Modify camera to scale with size."
             );
             ZetSizeEffectBaseCfg = Config.Bind<float>(
                 "0c-SizeController",
@@ -404,7 +410,7 @@ namespace TPDespair.ZetAspects
             ZetAspectGhostAllyArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
                 "allyArmor", 30f,
-                "Armor granted to nearby allies. Set to 0 to disable."
+                "Armor granted to nearby allies. Effect only applies once. Set to 0 to disable."
             );
             ZetAspectGhostBaseArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
