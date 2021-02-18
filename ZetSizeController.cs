@@ -79,7 +79,11 @@ namespace TPDespair.ZetAspects
                     c.EmitDelegate<Action<CameraTargetParams>>((cameraParams) =>
                     {
                         CharacterBody body = cameraParams.GetComponent<CharacterBody>();
-                        if (!body) return;
+                        if (!body)
+                        {
+                            cameraOffset = Vector3.zero;
+                            return;
+                        }
                         ZetSizeData sizeData = body.GetComponent<ZetSizeData>();
                         if (!sizeData) cameraOffset = Vector3.zero;
                         else cameraOffset = sizeData.offset;
@@ -256,7 +260,14 @@ namespace TPDespair.ZetAspects
                 if (self.teamComponent.teamIndex == TeamIndex.Player)
                 {
                     factor = ZetAspectsPlugin.ZetSizeEffectAspectEquipmentCfg.Value;
-                    switch (self.inventory.currentEquipmentIndex)
+                    EquipmentIndex equipIndex = self.inventory.currentEquipmentIndex;
+
+                    if (ZetAspectsPlugin.StarVoidEquipIndex != EquipmentIndex.None && equipIndex == ZetAspectsPlugin.StarVoidEquipIndex)
+                    {
+                        value += factor;
+                    }
+
+                    switch (equipIndex)
                     {
                         case EquipmentIndex.AffixWhite:
                         case EquipmentIndex.AffixBlue:
@@ -270,6 +281,9 @@ namespace TPDespair.ZetAspects
             }
 
             factor = ZetAspectsPlugin.ZetSizeEffectAspectCfg.Value;
+
+            if (ZetAspectsPlugin.HasValidBuff(self, ZetAspectsPlugin.StarVoidAffixBuffIndex)) value += factor;
+
             if (self.HasBuff(BuffIndex.AffixWhite)) value += factor;
             if (self.HasBuff(BuffIndex.AffixBlue)) value += factor;
             if (self.HasBuff(BuffIndex.AffixRed)) value += factor;
