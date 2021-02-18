@@ -34,6 +34,10 @@ Place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v1.4.1 - Fix icons not showing in scrapper.
+
+v1.4.0 - Icon borders reflect tier. Basic Starstorm Void Elite support.
+
 v1.3.0 - Redo SizeController Camera. Use language tokens.
 
 v1.2.1 - Fixed fall damage not making sound.
