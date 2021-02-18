@@ -25,6 +25,17 @@ namespace TPDespair.ZetAspects
 
 		private static void DefineItem()
 		{
+			string icon;
+
+			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixPoisonIconRed.png";
+			}
+			else
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixPoisonIconYellow.png";
+			}
+
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
@@ -41,7 +52,7 @@ namespace TPDespair.ZetAspects
 				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
 				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixPoison",
-				pickupIconPath = "Textures/ItemIcons/texAffixPoisonIcon",
+				pickupIconPath = icon,
 				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
@@ -132,7 +143,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspect : Malachite - Nullified Damage Hook Failed");
+					Debug.LogWarning("ZetAspect : Malachite - Nullified Damage Taken Hook Failed");
 				}
 			};
 		}
