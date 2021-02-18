@@ -8,22 +8,33 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using UnityEngine.Networking;
 using System;
+using System.Reflection;
 
 namespace TPDespair.ZetAspects
 {
     [BepInDependency("com.bepis.r2api")]
+    [BepInDependency("com.TeamMoonstorm.Starstorm2", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(ModGuid, ModName, ModVer)]
-    [R2APISubmoduleDependency(nameof(BuffAPI), nameof(ItemAPI), nameof(ItemDropAPI), nameof(LanguageAPI))]
+    [R2APISubmoduleDependency(nameof(BuffAPI), nameof(ItemAPI), nameof(ItemDropAPI), nameof(LanguageAPI), nameof(ResourcesAPI))]
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.3.0";
+        public const string ModVer = "1.4.1";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
+
+        public static AssetBundle MainAssets;
 
         public static BuffIndex ZetHeadHunterBuff { get; private set; }
         public static BuffIndex ZetSappedDebuff { get; private set; }
         public static BuffIndex ZetShreddedDebuff { get; private set; }
+
+        public static EquipmentIndex StarVoidEquipIndex = EquipmentIndex.None;
+        public static EliteIndex StarVoidEliteIndex = EliteIndex.None;
+        public static BuffIndex StarVoidAffixBuffIndex = BuffIndex.None;
+        public static BuffIndex StarVoidSlowBuffIndex = BuffIndex.None;
+
+        public static ItemIndex StarCritMultiItemIndex = ItemIndex.None;
 
         public static ConfigEntry<bool> ZetAspectEliteEquipmentCfg { get; set; }
         public static ConfigEntry<bool> ZetAspectEquipmentConversionCfg { get; set; }
@@ -100,11 +111,28 @@ namespace TPDespair.ZetAspects
         public static ConfigEntry<int> ZetAspectPoisonBaseLgohCfg { get; set; }
         public static ConfigEntry<int> ZetAspectPoisonStackLgohCfg { get; set; }
 
+        public static ConfigEntry<float> ZetAspectVoidBaseDamageGainCfg { get; set; }
+        public static ConfigEntry<float> ZetAspectVoidStackDamageGainCfg { get; set; }
+        public static ConfigEntry<float> ZetAspectVoidBaseDamageTakenCfg { get; set; }
+        public static ConfigEntry<float> ZetAspectVoidStackDamageTakenCfg { get; set; }
+
         public static ConfigEntry<bool> ZetHypercritEnabledCfg { get; set; }
         public static ConfigEntry<int> ZetHypercritModeCfg { get; set; }
         public static ConfigEntry<float> ZetHypercritBaseCfg { get; set; }
         public static ConfigEntry<float> ZetHypercritMultCfg { get; set; }
         public static ConfigEntry<float> ZetHypercritDecayCfg { get; set; }
+
+
+
+        private static void LoadAssets()
+        {
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ZetAspects.zetaspectbundle"))
+            {
+                MainAssets = AssetBundle.LoadFromStream(stream);
+                var provider = new AssetBundleResourcesProvider("@ZetAspects", MainAssets);
+                ResourcesAPI.AddProvider(provider);
+            }
+        }
 
 
 
@@ -276,7 +304,7 @@ namespace TPDespair.ZetAspects
             ZetAspectWhiteFreezeChanceCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
                 "freezeChance", 6.0f,
-                "Set freeze chance. Player Only. Set to 0 to disable."
+                "Set freeze chance. Hyperbolic. Player Only. Set to 0 to disable."
             );
             ZetAspectWhiteFreezeDurationCfg = Config.Bind<float>(
                 "2a-Ice Aspect",
@@ -308,8 +336,8 @@ namespace TPDespair.ZetAspects
             );
             ZetAspectBlueSappedDamageCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
-                "sappedDamage", -0.10f,
-                "Damage effect of sapped."
+                "sappedDamage", 0.10f,
+                "Base Damage reduction of sapped."
             );
             ZetAspectBlueHealthConvertedCfg = Config.Bind<float>(
                 "2b-Lightning Aspect",
@@ -404,8 +432,8 @@ namespace TPDespair.ZetAspects
             );
             ZetAspectGhostShredArmorCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
-                "shredArmor", -30f,
-                "Armor effect of shred."
+                "shredArmor", 30f,
+                "Armor reduction of shred."
             );
             ZetAspectGhostAllyArmorGainCfg = Config.Bind<float>(
                 "2d-Celestial Aspect",
@@ -428,7 +456,7 @@ namespace TPDespair.ZetAspects
             ZetAspectPoisonNullDurationCfg = Config.Bind<float>(
                 "2e-Malachite Aspect",
                 "nullDuration", 4.0f,
-                "Set nullification duration in seconds. Monsters is 8 seconds."
+                "Set nullification duration for players in seconds. Monsters is 8 seconds."
             );
             ZetAspectPoisonNullDamageTakenCfg = Config.Bind<float>(
                 "2e-Malachite Aspect",
@@ -459,6 +487,29 @@ namespace TPDespair.ZetAspects
                 "2e-Malachite Aspect",
                 "stackLifeGainOnHit", 4,
                 "Health gained on hit per stack."
+            );
+
+
+
+            ZetAspectVoidBaseDamageGainCfg = Config.Bind<float>(
+                "2f-Void Aspect",
+                "baseDamageGain", 0.2f,
+                "Base damage multiplier gained. Set to 0 to disable."
+            );
+            ZetAspectVoidStackDamageGainCfg = Config.Bind<float>(
+                "2f-Void Aspect",
+                "addedDamageGain", 0.1f,
+                "Base damage multiplier gained per stack."
+            );
+            ZetAspectVoidBaseDamageTakenCfg = Config.Bind<float>(
+                "2f-Void Aspect",
+                "baseDamageTakenReduction", 0.2f,
+                "Damage taken reduction. Hyperbolic. Set to 0 to disable."
+            );
+            ZetAspectVoidStackDamageTakenCfg = Config.Bind<float>(
+                "2f-Void Aspect",
+                "addedDamageTakenReduction", 0.1f,
+                "Damage taken reduction per stack. Hyperbolic."
             );
 
 
@@ -745,6 +796,14 @@ namespace TPDespair.ZetAspects
 
                 if (self.inventory)
                 {
+                    if (StarVoidAffixBuffIndex != BuffIndex.None && !self.HasBuff(StarVoidAffixBuffIndex))
+                    {
+                        if (self.inventory.GetItemCount(ZetAspectVoid.itemIndex) > 0)
+                        {
+                            self.AddTimedBuff(StarVoidAffixBuffIndex, 5f);
+                        }
+                    }
+
                     if (!self.HasBuff(BuffIndex.AffixWhite))
                     {
                         if (self.inventory.GetItemCount(ZetAspectIce.itemIndex) > 0)
@@ -844,7 +903,13 @@ namespace TPDespair.ZetAspects
         {
             On.RoR2.PickupDropletController.CreatePickupDroplet += (orig, pickupIndex, position, velocity) =>
             {
-                if (!ZetAspectEliteEquipmentCfg.Value) {
+                if (!ZetAspectEliteEquipmentCfg.Value)
+                {
+                    if (StarVoidEquipIndex != EquipmentIndex.None && pickupIndex == PickupCatalog.FindPickupIndex(StarVoidEquipIndex))
+                    {
+                        pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectVoid.itemIndex);
+                    }
+
                     if (pickupIndex == PickupCatalog.FindPickupIndex(EquipmentIndex.AffixWhite))
                     {
                         pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectIce.itemIndex);
@@ -939,6 +1004,16 @@ namespace TPDespair.ZetAspects
                         if (pickupDef.equipmentIndex != EquipmentIndex.None)
                         {
                             EquipmentIndex equip = body.inventory.currentEquipmentIndex;
+
+                            if (StarVoidEquipIndex != EquipmentIndex.None && pickupDef.equipmentIndex == StarVoidEquipIndex)
+                            {
+                                if (equip == StarVoidEquipIndex)
+                                {
+                                    gpc.pickupIndex = PickupCatalog.FindPickupIndex(ZetAspectVoid.itemIndex);
+                                    return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+                                }
+                            }
+
                             switch (pickupDef.equipmentIndex)
                             {
                                 case EquipmentIndex.AffixWhite:
@@ -988,7 +1063,17 @@ namespace TPDespair.ZetAspects
                     Debug.LogWarning("ZetAspect - Equipment Conversion Hook Failed");
                 }
             };
-        }            
+        }
+
+        private static void OnRunStartHook()
+        {
+            On.RoR2.Run.Start += (orig, self) =>
+            {
+                orig(self);
+
+                if (StarCompat.enabled) StarCompat.GetIndexes();
+            };
+        }
 
         private static void ChangeText()
         {
@@ -1000,6 +1085,8 @@ namespace TPDespair.ZetAspects
 
         public void Awake()
         {
+            LoadAssets();
+
             ConfigSetup();
 
             DefineHeadHunterBuff();
@@ -1018,6 +1105,8 @@ namespace TPDespair.ZetAspects
             ZetAspectCelestial.Init();
             ZetAspectMalachite.Init();
 
+            ZetAspectVoid.Init();
+
             if (ZetEnableSizeControllerCfg.Value) ZetSizeController.Init();
 
             HeadHunterOnCharacterDeathHook();
@@ -1027,6 +1116,8 @@ namespace TPDespair.ZetAspects
             OnHitEnemyDebuffHook();
             EquipmentConversionHook();
 
+            OnRunStartHook();
+
             ChangeText();
         }
         /*
@@ -1034,7 +1125,8 @@ namespace TPDespair.ZetAspects
         {
             DebugDrops();
         }
-
+        
+        
         private void DebugDrops()
         {
             bool debugDrops = false;
@@ -1044,26 +1136,60 @@ namespace TPDespair.ZetAspects
                 if (Input.GetKeyDown(KeyCode.F2))
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectIce.itemIndex), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectLightning.itemIndex), transform.position, transform.forward * 40f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectFire.itemIndex), transform.position, transform.right * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectCelestial.itemIndex), transform.position, transform.forward * -20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectMalachite.itemIndex), transform.position, transform.forward * -40f);
+
+                    if (!ZetAspectEliteEquipmentCfg.Value)
+                    {
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectIce.itemIndex), transform.position, transform.forward * 30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectLightning.itemIndex), transform.position, transform.forward * 60f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectFire.itemIndex), transform.position, transform.right * 30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectCelestial.itemIndex), transform.position, transform.forward * -30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectMalachite.itemIndex), transform.position, transform.forward * -60f);
+                        if (StarCompat.enabled && StarCompat.EliteCoreEnabled())
+                        {
+                            PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ZetAspectVoid.itemIndex), transform.position, transform.right * -30f);
+                        }
+                    }
+                    else
+                    {
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(EquipmentIndex.AffixWhite), transform.position, transform.forward * 30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(EquipmentIndex.AffixBlue), transform.position, transform.forward * 60f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(EquipmentIndex.AffixRed), transform.position, transform.right * 30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(EquipmentIndex.AffixHaunted), transform.position, transform.forward * -30f);
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(EquipmentIndex.AffixPoison), transform.position, transform.forward * -60f);
+                        if (StarCompat.enabled && StarCompat.EliteCoreEnabled())
+                        {
+                            PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(StarVoidEquipIndex), transform.position, transform.right * -30f);
+                        }
+                    }
                 }
 
                 if (Input.GetKeyDown(KeyCode.F3))
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.ShieldOnly), transform.position, transform.forward * 20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.RepeatHeal), transform.position, transform.forward * -20f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.HeadHunter), transform.position, transform.right * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.CritGlasses), transform.position, transform.forward * 30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.CritGlasses), transform.position, transform.forward * 30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.CritGlasses), transform.position, transform.forward * 30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.CritGlasses), transform.position, transform.forward * 30f);
+                    if (StarCritMultiItemIndex != ItemIndex.None)
+                    {
+                        PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(StarCritMultiItemIndex), transform.position, transform.forward * -30f);
+                    }
                 }
 
                 if (Input.GetKeyDown(KeyCode.F4))
                 {
                     var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.ShieldOnly), transform.position, transform.forward * 30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.RepeatHeal), transform.position, transform.forward * -30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.HeadHunter), transform.position, transform.right * 30f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.LunarDagger), transform.position, transform.right * -30f);
+                }
+
+                if (Input.GetKeyDown(KeyCode.F5))
+                {
+                    var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
                     PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.Knurl), transform.position, transform.forward * 1f);
-                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.Pearl), transform.position, transform.forward * 20f);
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(ItemIndex.Pearl), transform.position, transform.forward * 30f);
                 }
             }
         }
@@ -1098,7 +1224,17 @@ namespace TPDespair.ZetAspects
 
         public static bool HasAspectEquipment(CharacterBody self, ItemIndex aspectIndex)
         {
-            switch (self.inventory.currentEquipmentIndex)
+            EquipmentIndex equipIndex = self.inventory.currentEquipmentIndex;
+
+            if (equipIndex == EquipmentIndex.None) return false;
+
+            if (equipIndex == StarVoidEquipIndex)
+            {
+                if (aspectIndex == ZetAspectVoid.itemIndex) return true;
+                else return false;
+            }
+
+            switch (equipIndex)
             {
                 case EquipmentIndex.AffixWhite:
                     if (aspectIndex == ZetAspectIce.itemIndex) return true;
@@ -1124,6 +1260,11 @@ namespace TPDespair.ZetAspects
         {
             string s = seconds == 1.0f ? "" : "s";
             return seconds + " second" + s;
+        }
+
+        public static bool HasValidBuff(CharacterBody self, BuffIndex buff)
+        {
+            return buff != BuffIndex.None && self.HasBuff(buff);
         }
     }
 }
