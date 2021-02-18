@@ -25,6 +25,17 @@ namespace TPDespair.ZetAspects
 
 		private static void DefineItem()
 		{
+			string icon;
+
+			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixRedIconRed.png";
+			}
+			else
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixRedIconYellow.png";
+			}
+
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
@@ -41,7 +52,7 @@ namespace TPDespair.ZetAspects
 				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
 				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixRed",
-				pickupIconPath = "Textures/ItemIcons/texAffixRedIcon",
+				pickupIconPath = icon,
 				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
@@ -301,7 +312,14 @@ namespace TPDespair.ZetAspects
 							{
 								aspectPercentBaseDamage = damageInfo.damage / self.damage;
 								aspectPercentBaseDamage *= aspectDamageMult;
-								if (damageInfo.crit) aspectPercentBaseDamage *= GetCritMult(self);
+								if (damageInfo.crit)
+								{
+									aspectPercentBaseDamage *= GetCritMult(self);
+									if (self.inventory && ZetAspectsPlugin.StarCritMultiItemIndex != ItemIndex.None)
+									{
+										aspectPercentBaseDamage *= 1f + (0.5f * self.inventory.GetItemCount(ZetAspectsPlugin.StarCritMultiItemIndex));
+									}
+								}
 							}
 
 							if (self.teamComponent.teamIndex != TeamIndex.Player)
