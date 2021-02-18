@@ -23,6 +23,17 @@ namespace TPDespair.ZetAspects
 
 		private static void DefineItem()
 		{
+			string icon;
+
+			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixHauntedIconRed.png";
+			}
+			else
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixHauntedIconYellow.png";
+			}
+
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
@@ -39,7 +50,7 @@ namespace TPDespair.ZetAspects
 				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
 				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixHaunted",
-				pickupIconPath = "Textures/ItemIcons/texAffixHauntedIcon",
+				pickupIconPath = icon,
 				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
