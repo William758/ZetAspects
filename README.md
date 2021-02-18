@@ -16,7 +16,7 @@ Change any property with config file.
 
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/5ADDy5n.png)
+![effects](https://i.imgur.com/Fr0m1OT.png)
 
 ## Hypercrit:
 
