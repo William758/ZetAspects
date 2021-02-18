@@ -27,6 +27,17 @@ namespace TPDespair.ZetAspects
 
 		private static void DefineItem()
 		{
+			string icon;
+
+			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixBlueIconRed.png";
+			}
+			else
+			{
+				icon = "@ZetAspects:Assets/Import/icons/texAffixBlueIconYellow.png";
+			}
+
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
 
 			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
@@ -43,7 +54,7 @@ namespace TPDespair.ZetAspects
 				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
 				loreToken = "ITEM_" + nameToken + "_LORE",
 				pickupModelPath = "Prefabs/PickupModels/PickupAffixBlue",
-				pickupIconPath = "Textures/ItemIcons/texAffixBlueIcon",
+				pickupIconPath = icon,
 				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
 				tags = tags
 			};
@@ -182,7 +193,7 @@ namespace TPDespair.ZetAspects
 						{
 							float addedDamage = -Mathf.Abs(ZetAspectsPlugin.ZetAspectBlueSappedDamageCfg.Value);
 							//if (self.teamComponent.teamIndex == TeamIndex.Player) addedDamage *= 0.5f;
-							addedDamage = Mathf.Max(-0.99f, addedDamage);
+							addedDamage = Mathf.Max(-0.9f, addedDamage);
 							return damage * (1f + addedDamage);
 						}
 						else
