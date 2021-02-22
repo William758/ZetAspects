@@ -266,6 +266,10 @@ namespace TPDespair.ZetAspects
                     {
                         value += factor;
                     }
+                    if (ZetAspectsPlugin.StarEtherEquipIndex != EquipmentIndex.None && equipIndex == ZetAspectsPlugin.StarEtherEquipIndex)
+                    {
+                        value += factor;
+                    }
 
                     switch (equipIndex)
                     {
@@ -283,6 +287,7 @@ namespace TPDespair.ZetAspects
             factor = ZetAspectsPlugin.ZetSizeEffectAspectCfg.Value;
 
             if (ZetAspectsPlugin.HasValidBuff(self, ZetAspectsPlugin.StarVoidAffixBuffIndex)) value += factor;
+            if (ZetAspectsPlugin.HasValidBuff(self, ZetAspectsPlugin.StarEtherAffixBuffIndex)) value += factor;
 
             if (self.HasBuff(BuffIndex.AffixWhite)) value += factor;
             if (self.HasBuff(BuffIndex.AffixBlue)) value += factor;
