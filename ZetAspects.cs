@@ -19,7 +19,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.4.1";
+        public const string ModVer = "1.4.2";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -29,10 +29,21 @@ namespace TPDespair.ZetAspects
         public static BuffIndex ZetSappedDebuff { get; private set; }
         public static BuffIndex ZetShreddedDebuff { get; private set; }
 
+
+
         public static EquipmentIndex StarVoidEquipIndex = EquipmentIndex.None;
         public static EliteIndex StarVoidEliteIndex = EliteIndex.None;
         public static BuffIndex StarVoidAffixBuffIndex = BuffIndex.None;
+
         public static BuffIndex StarVoidSlowBuffIndex = BuffIndex.None;
+
+
+
+        public static EquipmentIndex StarEtherEquipIndex = EquipmentIndex.None;
+        public static EliteIndex StarEtherEliteIndex = EliteIndex.None;
+        public static BuffIndex StarEtherAffixBuffIndex = BuffIndex.None;
+
+
 
         public static ItemIndex StarCritMultiItemIndex = ItemIndex.None;
 
@@ -1129,7 +1140,7 @@ namespace TPDespair.ZetAspects
         
         private void DebugDrops()
         {
-            bool debugDrops = false;
+            bool debugDrops = true;
 
             if (debugDrops)
             {
@@ -1159,6 +1170,7 @@ namespace TPDespair.ZetAspects
                         if (StarCompat.enabled && StarCompat.EliteCoreEnabled())
                         {
                             PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(StarVoidEquipIndex), transform.position, transform.right * -30f);
+                            PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(StarEtherEquipIndex), transform.position, transform.right * -30f);
                         }
                     }
                 }
