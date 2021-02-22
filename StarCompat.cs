@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using UnityEngine;
 using System.Security;
 using System.Security.Permissions;
@@ -43,18 +43,46 @@ namespace TPDespair.ZetAspects
                     if (ZetAspectsPlugin.StarVoidEquipIndex != EquipmentIndex.None)
                     {
                         ZetAspectsPlugin.StarVoidEliteIndex = EliteCatalog.GetEquipmentEliteIndex(ZetAspectsPlugin.StarVoidEquipIndex);
-                        EquipmentDef eDef = EquipmentCatalog.GetEquipmentDef(ZetAspectsPlugin.StarVoidEquipIndex);
-                        ZetAspectsPlugin.StarVoidAffixBuffIndex = eDef.passiveBuff;
-                        ZetAspectsPlugin.StarVoidSlowBuffIndex = ZetAspectsPlugin.StarVoidAffixBuffIndex + 1;
+                        ZetAspectsPlugin.StarVoidAffixBuffIndex = EquipmentCatalog.GetEquipmentDef(ZetAspectsPlugin.StarVoidEquipIndex).passiveBuff;
 
                         Debug.LogWarning("ZetAspect : StarCompat - AffixVoid EquipmentIndex : " + ZetAspectsPlugin.StarVoidEquipIndex);
                         Debug.LogWarning("ZetAspect : StarCompat - AffixVoid EliteIndex : " + ZetAspectsPlugin.StarVoidEliteIndex);
-                        Debug.LogWarning("ZetAspect : StarCompat - AffixVoid Affix BuffIndex : " + ZetAspectsPlugin.StarVoidAffixBuffIndex);
-                        Debug.LogWarning("ZetAspect : StarCompat - AffixVoid Slow BuffIndex : " + ZetAspectsPlugin.StarVoidSlowBuffIndex);
+                        Debug.LogWarning("ZetAspect : StarCompat - AffixVoid BuffIndex : " + ZetAspectsPlugin.StarVoidAffixBuffIndex);
                     }
                     else
                     {
-                        Debug.LogWarning("ZetAspect : StarCompat -  Failed to find AffixVoid EquipmentIndex");
+                        Debug.LogWarning("ZetAspect : StarCompat - Failed to find AffixVoid EquipmentIndex");
+                    }
+                }
+
+                if (ZetAspectsPlugin.StarVoidSlowBuffIndex == BuffIndex.None)
+                {
+                    ZetAspectsPlugin.StarVoidSlowBuffIndex = BuffCatalog.FindBuffIndex("VoidSlow");
+                    if (ZetAspectsPlugin.StarVoidSlowBuffIndex != BuffIndex.None)
+                    {
+                        Debug.LogWarning("ZetAspect : StarCompat - VoidSlow BuffIndex : " + ZetAspectsPlugin.StarVoidSlowBuffIndex);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ZetAspect : StarCompat - Failed to find VoidSlow BuffIndex");
+                    }
+                }
+
+                if (ZetAspectsPlugin.StarEtherEquipIndex == EquipmentIndex.None)
+                {
+                    ZetAspectsPlugin.StarEtherEquipIndex = EquipmentCatalog.FindEquipmentIndex("AffixEthereal");
+                    if (ZetAspectsPlugin.StarEtherEquipIndex != EquipmentIndex.None)
+                    {
+                        ZetAspectsPlugin.StarEtherEliteIndex = EliteCatalog.GetEquipmentEliteIndex(ZetAspectsPlugin.StarEtherEquipIndex);
+                        ZetAspectsPlugin.StarEtherAffixBuffIndex = EquipmentCatalog.GetEquipmentDef(ZetAspectsPlugin.StarEtherEquipIndex).passiveBuff;
+
+                        Debug.LogWarning("ZetAspect : StarCompat - AffixEthereal EquipmentIndex : " + ZetAspectsPlugin.StarEtherEquipIndex);
+                        Debug.LogWarning("ZetAspect : StarCompat - AffixEthereal EliteIndex : " + ZetAspectsPlugin.StarEtherEliteIndex);
+                        Debug.LogWarning("ZetAspect : StarCompat - AffixEthereal BuffIndex : " + ZetAspectsPlugin.StarEtherAffixBuffIndex);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ZetAspect : StarCompat - Failed to find AffixEthereal EquipmentIndex");
                     }
                 }
             }
@@ -69,7 +97,7 @@ namespace TPDespair.ZetAspects
                     }
                     else
                     {
-                        Debug.LogWarning("ZetAspect : StarCompat -  Failed to find ErraticGadget ItemIndex");
+                        Debug.LogWarning("ZetAspect : StarCompat - Failed to find ErraticGadget ItemIndex");
                     }
                 }
             }
@@ -78,7 +106,8 @@ namespace TPDespair.ZetAspects
         public static void UpdateAffixVoidAuraItemBehavior(CharacterBody self)
         {
             if (ZetAspectsPlugin.StarVoidAffixBuffIndex == BuffIndex.None) return;
-            self.AddItemBehavior<Starstorm2.Cores.EliteCore.AffixVoidBehavior>(self.HasBuff(ZetAspectsPlugin.StarVoidAffixBuffIndex) ? 1 : 0);
+
+            self.AddItemBehavior<Starstorm2.Cores.Elites.VoidElite.AffixVoidBehavior>(self.HasBuff(ZetAspectsPlugin.StarVoidAffixBuffIndex) ? 1 : 0);
         }
     }
 }
