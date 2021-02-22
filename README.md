@@ -34,6 +34,8 @@ Place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v1.4.2 - Fix compatibility with latest starstorm.
+
 v1.4.1 - Fix icons not showing in scrapper.
 
 v1.4.0 - Icon borders reflect tier. Basic Starstorm Void Elite support.
