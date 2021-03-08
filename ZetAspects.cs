@@ -8,7 +8,14 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using UnityEngine.Networking;
 using System;
+using System.Security;
+using System.Security.Permissions;
 using System.Reflection;
+
+[module: UnverifiableCode]
+#pragma warning disable CS0618 // Type or member is obsolete
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore CS0618 // Type or member is obsolete
 
 namespace TPDespair.ZetAspects
 {
@@ -19,7 +26,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "1.4.2";
+        public const string ModVer = "1.5.1";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -52,6 +59,8 @@ namespace TPDespair.ZetAspects
         public static ConfigEntry<float> ZetAspectEquipmentEffectCfg { get; set; }
         public static ConfigEntry<bool> ZetAspectRedTierCfg { get; set; }
         public static ConfigEntry<float> ZetAspectDropChanceCfg { get; set; }
+        public static ConfigEntry<bool> ZetAspectSkinApplyCfg { get; set; }
+        public static ConfigEntry<bool> ZetAspectSkinEquipmentCfg { get; set; }
         public static ConfigEntry<bool> ZetAspectShowDropTextCfg { get; set; }
         public static ConfigEntry<string> ZetAspectDropTextCfg { get; set; }
 
@@ -59,13 +68,16 @@ namespace TPDespair.ZetAspects
 
         public static ConfigEntry<bool> ZetEnableSizeControllerCfg { get; set; }
         public static ConfigEntry<bool> ZetEnableCameraModifyCfg { get; set; }
+        public static ConfigEntry<bool> ZetEnableInteractionModifyCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectBaseCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectAspectCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectAspectEquipmentCfg { get; set; }
         public static ConfigEntry<float> ZetSizeEffectHunterCfg { get; set; }
-        public static ConfigEntry<float> ZetSizeEffectTonicCfg { get; set; }
+        public static ConfigEntry<float> ZetSizeMultTonicCfg { get; set; }
+        public static ConfigEntry<float> ZetSizeMultChampionBossCfg { get; set; }
         public static ConfigEntry<float> ZetSizeChangeRateCfg { get; set; }
         public static ConfigEntry<float> ZetSizeLimitCfg { get; set; }
+        public static ConfigEntry<float> ZetSizeLimitMonsterCfg { get; set; }
 
         public static ConfigEntry<int> ZetHeadHunterCountExtraCfg { get; set; }
         public static ConfigEntry<float> ZetHeadHunterExtraEffectCfg { get; set; }
@@ -174,6 +186,16 @@ namespace TPDespair.ZetAspects
                 "dropChance", 0.1f,
                 "Percent chance that an elite drops its aspect."
             );
+            ZetAspectSkinApplyCfg = Config.Bind<bool>(
+                "0a-General",
+                "applyEliteSkin", true,
+                "Whether to apply elite skin from items."
+            );
+            ZetAspectSkinEquipmentCfg = Config.Bind<bool>(
+                "0a-General",
+                "equipmentEliteSkin", true,
+                "Whether elite equipment skin takes priority."
+            );
             ZetAspectShowDropTextCfg = Config.Bind<bool>(
                 "0a-General",
                 "showDropText", true,
@@ -205,6 +227,11 @@ namespace TPDespair.ZetAspects
                 "modifyCamera", true,
                 "Modify camera to scale with size."
             );
+            ZetEnableInteractionModifyCfg = Config.Bind<bool>(
+                "0c-SizeController",
+                "modifyInteraction", true,
+                "Modify interaction range to scale with size."
+            );
             ZetSizeEffectBaseCfg = Config.Bind<float>(
                 "0c-SizeController",
                 "sizeEffectBase", 0.1f,
@@ -225,10 +252,15 @@ namespace TPDespair.ZetAspects
                 "sizeEffectHunter", 0.05f,
                 "Increase size per headhunter buff stack."
             );
-            ZetSizeEffectTonicCfg = Config.Bind<float>(
+            ZetSizeMultTonicCfg = Config.Bind<float>(
                 "0c-SizeController",
-                "sizeEffectTonic", 1.5f,
-                "Tonic multiplies final size value."
+                "sizeMultTonic", 1.5f,
+                "Tonic size multiplier."
+            );
+            ZetSizeMultChampionBossCfg = Config.Bind<float>(
+                "0c-SizeController",
+                "sizeMultChampionBoss", 1.0f,
+                "Champion Boss size multiplier."
             );
             ZetSizeChangeRateCfg = Config.Bind<float>(
                 "0c-SizeController",
@@ -238,7 +270,12 @@ namespace TPDespair.ZetAspects
             ZetSizeLimitCfg = Config.Bind<float>(
                 "0c-SizeController",
                 "sizeLimit", 4f,
-                "Maxiumum size."
+                "Maxiumum size of players."
+            );
+            ZetSizeLimitMonsterCfg = Config.Bind<float>(
+                "0c-SizeController",
+                "sizeLimitMonster", 4f,
+                "Maxiumum size of monsters."
             );
 
 
@@ -871,7 +908,10 @@ namespace TPDespair.ZetAspects
                     c.Index += 2;
 
                     c.Emit(OpCodes.Pop);
-                    c.Emit(OpCodes.Ldc_R4, ZetAspectDropChanceCfg.Value);
+                    c.EmitDelegate<Func<float>>(() =>
+                    {
+                        return ZetAspectDropChanceCfg.Value;
+                    });
 
                     found = c.TryGotoNext(
                         x => x.MatchLdloc(2),
@@ -1080,9 +1120,208 @@ namespace TPDespair.ZetAspects
         {
             On.RoR2.Run.Start += (orig, self) =>
             {
-                orig(self);
-
                 if (StarCompat.enabled) StarCompat.GetIndexes();
+                orig(self);
+            };
+        }
+
+        private static void CharacterOverlayHook()
+        {
+            IL.RoR2.CharacterModel.UpdateOverlays += (il) =>
+            {
+                ILCursor c = new ILCursor(il);
+
+                bool found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<CharacterModel>("inventoryEquipmentIndex"),
+                    x => x.MatchCall("RoR2.EliteCatalog", "GetEquipmentEliteIndex"),
+                    x => x.MatchStfld<CharacterModel>("myEliteIndex")
+                );
+
+                if (found)
+                {
+                    c.Index += 4;
+
+                    c.Emit(OpCodes.Ldarg, 0);
+                    c.EmitDelegate<Func<EliteIndex, CharacterModel, EliteIndex>>((index, model) =>
+                    {
+                        CharacterBody body = model.body;
+
+                        if (StarVoidEliteIndex != EliteIndex.None && index == StarVoidEliteIndex)
+                        {
+                            if (body && body.teamComponent.teamIndex != TeamIndex.Player) return index;
+                            else index = EliteIndex.None;
+                        }
+
+                        if (index != EliteIndex.None && ZetAspectSkinEquipmentCfg.Value) return index;
+                        if (!ZetAspectSkinApplyCfg.Value) return index;
+
+                        if (body && body.isElite && body.inventory)
+                        {
+                            Inventory inventory = body.inventory;
+                            EquipmentIndex currentEquipment = inventory.currentEquipmentIndex;
+
+                            // effect gets stuck on character model ???
+                            //if (StarVoidEliteIndex != EliteIndex.None && inventory.GetItemCount(ZetAspectVoid.itemIndex) > 0) return StarVoidEliteIndex;
+
+                            if (inventory.GetItemCount(ZetAspectMalachite.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixPoison) return EliteIndex.Poison;
+                            if (inventory.GetItemCount(ZetAspectCelestial.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixHaunted) return EliteIndex.Haunted;
+                            if (inventory.GetItemCount(ZetAspectFire.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixRed) return EliteIndex.Fire;
+                            if (inventory.GetItemCount(ZetAspectLightning.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixBlue) return EliteIndex.Lightning;
+                            if (inventory.GetItemCount(ZetAspectIce.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixWhite) return EliteIndex.Ice;
+                        }
+
+                        return index;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetAspect - Character Overlay Hook Failed");
+                }
+            };
+        }
+
+        private static void EquipmentDisplayHook()
+        {
+            On.RoR2.CharacterModel.SetEquipmentDisplay += (orig, self, index) =>
+            {
+                index = PreventDefaultAspectEquipment(index);
+                orig(self, index);
+            };
+        }
+
+        private static EquipmentIndex PreventDefaultAspectEquipment(EquipmentIndex index)
+        {
+            if (StarVoidEquipIndex != EquipmentIndex.None && index == StarVoidEquipIndex) return EquipmentIndex.None;
+
+            if (index == EquipmentIndex.AffixPoison) return EquipmentIndex.None;
+            if (index == EquipmentIndex.AffixHaunted) return EquipmentIndex.None;
+            if (index == EquipmentIndex.AffixRed) return EquipmentIndex.None;
+            if (index == EquipmentIndex.AffixBlue) return EquipmentIndex.None;
+            if (index == EquipmentIndex.AffixWhite) return EquipmentIndex.None;
+
+            return index;
+        }
+
+        private static void UpdateItemDisplayHook()
+        {
+            On.RoR2.CharacterModel.UpdateItemDisplay += (orig, self, inventory) =>
+            {
+                orig(self, inventory);
+                ApplyAspectDisplays(self, inventory);
+            };
+        }
+
+        private static void ApplyAspectDisplays(CharacterModel model, Inventory inventory)
+        {
+            if (!model.itemDisplayRuleSet)
+            {
+                //Debug.LogWarning(model + " : " + model.body.netId +" Does not have a itemDisplayRuleSet!");
+                return;
+            }
+
+            EquipmentIndex equipment = GetEquipmentToDisplay(inventory);
+
+            HandleAspectDisplay(model, equipment, EquipmentIndex.AffixPoison, ZetAspectMalachite.itemIndex);
+            HandleAspectDisplay(model, equipment, EquipmentIndex.AffixHaunted, ZetAspectCelestial.itemIndex);
+            HandleAspectDisplay(model, equipment, EquipmentIndex.AffixRed, ZetAspectFire.itemIndex);
+            HandleAspectDisplay(model, equipment, EquipmentIndex.AffixBlue, ZetAspectLightning.itemIndex);
+            HandleAspectDisplay(model, equipment, EquipmentIndex.AffixWhite, ZetAspectIce.itemIndex);
+        }
+
+        private static EquipmentIndex GetEquipmentToDisplay(Inventory inventory)
+        {
+            EquipmentIndex currentEquipment = inventory.currentEquipmentIndex;
+
+            if (ZetAspectSkinEquipmentCfg.Value)
+            {
+                if (currentEquipment == EquipmentIndex.AffixPoison) return EquipmentIndex.AffixPoison;
+                if (currentEquipment == EquipmentIndex.AffixHaunted) return EquipmentIndex.AffixHaunted;
+                if (currentEquipment == EquipmentIndex.AffixRed) return EquipmentIndex.AffixRed;
+                if (currentEquipment == EquipmentIndex.AffixBlue) return EquipmentIndex.AffixBlue;
+                if (currentEquipment == EquipmentIndex.AffixWhite) return EquipmentIndex.AffixWhite;
+            }
+
+            if (ZetAspectSkinApplyCfg.Value)
+            {
+                if (inventory.GetItemCount(ZetAspectMalachite.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixPoison) return EquipmentIndex.AffixPoison;
+                if (inventory.GetItemCount(ZetAspectCelestial.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixHaunted) return EquipmentIndex.AffixHaunted;
+                if (inventory.GetItemCount(ZetAspectFire.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixRed) return EquipmentIndex.AffixRed;
+                if (inventory.GetItemCount(ZetAspectLightning.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixBlue) return EquipmentIndex.AffixBlue;
+                if (inventory.GetItemCount(ZetAspectIce.itemIndex) > 0 || currentEquipment == EquipmentIndex.AffixWhite) return EquipmentIndex.AffixWhite;
+            }
+
+            return EquipmentIndex.None;
+        }
+
+        private static void HandleAspectDisplay(CharacterModel model, EquipmentIndex display, EquipmentIndex target, ItemIndex index)
+        {
+            ItemMask list = model.enabledItemDisplays;
+            if (display == target)
+            {
+                if (!list.Contains(index))
+                {
+                    list.Add(index);
+                    DisplayRuleGroup drg = model.itemDisplayRuleSet.GetEquipmentDisplayRuleGroup(target);
+                    model.InstantiateDisplayRuleGroup(drg, index, EquipmentIndex.None);
+                }
+            }
+            else
+            {
+                if (list.Contains(index))
+                {
+                    list.Remove(index);
+                    RemoveAspectDisplay(model, index);
+                }
+            }
+        }
+
+        private static void RemoveAspectDisplay(CharacterModel model, ItemIndex index)
+        {
+            for (int i = model.parentedPrefabDisplays.Count - 1; i >= 0; i--)
+            {
+                if (model.parentedPrefabDisplays[i].itemIndex == index)
+                {
+                    model.parentedPrefabDisplays[i].Undo();
+                    model.parentedPrefabDisplays.RemoveAt(i);
+                }
+            }
+            for (int j = model.limbMaskDisplays.Count - 1; j >= 0; j--)
+            {
+                if (model.limbMaskDisplays[j].itemIndex == index)
+                {
+                    model.limbMaskDisplays[j].Undo(model);
+                    model.limbMaskDisplays.RemoveAt(j);
+                }
+            }
+        }
+
+        private static void EnableItemDisplayHook()
+        {
+            On.RoR2.CharacterModel.EnableItemDisplay += (orig, self, index) =>
+            {
+                if (index == ZetAspectMalachite.itemIndex) return;
+                if (index == ZetAspectCelestial.itemIndex) return;
+                if (index == ZetAspectFire.itemIndex) return;
+                if (index == ZetAspectLightning.itemIndex) return;
+                if (index == ZetAspectIce.itemIndex) return;
+
+                orig(self, index);
+            };
+        }
+
+        private static void DisableItemDisplayHook()
+        {
+            On.RoR2.CharacterModel.DisableItemDisplay += (orig, self, index) =>
+            {
+                if (index == ZetAspectMalachite.itemIndex) return;
+                if (index == ZetAspectCelestial.itemIndex) return;
+                if (index == ZetAspectFire.itemIndex) return;
+                if (index == ZetAspectLightning.itemIndex) return;
+                if (index == ZetAspectIce.itemIndex) return;
+
+                orig(self, index);
             };
         }
 
@@ -1126,6 +1365,12 @@ namespace TPDespair.ZetAspects
             InterceptAspectDropHook();
             OnHitEnemyDebuffHook();
             EquipmentConversionHook();
+
+            CharacterOverlayHook();
+            EquipmentDisplayHook();
+            UpdateItemDisplayHook();
+            EnableItemDisplayHook();
+            DisableItemDisplayHook();
 
             OnRunStartHook();
 
