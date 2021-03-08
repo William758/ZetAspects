@@ -2,6 +2,7 @@ using RoR2;
 using UnityEngine;
 using System.Security;
 using System.Security.Permissions;
+using System;
 
 [module: UnverifiableCode]
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -67,7 +68,7 @@ namespace TPDespair.ZetAspects
                         Debug.LogWarning("ZetAspect : StarCompat - Failed to find VoidSlow BuffIndex");
                     }
                 }
-
+                /*
                 if (ZetAspectsPlugin.StarEtherEquipIndex == EquipmentIndex.None)
                 {
                     ZetAspectsPlugin.StarEtherEquipIndex = EquipmentCatalog.FindEquipmentIndex("AffixEthereal");
@@ -85,6 +86,7 @@ namespace TPDespair.ZetAspects
                         Debug.LogWarning("ZetAspect : StarCompat - Failed to find AffixEthereal EquipmentIndex");
                     }
                 }
+                */
             }
             if (Starstorm2.Starstorm.EnableItems.Value)
             {
@@ -103,11 +105,31 @@ namespace TPDespair.ZetAspects
             }
         }
 
+        private static int VoidBehavior = -1;
+
         public static void UpdateAffixVoidAuraItemBehavior(CharacterBody self)
         {
             if (ZetAspectsPlugin.StarVoidAffixBuffIndex == BuffIndex.None) return;
 
-            self.AddItemBehavior<Starstorm2.Cores.Elites.VoidElite.AffixVoidBehavior>(self.HasBuff(ZetAspectsPlugin.StarVoidAffixBuffIndex) ? 1 : 0);
+            if (VoidBehavior == -1)
+            {
+                try
+                {
+                    self.AddItemBehavior<Starstorm2.Cores.Elites.VoidElite.AffixVoidBehavior>(self.HasBuff(ZetAspectsPlugin.StarVoidAffixBuffIndex) ? 1 : 0);
+                    Debug.LogWarning("ZetAspect : StarCompat - VoidBehavior Validated");
+                    VoidBehavior = 1;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning("ZetAspect : StarCompat - VoidBehavior Exception");
+                    VoidBehavior = 0;
+                    Debug.LogError(e);
+                }
+            }
+            else if (VoidBehavior == 1)
+            {
+                self.AddItemBehavior<Starstorm2.Cores.Elites.VoidElite.AffixVoidBehavior>(self.HasBuff(ZetAspectsPlugin.StarVoidAffixBuffIndex) ? 1 : 0);
+            }
         }
     }
 }
