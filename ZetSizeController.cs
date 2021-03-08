@@ -1,5 +1,6 @@
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using R2API.Utils;
 using RoR2;
 using System;
 using UnityEngine;
@@ -18,9 +19,11 @@ namespace TPDespair.ZetAspects
 
     public static class ZetSizeController
     {
-        private static Vector3 cameraOffset = Vector3.zero;
+        private static Vector3 CameraOffsetRegister = Vector3.zero;
 
         public static bool globalShrink = false;
+        public static bool monsterShrink = false;
+        public static bool playerShrink = false;
 
         internal static void Init()
         {
@@ -28,6 +31,11 @@ namespace TPDespair.ZetAspects
             FixedUpdateHook();
             OnDestroyHook();
             if (ZetAspectsPlugin.ZetEnableCameraModifyCfg.Value) CameraTargetPeramsHook();
+            if (ZetAspectsPlugin.ZetEnableInteractionModifyCfg.Value)
+            {
+                InteractionDriverHook();
+                PickupPickerHook();
+            }
         }
 
         private static void RecalculateStatsHook()
@@ -81,12 +89,12 @@ namespace TPDespair.ZetAspects
                         CharacterBody body = cameraParams.GetComponent<CharacterBody>();
                         if (!body)
                         {
-                            cameraOffset = Vector3.zero;
+                            CameraOffsetRegister = Vector3.zero;
                             return;
                         }
                         ZetSizeData sizeData = body.GetComponent<ZetSizeData>();
-                        if (!sizeData) cameraOffset = Vector3.zero;
-                        else cameraOffset = sizeData.offset;
+                        if (!sizeData) CameraOffsetRegister = Vector3.zero;
+                        else CameraOffsetRegister = sizeData.offset;
                     });
                 }
                 else
@@ -109,7 +117,7 @@ namespace TPDespair.ZetAspects
 
                     c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
                     {
-                        return cameraPos + cameraOffset;
+                        return cameraPos + CameraOffsetRegister;
                     });
                 }
                 else
@@ -128,7 +136,7 @@ namespace TPDespair.ZetAspects
 
                     c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
                     {
-                        return cameraPos + cameraOffset;
+                        return cameraPos + CameraOffsetRegister;
                     });
                 }
                 else
@@ -149,7 +157,7 @@ namespace TPDespair.ZetAspects
 
                     c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
                     {
-                        return cameraPos + cameraOffset;
+                        return cameraPos + CameraOffsetRegister;
                     });
                 }
                 else
@@ -170,7 +178,7 @@ namespace TPDespair.ZetAspects
 
                     c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
                     {
-                        return cameraPos + cameraOffset;
+                        return cameraPos + CameraOffsetRegister;
                     });
                 }
                 else
@@ -189,12 +197,92 @@ namespace TPDespair.ZetAspects
 
                     c.EmitDelegate<Func<Vector3, Vector3>>((cameraPos) =>
                     {
-                        return cameraPos + cameraOffset;
+                        return cameraPos + CameraOffsetRegister;
                     });
                 }
                 else
                 {
                     Debug.LogWarning("ZetSizeController - Camera Hook 5 Failed");
+                }
+            };
+        }
+
+        private static void InteractionDriverHook()
+        {
+            IL.RoR2.InteractionDriver.FindBestInteractableObject += (il) =>
+            {
+                ILCursor c = new ILCursor(il);
+
+                bool found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchCallOrCallvirt<InteractionDriver>("get_interactor"),
+                    x => x.MatchLdfld<Interactor>("maxInteractionDistance"),
+                    x => x.MatchStloc(3)
+                );
+
+                if (found)
+                {
+                    c.Index += 4;
+
+                    c.Emit(OpCodes.Ldarg, 0);
+                    c.Emit(OpCodes.Ldfld, typeof(InteractionDriver).GetFieldCached("characterBody"));
+                    c.Emit(OpCodes.Ldloc, 3);
+                    c.EmitDelegate<Func<CharacterBody, float, float>>((body, range) =>
+                    {
+                        if (body != null)
+                        {
+                            ZetSizeData sizeData = body.gameObject.GetComponent<ZetSizeData>();
+                            if (sizeData != null)
+                            {
+                                range *= Mathf.Max(1f, sizeData.target);
+                            }
+                        }
+
+                        return range;
+                    });
+                    c.Emit(OpCodes.Stloc, 3);
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Interaction Hook Failed");
+                }
+            };
+        }
+
+        private static void PickupPickerHook()
+        {
+            IL.RoR2.PickupPickerController.FixedUpdateServer += (il) =>
+            {
+                ILCursor c = new ILCursor(il);
+
+                bool found = c.TryGotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<PickupPickerController>("cutoffDistance"),
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdfld<PickupPickerController>("cutoffDistance"),
+                    x => x.MatchMul()
+                );
+
+                if (found)
+                {
+                    c.Index += 5;
+
+                    c.Emit(OpCodes.Ldloc, 1);
+                    c.EmitDelegate<Func<float, CharacterBody, float>>((cutoff, body) =>
+                    {
+                        ZetSizeData sizeData = body.gameObject.GetComponent<ZetSizeData>();
+                        if (sizeData != null)
+                        {
+                            float value = Mathf.Max(1f, sizeData.target);
+                            cutoff *= value * value;
+                        }
+
+                        return cutoff;
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("ZetSizeController - Pickup Picker Hook Failed");
                 }
             };
         }
@@ -228,7 +316,12 @@ namespace TPDespair.ZetAspects
 
             float value = GetCharacterScale(self);
 
-            if (sizeData.target != value) sizeData.target = value;
+            if (sizeData.target != value)
+            {
+                if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.target + " => " + value);
+
+                sizeData.target = value;
+            }
 
             if (newData) UpdateSize(self, true);
         }
@@ -245,7 +338,7 @@ namespace TPDespair.ZetAspects
 
         private static float GetCharacterScale(CharacterBody self)
         {
-            float value = 1f, factor, count;
+            float value = 1f, factor, count, limit;
 
             if (self.inventory)
             {
@@ -301,15 +394,22 @@ namespace TPDespair.ZetAspects
                 value += factor * self.GetBuffCount(ZetAspectsPlugin.ZetHeadHunterBuff);
             }
 
-            if (self.HasBuff(BuffIndex.TonicBuff))
+
+
+            if (self.HasBuff(BuffIndex.TonicBuff)) value *= ZetAspectsPlugin.ZetSizeMultTonicCfg.Value;
+
+            if (self.teamComponent.teamIndex != TeamIndex.Player)
             {
-                factor = ZetAspectsPlugin.ZetSizeEffectTonicCfg.Value;
-                value *= factor;
+                limit = ZetAspectsPlugin.ZetSizeLimitMonsterCfg.Value;
+                if (self.isBoss && self.isChampion) value *= ZetAspectsPlugin.ZetSizeMultChampionBossCfg.Value;
+                if (globalShrink || monsterShrink) value *= 0.65f;
+            }
+            else
+            {
+                limit = ZetAspectsPlugin.ZetSizeLimitCfg.Value;
+                if (globalShrink || playerShrink) value *= 0.65f;
             }
 
-            if (globalShrink) value *= 0.65f;
-
-            float limit = ZetAspectsPlugin.ZetSizeLimitCfg.Value;
             limit = Mathf.Max(0.5f, limit);
             value = Mathf.Clamp(value, 0.5f, limit);
 
@@ -338,7 +438,7 @@ namespace TPDespair.ZetAspects
                 {
                     sizeData.scale = sizeData.target;
 
-                    if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale);
+                    //if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale);
                 }
                 else
                 {
@@ -353,7 +453,7 @@ namespace TPDespair.ZetAspects
                         sizeData.scale = Mathf.Max(sizeData.scale - delta, sizeData.target);
                     }
 
-                    if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale + " => " + sizeData.target);
+                    //if (self.isPlayerControlled) Debug.LogWarning("Player Size : " + sizeData.netId + " - " + sizeData.scale + " => " + sizeData.target);
                 }
             }
 
@@ -364,7 +464,7 @@ namespace TPDespair.ZetAspects
 
                 self.modelLocator.modelTransform.localScale = new Vector3(size.x * scale, size.y * scale, size.z * scale);
 
-                sizeData.offset.y = (scale - 1f) * 2.75f;
+                sizeData.offset.y = (scale - 1f) * 2.875f;
                 sizeData.offset.z = (scale - 1f) * -4f;
             }
         }
