@@ -1,8 +1,7 @@
-using RoR2;
-using RoR2.Projectile;
-using R2API;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using RoR2;
+using RoR2.Projectile;
 using System;
 using UnityEngine;
 
@@ -10,100 +9,89 @@ namespace TPDespair.ZetAspects
 {
 	public static class ZetAspectLightning
 	{
-		public static ItemIndex itemIndex;
-
-		public static string nameToken = "ZETASPECTLIGHTNING";
-
 		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 
-		internal static void Init()
+		public static string identifier = "ZetAspectLightning";
+
+		internal static void Hooks()
 		{
-			DefineItem();
 			BombHook();
-			SappedDamageHook();
-			ShieldGainHook();
 			ShieldConversionHook();
 		}
 
-		private static void DefineItem()
+		internal static ItemDef DefineItem()
 		{
-			string icon;
-
-			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
-			{
-				icon = "@ZetAspects:Assets/Import/icons/texAffixBlueIconRed.png";
-			}
-			else
-			{
-				icon = "@ZetAspects:Assets/Import/icons/texAffixBlueIconYellow.png";
-			}
-
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-
-			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
+			if (!Configuration.AspectRedTier.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			ItemDef itemDef = new ItemDef
+			Sprite sprite;
+			if (Configuration.AspectRedTier.Value)
 			{
-				name = "ITEM_" + nameToken,
-				nameToken = "ITEM_" + nameToken + "_NAME",
-				pickupToken = "ITEM_" + nameToken + "_PICKUP",
-				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
-				loreToken = "ITEM_" + nameToken + "_LORE",
-				pickupModelPath = "Prefabs/PickupModels/PickupAffixBlue",
-				pickupIconPath = icon,
-				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
-				tags = tags
-			};
+				sprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlueIconRed.png");
+			}
+			else
+			{
+				sprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlueIconYellow.png");
+			}
 
-			ItemDisplayRuleDict disp = new ItemDisplayRuleDict(null);
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
+			itemDef.pickupIconSprite = sprite;
 
-			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
+			itemDef.AutoPopulateTokens();
 
-			LanguageAPI.Add("ITEM_" + nameToken + "_NAME", "Silence Between Two Strikes");
-			LanguageAPI.Add("ITEM_" + nameToken + "_PICKUP", "Become an aspect of lightning.");
-			LanguageAPI.Add("ITEM_" + nameToken + "_DESCRIPTION", BuildDescription());
-			LanguageAPI.Add("ITEM_" + nameToken + "_LORE", "...");
+			string locToken = identifier.ToUpperInvariant();
+
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_NAME", "Silence Between Two Strikes");
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_PICKUP", "Become an aspect of lightning.");
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_DESC", BuildDescription());
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_LORE", "...");
+
+			return itemDef;
 		}
 
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
-			if (ZetAspectsPlugin.ZetAspectBlueSappedDurationCfg.Value > 0f)
-            {
+			if (Configuration.AspectBlueSappedDuration.Value > 0f)
+			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
-				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectBlueSappedDurationCfg.Value);
+				output += ZetAspectsPlugin.FormatSeconds(Configuration.AspectBlueSappedDuration.Value);
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
-				output += Mathf.Abs(ZetAspectsPlugin.ZetAspectBlueSappedDamageCfg.Value) * 100f + "%</style>.";
+				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
 			output += "\nConvert <style=cIsHealing>";
-			output += ZetAspectsPlugin.ZetAspectBlueHealthConvertedCfg.Value * 100f;
+			output += Configuration.AspectBlueHealthConverted.Value * 100f;
 			output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-			if (ZetAspectsPlugin.ZetAspectBlueBaseShieldGainCfg.Value > 0f)
+			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
 				output += "\nGain <style=cIsHealing>";
-				output += ZetAspectsPlugin.ZetAspectBlueBaseShieldGainCfg.Value * 100f + "%</style>";
-				if (ZetAspectsPlugin.ZetAspectBlueStackShieldGainCfg.Value != 0f)
+				output += Configuration.AspectBlueBaseShieldGain.Value * 100f + "%</style>";
+				if (Configuration.AspectBlueStackShieldGain.Value != 0f)
 				{
 					output += " <style=cStack>(+";
-					output += ZetAspectsPlugin.ZetAspectBlueStackShieldGainCfg.Value * 100f + "% per stack)</style>";
+					output += Configuration.AspectBlueStackShieldGain.Value * 100f + "% per stack)</style>";
 				}
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (ZetAspectsPlugin.ZetAspectBlueBaseDamageCfg.Value > 0f)
+			if (Configuration.AspectBlueBaseDamage.Value > 0f)
 			{
 				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-				output += ZetAspectsPlugin.ZetAspectBlueBaseDamageCfg.Value * 100f + "%</style>";
-				if (ZetAspectsPlugin.ZetAspectBlueStackDamageCfg.Value != 0f)
+				output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
+				if (Configuration.AspectBlueStackDamage.Value != 0f)
 				{
 					output += " <style=cStack>(+";
-					output += ZetAspectsPlugin.ZetAspectBlueStackDamageCfg.Value * 100f + "% per stack)</style>";
+					output += Configuration.AspectBlueStackDamage.Value * 100f + "% per stack)</style>";
 				}
 				output += " TOTAL damage after ";
-				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectBlueBombDurationCfg.Value) + ".";
+				output += ZetAspectsPlugin.FormatSeconds(Configuration.AspectBlueBombDuration.Value) + ".";
 			}
 
 			return output;
@@ -117,7 +105,7 @@ namespace TPDespair.ZetAspects
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(0),
-					x => x.MatchLdcI4(0x1C),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
 					x => x.MatchCallvirt<CharacterBody>("HasBuff")
 				);
 
@@ -125,23 +113,23 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 3;
 
-					// prevent default
+					// Prevent default
 					c.Emit(OpCodes.Pop);
 					c.Emit(OpCodes.Ldc_I4, 0);
 
 					// Handle lightning bomb creation
-					c.Emit(OpCodes.Ldloc_0);
-					c.Emit(OpCodes.Ldarg_1);
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Action<CharacterBody, DamageInfo>>((self, damageInfo) =>
 					{
-						if (!self.HasBuff(BuffIndex.AffixBlue)) return;
-						if (ZetAspectsPlugin.ZetAspectBlueBaseDamageCfg.Value <= 0f) return;
+						if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
+						if (Configuration.AspectBlueBaseDamage.Value <= 0f) return;
 
 						float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
-						float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
+						float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
 
-						damage *= ZetAspectsPlugin.ZetAspectBlueBaseDamageCfg.Value + ZetAspectsPlugin.ZetAspectBlueStackDamageCfg.Value * (count - 1f);
-						if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= ZetAspectsPlugin.ZetAspectEffectMonsterDamageMultCfg.Value;
+						damage *= Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (count - 1f);
+						if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
 
 						FireProjectileInfo fireProjectileInfo = new FireProjectileInfo
 						{
@@ -155,7 +143,7 @@ namespace TPDespair.ZetAspects
 							damageColorIndex = DamageColorIndex.Item,
 							target = null,
 							speedOverride = -1f,
-							fuseOverride = ZetAspectsPlugin.ZetAspectBlueBombDurationCfg.Value,
+							fuseOverride = Configuration.AspectBlueBombDuration.Value,
 							damageTypeOverride = null
 						};
 						ProjectileManager.instance.FireProjectile(fireProjectileInfo);
@@ -168,90 +156,6 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void SappedDamageHook()
-		{
-			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
-			{
-				ILCursor c = new ILCursor(il);
-
-				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(57),
-					x => x.MatchLdloc(58),
-					x => x.MatchMul(),
-					x => x.MatchStloc(57)
-				);
-
-				if (found)
-				{
-					c.Index += 4;
-
-					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 57);
-					c.EmitDelegate<Func<CharacterBody, float, float>>((self, damage) =>
-					{
-						if (self.HasBuff(ZetAspectsPlugin.ZetSappedDebuff))
-						{
-							float addedDamage = -Mathf.Abs(ZetAspectsPlugin.ZetAspectBlueSappedDamageCfg.Value);
-							//if (self.teamComponent.teamIndex == TeamIndex.Player) addedDamage *= 0.5f;
-							addedDamage = Mathf.Max(-0.9f, addedDamage);
-							return damage * (1f + addedDamage);
-						}
-						else
-						{
-							return damage;
-						}
-					});
-					c.Emit(OpCodes.Stloc, 57);
-				}
-				else
-				{
-					Debug.LogWarning("ZetAspect : Lightning - Sapped Damage Hook Failed");
-				}
-			};
-		}
-
-		private static void ShieldGainHook()
-		{
-			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
-			{
-				ILCursor c = new ILCursor(il);
-
-				bool found = c.TryGotoNext(
-					x => x.MatchMul(),
-					x => x.MatchAdd(),
-					x => x.MatchStloc(43)
-				);
-
-				if (found)
-				{
-					c.Index += 3;
-
-					// Add extra shield
-					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 43);
-					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
-					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, shield, health) =>
-					{
-						if (self.HasBuff(BuffIndex.AffixBlue) && ZetAspectsPlugin.ZetAspectBlueBaseShieldGainCfg.Value > 0f)
-						{
-							float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
-							float addedShield = health * (ZetAspectsPlugin.ZetAspectBlueBaseShieldGainCfg.Value + ZetAspectsPlugin.ZetAspectBlueStackShieldGainCfg.Value * (count - 1f));
-							//if (self.teamComponent.teamIndex != TeamIndex.Player) addedShield *= 0.5f;
-							shield += addedShield;
-						}
-
-						return shield;
-					});
-					c.Emit(OpCodes.Stloc, 43);
-				}
-				else
-				{
-					Debug.LogWarning("ZetAspect : Lightning - Shield Gain Hook Failed");
-				}
-			};
-		}
-
 		private static void ShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
@@ -260,8 +164,8 @@ namespace TPDespair.ZetAspects
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdarg(0),
-					x => x.MatchLdcI4(0x1C),
-					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
+					x => x.MatchCall<CharacterBody>("HasBuff")
 				);
 
 				if (found)
@@ -270,19 +174,32 @@ namespace TPDespair.ZetAspects
 
 					// Set health conversion factor
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldc_R4, ZetAspectsPlugin.ZetAspectBlueHealthConvertedCfg.Value);
+					c.EmitDelegate<Func<float>>(() =>
+					{
+						return Configuration.AspectBlueHealthConverted.Value;
+					});
 
 					c.Index += 11;
 
 					// Add converted health to shield
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 44);
+					c.Emit(OpCodes.Ldloc, 53);
 				}
 				else
 				{
 					Debug.LogWarning("ZetAspect : Lightning - Shield Conversion Hook Failed");
 				}
 			};
+		}
+
+		internal static void ApplySapped(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
+			if (ZetAspectsContent.Buffs.ZetSapped.buffIndex == BuffIndex.None) return;
+
+			float duration = Configuration.AspectBlueSappedDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f) victim.AddTimedBuff(ZetAspectsContent.Buffs.ZetSapped, duration);
 		}
 	}
 }
