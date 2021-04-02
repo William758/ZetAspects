@@ -1,6 +1,5 @@
 using RoR2;
 using RoR2.Orbs;
-using R2API;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
@@ -8,86 +7,76 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-	public static class ZetAspectIce
-	{
-		public static ItemIndex itemIndex;
+    public static class ZetAspectIce
+    {
+		public static string identifier = "ZetAspectIce";
 
-		public static string nameToken = "ZETASPECTICE";
-
-		internal static void Init()
+		internal static void Hooks()
 		{
-			DefineItem();
 			FreezeHook();
 			SlowHook();
-			ProjectileHook();
 		}
 
-		private static void DefineItem()
+		internal static ItemDef DefineItem()
 		{
-			string icon;
-
-			if (ZetAspectsPlugin.ZetAspectRedTierCfg.Value)
-			{
-				icon = "@ZetAspects:Assets/Import/icons/texAffixWhiteIconRed.png";
-			}
-			else
-			{
-				icon = "@ZetAspects:Assets/Import/icons/texAffixWhiteIconYellow.png";
-			}
-
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-
-			if (!ZetAspectsPlugin.ZetAspectRedTierCfg.Value) 
+			if (!Configuration.AspectRedTier.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			ItemDef itemDef = new ItemDef
+			Sprite sprite;
+			if (Configuration.AspectRedTier.Value)
 			{
-				name = "ITEM_" + nameToken,
-				nameToken = "ITEM_" + nameToken + "_NAME",
-				pickupToken = "ITEM_" + nameToken + "_PICKUP",
-				descriptionToken = "ITEM_" + nameToken + "_DESCRIPTION",
-				loreToken = "ITEM_" + nameToken + "_LORE",
-				pickupModelPath = "Prefabs/PickupModels/PickupAffixWhite",
-				pickupIconPath = icon,
-				tier = ZetAspectsPlugin.ZetAspectRedTierCfg.Value ? ItemTier.Tier3 : ItemTier.Boss,
-				tags = tags
-			};
+				sprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWhiteIconRed.png");
+			}
+			else
+			{
+				sprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWhiteIconYellow.png");
+			}
 
-			ItemDisplayRuleDict disp = new ItemDisplayRuleDict(null);
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
+			itemDef.pickupIconSprite = sprite;
 
-			itemIndex = ItemAPI.Add(new CustomItem(itemDef, disp));
+			itemDef.AutoPopulateTokens();
 
-			LanguageAPI.Add("ITEM_" + nameToken + "_NAME", "Her Biting Embrace");
-			LanguageAPI.Add("ITEM_" + nameToken + "_PICKUP", "Become an aspect of ice.");
-			LanguageAPI.Add("ITEM_" + nameToken + "_DESCRIPTION", BuildDescription());
-			LanguageAPI.Add("ITEM_" + nameToken + "_LORE", "...");
+			string locToken = identifier.ToUpperInvariant();
+
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_NAME", "Her Biting Embrace");
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_PICKUP", "Become an aspect of ice.");
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_DESC", BuildDescription());
+			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_LORE", "...");
+
+			return itemDef;
 		}
 
 		public static string BuildDescription()
-        {
+		{
 			string output = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for ";
-			output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value);
+			output += ZetAspectsPlugin.FormatSeconds(Configuration.AspectWhiteSlowDuration.Value);
 			output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
-			if (ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value > 0f)
-            {
+			if (Configuration.AspectWhiteFreezeChance.Value > 0f)
+			{
 				output += "\nAttacks have a <style=cIsUtility>";
-				output += ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value;
+				output += Configuration.AspectWhiteFreezeChance.Value;
 				output += "%</style> <style=cStack>(+";
-				output += ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value;
+				output += Configuration.AspectWhiteFreezeChance.Value;
 				output += "% per stack)</style> chance to <style=cIsUtility>freeze</style> for ";
-				output += ZetAspectsPlugin.FormatSeconds(ZetAspectsPlugin.ZetAspectWhiteFreezeDurationCfg.Value) + ".";
+				output += ZetAspectsPlugin.FormatSeconds(Configuration.AspectWhiteFreezeDuration.Value) + ".";
 			}
-			if (ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value > 0f)
-            {
+			if (Configuration.AspectWhiteBaseDamage.Value > 0f)
+			{
 				output += "\nAttacks fire a <style=cIsDamage>blade</style> that deals <style=cIsDamage>";
-				output += ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value * 100f + "%</style>";
-				if (ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value != 0f)
+				output += Configuration.AspectWhiteBaseDamage.Value * 100f + "%</style>";
+				if (Configuration.AspectWhiteStackDamage.Value != 0f)
 				{
 					output += " <style=cStack>(+";
-					output += ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value * 100f + "% per stack)</style>";
+					output += Configuration.AspectWhiteStackDamage.Value * 100f + "% per stack)</style>";
 				}
 				output += " TOTAL damage.";
 			}
@@ -96,8 +85,7 @@ namespace TPDespair.ZetAspects
 		}
 
 		private static void FreezeHook()
-        {
-			// Add freeze chance
+		{
 			IL.RoR2.SetStateOnHurt.OnTakeDamageServer += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -116,22 +104,22 @@ namespace TPDespair.ZetAspects
 					c.Index += 8;
 
 					// Handle freeze chance
-					c.Emit(OpCodes.Ldarg_1);
-					c.Emit(OpCodes.Ldarg_0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Action<DamageReport, SetStateOnHurt>>((damageReport, state) =>
 					{
 						CharacterBody attacker = damageReport.attackerBody;
 
 						if (attacker == null) return;
 
-						if (!attacker.HasBuff(BuffIndex.AffixWhite) || ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value <= 0f) return;
-						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.15f) return;
+						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteFreezeChance.Value <= 0f) return;
+						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.105f) return;
 
-						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, itemIndex);
-						float chance = ZetAspectsPlugin.ZetAspectWhiteFreezeChanceCfg.Value * count * damageReport.damageInfo.procCoefficient;
+						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, RoR2Content.Buffs.AffixWhite);
+						float chance = Configuration.AspectWhiteFreezeChance.Value * count * damageReport.damageInfo.procCoefficient;
 						chance = Util.ConvertAmplificationPercentageIntoReductionPercentage(chance);
 
-						if (Util.CheckRoll(chance)) state.SetFrozen(ZetAspectsPlugin.ZetAspectWhiteFreezeDurationCfg.Value * damageReport.damageInfo.procCoefficient);
+						if (Util.CheckRoll(chance)) state.SetFrozen(Configuration.AspectWhiteFreezeDuration.Value * damageReport.damageInfo.procCoefficient);
 					});
 				}
 				else
@@ -162,11 +150,11 @@ namespace TPDespair.ZetAspects
 					c.Index += 7;
 
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc_0);
-					c.Emit(OpCodes.Ldarg_1);
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
 					{
-						float duration = ZetAspectsPlugin.ZetAspectWhiteSlowDurationCfg.Value;
+						float duration = Configuration.AspectWhiteSlowDuration.Value;
 						if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 
 						return duration;
@@ -179,76 +167,38 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void ProjectileHook()
+		internal static void FireFrostBlade(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
-			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
-			{
-				ILCursor c = new ILCursor(il);
+			if (!self.HasBuff(RoR2Content.Buffs.AffixWhite)) return;
+			if (Configuration.AspectWhiteBaseDamage.Value <= 0f) return;
 
-				bool found = c.TryGotoNext(
-					x => x.MatchLdcR4(1.5f),
-					x => x.MatchLdarg(1),
-					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
-					x => x.MatchMul(),
-					x => x.MatchLdloc(8),
-					x => x.MatchConvR4(),
-					x => x.MatchMul()
-				);
+			GameObject gameObject = self.gameObject;
+			TeamIndex teamIndex = self.teamComponent.teamIndex;
 
-				if (found)
-				{
-					c.Index += 7;
+			float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
+			float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixWhite);
 
-					c.Emit(OpCodes.Ldloc_0);
-					c.Emit(OpCodes.Ldarg_1);
-					c.EmitDelegate<Action<CharacterBody, DamageInfo>>((self, damageInfo) =>
-					{
-						if (!self.HasBuff(BuffIndex.AffixWhite)) return;
-						if (ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value <= 0f) return;
+			damage *= Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (count - 1f);
+			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
 
-						GameObject gameObject = self.gameObject;
-						TeamIndex teamIndex = self.teamComponent.teamIndex;
-
-						HurtBox[] hurtBoxes = new SphereSearch
-						{
-							origin = damageInfo.position,
-							radius = 10f,
-							mask = LayerIndex.entityPrecise.mask,
-							queryTriggerInteraction = QueryTriggerInteraction.UseGlobal
-						}.RefreshCandidates().FilterCandidatesByHurtBoxTeam(TeamMask.GetEnemyTeams(teamIndex)).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
-
-						if (hurtBoxes.Length > 0)
-						{
-							float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
-							float count = ZetAspectsPlugin.GetStackMagnitude(self, itemIndex);
-
-							damage *= ZetAspectsPlugin.ZetAspectWhiteBaseDamageCfg.Value + ZetAspectsPlugin.ZetAspectWhiteStackDamageCfg.Value * (count - 1f);
-							if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= ZetAspectsPlugin.ZetAspectEffectMonsterDamageMultCfg.Value;
-
-							LightningOrb lightningOrb = new LightningOrb();
-							lightningOrb.attacker = gameObject;
-							lightningOrb.bouncedObjects = null;
-							lightningOrb.bouncesRemaining = 0;
-							lightningOrb.damageCoefficientPerBounce = 1f;
-							lightningOrb.damageColorIndex = DamageColorIndex.Item;
-							lightningOrb.damageValue = damage;
-							lightningOrb.isCrit = damageInfo.crit;
-							lightningOrb.lightningType = LightningOrb.LightningType.RazorWire;
-							lightningOrb.origin = gameObject.transform.position;
-							lightningOrb.procChainMask = default(ProcChainMask);
-							lightningOrb.procCoefficient = 0f;
-							lightningOrb.range = 0f;
-							lightningOrb.teamIndex = teamIndex;
-							lightningOrb.target = hurtBoxes[0];
-							OrbManager.instance.AddOrb(lightningOrb);
-						}
-					});
-				}
-				else
-				{
-					Debug.LogWarning("ZetAspect : Ice - Projectile Hook Failed");
-				}
-			};
+            LightningOrb lightningOrb = new LightningOrb
+            {
+                attacker = gameObject,
+                bouncedObjects = null,
+                bouncesRemaining = 0,
+                damageCoefficientPerBounce = 1f,
+                damageColorIndex = DamageColorIndex.Item,
+                damageValue = damage,
+                isCrit = damageInfo.crit,
+                lightningType = LightningOrb.LightningType.RazorWire,
+                origin = gameObject.transform.position,
+                procChainMask = default,
+                procCoefficient = 0f,
+                range = 0f,
+                teamIndex = teamIndex,
+                target = victim.mainHurtBox
+            };
+            OrbManager.instance.AddOrb(lightningOrb);
 		}
 	}
 }
