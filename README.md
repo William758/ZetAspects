@@ -14,23 +14,17 @@ Amplifies the effect of aspects with additional stacks.
 
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/Fr0m1OT.png)
-
-## Hypercrit:
-
-Disabled by default : Enable and set values for somewhat accurate burn damage when using Hypercrit.
-
-## SizeController:
-
-Disabled by default : Experimental - Enable to allow various effects to change the size of your survivor.
+![effects](https://i.imgur.com/nFX1L4r.png)
 
 ## Installation:
 
-Requires Bepinex and R2API.
+Requires Bepinex and EnigmaticThunder.
 
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.0.0 - Updated for Anniversary Update. Now uses EnigmaticThunder.
 
 v1.5.1 - Fix elite skins preventing equipment displays.
 
