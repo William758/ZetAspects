@@ -306,31 +306,31 @@ namespace TPDespair.ZetAspects
 
 
             AspectPoisonFireSpikes = Config.Bind(
-                "2ae-Malachite Aspect", "playerSpikes", false,
+                "2ae-Malachite Aspect", "malachitePlayerSpikes", false,
                 "Set whether players throw spike balls."
             );
             AspectPoisonNullDuration = Config.Bind(
-                "2ae-Malachite Aspect", "nullDuration", 4.0f,
+                "2ae-Malachite Aspect", "malachiteNullDuration", 4.0f,
                 "Set nullification duration for players in seconds. Monsters is 8 seconds."
             );
             AspectPoisonNullDamageTaken = Config.Bind(
-                "2ae-Malachite Aspect", "nullDamageTaken", 0.10f,
+                "2ae-Malachite Aspect", "malachiteNullDamageTaken", 0.10f,
                 "Damage taken increase from nullification. Set to 0 to disable."
             );
             AspectPoisonBaseHealthGain = Config.Bind(
-                "2ae-Malachite Aspect", "baseHealth", 300f,
+                "2ae-Malachite Aspect", "malachiteBaseHealth", 400f,
                 "Health gained. Set to 0 to disable."
             );
             AspectPoisonStackHealthGain = Config.Bind(
-                "2ae-Malachite Aspect", "addedHealth", 150f,
+                "2ae-Malachite Aspect", "malachiteAddedHealth", 200f,
                 "Health gained per stack."
             );
             AspectPoisonBaseHeal = Config.Bind(
-                "2ae-Malachite Aspect", "baseLifeGainOnHit", 8,
+                "2ae-Malachite Aspect", "malachiteBaseLifeGainOnHit", 8,
                 "Health gained on hit. Set to 0 to disable."
             );
             AspectPoisonStackHeal = Config.Bind(
-                "2ae-Malachite Aspect", "stackLifeGainOnHit", 4,
+                "2ae-Malachite Aspect", "malachiteAddedLifeGainOnHit", 4,
                 "Health gained on hit per stack."
             );
         }
