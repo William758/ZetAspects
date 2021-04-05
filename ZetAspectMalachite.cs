@@ -46,10 +46,10 @@ namespace TPDespair.ZetAspects
 
 			string locToken = identifier.ToUpperInvariant();
 
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_NAME", "N'kuhana's Retort");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_PICKUP", "Become an aspect of corruption.");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_DESC", BuildDescription());
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_LORE", "...");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "N'kuhana's Retort");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of corruption.");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
