@@ -46,10 +46,10 @@ namespace TPDespair.ZetAspects
 
 			string locToken = identifier.ToUpperInvariant();
 
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_NAME", "Ifrit's Distinction");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_PICKUP", "Become an aspect of fire.");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_DESC", BuildDescription());
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_LORE", "...");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Ifrit's Distinction");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of fire.");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
