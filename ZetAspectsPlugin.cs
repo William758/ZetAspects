@@ -1,16 +1,19 @@
 using BepInEx;
 using RoR2;
+using R2API;
+using R2API.Utils;
 using System.Reflection;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    [BepInDependency(EnigmaticThunder.EnigmaticThunder.guid, EnigmaticThunder.EnigmaticThunder.version)]
+    [BepInDependency("com.bepis.r2api")]
     [BepInPlugin(ModGuid, ModName, ModVer)]
+    [R2APISubmoduleDependency(nameof(LanguageAPI))]
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "2.0.0";
+        public const string ModVer = "2.0.1";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -42,6 +45,12 @@ namespace TPDespair.ZetAspects
             {
                 Assets = AssetBundle.LoadFromStream(stream);
             }
+        }
+
+        private static void ChangeText()
+        {
+            LanguageAPI.Add("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
+            LanguageAPI.Add("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
         }
 
 
@@ -126,12 +135,9 @@ namespace TPDespair.ZetAspects
             return seconds + " second" + s;
         }
 
-
-
-        private static void ChangeText()
+        public static void RegisterLanguageToken(string token, string text)
         {
-            EnigmaticThunder.Modules.Languages.Add("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
-            EnigmaticThunder.Modules.Languages.Add("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
+            LanguageAPI.Add(token, text);
         }
 
 
