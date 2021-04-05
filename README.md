@@ -18,11 +18,13 @@ Amplifies the effect of aspects with additional stacks.
 
 ## Installation:
 
-Requires Bepinex and EnigmaticThunder.
+Requires Bepinex and R2API.
 
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.0.1 - Switched back to R2API. Changed name of N'kuhana's Retort configs to be more consistent.
 
 v2.0.0 - Updated for Anniversary Update. Now uses EnigmaticThunder.
 
