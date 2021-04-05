@@ -45,10 +45,10 @@ namespace TPDespair.ZetAspects
 
 			string locToken = identifier.ToUpperInvariant();
 
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_NAME", "Spectral Circlet");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_PICKUP", "Become an aspect of incorporeality.");
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_DESC", BuildDescription());
-			EnigmaticThunder.Modules.Languages.Add("ITEM_" + locToken + "_LORE", "...");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Spectral Circlet");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of incorporeality.");
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
+			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
