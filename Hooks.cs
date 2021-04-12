@@ -18,8 +18,6 @@ namespace TPDespair.ZetAspects
 	{
 		internal static void Init()
 		{
-			IL.RoR2.BuffCatalog.Init += FixBuffCatalog;
-
 			StatHooks();
 			EffectHooks();
 			DropHooks();
@@ -66,22 +64,6 @@ namespace TPDespair.ZetAspects
 			UpdateItemDisplayHook();
 			EnableItemDisplayHook();
 			DisableItemDisplayHook();
-		}
-
-
-
-		private static void FixBuffCatalog(ILContext il)
-		{
-			ILCursor c = new ILCursor(il);
-
-			if (!c.Next.MatchLdsfld(typeof(RoR2Content.Buffs), nameof(RoR2Content.Buffs.buffDefs)))
-			{
-				Debug.LogWarning("Another mod has already fixed BuffCatalog or the game has updated, skipping...");
-				return;
-			}
-
-			c.Remove();
-			c.Emit(OpCodes.Ldsfld, typeof(ContentManager).GetField(nameof(ContentManager.buffDefs)));
 		}
 
 
