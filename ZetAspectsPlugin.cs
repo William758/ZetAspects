@@ -1,19 +1,18 @@
 using BepInEx;
 using RoR2;
-using R2API;
-using R2API.Utils;
+using RoR2.ContentManagement;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    [BepInDependency("com.bepis.r2api")]
     [BepInPlugin(ModGuid, ModName, ModVer)]
-    [R2APISubmoduleDependency(nameof(LanguageAPI))]
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "2.0.1";
+        public const string ModVer = "2.0.2";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -21,15 +20,22 @@ namespace TPDespair.ZetAspects
 
         public static AssetBundle Assets;
 
+        public static Dictionary<string, string> LangTokens = new Dictionary<string, string>();
+
 
 
         public void Awake()
         {
-            LoadAssets();
+            RoR2Application.isModded = true;
+            NetworkModCompatibilityHelper.networkModList = NetworkModCompatibilityHelper.networkModList.Append(ModGuid + ":" + ModVer);
+
             Configuration.Init(Config);
+            ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
+
             Hooks.Init();
+            LanguageOverride();
+
             ChangeText();
-            ZetAspectsContent.Init();
         }
         /*
         public void Update()
@@ -39,7 +45,7 @@ namespace TPDespair.ZetAspects
         */
 
 
-        private static void LoadAssets()
+        internal static void LoadAssets()
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ZetAspects.zetaspectbundle"))
             {
@@ -47,10 +53,34 @@ namespace TPDespair.ZetAspects
             }
         }
 
+        private void ContentManager_collectContentPackProviders(ContentManager.AddContentPackProviderDelegate addContentPackProvider)
+        {
+            addContentPackProvider(new ZetAspectsContent());
+        }
+
+        private static void LanguageOverride()
+        {
+            On.RoR2.Language.TokenIsRegistered += (orig, self, token) =>
+            {
+                if (LangTokens.ContainsKey(token)) return true;
+
+                return orig(self, token);
+            };
+
+            On.RoR2.Language.GetString_string += (orig, token) =>
+            {
+                if (LangTokens.ContainsKey(token)) return LangTokens[token];
+
+                return orig(token);
+            };
+        }
+
+
+
         private static void ChangeText()
         {
-            LanguageAPI.Add("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
-            LanguageAPI.Add("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
+            RegisterLanguageToken("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
+            RegisterLanguageToken("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
         }
 
 
@@ -137,7 +167,15 @@ namespace TPDespair.ZetAspects
 
         public static void RegisterLanguageToken(string token, string text)
         {
-            LanguageAPI.Add(token, text);
+            //LanguageAPI.Add(token, text);
+            if (!LangTokens.ContainsKey(token))
+            {
+                LangTokens.Add(token, text);
+            }
+            else
+            {
+                LangTokens[token] = text;
+            }
         }
 
 
