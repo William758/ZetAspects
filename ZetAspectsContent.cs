@@ -1,34 +1,44 @@
-
 using RoR2;
+using RoR2.ContentManagement;
+using System.Collections;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-	public static class ZetAspectsContent
+	public class ZetAspectsContent : IContentPackProvider
 	{
-		public static ContentPack contentPack;
+		public ContentPack contentPack = new ContentPack();
 
-		internal static void Init()
+		public string identifier
 		{
+			get { return "ZetAspectsContent"; }
+		}
+
+		public IEnumerator LoadStaticContentAsync(LoadStaticContentAsyncArgs args)
+		{
+			ZetAspectsPlugin.LoadAssets();
+
 			Buffs.Create();
 			Items.Create();
 
-			contentPack = new ContentPack
-			{
-				buffDefs = Buffs.buffDefs,
-				itemDefs = Items.itemDefs,
-			};
-
-			AddContentPack(contentPack);
+			contentPack.identifier = identifier;
+			contentPack.buffDefs.Add(Buffs.buffDefs);
+			contentPack.itemDefs.Add(Items.itemDefs);
+			args.ReportProgress(1f);
+			yield break;
 		}
 
-		private static void AddContentPack(ContentPack contentPack)
+		public IEnumerator GenerateContentPackAsync(GetContentPackAsyncArgs args)
 		{
-			On.RoR2.ContentManager.SetContentPacks += (orig, contentPackList) =>
-			{
-				contentPackList.Add(contentPack);
-				orig(contentPackList);
-			};
+			ContentPack.Copy(contentPack, args.output);
+			args.ReportProgress(1f);
+			yield break;
+		}
+
+		public IEnumerator FinalizeAsync(FinalizeAsyncArgs args)
+		{
+			args.ReportProgress(1f);
+			yield break;
 		}
 
 
