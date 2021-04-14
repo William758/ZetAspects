@@ -85,6 +85,7 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectFire;
 			public static ItemDef ZetAspectCelestial;
 			public static ItemDef ZetAspectMalachite;
+			public static ItemDef ZetAspectPerfect;
 
 			public static ItemDef[] itemDefs;
 
@@ -95,8 +96,9 @@ namespace TPDespair.ZetAspects
 				ZetAspectFire = ZetAspects.ZetAspectFire.DefineItem();
 				ZetAspectCelestial = ZetAspects.ZetAspectCelestial.DefineItem();
 				ZetAspectMalachite = ZetAspects.ZetAspectMalachite.DefineItem();
+				ZetAspectPerfect = ZetAspects.ZetAspectPerfect.DefineItem();
 
-				itemDefs = new ItemDef[] { ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite };
+				itemDefs = new ItemDef[] { ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect };
 			}
 		}
 	}
