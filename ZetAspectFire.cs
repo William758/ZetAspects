@@ -49,7 +49,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Ifrit's Distinction");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of fire.");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
+			//ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
@@ -150,16 +150,37 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldarg, 2);
 					c.EmitDelegate<Action<CharacterBody, DamageInfo, GameObject>>((self, damageInfo, victim) =>
 					{
+						// dots tick at the start of duration
+						// 4s is 8 ticks - because the 1st tick is at 0s dot only lasts 3.5s
+						float ticks, rTicks, damageMult;
+
 						// Burn
 						if ((damageInfo.damageType & DamageType.IgniteOnHit) > DamageType.Generic)
 						{
-							DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, 4f * damageInfo.procCoefficient, 1f);
+							ticks = 2f * 4f * damageInfo.procCoefficient;
+							rTicks = Mathf.Ceil(ticks);
+
+							if (rTicks > 0f)
+							{
+								damageMult = ticks / rTicks;
+								damageMult *= rTicks / (rTicks + 1f);
+								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.05f, damageMult);
+							}
 						}
 
 						// Percent Burn
+						// 5 ticks per second
 						if ((damageInfo.damageType & DamageType.PercentIgniteOnHit) != DamageType.Generic)
 						{
-							DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.PercentBurn, 4f * damageInfo.procCoefficient, 1f);
+							ticks = 5f * 4f * damageInfo.procCoefficient;
+							rTicks = Mathf.Ceil(ticks);
+
+							if (rTicks > 0f)
+							{
+								damageMult = ticks / rTicks;
+								damageMult *= rTicks / (rTicks + 1f);
+								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.PercentBurn, (rTicks * 0.2f) + 0.02f, damageMult);
+							}
 						}
 
 						// Fire Aspect Burn
@@ -201,12 +222,32 @@ namespace TPDespair.ZetAspects
 							// Choose highest damage output
 							if (ignitePercentBaseDamage > aspectPercentBaseDamage)
 							{
-								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, 4f * damageInfo.procCoefficient, 1f);
+								ticks = 2f * 4f * damageInfo.procCoefficient;
+								rTicks = Mathf.Ceil(ticks);
+
+								if (rTicks > 0f)
+								{
+									damageMult = ticks / rTicks;
+									damageMult *= rTicks / (rTicks + 1f);
+									DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.05f, damageMult);
+								}
 							}
 							else
 							{
-								aspectDamageMult = aspectPercentBaseDamage / aspectDuration / 0.5f;
-								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, aspectDuration, aspectDamageMult);
+								ticks = 2f * aspectDuration;
+								rTicks = Mathf.Ceil(ticks);
+
+								if (rTicks > 0f)
+								{
+									damageMult = aspectPercentBaseDamage / aspectDuration / 0.5f;
+									damageMult *= ticks / rTicks;
+									damageMult *= rTicks / (rTicks + 1f);
+									DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.05f, damageMult);
+									//Debug.LogWarning("BaseDamage : " + self.damage);
+									//Debug.LogWarning("TotalDamage : " + damageInfo.damage);
+									//Debug.LogWarning("ProcCoeff : " + damageInfo.procCoefficient);
+									//Debug.LogWarning("Ticks : " + rTicks + "(+1) [" + (self.damage * 0.25f * damageMult) + "]");
+								}
 							}
 
 							return;
