@@ -34,6 +34,8 @@ namespace TPDespair.ZetAspects
 			ArmorHook();
 			AttackSpeedHook();
 			CritChanceHook();
+			ShieldConversionHook();
+			ShieldRegenHook();
 		}
 
 		private static void EffectHooks()
@@ -43,6 +45,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectFire.Hooks();
 			ZetAspectCelestial.Hooks();
 			ZetAspectMalachite.Hooks();
+			ZetAspectPerfect.Hooks();
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
@@ -99,6 +102,18 @@ namespace TPDespair.ZetAspects
 							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixRed);
 							float addedSpeed = Configuration.AspectRedBaseMovementGain.Value + Configuration.AspectRedStackMovementGain.Value * (count - 1f);
 							value += addedSpeed;
+						}
+
+						if (self.HasBuff(RoR2Content.Buffs.AffixLunar))
+						{
+							value -= 0.3f;
+
+							if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
+							{
+								float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
+								float addedSpeed = Configuration.AspectLunarBaseMovementGain.Value + Configuration.AspectLunarStackMovementGain.Value * (count - 1f);
+								value += addedSpeed;
+							}
 						}
 
 						if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
@@ -424,6 +439,115 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void ShieldConversionHook()
+		{
+			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcR4(0.25f),
+					x => x.MatchMul(),
+					x => x.MatchAdd(),
+					x => x.MatchMul(),
+					x => x.MatchAdd(),
+					x => x.MatchStloc(52)
+				);
+
+				if (found)
+				{
+					c.Index += 5;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, 52);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
+					c.Emit(OpCodes.Ldloc, 14);
+					c.EmitDelegate<Func<CharacterBody, float, float, int, float>>((self, shield, health, so) =>
+					{
+						float mult = 1f;
+						if (so > 0) mult += 0.25f + (0.25f * so);
+						if (self.HasBuff(RoR2Content.Buffs.AffixLunar) && Configuration.AspectLunarBaseShieldGain.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
+							mult += Configuration.AspectLunarBaseShieldGain.Value + Configuration.AspectLunarStackShieldGain.Value * (count - 1f);
+						}
+						shield += health * mult;
+
+						return shield;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Shield Conversion Hook Failed");
+				}
+			};
+		}
+
+		private static void ShieldRegenHook()
+		{
+			IL.RoR2.HealthComponent.ServerFixedUpdate += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchMul(),
+					x => x.MatchAdd(),
+					x => x.MatchStfld<HealthComponent>("regenAccumulator")
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<float, HealthComponent, float>>((regenAccumulator, healthComponent) =>
+					{
+						float toShield = 0f;
+						Inventory inventory = healthComponent.body.inventory;
+
+						if (healthComponent.body.HasBuff(RoR2Content.Buffs.AffixLunar)) toShield = Mathf.Max(toShield, Configuration.AspectLunarRegen.Value);
+						if (inventory && inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) toShield = Mathf.Max(toShield, Configuration.TranscendenceRegen.Value);
+
+						if (toShield <= 0f) return regenAccumulator;
+						if (healthComponent.shield >= healthComponent.fullShield) return regenAccumulator;
+
+						if (regenAccumulator > 1f)
+						{
+							float num = Mathf.Floor(regenAccumulator);
+							regenAccumulator -= num;
+							num *= toShield;
+							AddShieldToHealthComponent(healthComponent, num);
+						}
+
+						return regenAccumulator;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Shield Regen Hook Failed");
+				}
+			};
+		}
+
+		private static void AddShieldToHealthComponent(HealthComponent healthComponent, float value)
+		{
+			if (!NetworkServer.active)
+			{
+				Debug.LogWarning("[Server] function 'System.Void ZetAspects::AddShieldToHealthComponent(ROR2.HealthComponent, System.Single)' called on client");
+				return;
+			}
+			if (!healthComponent.alive)
+			{
+				return;
+			}
+			if (healthComponent.shield < healthComponent.fullShield)
+			{
+				healthComponent.Networkshield = Mathf.Min(healthComponent.shield + value, healthComponent.fullShield);
+			}
+		}
+
 
 
 		private static void DamageTakenHook()
@@ -572,6 +696,7 @@ namespace TPDespair.ZetAspects
 					ZetAspectIce.FireFrostBlade(attacker, victim, damageInfo);
 					ZetAspectLightning.ApplySapped(attacker, victim, damageInfo);
 					ZetAspectCelestial.ApplyShredded(attacker, victim, damageInfo);
+					ZetAspectPerfect.ApplyCripple(attacker, victim, damageInfo);
 				}
 			}
 		}
@@ -617,6 +742,13 @@ namespace TPDespair.ZetAspects
 						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectMalachite) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixPoison.equipmentIndex)
 						{
 							self.AddTimedBuff(RoR2Content.Buffs.AffixPoison, 5f);
+						}
+					}
+					if (!self.HasBuff(RoR2Content.Buffs.AffixLunar))
+					{
+						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixLunar.equipmentIndex)
+						{
+							self.AddTimedBuff(RoR2Content.Buffs.AffixLunar, 5f);
 						}
 					}
 				}
@@ -712,6 +844,10 @@ namespace TPDespair.ZetAspects
 					{
 						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectMalachite.itemIndex);
 					}
+					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixLunar.equipmentIndex))
+					{
+						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectPerfect.itemIndex);
+					}
 
 					if (newIndex != PickupIndex.none) pickupIndex = newIndex;
 				}
@@ -785,6 +921,13 @@ namespace TPDespair.ZetAspects
 								if (currentEquip == pickupEquip)
 								{
 									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectMalachite.itemIndex);
+								}
+							}
+							else if (pickupEquip == RoR2Content.Equipment.AffixLunar.equipmentIndex)
+							{
+								if (currentEquip == pickupEquip)
+								{
+									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectPerfect.itemIndex);
 								}
 							}
 
@@ -862,6 +1005,12 @@ namespace TPDespair.ZetAspects
 			EquipmentDef targetEquipDef;
 			bool eliteEquipDefNotNull = !(eliteEquipDef == null);
 
+			targetEquipDef = RoR2Content.Equipment.AffixLunar;
+			if (targetEquipDef != null)
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0) return targetEquipDef;
+				if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+			}
 			targetEquipDef = RoR2Content.Equipment.AffixPoison;
 			if (targetEquipDef != null)
 			{
@@ -911,6 +1060,7 @@ namespace TPDespair.ZetAspects
 
 			EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(index);
 
+			if (equipDef == RoR2Content.Equipment.AffixLunar) return EquipmentIndex.None;
 			if (equipDef == RoR2Content.Equipment.AffixPoison) return EquipmentIndex.None;
 			if (equipDef == RoR2Content.Equipment.AffixHaunted) return EquipmentIndex.None;
 			if (equipDef == RoR2Content.Equipment.AffixRed) return EquipmentIndex.None;
@@ -941,6 +1091,7 @@ namespace TPDespair.ZetAspects
 			else if (!Configuration.AspectSkinApply.Value) displayDef = equipDef;
 			else displayDef = GetEquipmentDefToDisplay(inventory, equipDef);
 
+			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixLunar, ZetAspectsContent.Items.ZetAspectPerfect);
 			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixPoison, ZetAspectsContent.Items.ZetAspectMalachite);
 			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixHaunted, ZetAspectsContent.Items.ZetAspectCelestial);
 			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixRed, ZetAspectsContent.Items.ZetAspectFire);
@@ -995,6 +1146,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterModel.EnableItemDisplay += (orig, self, index) =>
 			{
+				if (index == ZetAspectsContent.Items.ZetAspectPerfect.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectMalachite.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectCelestial.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectFire.itemIndex) return;
@@ -1009,6 +1161,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterModel.DisableItemDisplay += (orig, self, index) =>
 			{
+				if (index == ZetAspectsContent.Items.ZetAspectPerfect.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectMalachite.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectCelestial.itemIndex) return;
 				if (index == ZetAspectsContent.Items.ZetAspectFire.itemIndex) return;
