@@ -18,7 +18,7 @@ namespace TPDespair.ZetAspects
 
 
         public static ConfigEntry<int> LeechSeedHeal { get; set; }
-        //public static ConfigEntry<float> TranscendenceRegen { get; set; }
+        public static ConfigEntry<float> TranscendenceRegen { get; set; }
 
 
         public static ConfigEntry<int> HeadHunterCountExtra { get; set; }
@@ -83,6 +83,15 @@ namespace TPDespair.ZetAspects
         public static ConfigEntry<int> AspectPoisonStackHeal { get; set; }
 
 
+        public static ConfigEntry<bool> AspectLunarProjectiles { get; set; }
+        public static ConfigEntry<float> AspectLunarCrippleDuration { get; set; }
+        public static ConfigEntry<float> AspectLunarRegen { get; set; }
+        public static ConfigEntry<float> AspectLunarBaseMovementGain { get; set; }
+        public static ConfigEntry<float> AspectLunarStackMovementGain { get; set; }
+        public static ConfigEntry<float> AspectLunarBaseShieldGain { get; set; }
+        public static ConfigEntry<float> AspectLunarStackShieldGain { get; set; }
+
+
         internal static void Init(ConfigFile Config)
         {
             AspectRedTier = Config.Bind(
@@ -129,10 +138,10 @@ namespace TPDespair.ZetAspects
                 "0c-Tweaks", "seedLifeGainOnHit", 2,
                 "Health gained on hit from Leech Seed."
             );
-            //TranscendenceRegen = Config.Bind(
-            //    "0c-Tweaks", "TranscendanceShieldRegen", 0.25f,
-            //    "Health regen converted into shield regen. Set to 0 to disable."
-            //);
+            TranscendenceRegen = Config.Bind(
+                "0c-Tweaks", "transcendenceShieldRegen", 0.20f,
+                "Health regen converted into shield regen. Set to 0 to disable."
+            );
 
 
             HeadHunterCountExtra = Config.Bind(
@@ -154,27 +163,27 @@ namespace TPDespair.ZetAspects
 
 
             HeadHunterBuffEnable = Config.Bind(
-                "1b-Headhunter Buff", "buffEnable", true,
+                "1b-Headhunter Buff", "hunterBuffEnable", true,
                 "Killing elites also grants stat buffs."
             );
             HeadHunterBuffHealth = Config.Bind(
-                "1b-Headhunter Buff", "increasedHealth", 0.05f,
+                "1b-Headhunter Buff", "hunterIncreasedHealth", 0.05f,
                 "Increased health per headhunter buff."
             );
             HeadHunterBuffMovementSpeed = Config.Bind(
-                "1b-Headhunter Buff", "IncreasedMovementSpeed", 0.05f,
+                "1b-Headhunter Buff", "hunterIncreasedMovementSpeed", 0.05f,
                 "Increased movement speed per headhunter buff."
             );
             HeadHunterBuffDamage = Config.Bind(
-                "1b-Headhunter Buff", "increasedDamage", 0.02f,
+                "1b-Headhunter Buff", "hunterIncreasedDamage", 0.02f,
                 "Increased damage per headhunter buff."
             );
             HeadHunterBuffAttackSpeed = Config.Bind(
-                "1b-Headhunter Buff", "increasedAttackSpeed", 0.02f,
+                "1b-Headhunter Buff", "hunterIncreasedAttackSpeed", 0.02f,
                 "Increased attack speed per headhunter buff."
             );
             HeadHunterBuffCritChance = Config.Bind(
-                "1b-Headhunter Buff", "increasedCritChance", 2f,
+                "1b-Headhunter Buff", "hunterIncreasedCritChance", 2f,
                 "Increased crit chance per headhunter buff."
             );
 
@@ -332,6 +341,36 @@ namespace TPDespair.ZetAspects
             AspectPoisonStackHeal = Config.Bind(
                 "2ae-Malachite Aspect", "malachiteAddedLifeGainOnHit", 4,
                 "Health gained on hit per stack."
+            );
+
+
+            AspectLunarProjectiles = Config.Bind(
+                "2af-Perfect Aspect", "perfectPlayerProjectiles", false,
+                "Set whether players shoot projectiles during combat."
+            );
+            AspectLunarCrippleDuration = Config.Bind(
+                "2af-Perfect Aspect", "perfectCrippleDuration", 4.0f,
+                "Set cripple duration in seconds."
+            );
+            AspectLunarRegen = Config.Bind(
+                "2af-Perfect Aspect", "perfectShieldRegen", 0.50f,
+                "Health regen converted into shield regen. Set to 0 to disable."
+            );
+            AspectLunarBaseMovementGain = Config.Bind(
+                "2af-Perfect Aspect", "perfectBaseMovementGained", 0.20f,
+                "Movement speed gained. Set to 0 to disable."
+            );
+            AspectLunarStackMovementGain = Config.Bind(
+                "2af-Perfect Aspect", "perfectAddedMovementGained", 0.10f,
+                "Movement speed gained per stack."
+            );
+            AspectLunarBaseShieldGain = Config.Bind(
+                "2af-Perfect Aspect", "perfectBaseShieldGained", 0.20f,
+                "Set extra shield. Set to 0 to disable."
+            );
+            AspectLunarStackShieldGain = Config.Bind(
+                "2af-Perfect Aspect", "perfectAddedShieldGained", 0.10f,
+                "Set extra shield per stack."
             );
         }
     }
