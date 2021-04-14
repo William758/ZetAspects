@@ -14,7 +14,7 @@ Amplifies the effect of aspects with additional stacks.
 
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/nFX1L4r.png)
+![effects](https://i.imgur.com/il9Kd6b.png)
 
 ## Installation:
 
@@ -23,6 +23,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.1.0 - Added Perfected Elite support. Tweaked burn calculations. Changed name of HeadHunter Buff configs to be more consistent.
 
 v2.0.2 - Updated for latest patch. Now only requires HookGenPatcher.
 
