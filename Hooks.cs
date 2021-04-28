@@ -757,6 +757,25 @@ namespace TPDespair.ZetAspects
 
 
 
+
+		private static bool CheckDropRoll(float chance, CharacterMaster master)
+		{
+			if (chance <= 0f) return false;
+
+			float luck = master ? master.luck : 0f;
+
+			int count = Mathf.CeilToInt(Mathf.Abs(luck));
+			float roll = UnityEngine.Random.Range(0f, 100f);
+
+			for (int i = 0; i < count; i++)
+			{
+				float r = UnityEngine.Random.Range(0f, 100f);
+				roll = (luck > 0f) ? Mathf.Min(roll, r) : Mathf.Max(roll, r);
+			}
+
+			return roll <= chance;
+		}
+
 		private static void DropChanceHook()
 		{
 			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
@@ -766,17 +785,19 @@ namespace TPDespair.ZetAspects
 				bool found = c.TryGotoNext(
 					x => x.MatchPop(),
 					x => x.MatchLdcR4(0.025f),
-					x => x.MatchLdloc(14)
+					x => x.MatchLdloc(14),
+					x => x.MatchCall("RoR2.Util", "CheckRoll")
 				);
 
 				if (found)
 				{
-					c.Index += 2;
+					c.Index += 4;
 
 					c.Emit(OpCodes.Pop);
-					c.EmitDelegate<Func<float>>(() =>
+					c.Emit(OpCodes.Ldloc, 14);
+					c.EmitDelegate<Func<CharacterMaster, bool>>((master) =>
 					{
-						return Configuration.AspectDropChance.Value;
+						return CheckDropRoll(Configuration.AspectDropChance.Value, master);
 					});
 
 					found = c.TryGotoNext(
@@ -791,9 +812,11 @@ namespace TPDespair.ZetAspects
 						c.Emit(OpCodes.Ldloc, 10);
 						c.EmitDelegate<Func<bool, EquipmentIndex, bool>>((isElite, index) =>
 						{
+							if (Configuration.AspectDropChance.Value <= 0f) return false;
+
 							if (isElite && index != EquipmentIndex.None)
 							{
-								if (Configuration.AspectShowDropText.Value && NetworkServer.active)
+								if (Configuration.AspectShowDropText.Value)
 								{
 									Chat.SendBroadcastChat(new Chat.SimpleChatMessage
 									{
@@ -801,6 +824,7 @@ namespace TPDespair.ZetAspects
 									});
 								}
 							}
+
 							return isElite;
 						});
 					}
