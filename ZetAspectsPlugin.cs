@@ -12,7 +12,7 @@ namespace TPDespair.ZetAspects
 
     public class ZetAspectsPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "2.1.0";
+        public const string ModVer = "2.1.1";
         public const string ModName = "ZetAspects";
         public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -62,14 +62,14 @@ namespace TPDespair.ZetAspects
         {
             On.RoR2.Language.TokenIsRegistered += (orig, self, token) =>
             {
-                if (LangTokens.ContainsKey(token)) return true;
+                if (token != null && LangTokens.ContainsKey(token)) return true;
 
                 return orig(self, token);
             };
 
             On.RoR2.Language.GetString_string += (orig, token) =>
             {
-                if (LangTokens.ContainsKey(token)) return LangTokens[token];
+                if (token != null && LangTokens.ContainsKey(token)) return LangTokens[token];
 
                 return orig(token);
             };
