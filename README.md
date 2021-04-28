@@ -24,6 +24,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.1.1 - Prevent other effects besides luck affecting drop chance.
+
 v2.1.0 - Added Perfected Elite support. Tweaked burn calculations. Changed name of HeadHunter Buff configs to be more consistent.
 
 v2.0.2 - Updated for latest patch. Now only requires HookGenPatcher.
