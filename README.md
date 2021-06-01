@@ -24,6 +24,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.2.0 - Prevent Ice Aspect freezing Mithrix. New Buff Icons. Config to reduce drop chance based on drops in run. Config to convert equipment to item by clicking bottom-right equipment icon. Alternate equipment applies elite skin.
+
 v2.1.1 - Prevent other effects besides luck affecting drop chance.
 
 v2.1.0 - Added Perfected Elite support. Tweaked burn calculations. Changed name of HeadHunter Buff configs to be more consistent.
