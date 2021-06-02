@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    public static class ZetAspectPerfect
+	public static class ZetAspectPerfect
 	{
 		public static string identifier = "ZetAspectPerfect";
 
