@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    public static class ZetAspectFire
-    {
+	public static class ZetAspectFire
+	{
 		public static string identifier = "ZetAspectFire";
 
 		internal static void Hooks()
-        {
-            FiretrailHook();
+		{
+			FiretrailHook();
 			BurnApplicationHook();
 		}
 
