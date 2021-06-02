@@ -6,15 +6,15 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    public static class ZetAspectMalachite
-    {
+	public static class ZetAspectMalachite
+	{
 		public static string identifier = "ZetAspectMalachite";
 
 		internal static void Hooks()
-        {
+		{
 			SpikeballHook();
 			NullDurationHook();
-        }
+		}
 
 		internal static ItemDef DefineItem()
 		{
@@ -49,7 +49,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "N'kuhana's Retort");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of corruption.");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
+			//ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
@@ -71,7 +71,7 @@ namespace TPDespair.ZetAspects
 			output += ".";
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
-				output += "\nIncrease <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
+				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
 				output += Configuration.AspectPoisonBaseHealthGain.Value + "</style>";
 				if (Configuration.AspectPoisonStackHealthGain.Value != 0f)
 				{
