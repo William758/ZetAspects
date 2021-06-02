@@ -21,7 +21,6 @@ namespace TPDespair.ZetAspects
 			Buffs.Create();
 			Items.Create();
 
-			contentPack.identifier = identifier;
 			contentPack.buffDefs.Add(Buffs.buffDefs);
 			contentPack.itemDefs.Add(Items.itemDefs);
 			args.ReportProgress(1f);
@@ -55,24 +54,24 @@ namespace TPDespair.ZetAspects
 			{
 				ZetHeadHunter = ScriptableObject.CreateInstance<BuffDef>();
 				ZetHeadHunter.name = "ZetHeadHunter";
-				ZetHeadHunter.buffColor = Color.grey;
+				ZetHeadHunter.buffColor = new Color(0.5f, 0.5f, 0.35f);
 				ZetHeadHunter.canStack = true;
 				ZetHeadHunter.isDebuff = false;
-				ZetHeadHunter.iconSprite = Resources.Load<Sprite>("textures/bufficons/texBuffAttackSpeedOnCritIcon");
+				ZetHeadHunter.iconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunterIcon.png");
 
 				ZetSapped = ScriptableObject.CreateInstance<BuffDef>();
 				ZetSapped.name = "ZetSapped";
-				ZetSapped.buffColor = new Color(0.185f, 0.465f, 0.75f);
+				ZetSapped.buffColor = new Color(0.5f, 0.75f, 1f);
 				ZetSapped.canStack = false;
 				ZetSapped.isDebuff = true;
-				ZetSapped.iconSprite = Resources.Load<Sprite>("textures/bufficons/texBuffNullifiedIcon");
-				
+				ZetSapped.iconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSappedIcon.png");
+
 				ZetShredded = ScriptableObject.CreateInstance<BuffDef>();
 				ZetShredded.name = "ZetShredded";
 				ZetShredded.buffColor = new Color(0.185f, 0.75f, 0.465f);
 				ZetShredded.canStack = false;
 				ZetShredded.isDebuff = true;
-				ZetShredded.iconSprite = Resources.Load<Sprite>("textures/bufficons/texBuffPulverizeIcon");
+				ZetShredded.iconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texBuffShreddedIcon.png");
 
 				buffDefs = new BuffDef[] { ZetHeadHunter, ZetSapped, ZetShredded };
 			}
