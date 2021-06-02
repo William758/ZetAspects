@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    public static class ZetAspectCelestial
-    {
+	public static class ZetAspectCelestial
+	{
 		public static string identifier = "ZetAspectCelestial";
 
 		internal static void Hooks()
-        {
+		{
 			SlowHook();
 			ItemBehaviorHook();
-        }
+		}
 
 		internal static ItemDef DefineItem()
 		{
@@ -48,7 +48,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Spectral Circlet");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of incorporeality.");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
+			//ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
@@ -71,7 +71,7 @@ namespace TPDespair.ZetAspects
 			}
 			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
 			{
-				output += "\nIncrease <style=cIsHealing>armor</style> by <style=cIsHealing>";
+				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
 				output += Configuration.AspectGhostBaseArmorGain.Value + "</style>";
 				if (Configuration.AspectGhostStackArmorGain.Value != 0f)
 				{
