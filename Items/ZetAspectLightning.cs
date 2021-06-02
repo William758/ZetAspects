@@ -52,7 +52,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Silence Between Two Strikes");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of lightning.");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
+			//ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
