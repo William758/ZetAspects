@@ -7,8 +7,8 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    public static class ZetAspectIce
-    {
+	public static class ZetAspectIce
+	{
 		public static string identifier = "ZetAspectIce";
 
 		internal static void Hooks()
@@ -50,7 +50,7 @@ namespace TPDespair.ZetAspects
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_NAME", "Her Biting Embrace");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of ice.");
 			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
+			//ZetAspectsPlugin.RegisterLanguageToken("ITEM_" + locToken + "_LORE", "...");
 
 			return itemDef;
 		}
@@ -109,9 +109,10 @@ namespace TPDespair.ZetAspects
 					c.EmitDelegate<Action<DamageReport, SetStateOnHurt>>((damageReport, state) =>
 					{
 						CharacterBody attacker = damageReport.attackerBody;
+						CharacterBody victim = damageReport.victimBody;
 
 						if (attacker == null) return;
-
+						if (victim && victim.baseNameToken == "BROTHER_BODY_NAME") return;
 						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteFreezeChance.Value <= 0f) return;
 						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.105f) return;
 
@@ -181,24 +182,24 @@ namespace TPDespair.ZetAspects
 			damage *= Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (count - 1f);
 			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
 
-            LightningOrb lightningOrb = new LightningOrb
-            {
-                attacker = gameObject,
-                bouncedObjects = null,
-                bouncesRemaining = 0,
-                damageCoefficientPerBounce = 1f,
-                damageColorIndex = DamageColorIndex.Item,
-                damageValue = damage,
-                isCrit = damageInfo.crit,
-                lightningType = LightningOrb.LightningType.RazorWire,
-                origin = gameObject.transform.position,
-                procChainMask = default,
-                procCoefficient = 0f,
-                range = 0f,
-                teamIndex = teamIndex,
-                target = victim.mainHurtBox
-            };
-            OrbManager.instance.AddOrb(lightningOrb);
+			LightningOrb lightningOrb = new LightningOrb
+			{
+				attacker = gameObject,
+				bouncedObjects = null,
+				bouncesRemaining = 0,
+				damageCoefficientPerBounce = 1f,
+				damageColorIndex = DamageColorIndex.Item,
+				damageValue = damage,
+				isCrit = damageInfo.crit,
+				lightningType = LightningOrb.LightningType.RazorWire,
+				origin = gameObject.transform.position,
+				procChainMask = default,
+				procCoefficient = 0f,
+				range = 0f,
+				teamIndex = teamIndex,
+				target = victim.mainHurtBox
+			};
+			OrbManager.instance.AddOrb(lightningOrb);
 		}
 	}
 }
