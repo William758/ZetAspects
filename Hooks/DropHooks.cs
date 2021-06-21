@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil.Cil;
@@ -155,36 +155,15 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.PickupDropletController.CreatePickupDroplet += (orig, pickupIndex, position, velocity) =>
 			{
-				if (!Configuration.AspectEliteEquipment.Value)
+				if (!Configuration.DropAsEquipment())
 				{
-					PickupIndex newIndex = PickupIndex.none;
+					EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
 
-					if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixWhite.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectIce.itemIndex);
-					}
-					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixBlue.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectLightning.itemIndex);
-					}
-					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixRed.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectFire.itemIndex);
-					}
-					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixHaunted.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectCelestial.itemIndex);
-					}
-					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixPoison.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectMalachite.itemIndex);
-					}
-					else if (pickupIndex == PickupCatalog.FindPickupIndex(RoR2Content.Equipment.AffixLunar.equipmentIndex))
-					{
-						newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectPerfect.itemIndex);
-					}
+					if (equipIndex != EquipmentIndex.None) {
+						ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(equipIndex);
 
-					if (newIndex != PickupIndex.none) pickupIndex = newIndex;
+						if (newIndex != ItemIndex.None) pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+					}
 				}
 
 				orig(pickupIndex, position, velocity);
@@ -214,62 +193,19 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, 2);
 					c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((gpc, body, pickupDef) =>
 					{
-						if (!Configuration.AspectEquipmentAbsorb.Value) return pickupDef;
-
-						EquipmentIndex pickupEquip = pickupDef.equipmentIndex;
-
-						if (pickupEquip != EquipmentIndex.None)
+						if (Configuration.AspectEquipmentAbsorb.Value)
 						{
-							EquipmentIndex currentEquip = body.inventory.currentEquipmentIndex;
-							PickupIndex newIndex = PickupIndex.none;
+							EquipmentIndex pickupEquip = pickupDef.equipmentIndex;
 
-							if (pickupEquip == RoR2Content.Equipment.AffixWhite.equipmentIndex)
+							if (pickupEquip != EquipmentIndex.None && pickupEquip == body.inventory.currentEquipmentIndex)
 							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectIce.itemIndex);
-								}
-							}
-							else if (pickupEquip == RoR2Content.Equipment.AffixBlue.equipmentIndex)
-							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectLightning.itemIndex);
-								}
-							}
-							else if (pickupEquip == RoR2Content.Equipment.AffixRed.equipmentIndex)
-							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectFire.itemIndex);
-								}
-							}
-							else if (pickupEquip == RoR2Content.Equipment.AffixHaunted.equipmentIndex)
-							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectCelestial.itemIndex);
-								}
-							}
-							else if (pickupEquip == RoR2Content.Equipment.AffixPoison.equipmentIndex)
-							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectMalachite.itemIndex);
-								}
-							}
-							else if (pickupEquip == RoR2Content.Equipment.AffixLunar.equipmentIndex)
-							{
-								if (currentEquip == pickupEquip)
-								{
-									newIndex = PickupCatalog.FindPickupIndex(ZetAspectsContent.Items.ZetAspectPerfect.itemIndex);
-								}
-							}
+								ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(pickupEquip);
 
-							if (newIndex != PickupIndex.none)
-							{
-								gpc.pickupIndex = newIndex;
-								return PickupCatalog.GetPickupDef(newIndex);
+								if (newIndex != ItemIndex.None)
+								{
+									gpc.pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+									return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+								}
 							}
 						}
 
@@ -305,11 +241,11 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						ItemIndex itemIndex = ZetAspectsPlugin.GetEquipmentAspectIndex(inventory.currentEquipmentIndex);
+						ItemIndex itemIndex = ZetAspectsPlugin.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
 						if (itemIndex != ItemIndex.None)
 						{
-							inventory.SetEquipmentIndex(EquipmentIndex.None);
 							inventory.GiveItem(itemIndex);
+							inventory.SetEquipmentIndex(EquipmentIndex.None);
 						}
 					}
 				}
@@ -370,7 +306,7 @@ namespace TPDespair.ZetAspects
 			if (!inventory) return;
 			if (!inventory.hasAuthority) return;
 
-			ItemIndex itemIndex = ZetAspectsPlugin.GetEquipmentAspectIndex(inventory.currentEquipmentIndex);
+			ItemIndex itemIndex = ZetAspectsPlugin.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
 			if (itemIndex != ItemIndex.None) 
 			{
 				PlayerCharacterMasterController pcmc = handler.GetPCMC();
