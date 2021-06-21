@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using RoR2.Orbs;
+using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,19 +11,500 @@ namespace TPDespair.ZetAspects
 {
 	internal static class EffectHooks
 	{
+		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
+
 		internal static void Init()
 		{
-			ZetAspectIce.Hooks();
-			ZetAspectLightning.Hooks();
-			ZetAspectFire.Hooks();
-			ZetAspectCelestial.Hooks();
-			ZetAspectMalachite.Hooks();
-			ZetAspectPerfect.Hooks();
+			FreezeHook();
+			ChillApplicationHook();
+			OverloadingBombHook();
+			FireTrailHook();
+			BurnApplicationHook();
+			CelestialChillHook();
+			PoisonBallHook();
+			NullDurationHook();
+			LunarProjectileHook();
+			PreventCrippleHook();
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
+			DotAmpHook();
 			OnHitEnemyHook();
+
+			EquipmentLostBuffHook();
+			EquipmentGainedBuffHook();
+			ApplyAspectBuffOnInventoryChangedHook();
+			AspectBuffLostHook();
 			RefreshAspectBuffsHook();
+		}
+
+
+
+		private static void FreezeHook()
+		{
+			IL.RoR2.SetStateOnHurt.OnTakeDamageServer += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(0),
+					x => x.MatchLdcR4(2f),
+					x => x.MatchLdloc(1),
+					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
+					x => x.MatchMul()
+				);
+
+				if (found)
+				{
+					// Move to after default freeze check
+					c.Index += 8;
+
+					// Handle freeze chance
+					c.Emit(OpCodes.Ldarg, 1);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Action<DamageReport, SetStateOnHurt>>((damageReport, state) =>
+					{
+						CharacterBody attacker = damageReport.attackerBody;
+						CharacterBody victim = damageReport.victimBody;
+
+						if (attacker == null) return;
+						if (victim && victim.baseNameToken == "BROTHER_BODY_NAME") return;
+						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteFreezeChance.Value <= 0f) return;
+						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.105f) return;
+
+						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, RoR2Content.Buffs.AffixWhite);
+						float chance = Configuration.AspectWhiteFreezeChance.Value * count * damageReport.damageInfo.procCoefficient;
+						chance = Util.ConvertAmplificationPercentageIntoReductionPercentage(chance);
+
+						if (Util.CheckRoll(chance)) state.SetFrozen(Configuration.AspectWhiteFreezeDuration.Value * damageReport.damageInfo.procCoefficient);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Freeze Hook Failed");
+				}
+			};
+		}
+
+		private static void ChillApplicationHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcR4(1.5f),
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
+					x => x.MatchMul(),
+					x => x.MatchLdloc(8),
+					x => x.MatchConvR4(),
+					x => x.MatchMul()
+				);
+
+				if (found)
+				{
+					c.Index += 7;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
+					{
+						float duration = Configuration.AspectWhiteSlowDuration.Value;
+						if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+
+						return duration;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Chill Hook Failed");
+				}
+			};
+		}
+
+		private static void OverloadingBombHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitAll += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(0),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
+					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					// Prevent default
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, 0);
+
+					// Handle lightning bomb creation
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Action<CharacterBody, DamageInfo>>((self, damageInfo) =>
+					{
+						if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
+						if (Configuration.AspectBlueBaseDamage.Value <= 0f) return;
+
+						float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
+						float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
+
+						damage *= Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (count - 1f);
+						if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
+
+						FireProjectileInfo fireProjectileInfo = new FireProjectileInfo
+						{
+							projectilePrefab = lightningStake,
+							position = damageInfo.position,
+							rotation = Quaternion.identity,
+							owner = damageInfo.attacker,
+							damage = damage,
+							force = 0f,
+							crit = damageInfo.crit,
+							damageColorIndex = DamageColorIndex.Item,
+							target = null,
+							speedOverride = -1f,
+							fuseOverride = Configuration.AspectBlueBombDuration.Value,
+							damageTypeOverride = null
+						};
+						ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Overloading Bomb Hook Failed");
+				}
+			};
+		}
+
+		private static void FireTrailHook()
+		{
+			IL.RoR2.CharacterBody.UpdateFireTrail += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(0)
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, 0);
+					c.EmitDelegate<Func<CharacterBody, bool, bool>>((self, hasBuff) =>
+					{
+						if (self.teamComponent.teamIndex == TeamIndex.Player && !Configuration.AspectRedTrail.Value) return false;
+
+						return hasBuff;
+					});
+					c.Emit(OpCodes.Stloc, 0);
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Firetrail Hook Failed");
+				}
+			};
+		}
+
+		private static void BurnApplicationHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(7),
+					x => x.MatchLdloc(7),
+					x => x.MatchOr()
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					// Prevent default
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, 0);
+
+					// Handle DOT application
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.Emit(OpCodes.Ldarg, 2);
+					c.EmitDelegate<Action<CharacterBody, DamageInfo, GameObject>>((self, damageInfo, victim) =>
+					{
+						// dots tick at the start of duration
+						// 4s is 8 ticks - because the 1st tick is at 0s dot only lasts 3.5s
+						float ticks, rTicks, damageMult;
+
+						// Burn
+						if ((damageInfo.damageType & DamageType.IgniteOnHit) > DamageType.Generic)
+						{
+							ticks = 2f * 4f * damageInfo.procCoefficient;
+							rTicks = Mathf.Ceil(ticks);
+
+							if (rTicks > 0f)
+							{
+								damageMult = ticks / rTicks;
+								damageMult *= rTicks / (rTicks + 1f);
+								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.49f, damageMult);
+							}
+						}
+
+						// Percent Burn
+						// 5 ticks per second
+						if ((damageInfo.damageType & DamageType.PercentIgniteOnHit) != DamageType.Generic)
+						{
+							ticks = 5f * 4f * damageInfo.procCoefficient;
+							rTicks = Mathf.Ceil(ticks);
+
+							if (rTicks > 0f)
+							{
+								damageMult = ticks / rTicks;
+								damageMult *= rTicks / (rTicks + 1f);
+								DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.PercentBurn, (rTicks * 0.2f) + 0.19f, damageMult);
+							}
+						}
+
+						// Fire Aspect Burn
+						if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedBaseDamage.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixRed);
+							float aspectDamageMult = Configuration.AspectRedBaseDamage.Value + Configuration.AspectRedStackDamage.Value * (count - 1f);
+							float aspectDuration = Configuration.AspectRedBurnDuration.Value;
+
+							float ignitePercentBaseDamage = 0f;
+							float aspectPercentBaseDamage = 0f;
+
+							if ((damageInfo.damageType & DamageType.PercentIgniteOnHit) != DamageType.Generic)
+							{
+								ignitePercentBaseDamage = 4f * damageInfo.procCoefficient * 0.5f;
+							}
+
+							if (Configuration.AspectRedUseBase.Value)
+							{
+								aspectPercentBaseDamage = aspectDamageMult;
+							}
+							else
+							{
+								aspectPercentBaseDamage = damageInfo.damage / self.damage;
+								aspectPercentBaseDamage *= aspectDamageMult;
+								if (damageInfo.crit)
+								{
+									aspectPercentBaseDamage *= 2f;
+								}
+							}
+
+							if (self.teamComponent.teamIndex != TeamIndex.Player)
+							{
+								float monsterMult = Configuration.AspectEffectMonsterDamageMult.Value;
+								aspectPercentBaseDamage *= monsterMult;
+								aspectDuration *= monsterMult;
+							}
+
+							// Choose highest damage output
+							if (ignitePercentBaseDamage > aspectPercentBaseDamage)
+							{
+								ticks = 2f * 4f * damageInfo.procCoefficient;
+								rTicks = Mathf.Ceil(ticks);
+
+								if (rTicks > 0f)
+								{
+									damageMult = ticks / rTicks;
+									damageMult *= rTicks / (rTicks + 1f);
+									DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.49f, damageMult);
+								}
+							}
+							else
+							{
+								ticks = 2f * aspectDuration;
+								rTicks = Mathf.Ceil(ticks);
+
+								if (rTicks > 0f)
+								{
+									damageMult = aspectPercentBaseDamage / aspectDuration / 0.5f;
+									damageMult *= ticks / rTicks;
+									damageMult *= rTicks / (rTicks + 1f);
+									DotController.InflictDot(victim, damageInfo.attacker, DotController.DotIndex.Burn, (rTicks * 0.5f) + 0.49f, damageMult);
+									//Debug.LogWarning("BaseDamage : " + self.damage);
+									//Debug.LogWarning("TotalDamage : " + damageInfo.damage);
+									//Debug.LogWarning("ProcCoeff : " + damageInfo.procCoefficient);
+									//Debug.LogWarning("Ticks : " + rTicks + "(+1) [" + (self.damage * 0.25f * damageMult) + "]");
+								}
+							}
+
+							return;
+						}
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Burn Application Hook Failed");
+				}
+			};
+		}
+
+		private static void CelestialChillHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcI4(2),
+					x => x.MatchAdd(),
+					x => x.MatchStloc(8)
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					// Celestial slow
+					c.EmitDelegate<Func<int, int>>((value) =>
+					{
+						if (!Configuration.AspectGhostSlowEffect.Value) return 0;
+						return value;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Celestial Chill Hook Failed");
+				}
+			};
+		}
+
+		private static void PoisonBallHook()
+		{
+			IL.RoR2.CharacterBody.UpdateAffixPoison += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(0),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("poisonballTimer"),
+					x => x.MatchLdarg(1),
+					x => x.MatchAdd(),
+					x => x.MatchStfld<CharacterBody>("poisonballTimer")
+				);
+
+				if (found)
+				{
+					c.Index += 4;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<float, CharacterBody, float>>((deltaTime, self) =>
+					{
+						if (self.teamComponent.teamIndex == TeamIndex.Player && !Configuration.AspectPoisonFireSpikes.Value) return 0f;
+
+						return deltaTime;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Poison Ball Hook Failed");
+				}
+			};
+		}
+
+		private static void NullDurationHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(1),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("HealingDisabled")),
+					x => x.MatchLdcR4(8f),
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
+					x => x.MatchMul()
+				);
+
+				if (found)
+				{
+					c.Index += 6;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
+					{
+						float duration = Configuration.AspectPoisonNullDuration.Value;
+						if (self.teamComponent.teamIndex != TeamIndex.Player) duration = 8f * damageInfo.procCoefficient;
+
+						return duration;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Nullified Duration Hook Failed");
+				}
+			};
+		}
+
+		private static void LunarProjectileHook()
+		{
+			IL.RoR2.CharacterBody.UpdateAffixLunar += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchCall<CharacterBody>("HasBuff")
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<bool, CharacterBody, bool>>((hasBuff, self) =>
+					{
+						if (self.teamComponent.teamIndex == TeamIndex.Player && !Configuration.AspectLunarProjectiles.Value) return false;
+
+						return hasBuff;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Lunar Projectile Hook Failed");
+				}
+			};
+		}
+
+		private static void PreventCrippleHook()
+		{
+			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(1),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixLunar")),
+					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, 0);
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Prevent Cripple Apply Hook Failed");
+				}
+			};
 		}
 
 
@@ -147,6 +630,29 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void DotAmpHook()
+		{
+			On.RoR2.DotController.InflictDot_refInflictDotInfo += DotController_InflictDot_refInflictDotInfo;
+		}
+
+		private static void DotController_InflictDot_refInflictDotInfo(On.RoR2.DotController.orig_InflictDot_refInflictDotInfo orig, ref InflictDotInfo inflictDotInfo)
+		{
+			if (inflictDotInfo.attackerObject)
+			{
+				CharacterBody atkBody = inflictDotInfo.attackerObject.GetComponent<CharacterBody>();
+				if (atkBody)
+				{
+					if (atkBody.HasBuff(Catalog.EliteVariety.Buffs.AffixImpPlane) && Configuration.AspectImpaleBaseDotAmp.Value > 0f)
+					{
+						float count = ZetAspectsPlugin.GetStackMagnitude(atkBody, Catalog.EliteVariety.Buffs.AffixImpPlane);
+						inflictDotInfo.damageMultiplier *= 1f + Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
+					}
+				}
+			}
+
+			orig(ref inflictDotInfo);
+		}
+
 		private static void OnHitEnemyHook()
 		{
 			On.RoR2.GlobalEventManager.OnHitEnemy += (orig, self, damageInfo, victimObject) =>
@@ -169,12 +675,156 @@ namespace TPDespair.ZetAspects
 
 				if (attacker && victim)
 				{
-					ZetAspectIce.FireFrostBlade(attacker, victim, damageInfo);
-					ZetAspectLightning.ApplySapped(attacker, victim, damageInfo);
-					ZetAspectCelestial.ApplyShredded(attacker, victim, damageInfo);
-					ZetAspectPerfect.ApplyCripple(attacker, victim, damageInfo);
+					FireFrostBlade(attacker, victim, damageInfo);
+					ApplySapped(attacker, victim, damageInfo);
+					ApplyShredded(attacker, victim, damageInfo);
+					ApplyCripple(attacker, victim, damageInfo);
 				}
 			}
+		}
+
+		private static void FireFrostBlade(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!self.HasBuff(RoR2Content.Buffs.AffixWhite)) return;
+			if (Configuration.AspectWhiteBaseDamage.Value <= 0f) return;
+
+			GameObject gameObject = self.gameObject;
+			TeamIndex teamIndex = self.teamComponent.teamIndex;
+
+			float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
+			float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixWhite);
+
+			damage *= Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (count - 1f);
+			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
+
+			LightningOrb lightningOrb = new LightningOrb
+			{
+				attacker = gameObject,
+				bouncedObjects = null,
+				bouncesRemaining = 0,
+				damageCoefficientPerBounce = 1f,
+				damageColorIndex = DamageColorIndex.Item,
+				damageValue = damage,
+				isCrit = damageInfo.crit,
+				lightningType = LightningOrb.LightningType.RazorWire,
+				origin = gameObject.transform.position,
+				procChainMask = default,
+				procCoefficient = 0f,
+				range = 0f,
+				teamIndex = teamIndex,
+				target = victim.mainHurtBox
+			};
+			OrbManager.instance.AddOrb(lightningOrb);
+		}
+
+		private static void ApplySapped(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
+			if (ZetAspectsContent.Buffs.ZetSapped.buffIndex == BuffIndex.None) return;
+
+			float duration = Configuration.AspectBlueSappedDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f) victim.AddTimedBuff(ZetAspectsContent.Buffs.ZetSapped, duration);
+		}
+
+		private static void ApplyShredded(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!self.HasBuff(RoR2Content.Buffs.AffixHaunted)) return;
+			if (ZetAspectsContent.Buffs.ZetShredded.buffIndex == BuffIndex.None) return;
+
+			float duration = Configuration.AspectGhostShredDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f) victim.AddTimedBuff(ZetAspectsContent.Buffs.ZetShredded, duration);
+		}
+
+		private static void ApplyCripple(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!self.HasBuff(RoR2Content.Buffs.AffixLunar)) return;
+
+			float duration = Configuration.AspectLunarCrippleDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f) victim.AddTimedBuff(RoR2Content.Buffs.Cripple, duration);
+		}
+
+
+
+		private static void EquipmentLostBuffHook()
+		{
+			IL.RoR2.CharacterBody.OnEquipmentLost += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<EquipmentDef>("passiveBuffDef"),
+					x => x.MatchBrfalse(out _)
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.EmitDelegate<Func<BuffDef, BuffDef>>((buffDef) =>
+					{
+						if (!buffDef) return buffDef;
+
+						if (ZetAspectsPlugin.GetAspectEquipmentDef(buffDef)) return null;
+
+						return buffDef;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Equipment Lost Buff Hook Failed");
+				}
+			};
+		}
+
+		private static void EquipmentGainedBuffHook()
+		{
+			IL.RoR2.CharacterBody.OnEquipmentGained += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<EquipmentDef>("passiveBuffDef"),
+					x => x.MatchBrfalse(out _)
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<BuffDef, CharacterBody, BuffDef>>((buffDef, self) =>
+					{
+						if (!buffDef) return buffDef;
+
+						if (ZetAspectsPlugin.GetAspectEquipmentDef(buffDef))
+						{
+							if (self) self.AddTimedBuff(buffDef, 5f);
+							return null;
+						}
+
+						return buffDef;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Equipment Gained Buff Hook Failed");
+				}
+			};
+		}
+
+		private static void ApplyAspectBuffOnInventoryChangedHook()
+		{
+			On.RoR2.CharacterBody.OnInventoryChanged += (orig, self) =>
+			{
+				if (NetworkServer.active) ApplyAspectBuffs(self);
+
+				orig(self);
+			};
 		}
 
 		private static void RefreshAspectBuffsHook()
@@ -183,52 +833,145 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self, deltaTime);
 
-				if (self.inventory)
+				if (NetworkServer.active) ApplyAspectBuffs(self);
+			};
+		}
+
+		private static void AspectBuffLostHook()
+		{
+			On.RoR2.CharacterBody.OnBuffFinalStackLost += (orig, self, buffDef) =>
+			{
+				orig(self, buffDef);
+
+				if (NetworkServer.active)
 				{
-					if (!self.HasBuff(RoR2Content.Buffs.AffixWhite))
+					Inventory inventory = self.inventory;
+					ItemDef itemDef = ZetAspectsPlugin.GetAspectItemDef(buffDef);
+
+					if (inventory && itemDef)
 					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectIce) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixWhite.equipmentIndex)
+						if (inventory.GetItemCount(itemDef) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, buffDef))
 						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixWhite, 5f);
+							self.AddTimedBuff(buffDef, 5f);
 						}
-					}
-					if (!self.HasBuff(RoR2Content.Buffs.AffixBlue))
-					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLightning) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixBlue.equipmentIndex)
+						else
 						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixBlue, 5f);
-						}
-					}
-					if (!self.HasBuff(RoR2Content.Buffs.AffixRed))
-					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFire) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixRed.equipmentIndex)
-						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixRed, 5f);
-						}
-					}
-					if (!self.HasBuff(RoR2Content.Buffs.AffixHaunted))
-					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCelestial) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixHaunted.equipmentIndex)
-						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixHaunted, 5f);
-						}
-					}
-					if (!self.HasBuff(RoR2Content.Buffs.AffixPoison))
-					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectMalachite) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixPoison.equipmentIndex)
-						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixPoison, 5f);
-						}
-					}
-					if (!self.HasBuff(RoR2Content.Buffs.AffixLunar))
-					{
-						if (self.inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0 || self.inventory.alternateEquipmentIndex == RoR2Content.Equipment.AffixLunar.equipmentIndex)
-						{
-							self.AddTimedBuff(RoR2Content.Buffs.AffixLunar, 5f);
+							// update item behaviors
+							self.OnInventoryChanged();
 						}
 					}
 				}
 			};
+		}
+
+		private static void ApplyAspectBuffs(CharacterBody self)
+		{
+			Inventory inventory = self.inventory;
+
+			if (!inventory) return;
+
+			BuffDef targetBuff;
+
+			targetBuff = RoR2Content.Buffs.AffixWhite;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectIce) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+			targetBuff = RoR2Content.Buffs.AffixBlue;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLightning) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+			targetBuff = RoR2Content.Buffs.AffixRed;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFire) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+			targetBuff = RoR2Content.Buffs.AffixHaunted;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCelestial) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+			targetBuff = RoR2Content.Buffs.AffixPoison;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectMalachite) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+			targetBuff = RoR2Content.Buffs.AffixLunar;
+			if (!self.HasBuff(targetBuff))
+			{
+				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+				{
+					self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+
+			if (Catalog.EliteVariety.populated)
+			{
+				targetBuff = Catalog.EliteVariety.Buffs.AffixArmored;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectArmor) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+				targetBuff = Catalog.EliteVariety.Buffs.AffixBuffing;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectBanner) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+				targetBuff = Catalog.EliteVariety.Buffs.AffixImpPlane;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectImpale) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+				targetBuff = Catalog.EliteVariety.Buffs.AffixPillaging;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectGolden) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+				targetBuff = Catalog.EliteVariety.Buffs.AffixSandstorm;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCyclone) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+				targetBuff = Catalog.EliteVariety.Buffs.AffixTinkerer;
+				if (!self.HasBuff(targetBuff))
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectTinker) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
+					{
+						self.AddTimedBuff(targetBuff, 5f);
+					}
+				}
+			}
 		}
 	}
 }
