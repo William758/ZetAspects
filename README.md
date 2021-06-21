@@ -1,20 +1,28 @@
 # ZetAspects
 
-Drop rate from killed elites changed to 1 in 1000.
+Drop Rate from Killed Elites changed to 1 in 500, Halving every time one drops in a run. 
 
-Changes the Elite Aspects into scalable Red Tier items.
+Changes the Elite Aspects into scalable Drop Only Boss Tier Items.
 
-Aspects can be Red Tier, Yellow Tier(Drop Only), or kept as Equipment.
+Aspects can be changed to Red Tier or kept as Equipment.
+
+Having Aspect Abilities installed will make Aspects drop as Equipment by default.
+
+Clicking the Equipment icon at the bottom-right of the screen will Convert it into an Item.
 
 ## Wake of Vultures:
 
 Now lasts for 20 (+10 per stack) seconds and also gives a buff to stats on killing elites.
 
-Amplifies the effect of aspects with additional stacks.
+Amplifies the effect of aspects.
 
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/il9Kd6b.png)
+![effects](https://i.imgur.com/COYuGlr.png)
+
+## Elite Variety Aspect Effects:
+
+![effects](https://i.imgur.com/W0tu5kL.png)
 
 ## Installation:
 
@@ -23,6 +31,10 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.3.1 - Fixed issue preventing Tinkerer item behavior from starting immediately.
+
+v2.3.0 - Elite Variety Support. Changed Aspects to Boss Tier. Drop chance increased to 1 in 500 but halving every time one drops. Re-enabled some effects on the default aspects. Other config tweaks.
 
 v2.2.0 - Prevent Ice Aspect freezing Mithrix. New Buff Icons. Config to reduce drop chance based on drops in run. Config to convert equipment to item by clicking bottom-right equipment icon. Alternate equipment applies elite skin.
 
