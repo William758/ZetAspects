@@ -1,6 +1,7 @@
 using RoR2;
 using RoR2.ContentManagement;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
@@ -22,7 +23,7 @@ namespace TPDespair.ZetAspects
 			Items.Create();
 
 			contentPack.buffDefs.Add(Buffs.buffDefs);
-			contentPack.itemDefs.Add(Items.itemDefs);
+			contentPack.itemDefs.Add(Items.itemDefs.ToArray());
 			args.ReportProgress(1f);
 			yield break;
 		}
@@ -86,7 +87,14 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectMalachite;
 			public static ItemDef ZetAspectPerfect;
 
-			public static ItemDef[] itemDefs;
+			public static ItemDef ZetAspectArmor;
+			public static ItemDef ZetAspectBanner;
+			public static ItemDef ZetAspectImpale;
+			public static ItemDef ZetAspectGolden;
+			public static ItemDef ZetAspectCyclone;
+			public static ItemDef ZetAspectTinker;
+
+			public static List<ItemDef> itemDefs = new List<ItemDef>();
 
 			public static void Create()
 			{
@@ -97,7 +105,19 @@ namespace TPDespair.ZetAspects
 				ZetAspectMalachite = ZetAspects.ZetAspectMalachite.DefineItem();
 				ZetAspectPerfect = ZetAspects.ZetAspectPerfect.DefineItem();
 
-				itemDefs = new ItemDef[] { ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect };
+				itemDefs.AddRange(new ItemDef[] { ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
+
+				if (Catalog.EliteVariety.enabled)
+				{
+					ZetAspectArmor = ZetAspects.ZetAspectArmor.DefineItem();
+					ZetAspectBanner = ZetAspects.ZetAspectBanner.DefineItem();
+					ZetAspectImpale = ZetAspects.ZetAspectImpale.DefineItem();
+					ZetAspectGolden = ZetAspects.ZetAspectGolden.DefineItem();
+					ZetAspectCyclone = ZetAspects.ZetAspectCyclone.DefineItem();
+					ZetAspectTinker = ZetAspects.ZetAspectTinker.DefineItem();
+
+					itemDefs.AddRange(new ItemDef[] { ZetAspectArmor, ZetAspectBanner, ZetAspectImpale, ZetAspectGolden, ZetAspectCyclone, ZetAspectTinker });
+				}
 			}
 		}
 	}
