@@ -5,6 +5,7 @@ namespace TPDespair.ZetAspects
 	public static class Configuration
 	{
 		public static ConfigEntry<bool> AspectRedTier { get; set; }
+		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
 		public static ConfigEntry<bool> AspectShowDropText { get; set; }
@@ -13,6 +14,7 @@ namespace TPDespair.ZetAspects
 
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
+		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
 		public static ConfigEntry<float> AspectEquipmentEffect { get; set; }
 		public static ConfigEntry<bool> AspectEquipmentAbsorb { get; set; }
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
@@ -95,18 +97,45 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectLunarStackShieldGain { get; set; }
 
 
+		public static ConfigEntry<float> AspectArmorBaseArmorGain { get; set; }
+		public static ConfigEntry<float> AspectArmorStackArmorGain { get; set; }
+
+
+		public static ConfigEntry<float> AspectBannerBaseAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectBannerStackAttackSpeedGain { get; set; }
+
+
+		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
+		public static ConfigEntry<float> AspectImpaleStackDotAmp { get; set; }
+
+
+		public static ConfigEntry<float> AspectGoldenBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldenStackRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldenItemScoreFactor { get; set; }
+		public static ConfigEntry<float> AspectGoldenBaseScoredRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldenStackScoredRegenGain { get; set; }
+
+
+		public static ConfigEntry<float> AspectCycloneBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
+
+
 		internal static void Init(ConfigFile Config)
 		{
 			AspectRedTier = Config.Bind(
-				"0a-General", "aspectRedTier", true,
-				"Make aspects red items, otherwise drop-only yellow."
+				"0a-General", "aspectRedTier", false,
+				"Make aspects red items, otherwise yellow."
+			);
+			AspectWorldUnique = Config.Bind(
+				"0a-General", "aspectWorldUnique", true,
+				"Make aspects only drop from their respective elites and no where else."
 			);
 			AspectDropChance = Config.Bind(
-				"0a-General", "aspectDropChance", 0.1f,
-				"Percent chance that an elite drops its aspect. 0.1 is 0.1%"
+				"0a-General", "aspectDropChance", 0.2f,
+				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
 			);
 			AspectDropChanceDecay = Config.Bind(
-				"0a-General", "aspectDropChanceDecay", 1f,
+				"0a-General", "aspectDropChanceDecay", 0.5f,
 				"Multiply drop chance for every aspect that has dropped in a run."
 			);
 			AspectShowDropText = Config.Bind(
@@ -126,6 +155,10 @@ namespace TPDespair.ZetAspects
 			AspectEliteEquipment = Config.Bind(
 				"0b-Equipment", "eliteEquipmentDrop", false,
 				"Elites drop equipment instead of new items."
+			);
+			AspectAbilitiesEliteEquipment = Config.Bind(
+				"0b-Equipment", "aspectAbilitiesForceEquipmentDrop", true,
+				"Aspect Abilities forces elites to drop equipment."
 			);
 			AspectEquipmentEffect = Config.Bind(
 				"0b-Equipment", "eliteEquipmentEffect", 3f,
@@ -160,7 +193,7 @@ namespace TPDespair.ZetAspects
 				"Count extra headhunters up to amount. -1 for no limit."
 			);
 			HeadHunterExtraEffect = Config.Bind(
-				"1a-Headhunter", "hunterExtraEffect", 0.5f,
+				"1a-Headhunter", "hunterExtraEffect", 0.25f,
 				"Count extra headhunters as this much extra stacks of aspect."
 			);
 			HeadHunterBaseDuration = Config.Bind(
@@ -270,7 +303,7 @@ namespace TPDespair.ZetAspects
 
 
 			AspectRedTrail = Config.Bind(
-				"2ac-Fire Aspect", "firePlayerTrail", false,
+				"2ac-Fire Aspect", "firePlayerTrail", true,
 				"Set whether players leave fire trail."
 			);
 			AspectRedExtraJump = Config.Bind(
@@ -330,7 +363,7 @@ namespace TPDespair.ZetAspects
 
 
 			AspectPoisonFireSpikes = Config.Bind(
-				"2ae-Malachite Aspect", "malachitePlayerSpikes", false,
+				"2ae-Malachite Aspect", "malachitePlayerSpikes", true,
 				"Set whether players throw spike balls."
 			);
 			AspectPoisonNullDuration = Config.Bind(
@@ -360,7 +393,7 @@ namespace TPDespair.ZetAspects
 
 
 			AspectLunarProjectiles = Config.Bind(
-				"2af-Perfect Aspect", "perfectPlayerProjectiles", false,
+				"2af-Perfect Aspect", "perfectPlayerProjectiles", true,
 				"Set whether players shoot projectiles during combat."
 			);
 			AspectLunarCrippleDuration = Config.Bind(
@@ -387,6 +420,77 @@ namespace TPDespair.ZetAspects
 				"2af-Perfect Aspect", "perfectAddedShieldGained", 0.10f,
 				"Set extra shield per stack."
 			);
+
+
+			AspectArmorBaseArmorGain = Config.Bind(
+				"2ba-Armor Aspect", "armorBaseArmor", 30f,
+				"Armor gained. Set to 0 to disable."
+			);
+			AspectArmorStackArmorGain = Config.Bind(
+				"2ba-Armor Aspect", "armorAddedArmor", 15f,
+				"Armor gained per stack."
+			);
+
+
+			AspectBannerBaseAttackSpeedGain = Config.Bind(
+				"2bb-Banner Aspect", "bannerBaseAttackSpeedGained", 0.20f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectBannerStackAttackSpeedGain = Config.Bind(
+				"2bb-Banner Aspect", "bannerAddedAttackSpeedGained", 0.10f,
+				"Attack speed gained per stack."
+			);
+
+
+			AspectImpaleBaseDotAmp = Config.Bind(
+				"2bc-Impale Aspect", "impaleBaseDotAmp", 0.20f,
+				"DOT damage multiplier gained. Set to 0 to disable."
+			);
+			AspectImpaleStackDotAmp = Config.Bind(
+				"2bc-Impale Aspect", "impaleAddedDotAmp", 0.10f,
+				"DOT damage multiplier gained per stack."
+			);
+
+
+			AspectGoldenBaseRegenGain = Config.Bind(
+				"2bd-Golden Aspect", "goldenBaseRegen", 12f,
+				"Health regen gained. Set to 0 to disable."
+			);
+			AspectGoldenStackRegenGain = Config.Bind(
+				"2bd-Golden Aspect", "goldenAddedRegen", 6f,
+				"Health regen gained per stack."
+			);
+			AspectGoldenItemScoreFactor = Config.Bind(
+				"2bd-Golden Aspect", "goldenItemScoreFactor", 4.0f,
+				"Base itemscore factor. white = 1x, green = 3x, other = 9x. Applies before itemscore has been SQRT."
+			);
+			AspectGoldenBaseScoredRegenGain = Config.Bind(
+				"2bd-Golden Aspect", "goldenBaseScoredRegen", 1.0f,
+				"ScoredRegen multiplier gained. Applies after itemscore has been SQRT. Set to 0 to disable."
+			);
+			AspectGoldenStackScoredRegenGain = Config.Bind(
+				"2bd-Golden Aspect", "goldenStackScoredRegen", 0.5f,
+				"ScoredRegen multiplier gained per stack."
+			);
+
+
+			AspectCycloneBaseMovementGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneBaseMovementGained", 0.20f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectCycloneStackMovementGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneAddedMovementGained", 0.10f,
+				"Movement speed gained per stack."
+			);
+		}
+
+
+
+		internal static bool DropAsEquipment()
+		{
+			if (Catalog.AspectAbilities.enabled && AspectAbilitiesEliteEquipment.Value) return true;
+			if (AspectEliteEquipment.Value) return true;
+			return false;
 		}
 	}
 }
