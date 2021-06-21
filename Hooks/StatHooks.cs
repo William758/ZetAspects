@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -19,6 +19,9 @@ namespace TPDespair.ZetAspects
 			ArmorHook();
 			AttackSpeedHook();
 			CritChanceHook();
+			RegenHook();
+
+			OverloadingShieldConversionHook();
 			FullShieldConversionHook();
 			ShieldRegenHook();
 		}
@@ -51,11 +54,12 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, 63);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
+						float count;
+
 						if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedBaseMovementGain.Value > 0f)
 						{
-							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixRed);
-							float addedSpeed = Configuration.AspectRedBaseMovementGain.Value + Configuration.AspectRedStackMovementGain.Value * (count - 1f);
-							value += addedSpeed;
+							count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixRed);
+							value += Configuration.AspectRedBaseMovementGain.Value + Configuration.AspectRedStackMovementGain.Value * (count - 1f);
 						}
 
 						if (self.HasBuff(RoR2Content.Buffs.AffixLunar))
@@ -64,15 +68,20 @@ namespace TPDespair.ZetAspects
 
 							if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
 							{
-								float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
-								float addedSpeed = Configuration.AspectLunarBaseMovementGain.Value + Configuration.AspectLunarStackMovementGain.Value * (count - 1f);
-								value += addedSpeed;
+								count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
+								value += Configuration.AspectLunarBaseMovementGain.Value + Configuration.AspectLunarStackMovementGain.Value * (count - 1f);
 							}
 						}
 
 						if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
 						{
 							value += Configuration.HeadHunterBuffMovementSpeed.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
+						}
+
+						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm) && Configuration.AspectCycloneBaseMovementGain.Value > 0f)
+						{
+							count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixSandstorm);
+							value += Configuration.AspectCycloneBaseMovementGain.Value + Configuration.AspectCycloneStackMovementGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -203,8 +212,7 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(RoR2Content.Buffs.AffixBlue) && Configuration.AspectBlueBaseShieldGain.Value > 0f)
 						{
 							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
-							float addedShield = health * (Configuration.AspectBlueBaseShieldGain.Value + Configuration.AspectBlueStackShieldGain.Value * (count - 1f));
-							shield += addedShield;
+							shield += health * (Configuration.AspectBlueBaseShieldGain.Value + Configuration.AspectBlueStackShieldGain.Value * (count - 1f));
 						}
 
 						return shield;
@@ -241,8 +249,7 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(RoR2Content.Buffs.AffixPoison) && Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 						{
 							float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixPoison);
-							float addedHealth = Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (count - 1f);
-							value += addedHealth;
+							value += Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -283,21 +290,30 @@ namespace TPDespair.ZetAspects
 		private static float GetArmorDelta(CharacterBody self)
 		{
 			float addedArmor = 0f;
+			float lostArmor = 0f;
+			float count;
+
 			if (self.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectGhostBaseArmorGain.Value > 0f)
 			{
-				float count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixHaunted);
+				count = ZetAspectsPlugin.GetStackMagnitude(self, RoR2Content.Buffs.AffixHaunted);
 				addedArmor += Configuration.AspectGhostBaseArmorGain.Value + Configuration.AspectGhostStackArmorGain.Value * (count - 1f);
 			}
 			else if (self.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectGhostAllyArmorGain.Value > 0f)
 			{
 				addedArmor += Configuration.AspectGhostAllyArmorGain.Value;
 			}
+
 			if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
 			{
 				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
 			}
 
-			float lostArmor = 0f;
+			if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixArmored) && Configuration.AspectArmorBaseArmorGain.Value > 0f)
+			{
+				count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixArmored);
+				addedArmor += Configuration.AspectArmorBaseArmorGain.Value + Configuration.AspectArmorStackArmorGain.Value * (count - 1f);
+			}
+
 			if (self.HasBuff(ZetAspectsContent.Buffs.ZetShredded))
 			{
 				lostArmor += Mathf.Abs(Configuration.AspectGhostShredArmor.Value);
@@ -330,6 +346,11 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
 						{
 							value += Configuration.HeadHunterBuffAttackSpeed.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
+						}
+						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixBuffing) && Configuration.AspectBannerBaseAttackSpeedGain.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixBuffing);
+							value += Configuration.AspectBannerBaseAttackSpeedGain.Value + Configuration.AspectBannerStackAttackSpeedGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -374,6 +395,100 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Debug.LogWarning("ZetAspects - Crit Chance Hook Failed");
+				}
+			};
+		}
+
+		private static void RegenHook()
+		{
+			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcR4(1f),
+					x => x.MatchStloc(60)
+				);
+
+				if (found)
+				{
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, 55);
+					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
+					{
+						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixPillaging))
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixPillaging);
+
+							if (Configuration.AspectGoldenBaseRegenGain.Value > 0f)
+							{
+								value += Configuration.AspectGoldenBaseRegenGain.Value + Configuration.AspectGoldenStackRegenGain.Value * (count - 1f);
+							}
+
+							if (Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f)
+							{
+								Inventory inventory = self.inventory;
+								if (inventory)
+								{
+									float itemScore = 0f;
+
+									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
+									itemScore += 3 * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
+									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
+									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
+									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+
+									itemScore *= Configuration.AspectGoldenItemScoreFactor.Value;
+									itemScore = Mathf.Sqrt(itemScore);
+
+									value += itemScore * (Configuration.AspectGoldenBaseScoredRegenGain.Value + Configuration.AspectGoldenStackScoredRegenGain.Value * (count - 1f));
+								}
+							}
+						}
+
+						return value;
+					});
+					c.Emit(OpCodes.Stloc, 55);
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Health Regen Hook Failed");
+				}
+			};
+		}
+
+		private static void OverloadingShieldConversionHook()
+		{
+			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(0),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
+					x => x.MatchCall<CharacterBody>("HasBuff")
+				);
+
+				if (found)
+				{
+					c.Index += 7;
+
+					// Set health conversion factor
+					c.Emit(OpCodes.Pop);
+					c.EmitDelegate<Func<float>>(() =>
+					{
+						return Configuration.AspectBlueHealthConverted.Value;
+					});
+
+					c.Index += 11;
+
+					// Add converted health to shield
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldloc, 53);
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : Overloading Shield Conversion Hook Failed");
 				}
 			};
 		}
