@@ -1,12 +1,13 @@
 using BepInEx;
 using RoR2;
 using RoR2.ContentManagement;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 using System.Security;
 using System.Security.Permissions;
-using UnityEngine;
 
 [module: UnverifiableCode]
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -19,7 +20,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.2.0";
+		public const string ModVer = "2.3.1";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -40,6 +41,9 @@ namespace TPDespair.ZetAspects
 
 			Configuration.Init(Config);
 			ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
+
+			Catalog.PopulateOnRunStartHook();
+			Catalog.PopulateOnLogBookControllerInit();
 
 			StatHooks.Init();
 			EffectHooks.Init();
@@ -110,7 +114,7 @@ namespace TPDespair.ZetAspects
 		{
 			if (self.inventory == null) return 1f;
 
-			float aspect = self.inventory.GetItemCount(GetAspectItemIndex(buffDef));
+			float aspect = self.inventory.GetItemCount(GetAspectItemDef(buffDef));
 			float hunter = self.inventory.GetItemCount(RoR2Content.Items.HeadHunter);
 
 			if (HasAspectEquipment(self, buffDef))
@@ -140,61 +144,119 @@ namespace TPDespair.ZetAspects
 			return aspect + hunter;
 		}
 
-		public static ItemIndex GetAspectItemIndex(BuffDef buffDef)
+		public static ItemDef GetAspectItemDef(BuffDef buffDef)
 		{
-			BuffIndex buffIndex = buffDef.buffIndex;
+			BuffDef modBuffDef;
 
-			if (buffIndex == BuffIndex.None) return ItemIndex.None;
+			if (buffDef == RoR2Content.Buffs.AffixWhite) return ZetAspectsContent.Items.ZetAspectIce;
+			if (buffDef == RoR2Content.Buffs.AffixBlue) return ZetAspectsContent.Items.ZetAspectLightning;
+			if (buffDef == RoR2Content.Buffs.AffixRed) return ZetAspectsContent.Items.ZetAspectFire;
+			if (buffDef == RoR2Content.Buffs.AffixHaunted) return ZetAspectsContent.Items.ZetAspectCelestial;
+			if (buffDef == RoR2Content.Buffs.AffixPoison) return ZetAspectsContent.Items.ZetAspectMalachite;
+			if (buffDef == RoR2Content.Buffs.AffixLunar) return ZetAspectsContent.Items.ZetAspectPerfect;
 
-			if (buffIndex == RoR2Content.Buffs.AffixWhite.buffIndex) return ZetAspectsContent.Items.ZetAspectIce.itemIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixBlue.buffIndex) return ZetAspectsContent.Items.ZetAspectLightning.itemIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixRed.buffIndex) return ZetAspectsContent.Items.ZetAspectFire.itemIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixHaunted.buffIndex) return ZetAspectsContent.Items.ZetAspectCelestial.itemIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixPoison.buffIndex) return ZetAspectsContent.Items.ZetAspectMalachite.itemIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixLunar.buffIndex) return ZetAspectsContent.Items.ZetAspectPerfect.itemIndex;
+			if (Catalog.EliteVariety.populated)
+			{
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixArmored;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectArmor;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixBuffing;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectBanner;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixImpPlane;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectImpale;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixPillaging;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectGolden;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixSandstorm;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectCyclone;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixTinkerer;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectTinker;
+			}
 
-			return ItemIndex.None;
+			return null;
 		}
 
 		public static bool HasAspectEquipment(CharacterBody self, BuffDef buffDef)
 		{
-			EquipmentIndex aspectEquip = GetAspectEquipmentIndex(buffDef);
+			EquipmentDef equipDef = GetAspectEquipmentDef(buffDef);
 
-			if (aspectEquip == EquipmentIndex.None) return false;
-			if (self.inventory.currentEquipmentIndex == aspectEquip) return true;
-			if (self.inventory.alternateEquipmentIndex == aspectEquip) return true;
+			if (!equipDef) return false;
+
+			EquipmentIndex equipIndex = equipDef.equipmentIndex;
+
+			if (self.inventory.currentEquipmentIndex == equipIndex) return true;
+			if (self.inventory.alternateEquipmentIndex == equipIndex) return true;
 
 			return false;
 		}
 
-		public static EquipmentIndex GetAspectEquipmentIndex(BuffDef buffDef)
+		public static EquipmentDef GetAspectEquipmentDef(BuffDef buffDef)
 		{
-			BuffIndex buffIndex = buffDef.buffIndex;
+			BuffDef modBuffDef;
 
-			if (buffIndex == BuffIndex.None) return EquipmentIndex.None;
+			if (buffDef == RoR2Content.Buffs.AffixWhite) return RoR2Content.Equipment.AffixWhite;
+			if (buffDef == RoR2Content.Buffs.AffixBlue) return RoR2Content.Equipment.AffixBlue;
+			if (buffDef == RoR2Content.Buffs.AffixRed) return RoR2Content.Equipment.AffixRed;
+			if (buffDef == RoR2Content.Buffs.AffixHaunted) return RoR2Content.Equipment.AffixHaunted;
+			if (buffDef == RoR2Content.Buffs.AffixPoison) return RoR2Content.Equipment.AffixPoison;
+			if (buffDef == RoR2Content.Buffs.AffixLunar) return RoR2Content.Equipment.AffixLunar;
 
-			if (buffIndex == RoR2Content.Buffs.AffixWhite.buffIndex) return RoR2Content.Equipment.AffixWhite.equipmentIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixBlue.buffIndex) return RoR2Content.Equipment.AffixBlue.equipmentIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixRed.buffIndex) return RoR2Content.Equipment.AffixRed.equipmentIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixHaunted.buffIndex) return RoR2Content.Equipment.AffixHaunted.equipmentIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixPoison.buffIndex) return RoR2Content.Equipment.AffixPoison.equipmentIndex;
-			if (buffIndex == RoR2Content.Buffs.AffixLunar.buffIndex) return RoR2Content.Equipment.AffixLunar.equipmentIndex;
+			if (Catalog.EliteVariety.populated)
+			{
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixArmored;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixArmored;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixBuffing;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixBuffing;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixImpPlane;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixImpPlane;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixPillaging;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixPillaging;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixSandstorm;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixSandstorm;
+				modBuffDef = Catalog.EliteVariety.Buffs.AffixTinkerer;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixTinkerer;
+			}
 
-			return EquipmentIndex.None;
+			return null;
 		}
 
-		public static ItemIndex GetEquipmentAspectIndex(EquipmentIndex equipmentIndex)
+		public static ItemIndex ItemizeEliteEquipment(EquipmentIndex equipmentIndex)
 		{
 			if (equipmentIndex == EquipmentIndex.None) return ItemIndex.None;
 
-			if (equipmentIndex == RoR2Content.Equipment.AffixWhite.equipmentIndex) return ZetAspectsContent.Items.ZetAspectIce.itemIndex;
-			if (equipmentIndex == RoR2Content.Equipment.AffixBlue.equipmentIndex) return ZetAspectsContent.Items.ZetAspectLightning.itemIndex;
-			if (equipmentIndex == RoR2Content.Equipment.AffixRed.equipmentIndex) return ZetAspectsContent.Items.ZetAspectFire.itemIndex;
-			if (equipmentIndex == RoR2Content.Equipment.AffixHaunted.equipmentIndex) return ZetAspectsContent.Items.ZetAspectCelestial.itemIndex;
-			if (equipmentIndex == RoR2Content.Equipment.AffixPoison.equipmentIndex) return ZetAspectsContent.Items.ZetAspectMalachite.itemIndex;
-			if (equipmentIndex == RoR2Content.Equipment.AffixLunar.equipmentIndex) return ZetAspectsContent.Items.ZetAspectPerfect.itemIndex;
+			EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
+
+			EquipmentDef modEquipDef;
+
+			if (equipDef == RoR2Content.Equipment.AffixWhite) return ZetAspectsContent.Items.ZetAspectIce.itemIndex;
+			if (equipDef == RoR2Content.Equipment.AffixBlue) return ZetAspectsContent.Items.ZetAspectLightning.itemIndex;
+			if (equipDef == RoR2Content.Equipment.AffixRed) return ZetAspectsContent.Items.ZetAspectFire.itemIndex;
+			if (equipDef == RoR2Content.Equipment.AffixHaunted) return ZetAspectsContent.Items.ZetAspectCelestial.itemIndex;
+			if (equipDef == RoR2Content.Equipment.AffixPoison) return ZetAspectsContent.Items.ZetAspectMalachite.itemIndex;
+			if (equipDef == RoR2Content.Equipment.AffixLunar) return ZetAspectsContent.Items.ZetAspectPerfect.itemIndex;
+
+			if (Catalog.EliteVariety.populated)
+			{
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixArmored;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectArmor.itemIndex;
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixBuffing;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectBanner.itemIndex;
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixImpPlane;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectImpale.itemIndex;
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixPillaging;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectGolden.itemIndex;
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixSandstorm;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectCyclone.itemIndex;
+				modEquipDef = Catalog.EliteVariety.Equipment.AffixTinkerer;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectTinker.itemIndex;
+			}
 
 			return ItemIndex.None;
+		}
+
+		public static EliteDef GetEquipmentEliteDef(EquipmentDef equipDef)
+		{
+			if (equipDef == null) return null;
+			if (equipDef.passiveBuffDef == null) return null;
+			return equipDef.passiveBuffDef.eliteDef;
 		}
 
 
@@ -230,7 +292,7 @@ namespace TPDespair.ZetAspects
 				{
 					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
-					if (!Configuration.AspectEliteEquipment.Value)
+					if (!Configuration.DropAsEquipment())
 					{
 						CreateDroplet(ZetAspectsContent.Items.ZetAspectIce, transform.position + new Vector3(-5f,5f,5f));
 						CreateDroplet(ZetAspectsContent.Items.ZetAspectLightning, transform.position + new Vector3(0f, 5f, 7.5f));
@@ -253,13 +315,40 @@ namespace TPDespair.ZetAspects
 				if (Input.GetKeyDown(KeyCode.F3))
 				{
 					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
+					if (Catalog.EliteVariety.populated)
+					{
+						if (!Configuration.DropAsEquipment())
+						{
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectArmor, transform.position + new Vector3(-5f, 5f, 5f));
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectBanner, transform.position + new Vector3(0f, 5f, 7.5f));
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectImpale, transform.position + new Vector3(5f, 5f, 5f));
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectGolden, transform.position + new Vector3(-5f, 5f, -5f));
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectCyclone, transform.position + new Vector3(0f, 5f, -7.5f));
+							CreateDroplet(ZetAspectsContent.Items.ZetAspectTinker, transform.position + new Vector3(5f, 5f, -5f));
+						}
+						else
+						{
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixArmored, transform.position + new Vector3(-5f, 5f, 5f));
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixBuffing, transform.position + new Vector3(0f, 5f, 7.5f));
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixImpPlane, transform.position + new Vector3(5f, 5f, 5f));
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixPillaging, transform.position + new Vector3(-5f, 5f, -5f));
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixSandstorm, transform.position + new Vector3(0f, 5f, -7.5f));
+							CreateDroplet(Catalog.EliteVariety.Equipment.AffixTinkerer, transform.position + new Vector3(5f, 5f, -5f));
+						}
+					}
+				}
+
+				if (Input.GetKeyDown(KeyCode.F4))
+				{
+					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.ShieldOnly.itemIndex), transform.position, transform.forward * 30f);
 					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.RepeatHeal.itemIndex), transform.position, transform.forward * -30f);
 					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.HeadHunter.itemIndex), transform.position, transform.right * 30f);
 					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.LunarDagger.itemIndex), transform.position, transform.right * -30f);
 				}
 
-				if (Input.GetKeyDown(KeyCode.F4))
+				if (Input.GetKeyDown(KeyCode.F5))
 				{
 					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.Knurl.itemIndex), transform.position, transform.forward * 30f);
