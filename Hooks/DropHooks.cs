@@ -32,6 +32,7 @@ namespace TPDespair.ZetAspects
 			DropChanceHook();
 			InterceptAspectDropHook();
 			EquipmentAbsorbHook();
+			DiscoverAspectHook();
 			EquipmentConvertHook();
 			EquipmentIconHook();
 		}
@@ -216,6 +217,23 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Debug.LogWarning("ZetAspects - Equipment Absorb Hook Failed");
+				}
+			};
+		}
+
+		private static void DiscoverAspectHook()
+		{
+			On.RoR2.UserProfile.DiscoverPickup += (orig, self, pickupIndex) =>
+			{
+				orig(self, pickupIndex);
+
+				EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
+
+				if (equipIndex != EquipmentIndex.None)
+				{
+					ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(equipIndex);
+
+					if (newIndex != ItemIndex.None) orig(self, PickupCatalog.FindPickupIndex(newIndex));
 				}
 			};
 		}
