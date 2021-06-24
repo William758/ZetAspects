@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using System;
 using UnityEngine;
 
@@ -284,8 +284,8 @@ namespace TPDespair.ZetAspects
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
 			if (Configuration.AspectWorldUnique.Value)
 			{
-				Array.Resize(ref tags, 2);
-				tags[1] = ItemTag.WorldUnique;
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite sprite;
@@ -349,8 +349,8 @@ namespace TPDespair.ZetAspects
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
 			if (Configuration.AspectWorldUnique.Value)
 			{
-				Array.Resize(ref tags, 2);
-				tags[1] = ItemTag.WorldUnique;
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite sprite;
@@ -385,8 +385,19 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Automatization</style> :";
-			output += "\nSpawn up to 3 Tinkerers Drones that become stronger with scrap.";
+			output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
 			output += "\nAttacks steal scrap from the victim.";
+			if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
+			{
+				output += "\nDrones have <style=cIsHealing>damage taken</style> reduced by <style=cIsHealing>";
+				output += Configuration.AspectTinkerBaseDamageResistGain.Value * 100f + "%</style>";
+				if (Configuration.AspectTinkerStackDamageResistGain.Value != 0f)
+				{
+					output += " <style=cStack>(+";
+					output += Configuration.AspectTinkerStackDamageResistGain.Value * 100f + "% per stack)</style>";
+				}
+				output += ".";
+			}
 
 			return output;
 		}
