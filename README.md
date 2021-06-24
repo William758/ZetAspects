@@ -22,7 +22,7 @@ Amplifies the effect of aspects.
 
 ## Elite Variety Aspect Effects:
 
-![effects](https://i.imgur.com/W0tu5kL.png)
+![effects](https://i.imgur.com/s30Qvh5.png)
 
 ## Installation:
 
@@ -31,6 +31,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.3.2 - Replace equipment icons. Added Effects to equipment descriptions. Picking up Aspect Equipment discovers item in Logbook. Added Neural Link stacking behavior.
 
 v2.3.1 - Fixed issue preventing Tinkerer item behavior from starting immediately.
 
