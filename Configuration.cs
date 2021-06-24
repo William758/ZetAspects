@@ -120,6 +120,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
 
 
+		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
+
+
 		internal static void Init(ConfigFile Config)
 		{
 			AspectRedTier = Config.Bind(
@@ -481,6 +485,16 @@ namespace TPDespair.ZetAspects
 			AspectCycloneStackMovementGain = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneAddedMovementGained", 0.10f,
 				"Movement speed gained per stack."
+			);
+
+
+			AspectTinkerBaseDamageResistGain = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerBaseDroneDamageResist", 0.20f,
+				"Drone damage taken reduction. Hyperbolic. Set to 0 to disable."
+			);
+			AspectTinkerStackDamageResistGain = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
+				"Drone damage taken reduction per stack. Hyperbolic."
 			);
 		}
 
