@@ -17,10 +17,12 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
+	[BepInDependency("com.TheMysticSword.AspectAbilities", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.3.1";
+		public const string ModVer = "2.3.2";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -42,8 +44,8 @@ namespace TPDespair.ZetAspects
 			Configuration.Init(Config);
 			ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
 
-			Catalog.PopulateOnRunStartHook();
-			Catalog.PopulateOnLogBookControllerInit();
+			Catalog.SetOnRunStartHook();
+			Catalog.SetOnLogBookControllerInit();
 
 			StatHooks.Init();
 			EffectHooks.Init();
@@ -280,7 +282,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-
+		
 		/*
 		private static void DebugDrops()
 		{
