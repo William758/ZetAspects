@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -12,6 +13,25 @@ namespace TPDespair.ZetAspects
 	internal static class EffectHooks
 	{
 		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
+
+		public static List<string> DronesList = new List<string>
+		{
+			"DroneBackup",
+			"Drone1",
+			"Drone2",
+			"EmergencyDrone",
+			"EquipmentDrone",
+			"FlameDrone",
+			"MegaDrone",
+			"DroneMissile",
+			"Turret1",
+			"TinkererDrone",
+			"LaserDrone1",
+			"LaserDrone2",
+			"BeamDrone",
+			"LaserDrone",
+			"ChillDrone"
+		};
 
 		internal static void Init()
 		{
@@ -530,11 +550,31 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<float, HealthComponent, float>>((damage, healthComponent) =>
 					{
-						if (healthComponent.body.HasBuff(RoR2Content.Buffs.HealingDisabled) && Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+						CharacterBody self = healthComponent.body;
+
+						if (!self) return damage;
+
+						if (self.HasBuff(RoR2Content.Buffs.HealingDisabled) && Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 						{
 							float extraDamage = Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value);
-							if (healthComponent.body.teamComponent.teamIndex == TeamIndex.Player) extraDamage *= Configuration.AspectEffectPlayerDebuffMult.Value;
+							if (self.teamComponent.teamIndex == TeamIndex.Player) extraDamage *= Configuration.AspectEffectPlayerDebuffMult.Value;
 							damage *= 1f + extraDamage;
+						}
+
+						if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
+						{
+							CharacterMaster master = self.master;
+							if (master && IsValidDrone(master))
+							{
+								CharacterBody ownerBody = GetMinionOwnerBody(master);
+								if (ownerBody && ownerBody.HasBuff(Catalog.EliteVariety.Buffs.AffixTinkerer))
+								{
+									float count = ZetAspectsPlugin.GetStackMagnitude(ownerBody, Catalog.EliteVariety.Buffs.AffixTinkerer);
+									float damageReduction = Configuration.AspectTinkerBaseDamageResistGain.Value + Configuration.AspectTinkerStackDamageResistGain.Value * (count - 1f);
+									damageReduction = Util.ConvertAmplificationPercentageIntoReductionPercentage(damageReduction * 100f) * 0.01f;
+									damage *= 1f - damageReduction;
+								}
+							}
 						}
 
 						return damage;
@@ -546,6 +586,22 @@ namespace TPDespair.ZetAspects
 					Debug.LogWarning("ZetAspects - Damage Taken Hook Failed");
 				}
 			};
+		}
+
+		private static bool IsValidDrone(CharacterMaster minionMaster)
+		{
+			//Debug.LogWarning("Checking Master Name : " + minionMaster.name);
+			return DronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
+		}
+
+		private static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
+		{
+			MinionOwnership minionOwnership = minionMaster.minionOwnership;
+			if (!minionOwnership) return null;
+			CharacterMaster ownerMaster = minionOwnership.ownerMaster;
+			if (!ownerMaster) return null;
+
+			return ownerMaster.GetBody();
 		}
 
 		private static void LifeGainOnHitHook()
@@ -964,7 +1020,7 @@ namespace TPDespair.ZetAspects
 					}
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixTinkerer;
-				if (!self.HasBuff(targetBuff))
+				if (self.bodyIndex != Catalog.EliteVariety.TinkerDroneBodyIndex && !self.HasBuff(targetBuff))
 				{
 					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectTinker) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
 					{
