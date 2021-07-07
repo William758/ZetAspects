@@ -14,24 +14,7 @@ namespace TPDespair.ZetAspects
 	{
 		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 
-		public static List<string> DronesList = new List<string>
-		{
-			"DroneBackup",
-			"Drone1",
-			"Drone2",
-			"EmergencyDrone",
-			"EquipmentDrone",
-			"FlameDrone",
-			"MegaDrone",
-			"DroneMissile",
-			"Turret1",
-			"TinkererDrone",
-			"LaserDrone1",
-			"LaserDrone2",
-			"BeamDrone",
-			"LaserDrone",
-			"ChillDrone"
-		};
+		public static List<string> DronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
 
 		internal static void Init()
 		{
@@ -590,8 +573,9 @@ namespace TPDespair.ZetAspects
 
 		private static bool IsValidDrone(CharacterMaster minionMaster)
 		{
-			//Debug.LogWarning("Checking Master Name : " + minionMaster.name);
-			return DronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
+			bool result = DronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
+			//Debug.LogWarning("Checking Master Name : " + minionMaster.name + " - " + result);
+			return result;
 		}
 
 		private static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
