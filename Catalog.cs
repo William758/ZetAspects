@@ -35,7 +35,7 @@ namespace TPDespair.ZetAspects
 				RiskOfRain.UpdateEquipmentText();
 
 				if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.zombieseatflesh7.dynamicbarrierdecay")) DynamicBarrierDecay.enabled = true;
-				else if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetTweaks")) DynamicBarrierDecay.enabled = true;
+				if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetTweaks")) DynamicBarrierDecay.slowed = true;
 
 				if (EliteVariety.enabled)
 				{
@@ -48,7 +48,7 @@ namespace TPDespair.ZetAspects
 					EliteVariety.ApplyEquipmentIcons();
 					EliteVariety.UpdateEquipmentText();
 
-					if (DynamicBarrierDecay.enabled) ZetAspectsPlugin.RegisterLanguageToken("ITEM_ZETASPECTARMOR_DESC", ZetAspectArmor.BuildDescription());
+					if (DynamicBarrierDecay.enabled || DynamicBarrierDecay.slowed) ZetAspectsPlugin.RegisterLanguageToken("ITEM_ZETASPECTARMOR_DESC", ZetAspectArmor.BuildDescription());
 
 					EliteVariety.populated = true;
 				}
@@ -115,43 +115,52 @@ namespace TPDespair.ZetAspects
 			{
 				string text;
 				float value = Configuration.AspectEquipmentEffect.Value;
-				string stacks = "\n\n<style=cStack>Counts as " + value + " stack" + (value == 1f ? "" : "s") + "</style>";
+				string stacks = "\n\nCounts as " + value + " stack" + (value == 1f ? "" : "s");
+				string convertText = "\nClick bottom-right equipment icon to convert";
+
 				bool activeEffect = AspectAbilities.enabled;
+				bool showConvertInfo = Configuration.AspectEquipmentConversion.Value;
 
 				text = "";
-				if(activeEffect) text += "Deploy a health-reducing ice crystal on use.\n\n";
+				if (activeEffect) text += "Deploy a health-reducing ice crystal on use.\n\n";
 				text += ZetAspectIce.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXWHITE_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Teleport on use.\n\n";
 				text += ZetAspectLightning.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXBLUE_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Release a barrage of seeking flame missiles on use.\n\n";
 				text += ZetAspectFire.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXRED_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Heal all allies inside the invisibility aura on use.\n\n";
 				text += ZetAspectCelestial.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXHAUNTED_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Summon an ally Malachite Urchin that inherits your items on use.\n\n";
 				text += ZetAspectMalachite.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXPOISON_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Gain temporary defense from powerful attacks on use.\n\n";
 				text += ZetAspectPerfect.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXLUNAR_DESC", text);
 			}
 		}
@@ -345,43 +354,52 @@ namespace TPDespair.ZetAspects
 			{
 				string text;
 				float value = Configuration.AspectEquipmentEffect.Value;
-				string stacks = "\n\n<style=cStack>Counts as " + value + " stack" + (value == 1f ? "" : "s") + "</style>";
+				string stacks = "\n\nCounts as " + value + " stack" + (value == 1f ? "" : "s");
+				string convertText = "\nClick bottom-right equipment icon to convert";
+
 				bool activeEffect = AspectAbilities.enabled;
+				bool showConvertInfo = Configuration.AspectEquipmentConversion.Value;
 
 				text = "";
 				if (activeEffect) text += "Gain temporary armor increase on use.\n\n";
 				text += ZetAspectArmor.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXARMORED_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Increase banner radius on use.\n\n";
 				text += ZetAspectBanner.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXBUFFING_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Teleport to a target and deal damage on use.\n\n";
 				text += ZetAspectImpale.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXIMPPLANE_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Spend all of your gold for a random item. The more gold spent, the higher chance of getting a rarer item.\n\n";
 				text += ZetAspectGolden.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXPILLAGING_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Dash on use, knocking nearby enemies up.\n\n";
 				text += ZetAspectCyclone.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXSANDSTORM_DESC", text);
 
 				text = "";
 				if (activeEffect) text += "Heal drones on use.\n\n";
 				text += ZetAspectTinker.BuildDescription();
 				text += stacks;
+				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXTINKERER_DESC", text);
 			}
 
@@ -411,6 +429,7 @@ namespace TPDespair.ZetAspects
 		public static class DynamicBarrierDecay
 		{
 			public static bool enabled = false;
+			public static bool slowed = false;
 		}
 	}
 }
