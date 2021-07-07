@@ -22,7 +22,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.3.2";
+		public const string ModVer = "2.3.4";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -32,6 +32,8 @@ namespace TPDespair.ZetAspects
 
 		public static Dictionary<string, string> LangTokens = new Dictionary<string, string>();
 
+		public static float MultiplayerChanceCompensation = 1f;
+		public static bool DisableDrops = false;
 		public static int RunDropCount = 0;
 
 
@@ -272,14 +274,8 @@ namespace TPDespair.ZetAspects
 		public static void RegisterLanguageToken(string token, string text)
 		{
 			//LanguageAPI.Add(token, text);
-			if (!LangTokens.ContainsKey(token))
-			{
-				LangTokens.Add(token, text);
-			}
-			else
-			{
-				LangTokens[token] = text;
-			}
+			if (!LangTokens.ContainsKey(token)) LangTokens.Add(token, text);
+			else LangTokens[token] = text;
 		}
 
 		
