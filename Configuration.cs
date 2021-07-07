@@ -8,6 +8,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
+		public static ConfigEntry<float> AspectDropChanceDecayLimit { get; set; }
+		public static ConfigEntry<bool> AspectDropChanceCompensation { get; set; }
 		public static ConfigEntry<bool> AspectShowDropText { get; set; }
 		public static ConfigEntry<string> AspectDropText { get; set; }
 		public static ConfigEntry<bool> AspectSkinApply { get; set; }
@@ -112,6 +114,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectGoldenBaseRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldenStackRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldenItemScoreFactor { get; set; }
+		public static ConfigEntry<float> AspectGoldenItemScoreExponent { get; set; }
 		public static ConfigEntry<float> AspectGoldenBaseScoredRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldenStackScoredRegenGain { get; set; }
 
@@ -141,6 +144,14 @@ namespace TPDespair.ZetAspects
 			AspectDropChanceDecay = Config.Bind(
 				"0a-General", "aspectDropChanceDecay", 0.5f,
 				"Multiply drop chance for every aspect that has dropped in a run."
+			);
+			AspectDropChanceDecayLimit = Config.Bind(
+				"0a-General", "aspectDropChanceDecayLimit", 0.25f,
+				"Drop chance decay lower limit. Drop chance decay multiplier will not go below this value."
+			);
+			AspectDropChanceCompensation = Config.Bind(
+				"0a-General", "aspectDropChanceCompensation", true,
+				"Greatly increase drop chance at certain dropcount vs stagecount thresholds."
 			);
 			AspectShowDropText = Config.Bind(
 				"0a-General", "aspectEnableDropText", true,
@@ -466,11 +477,15 @@ namespace TPDespair.ZetAspects
 			);
 			AspectGoldenItemScoreFactor = Config.Bind(
 				"2bd-Golden Aspect", "goldenItemScoreFactor", 4.0f,
-				"Base itemscore factor. white = 1x, green = 3x, other = 9x. Applies before itemscore has been SQRT."
+				"Itemscore factor. white = 1x, green = 3x, other = 9x. Applies before itemscore exponent."
+			);
+			AspectGoldenItemScoreExponent = Config.Bind(
+				"2bd-Golden Aspect", "goldenItemScoreExponent", 0.65f,
+				"Itemscore exponent. Raise itemscore to the power of exponent."
 			);
 			AspectGoldenBaseScoredRegenGain = Config.Bind(
 				"2bd-Golden Aspect", "goldenBaseScoredRegen", 1.0f,
-				"ScoredRegen multiplier gained. Applies after itemscore has been SQRT. Set to 0 to disable."
+				"ScoredRegen multiplier gained. Applies after itemscore exponent. Set to 0 to disable."
 			);
 			AspectGoldenStackScoredRegenGain = Config.Bind(
 				"2bd-Golden Aspect", "goldenStackScoredRegen", 0.5f,
