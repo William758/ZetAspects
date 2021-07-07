@@ -80,6 +80,8 @@ namespace TPDespair.ZetAspects
 
 		public static class Items
 		{
+			public static ItemDef ZetDropTracker;
+
 			public static ItemDef ZetAspectIce;
 			public static ItemDef ZetAspectLightning;
 			public static ItemDef ZetAspectFire;
@@ -98,6 +100,13 @@ namespace TPDespair.ZetAspects
 
 			public static void Create()
 			{
+				ZetDropTracker = ScriptableObject.CreateInstance<ItemDef>();
+				ZetDropTracker.name = "ZetDropTracker";
+				ZetDropTracker.tier = ItemTier.NoTier;
+				ZetDropTracker.AutoPopulateTokens();
+				ZetDropTracker.hidden = true;
+				ZetDropTracker.canRemove = false;
+
 				ZetAspectIce = ZetAspects.ZetAspectIce.DefineItem();
 				ZetAspectLightning = ZetAspects.ZetAspectLightning.DefineItem();
 				ZetAspectFire = ZetAspects.ZetAspectFire.DefineItem();
@@ -105,7 +114,7 @@ namespace TPDespair.ZetAspects
 				ZetAspectMalachite = ZetAspects.ZetAspectMalachite.DefineItem();
 				ZetAspectPerfect = ZetAspects.ZetAspectPerfect.DefineItem();
 
-				itemDefs.AddRange(new ItemDef[] { ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
+				itemDefs.AddRange(new ItemDef[] { ZetDropTracker, ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
 
 				if (Catalog.EliteVariety.enabled)
 				{
