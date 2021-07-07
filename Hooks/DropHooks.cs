@@ -28,6 +28,9 @@ namespace TPDespair.ZetAspects
 	{
 		internal static void Init()
 		{
+			SceneDirector.onPostPopulateSceneServer += OnScenePopulated;
+			SceneExitController.onBeginExit += OnSceneExit;
+
 			ResetRunDropCountHook();
 			DropChanceHook();
 			InterceptAspectDropHook();
@@ -39,12 +42,73 @@ namespace TPDespair.ZetAspects
 
 
 
+		private static void OnScenePopulated(SceneDirector sceneDirector)
+		{
+			if (Run.instance)
+			{
+				UpdateRunDropCount();
+				UpdateZetDropTracker();
+
+				ZetAspectsPlugin.MultiplayerChanceCompensation = Mathf.Max(1f, Mathf.Sqrt(PlayerCharacterMasterController.instances.Count));
+				ZetAspectsPlugin.DisableDrops = false;
+				Debug.LogWarning("ZetAspects - ScenePopulated : Drops Enabled");
+				Debug.LogWarning("ZetAspects - RunDropCount : " + ZetAspectsPlugin.RunDropCount);
+			}
+		}
+
+		private static void UpdateRunDropCount()
+		{
+			int highestCount = 0;
+
+			foreach (PlayerCharacterMasterController pcmc in PlayerCharacterMasterController.instances)
+			{
+				CharacterMaster master = pcmc.master;
+				if (master)
+				{
+					Inventory inventory = master.inventory;
+					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ZetAspectsContent.Items.ZetDropTracker));
+				}
+			}
+
+			ZetAspectsPlugin.RunDropCount = Math.Max(ZetAspectsPlugin.RunDropCount, highestCount);
+		}
+
+		private static void UpdateZetDropTracker()
+		{
+			foreach (PlayerCharacterMasterController pcmc in PlayerCharacterMasterController.instances)
+			{
+				CharacterMaster master = pcmc.master;
+				if (master)
+				{
+					Inventory inventory = master.inventory;
+					if (inventory)
+					{
+						int trackerCount = inventory.GetItemCount(ZetAspectsContent.Items.ZetDropTracker);
+						int dropCount = ZetAspectsPlugin.RunDropCount;
+
+						if (trackerCount < dropCount) inventory.GiveItem(ZetAspectsContent.Items.ZetDropTracker, dropCount - trackerCount);
+					}
+				}
+			}
+		}
+
+		private static void OnSceneExit(SceneExitController sceneExitController)
+		{
+			if (Run.instance)
+			{
+				ZetAspectsPlugin.DisableDrops = true;
+				Debug.LogWarning("ZetAspects - SceneExit : Drops Disabled");
+			}
+		}
+
+
+
 		private static void ResetRunDropCountHook()
 		{
 			On.RoR2.Run.Start += (orig, self) =>
 			{
 				ZetAspectsPlugin.RunDropCount = 0;
-				Debug.LogWarning("ZetAspects - RunDropCount : 0");
+				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
 			};
@@ -52,7 +116,7 @@ namespace TPDespair.ZetAspects
 			On.RoR2.Run.OnDestroy += (orig, self) =>
 			{
 				ZetAspectsPlugin.RunDropCount = 0;
-				Debug.LogWarning("ZetAspects - RunDropCount : 0");
+				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
 			};
@@ -74,6 +138,26 @@ namespace TPDespair.ZetAspects
 			}
 
 			return roll <= chance;
+		}
+
+		private static float ChanceCompensation()
+		{
+			if (Run.instance)
+			{
+				int stagesCleared = Run.instance.stageClearCount;
+				int dropCount = ZetAspectsPlugin.RunDropCount;
+
+				if (dropCount < 3)
+				{
+					if (stagesCleared >= (dropCount + 1) * 3) return 12f;
+				}
+				else
+				{
+					if (stagesCleared >= (dropCount * 5) - 1) return 8f;
+				}
+			}
+
+			return 1f;
 		}
 
 		private static void DropChanceHook()
@@ -100,15 +184,22 @@ namespace TPDespair.ZetAspects
 					{
 						if (index == EquipmentIndex.None) return false;
 
+						if (ZetAspectsPlugin.DisableDrops) return false;
+
 						float chance = Configuration.AspectDropChance.Value;
 						if (chance <= 0f) return false;
 
 						float decay = Mathf.Abs(Configuration.AspectDropChanceDecay.Value);
-						if (decay < 1f) chance *= Mathf.Pow(decay, ZetAspectsPlugin.RunDropCount);
+						if (decay < 1f) chance *= Mathf.Max(Configuration.AspectDropChanceDecayLimit.Value, Mathf.Pow(decay, ZetAspectsPlugin.RunDropCount));
+
+						chance *= ZetAspectsPlugin.MultiplayerChanceCompensation;
+						if (Configuration.AspectDropChanceCompensation.Value) chance *= ChanceCompensation();
+
 						if (CheckDropRoll(chance, master))
 						{
 							ZetAspectsPlugin.RunDropCount++;
 							Debug.LogWarning("ZetAspects - RunDropCount : " + ZetAspectsPlugin.RunDropCount);
+							UpdateZetDropTracker();
 							return true;
 						}
 
@@ -300,10 +391,7 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self);
 
-				if (self.equipmentIcons.Length > 0)
-				{
-					AttachZetAspectsConvertHandler(self.equipmentIcons[0]);
-				}
+				if (self.equipmentIcons.Length > 0) AttachZetAspectsConvertHandler(self.equipmentIcons[0]);
 			};
 		}
 
@@ -331,12 +419,8 @@ namespace TPDespair.ZetAspects
 				if (!pcmc) return;
 				NetworkUser netUser = pcmc.networkUser;
 				if (!netUser) return;
-				GameObject gameObject = netUser.gameObject;
-				if (!gameObject) return;
 
-				Chat.SendBroadcastChat(
-					new Chat.UserChatMessage { sender = gameObject, text = "ConvertAspect" }
-				);
+				RoR2.Console.instance.SubmitCmd(netUser, "say \"" + "ConvertAspect" + "\"", false);
 			}
 		}
 	}
