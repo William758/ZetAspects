@@ -439,7 +439,7 @@ namespace TPDespair.ZetAspects
 									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
 
 									itemScore *= Configuration.AspectGoldenItemScoreFactor.Value;
-									itemScore = Mathf.Sqrt(itemScore);
+									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldenItemScoreExponent.Value);
 
 									value += itemScore * (Configuration.AspectGoldenBaseScoredRegenGain.Value + Configuration.AspectGoldenStackScoredRegenGain.Value * (count - 1f));
 								}
