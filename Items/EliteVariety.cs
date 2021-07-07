@@ -50,7 +50,14 @@ namespace TPDespair.ZetAspects
 		{
 			string output = "<style=cDeath>Aspect of Durability</style> :";
 			output += "\nSpawn with full barrier";
-			if (!Catalog.DynamicBarrierDecay.enabled) output += " that doesn't decay";
+			if (Catalog.DynamicBarrierDecay.slowed)
+			{
+				output += " that slowly decays";
+			}
+			else if (!Catalog.DynamicBarrierDecay.enabled)
+			{
+				output += " that doesn't decay";
+			}
 			output += ".\nAttacks <style=cIsUtility>root</style> on hit, immobilizing the target.";
 			if (Configuration.AspectArmorBaseArmorGain.Value > 0f)
 			{
