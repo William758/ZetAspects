@@ -32,6 +32,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.3.5 - Ice Aspect refreshes chill duration instead if chill can stack. Prevent chill from stacking past 10 with Artificer Extended installed.
+
 v2.3.4 - Tweaked Golden Aspect regen scaling. Simplify drone detection for Tinker Aspect. Aspect drop chance increases over stages cleared vs drops. Remember drop count when loading a save.
 
 v2.3.3 - Maybe fix equipment to item networking.
