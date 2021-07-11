@@ -17,12 +17,11 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
-	[BepInDependency("com.TheMysticSword.AspectAbilities", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.3.4";
+		public const string ModVer = "2.3.5";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
