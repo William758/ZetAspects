@@ -31,6 +31,8 @@ namespace TPDespair.ZetAspects
 		{
 			if (!set)
 			{
+				if (RoR2Content.Buffs.Slow80.canStack) RiskOfRain.chillCanStack = true;
+
 				RiskOfRain.ApplyEquipmentIcons();
 				RiskOfRain.UpdateEquipmentText();
 
@@ -41,7 +43,7 @@ namespace TPDespair.ZetAspects
 				{
 					EliteVariety.PopulateBuffs();
 					EliteVariety.PopulateEquipment();
-					EliteVariety.TinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
+					EliteVariety.tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
 
 					EliteVariety.CopyModelPrefabs();
 
@@ -63,6 +65,10 @@ namespace TPDespair.ZetAspects
 
 		public static class RiskOfRain
 		{
+			internal static bool chillCanStack = false;
+
+
+
 			internal static void ApplyEquipmentIcons()
 			{
 				EquipmentIndex index;
@@ -165,6 +171,23 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
+		public static class ArtificerExtended
+		{
+			private static int state = -1;
+			public static bool enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Borbo.ArtificerExtended")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+		}
+
 		public static class AspectAbilities
 		{
 			private static int state = -1;
@@ -199,6 +222,32 @@ namespace TPDespair.ZetAspects
 					return state == 1;
 				}
 			}
+
+
+
+			public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
+
+			public static class Buffs
+			{
+				public static BuffDef AffixArmored;
+				public static BuffDef AffixBuffing;
+				public static BuffDef AffixImpPlane;
+				public static BuffDef AffixPillaging;
+				public static BuffDef AffixSandstorm;
+				public static BuffDef AffixTinkerer;
+			}
+
+			public static class Equipment
+			{
+				public static EquipmentDef AffixArmored;
+				public static EquipmentDef AffixBuffing;
+				public static EquipmentDef AffixImpPlane;
+				public static EquipmentDef AffixPillaging;
+				public static EquipmentDef AffixSandstorm;
+				public static EquipmentDef AffixTinkerer;
+			}
+
+
 
 			internal static void PopulateBuffs()
 			{
@@ -402,28 +451,6 @@ namespace TPDespair.ZetAspects
 				if (showConvertInfo) text += convertText;
 				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXTINKERER_DESC", text);
 			}
-
-			public static class Buffs
-			{
-				public static BuffDef AffixArmored;
-				public static BuffDef AffixBuffing;
-				public static BuffDef AffixImpPlane;
-				public static BuffDef AffixPillaging;
-				public static BuffDef AffixSandstorm;
-				public static BuffDef AffixTinkerer;
-			}
-
-			public static class Equipment
-			{
-				public static EquipmentDef AffixArmored;
-				public static EquipmentDef AffixBuffing;
-				public static EquipmentDef AffixImpPlane;
-				public static EquipmentDef AffixPillaging;
-				public static EquipmentDef AffixSandstorm;
-				public static EquipmentDef AffixTinkerer;
-			}
-
-			public static BodyIndex TinkerDroneBodyIndex = BodyIndex.None;
 		}
 
 		public static class DynamicBarrierDecay
