@@ -19,20 +19,21 @@ namespace TPDespair.ZetAspects
 		internal static void Init()
 		{
 			FreezeHook();
-			ChillApplicationHook();
+			PreventAspectChillHook();
 			OverloadingBombHook();
 			FireTrailHook();
 			BurnApplicationHook();
-			CelestialChillHook();
 			PoisonBallHook();
 			NullDurationHook();
 			LunarProjectileHook();
-			PreventCrippleHook();
+			PreventAspectCrippleHook();
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
 			DotAmpHook();
 			OnHitEnemyHook();
+
+			FixArtificerExtendedChillStacks();
 
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
@@ -89,36 +90,25 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void ChillApplicationHook()
+		private static void PreventAspectChillHook()
 		{
 			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdcR4(1.5f),
-					x => x.MatchLdarg(1),
-					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
-					x => x.MatchMul(),
-					x => x.MatchLdloc(8),
-					x => x.MatchConvR4(),
-					x => x.MatchMul()
+					x => x.MatchLdcI4(2),
+					x => x.MatchAdd(),
+					x => x.MatchStloc(8),
+					x => x.MatchLdloc(8)
 				);
 
 				if (found)
 				{
-					c.Index += 7;
+					c.Index += 4;
 
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 0);
-					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
-					{
-						float duration = Configuration.AspectWhiteSlowDuration.Value;
-						if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
-
-						return duration;
-					});
+					c.Emit(OpCodes.Ldc_I4, 0);
+					c.Emit(OpCodes.Stloc, 8);
 				}
 				else
 				{
@@ -354,36 +344,6 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void CelestialChillHook()
-		{
-			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
-			{
-				ILCursor c = new ILCursor(il);
-
-				bool found = c.TryGotoNext(
-					x => x.MatchLdcI4(2),
-					x => x.MatchAdd(),
-					x => x.MatchStloc(8)
-				);
-
-				if (found)
-				{
-					c.Index += 1;
-
-					// Celestial slow
-					c.EmitDelegate<Func<int, int>>((value) =>
-					{
-						if (!Configuration.AspectGhostSlowEffect.Value) return 0;
-						return value;
-					});
-				}
-				else
-				{
-					Debug.LogWarning("ZetAspects : Celestial Chill Hook Failed");
-				}
-			};
-		}
-
 		private static void PoisonBallHook()
 		{
 			IL.RoR2.CharacterBody.UpdateAffixPoison += (il) =>
@@ -484,7 +444,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void PreventCrippleHook()
+		private static void PreventAspectCrippleHook()
 		{
 			IL.RoR2.HealthComponent.TakeDamage += (il) =>
 			{
@@ -706,7 +666,7 @@ namespace TPDespair.ZetAspects
 		private static void ApplyAspectOnHitEffects(DamageInfo damageInfo, GameObject victimObject)
 		{
 			if (!NetworkServer.active) return;
-			if (damageInfo.procCoefficient == 0f || damageInfo.rejected) return;
+			if (damageInfo.procCoefficient <= 0f || damageInfo.rejected) return;
 
 			if (damageInfo.attacker)
 			{
@@ -716,6 +676,7 @@ namespace TPDespair.ZetAspects
 				if (attacker && victim)
 				{
 					FireFrostBlade(attacker, victim, damageInfo);
+					ApplyChill(attacker, victim, damageInfo);
 					ApplySapped(attacker, victim, damageInfo);
 					ApplyShredded(attacker, victim, damageInfo);
 					ApplyCripple(attacker, victim, damageInfo);
@@ -755,6 +716,66 @@ namespace TPDespair.ZetAspects
 				target = victim.mainHurtBox
 			};
 			OrbManager.instance.AddOrb(lightningOrb);
+		}
+
+		private static void FixArtificerExtendedChillStacks()
+		{
+			if (!Catalog.ArtificerExtended.enabled) return;
+
+			On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += (orig, self, buffDef, duration) =>
+			{
+				bool flag = buffDef == RoR2Content.Buffs.Slow80 && self.GetBuffCount(RoR2Content.Buffs.Slow80) >= 10;
+				if (!flag) orig(self, buffDef, duration);
+			};
+		}
+
+		private static void ApplyChill(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!CanApplyAspectChill(self)) return;
+
+			float duration = Configuration.AspectWhiteSlowDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f)
+			{
+				if (Catalog.RiskOfRain.chillCanStack)
+				{
+					int chillStacks = victim.GetBuffCount(RoR2Content.Buffs.Slow80);
+
+					if (chillStacks > 0)
+					{
+						RefreshChillStacks(victim, duration);
+					}
+					else
+					{
+						victim.AddTimedBuff(RoR2Content.Buffs.Slow80, duration);
+					}
+				}
+				else
+				{
+					victim.AddTimedBuff(RoR2Content.Buffs.Slow80, duration);
+				}
+			}
+		}
+
+		private static bool CanApplyAspectChill(CharacterBody self)
+		{
+			if (self.HasBuff(RoR2Content.Buffs.AffixWhite)) return true;
+			if (Configuration.AspectGhostSlowEffect.Value && self.HasBuff(RoR2Content.Buffs.AffixHaunted)) return true;
+			return false;
+		}
+
+		private static void RefreshChillStacks(CharacterBody self, float duration)
+		{
+			BuffIndex chillBuffIndex = RoR2Content.Buffs.Slow80.buffIndex;
+
+			for (int i = 0; i < self.timedBuffs.Count; i++)
+			{
+				CharacterBody.TimedBuff timedBuff = self.timedBuffs[i];
+				if (timedBuff.buffIndex == chillBuffIndex)
+				{
+					if (timedBuff.timer < duration) timedBuff.timer = duration;
+				}
+			}
 		}
 
 		private static void ApplySapped(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
@@ -1004,7 +1025,7 @@ namespace TPDespair.ZetAspects
 					}
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixTinkerer;
-				if (self.bodyIndex != Catalog.EliteVariety.TinkerDroneBodyIndex && !self.HasBuff(targetBuff))
+				if (self.bodyIndex != Catalog.EliteVariety.tinkerDroneBodyIndex && !self.HasBuff(targetBuff))
 				{
 					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectTinker) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
 					{
