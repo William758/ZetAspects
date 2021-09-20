@@ -33,7 +33,7 @@ namespace TPDespair.ZetAspects
 			DotAmpHook();
 			OnHitEnemyHook();
 
-			FixArtificerExtendedChillStacks();
+			FixTimedChillApplication();
 
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
@@ -92,6 +92,7 @@ namespace TPDespair.ZetAspects
 
 		private static void PreventAspectChillHook()
 		{
+			// still applies a 0 duration chill, another hook prevents it from going through
 			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -718,14 +719,17 @@ namespace TPDespair.ZetAspects
 			OrbManager.instance.AddOrb(lightningOrb);
 		}
 
-		private static void FixArtificerExtendedChillStacks()
+		private static void FixTimedChillApplication()
 		{
-			if (!Catalog.ArtificerExtended.enabled) return;
-
 			On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += (orig, self, buffDef, duration) =>
 			{
-				bool flag = buffDef == RoR2Content.Buffs.Slow80 && self.GetBuffCount(RoR2Content.Buffs.Slow80) >= 10;
-				if (!flag) orig(self, buffDef, duration);
+				if (buffDef == RoR2Content.Buffs.Slow80)
+				{
+					if (duration < 0.1f) return;
+					if (Catalog.limitChillStacks && self.GetBuffCount(RoR2Content.Buffs.Slow80) >= 10) return;
+				}
+
+				orig(self, buffDef, duration);
 			};
 		}
 
@@ -737,7 +741,7 @@ namespace TPDespair.ZetAspects
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 			if (duration > 0.1f)
 			{
-				if (Catalog.RiskOfRain.chillCanStack)
+				if (Catalog.ChillCanStack)
 				{
 					int chillStacks = victim.GetBuffCount(RoR2Content.Buffs.Slow80);
 
@@ -773,7 +777,7 @@ namespace TPDespair.ZetAspects
 				CharacterBody.TimedBuff timedBuff = self.timedBuffs[i];
 				if (timedBuff.buffIndex == chillBuffIndex)
 				{
-					if (timedBuff.timer < duration) timedBuff.timer = duration;
+					if (timedBuff.timer > 0.1f && timedBuff.timer < duration) timedBuff.timer = duration;
 				}
 			}
 		}
@@ -907,11 +911,10 @@ namespace TPDespair.ZetAspects
 				if (NetworkServer.active)
 				{
 					Inventory inventory = self.inventory;
-					ItemDef itemDef = ZetAspectsPlugin.GetAspectItemDef(buffDef);
 
-					if (inventory && itemDef)
+					if (inventory)
 					{
-						if (inventory.GetItemCount(itemDef) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, buffDef))
+						if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, buffDef))
 						{
 							self.AddTimedBuff(buffDef, 5f);
 						}
@@ -936,101 +939,79 @@ namespace TPDespair.ZetAspects
 			targetBuff = RoR2Content.Buffs.AffixWhite;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectIce) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectIce, RoR2Content.Equipment.AffixWhite)) self.AddTimedBuff(targetBuff, 5f);
 			}
 			targetBuff = RoR2Content.Buffs.AffixBlue;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLightning) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectLightning, RoR2Content.Equipment.AffixBlue)) self.AddTimedBuff(targetBuff, 5f);
 			}
 			targetBuff = RoR2Content.Buffs.AffixRed;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFire) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectFire, RoR2Content.Equipment.AffixRed)) self.AddTimedBuff(targetBuff, 5f);
 			}
 			targetBuff = RoR2Content.Buffs.AffixHaunted;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCelestial) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectCelestial, RoR2Content.Equipment.AffixHaunted)) self.AddTimedBuff(targetBuff, 5f);
 			}
 			targetBuff = RoR2Content.Buffs.AffixPoison;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectMalachite) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectMalachite, RoR2Content.Equipment.AffixPoison)) self.AddTimedBuff(targetBuff, 5f);
 			}
 			targetBuff = RoR2Content.Buffs.AffixLunar;
 			if (!self.HasBuff(targetBuff))
 			{
-				if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-				{
-					self.AddTimedBuff(targetBuff, 5f);
-				}
+				if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectPerfect, RoR2Content.Equipment.AffixLunar)) self.AddTimedBuff(targetBuff, 5f);
 			}
 
 			if (Catalog.EliteVariety.populated)
 			{
 				targetBuff = Catalog.EliteVariety.Buffs.AffixArmored;
-				if (!self.HasBuff(targetBuff))
+				if (targetBuff && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectArmor) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectArmor, Catalog.EliteVariety.Equipment.AffixArmored)) self.AddTimedBuff(targetBuff, 5f);
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixBuffing;
-				if (!self.HasBuff(targetBuff))
+				if (targetBuff && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectBanner) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectBanner, Catalog.EliteVariety.Equipment.AffixBuffing)) self.AddTimedBuff(targetBuff, 5f);
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixImpPlane;
-				if (!self.HasBuff(targetBuff))
+				if (targetBuff && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectImpale) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectImpale, Catalog.EliteVariety.Equipment.AffixImpPlane)) self.AddTimedBuff(targetBuff, 5f);
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixPillaging;
-				if (!self.HasBuff(targetBuff))
+				if (targetBuff && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectGolden) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectGolden, Catalog.EliteVariety.Equipment.AffixPillaging)) self.AddTimedBuff(targetBuff, 5f);
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixSandstorm;
-				if (!self.HasBuff(targetBuff))
+				if (targetBuff && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCyclone) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectCyclone, Catalog.EliteVariety.Equipment.AffixSandstorm)) self.AddTimedBuff(targetBuff, 5f);
 				}
 				targetBuff = Catalog.EliteVariety.Buffs.AffixTinkerer;
-				if (self.bodyIndex != Catalog.EliteVariety.tinkerDroneBodyIndex && !self.HasBuff(targetBuff))
+				if (targetBuff && self.bodyIndex != Catalog.EliteVariety.tinkerDroneBodyIndex && !self.HasBuff(targetBuff))
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectTinker) > 0 || ZetAspectsPlugin.HasAspectEquipment(self, targetBuff))
-					{
-						self.AddTimedBuff(targetBuff, 5f);
-					}
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectTinker, Catalog.EliteVariety.Equipment.AffixTinkerer)) self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+
+			if (Catalog.LostInTransit.populated)
+			{
+				targetBuff = Catalog.LostInTransit.Buffs.AffixLeeching;
+				if (targetBuff && !self.HasBuff(targetBuff))
+				{
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectLeeching, Catalog.LostInTransit.Equipment.AffixLeeching)) self.AddTimedBuff(targetBuff, 5f);
+				}
+				targetBuff = Catalog.LostInTransit.Buffs.AffixFrenzied;
+				if (targetBuff && !self.HasBuff(targetBuff))
+				{
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectFrenzied, Catalog.LostInTransit.Equipment.AffixFrenzied)) self.AddTimedBuff(targetBuff, 5f);
 				}
 			}
 		}
