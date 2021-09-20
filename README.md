@@ -24,6 +24,14 @@ Amplifies the effect of aspects.
 
 ![effects](https://i.imgur.com/s30Qvh5.png)
 
+## Lost In Transit Effects:
+
+Currently not changed and no stacking effects.
+
+Guttural Whimpers(Aspect of Parasitism) : Heal for 100% of the damage you deal.
+
+Primordial Rage(Aspect of Seething) : Double attack speed and movement speed.
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -31,6 +39,10 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.4.0 - Added basic LostInTransit support. Added support for translations.
+
+v2.3.6 - Prevent applying 0 duration chill.
 
 v2.3.5 - Ice Aspect refreshes chill duration instead if chill can stack. Prevent chill from stacking past 10 with Artificer Extended installed.
 
