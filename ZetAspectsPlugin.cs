@@ -2,7 +2,6 @@ using BepInEx;
 using RoR2;
 using RoR2.ContentManagement;
 using UnityEngine;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -17,19 +16,18 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
+	[BepInDependency("com.swuff.LostInTransit", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.3.5";
+		public const string ModVer = "2.4.0";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
 
 
 		public static AssetBundle Assets;
-
-		public static Dictionary<string, string> LangTokens = new Dictionary<string, string>();
 
 		public static float MultiplayerChanceCompensation = 1f;
 		public static bool DisableDrops = false;
@@ -45,23 +43,17 @@ namespace TPDespair.ZetAspects
 			Configuration.Init(Config);
 			ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
 
-			Catalog.SetOnRunStartHook();
 			Catalog.SetOnLogBookControllerInit();
 
 			StatHooks.Init();
 			EffectHooks.Init();
 			DropHooks.Init();
 			DisplayHooks.Init();
-			LanguageOverride();
 
+			Language.Override();
 			ChangeText();
 		}
-		/*
-		public void Update()
-		{
-			DebugDrops();
-		}
-		*/
+
 
 
 		internal static void LoadAssets()
@@ -77,21 +69,25 @@ namespace TPDespair.ZetAspects
 			addContentPackProvider(new ZetAspectsContent());
 		}
 
-		private static void LanguageOverride()
+
+
+		internal static Sprite CreateAspectSprite(Sprite baseSprite, Sprite outlineSprite)
 		{
-			On.RoR2.Language.TokenIsRegistered += (orig, self, token) =>
+			Color32[] basePixels = baseSprite.texture.GetPixels32();
+			Color32[] outlinePixels = outlineSprite.texture.GetPixels32();
+
+			// non-transparent outlinePixels overwrite basePixels
+			for (var i = 0; i < outlinePixels.Length; ++i)
 			{
-				if (token != null && LangTokens.ContainsKey(token)) return true;
+				if (outlinePixels[i].a > 11) basePixels[i] = outlinePixels[i];
+			}
 
-				return orig(self, token);
-			};
+			Texture2D newTexture = new Texture2D(128, 128);
 
-			On.RoR2.Language.GetString_string += (orig, token) =>
-			{
-				if (token != null && LangTokens.ContainsKey(token)) return LangTokens[token];
+			newTexture.SetPixels32(basePixels);
+			newTexture.Apply();
 
-				return orig(token);
-			};
+			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
 		}
 
 
@@ -99,8 +95,8 @@ namespace TPDespair.ZetAspects
 		private static void ChangeText()
 		{
 			string text;
-			RegisterLanguageToken("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
-			RegisterLanguageToken("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
+			Language.RegisterToken("ITEM_SEED_DESC", "Dealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>" + Configuration.LeechSeedHeal.Value + "</style> <style=cStack>(+" + Configuration.LeechSeedHeal.Value + " per stack)</style> <style=cIsHealing>health</style>.");
+			Language.RegisterToken("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
 			text = "Convert <style=cIsHealing>100%</style> of health into <style=cIsHealing>regenerating shields</style>.\nGain <style=cIsHealing>50%</style> <style=cStack>(+25% per stack)</style> extra <style=cIsHealing>shield</style> from conversion.";
 			if (Configuration.TranscendenceRegen.Value > 0f)
 			{
@@ -108,19 +104,20 @@ namespace TPDespair.ZetAspects
 				text += Configuration.TranscendenceRegen.Value * 100f + "%</style>";
 				text += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
 			}
-			RegisterLanguageToken("ITEM_SHIELDONLY_DESC", text);
+			Language.RegisterToken("ITEM_SHIELDONLY_DESC", text);
 		}
 
 
 
 		public static float GetStackMagnitude(CharacterBody self, BuffDef buffDef)
 		{
-			if (self.inventory == null) return 1f;
+			Inventory inventory = self.inventory;
+			if (inventory == null) return 1f;
 
-			float aspect = self.inventory.GetItemCount(GetAspectItemDef(buffDef));
-			float hunter = self.inventory.GetItemCount(RoR2Content.Items.HeadHunter);
+			float aspect = inventory.GetItemCount(GetAspectItemDef(buffDef));
+			float hunter = inventory.GetItemCount(RoR2Content.Items.HeadHunter);
 
-			if (HasAspectEquipment(self, buffDef))
+			if (HasAspectEquipment(inventory, buffDef))
 			{
 				if (self.teamComponent.teamIndex == TeamIndex.Player)
 				{
@@ -174,21 +171,15 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectTinker;
 			}
 
+			if (Catalog.LostInTransit.populated)
+			{
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixLeeching;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectLeeching;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixFrenzied;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectFrenzied;
+			}
+
 			return null;
-		}
-
-		public static bool HasAspectEquipment(CharacterBody self, BuffDef buffDef)
-		{
-			EquipmentDef equipDef = GetAspectEquipmentDef(buffDef);
-
-			if (!equipDef) return false;
-
-			EquipmentIndex equipIndex = equipDef.equipmentIndex;
-
-			if (self.inventory.currentEquipmentIndex == equipIndex) return true;
-			if (self.inventory.alternateEquipmentIndex == equipIndex) return true;
-
-			return false;
 		}
 
 		public static EquipmentDef GetAspectEquipmentDef(BuffDef buffDef)
@@ -216,6 +207,14 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixSandstorm;
 				modBuffDef = Catalog.EliteVariety.Buffs.AffixTinkerer;
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.EliteVariety.Equipment.AffixTinkerer;
+			}
+
+			if (Catalog.LostInTransit.populated)
+			{
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixLeeching;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixLeeching;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixFrenzied;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixFrenzied;
 			}
 
 			return null;
@@ -252,7 +251,63 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectTinker.itemIndex;
 			}
 
+			if (Catalog.LostInTransit.populated)
+			{
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectLeeching.itemIndex;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex;
+			}
+
 			return ItemIndex.None;
+		}
+
+		public static bool HasAspectItemOrEquipment(Inventory inventory, BuffDef buffDef)
+		{
+			if (HasAspectEquipment(inventory, buffDef)) return true;
+			if (HasAspectItem(inventory, buffDef)) return true;
+
+			return false;
+		}
+
+		public static bool HasAspectItemOrEquipment(Inventory inventory, ItemDef itemDef, EquipmentDef equipDef)
+		{
+			if (itemDef && inventory.GetItemCount(itemDef) > 0) return true;
+
+			if (equipDef)
+			{
+				EquipmentIndex equipIndex = equipDef.equipmentIndex;
+
+				if (inventory.currentEquipmentIndex == equipIndex) return true;
+				if (inventory.alternateEquipmentIndex == equipIndex) return true;
+			}
+
+			return false;
+		}
+
+		public static bool HasAspectEquipment(Inventory inventory, BuffDef buffDef)
+		{
+			EquipmentDef equipDef = GetAspectEquipmentDef(buffDef);
+
+			if (!equipDef) return false;
+
+			EquipmentIndex equipIndex = equipDef.equipmentIndex;
+
+			if (inventory.currentEquipmentIndex == equipIndex) return true;
+			if (inventory.alternateEquipmentIndex == equipIndex) return true;
+
+			return false;
+		}
+
+		public static bool HasAspectItem(Inventory inventory, BuffDef buffDef)
+		{
+			ItemDef itemDef = GetAspectItemDef(buffDef);
+
+			if (!itemDef) return false;
+
+			if (inventory.GetItemCount(itemDef) > 0) return true;
+
+			return false;
 		}
 
 		public static EliteDef GetEquipmentEliteDef(EquipmentDef equipDef)
@@ -261,112 +316,5 @@ namespace TPDespair.ZetAspects
 			if (equipDef.passiveBuffDef == null) return null;
 			return equipDef.passiveBuffDef.eliteDef;
 		}
-
-
-
-		public static string FormatSeconds(float seconds)
-		{
-			string s = seconds == 1.0f ? "" : "s";
-			return seconds + " second" + s;
-		}
-
-		public static void RegisterLanguageToken(string token, string text)
-		{
-			//LanguageAPI.Add(token, text);
-			if (!LangTokens.ContainsKey(token)) LangTokens.Add(token, text);
-			else LangTokens[token] = text;
-		}
-
-		
-		/*
-		private static void DebugDrops()
-		{
-			bool debugDrops = true;
-
-			if (debugDrops)
-			{
-				if (Input.GetKeyDown(KeyCode.F2))
-				{
-					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-
-					if (!Configuration.DropAsEquipment())
-					{
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectIce, transform.position + new Vector3(-5f,5f,5f));
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectLightning, transform.position + new Vector3(0f, 5f, 7.5f));
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectFire, transform.position + new Vector3(5f, 5f, 5f));
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectCelestial, transform.position + new Vector3(-5f, 5f, -5f));
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectMalachite, transform.position + new Vector3(0f, 5f, -7.5f));
-						CreateDroplet(ZetAspectsContent.Items.ZetAspectPerfect, transform.position + new Vector3(5f, 5f, -5f));
-					}
-					else
-					{
-						CreateDroplet(RoR2Content.Equipment.AffixWhite, transform.position + new Vector3(-5f, 5f, 5f));
-						CreateDroplet(RoR2Content.Equipment.AffixBlue, transform.position + new Vector3(0f, 5f, 7.5f));
-						CreateDroplet(RoR2Content.Equipment.AffixRed, transform.position + new Vector3(5f, 5f, 5f));
-						CreateDroplet(RoR2Content.Equipment.AffixHaunted, transform.position + new Vector3(-5f, 5f, -5f));
-						CreateDroplet(RoR2Content.Equipment.AffixPoison, transform.position + new Vector3(0f, 5f, -7.5f));
-						CreateDroplet(RoR2Content.Equipment.AffixLunar, transform.position + new Vector3(5f, 5f, -5f));
-					}
-				}
-
-				if (Input.GetKeyDown(KeyCode.F3))
-				{
-					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-
-					if (Catalog.EliteVariety.populated)
-					{
-						if (!Configuration.DropAsEquipment())
-						{
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectArmor, transform.position + new Vector3(-5f, 5f, 5f));
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectBanner, transform.position + new Vector3(0f, 5f, 7.5f));
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectImpale, transform.position + new Vector3(5f, 5f, 5f));
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectGolden, transform.position + new Vector3(-5f, 5f, -5f));
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectCyclone, transform.position + new Vector3(0f, 5f, -7.5f));
-							CreateDroplet(ZetAspectsContent.Items.ZetAspectTinker, transform.position + new Vector3(5f, 5f, -5f));
-						}
-						else
-						{
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixArmored, transform.position + new Vector3(-5f, 5f, 5f));
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixBuffing, transform.position + new Vector3(0f, 5f, 7.5f));
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixImpPlane, transform.position + new Vector3(5f, 5f, 5f));
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixPillaging, transform.position + new Vector3(-5f, 5f, -5f));
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixSandstorm, transform.position + new Vector3(0f, 5f, -7.5f));
-							CreateDroplet(Catalog.EliteVariety.Equipment.AffixTinkerer, transform.position + new Vector3(5f, 5f, -5f));
-						}
-					}
-				}
-
-				if (Input.GetKeyDown(KeyCode.F4))
-				{
-					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.ShieldOnly.itemIndex), transform.position, transform.forward * 30f);
-					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.RepeatHeal.itemIndex), transform.position, transform.forward * -30f);
-					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.HeadHunter.itemIndex), transform.position, transform.right * 30f);
-					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.LunarDagger.itemIndex), transform.position, transform.right * -30f);
-				}
-
-				if (Input.GetKeyDown(KeyCode.F5))
-				{
-					var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
-					PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(RoR2Content.Items.Knurl.itemIndex), transform.position, transform.forward * 30f);
-				}
-			}
-		}
-
-		private static void CreateDroplet(ItemDef def, Vector3 pos)
-		{
-			CreateDroplet(PickupCatalog.FindPickupIndex(def.itemIndex), pos);
-		}
-
-		private static void CreateDroplet(EquipmentDef def, Vector3 pos)
-		{
-			CreateDroplet(PickupCatalog.FindPickupIndex(def.equipmentIndex), pos);
-		}
-
-		private static void CreateDroplet(PickupIndex index, Vector3 pos)
-		{
-			PickupDropletController.CreatePickupDroplet(index, pos, Vector3.zero);
-		}
-		*/
 	}
 }
