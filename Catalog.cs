@@ -1,4 +1,5 @@
 using RoR2;
+using System;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
@@ -7,201 +8,90 @@ namespace TPDespair.ZetAspects
 	{
 		public static bool set = false;
 
-		internal static void SetOnRunStartHook()
-		{
-			On.RoR2.Run.Start += (orig, self) =>
-			{
-				SetCatalog();
 
-				orig(self);
-			};
+
+		public static int barrierDecayMode = 0;
+		public static bool limitChillStacks = false;
+		public static bool aspectAbilities = false;
+
+
+
+		public static bool ChillCanStack
+		{
+			get
+			{
+				return RoR2Content.Buffs.Slow80.canStack;
+			}
 		}
+
+
 
 		internal static void SetOnLogBookControllerInit()
 		{
 			On.RoR2.UI.LogBook.LogBookController.Init += (orig) =>
 			{
-				SetCatalog();
+				try
+				{
+					SetCatalog();
+				}
+				catch (Exception ex)
+				{
+					Debug.Log("Failed To Setup ZetAspects Catalog!");
+					Debug.LogError(ex);
+				}
 
 				orig();
 			};
 		}
 
-		private static void SetCatalog()
+		internal static void SetCatalog()
 		{
-			if (!set)
-			{
-				if (RoR2Content.Buffs.Slow80.canStack) RiskOfRain.chillCanStack = true;
+			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 2;
+			else if(PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1;
 
-				RiskOfRain.ApplyEquipmentIcons();
-				RiskOfRain.UpdateEquipmentText();
+			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
+			if (PluginLoaded("com.TheMysticSword.AspectAbilities")) aspectAbilities = true;
 
-				if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.zombieseatflesh7.dynamicbarrierdecay")) DynamicBarrierDecay.enabled = true;
-				if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetTweaks")) DynamicBarrierDecay.slowed = true;
+			RiskOfRain.Init();
+			EliteVariety.Init();
+			LostInTransit.Init();
 
-				if (EliteVariety.enabled)
-				{
-					EliteVariety.PopulateBuffs();
-					EliteVariety.PopulateEquipment();
-					EliteVariety.tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
+			Debug.LogWarning("ZetAspects Catalog Set");
 
-					EliteVariety.CopyModelPrefabs();
-
-					EliteVariety.ApplyEquipmentIcons();
-					EliteVariety.UpdateEquipmentText();
-
-					if (DynamicBarrierDecay.enabled || DynamicBarrierDecay.slowed) ZetAspectsPlugin.RegisterLanguageToken("ITEM_ZETASPECTARMOR_DESC", ZetAspectArmor.BuildDescription());
-
-					EliteVariety.populated = true;
-				}
-
-				Debug.LogWarning("ZetAspects Catalog Set");
-
-				set = true;
-			}
+			set = true;
 		}
 
 
 
 		public static class RiskOfRain
 		{
-			internal static bool chillCanStack = false;
+			public static void Init()
+			{
+				SetupText();
+
+				ApplyEquipmentIcons();
+			}
 
 
+
+			internal static void SetupText()
+			{
+				ZetAspectIce.SetupTokens();
+				ZetAspectLightning.SetupTokens();
+				ZetAspectFire.SetupTokens();
+				ZetAspectCelestial.SetupTokens();
+				ZetAspectMalachite.SetupTokens();
+				ZetAspectPerfect.SetupTokens();
+			}
 
 			internal static void ApplyEquipmentIcons()
 			{
-				EquipmentIndex index;
-				EquipmentDef def;
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixWhite");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWhiteIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixBlue");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlueIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixRed");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixRedIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixHaunted");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixHauntedIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixPoison");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPoisonIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("AffixLunar");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLunarIconBlue.png");
-				}
-			}
-
-			internal static void UpdateEquipmentText()
-			{
-				string text;
-				float value = Configuration.AspectEquipmentEffect.Value;
-				string stacks = "\n\nCounts as " + value + " stack" + (value == 1f ? "" : "s");
-				string convertText = "\nClick bottom-right equipment icon to convert";
-
-				bool activeEffect = AspectAbilities.enabled;
-				bool showConvertInfo = Configuration.AspectEquipmentConversion.Value;
-
-				text = "";
-				if (activeEffect) text += "Deploy a health-reducing ice crystal on use.\n\n";
-				text += ZetAspectIce.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXWHITE_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Teleport on use.\n\n";
-				text += ZetAspectLightning.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXBLUE_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Release a barrage of seeking flame missiles on use.\n\n";
-				text += ZetAspectFire.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXRED_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Heal all allies inside the invisibility aura on use.\n\n";
-				text += ZetAspectCelestial.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXHAUNTED_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Summon an ally Malachite Urchin that inherits your items on use.\n\n";
-				text += ZetAspectMalachite.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXPOISON_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Gain temporary defense from powerful attacks on use.\n\n";
-				text += ZetAspectPerfect.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_AFFIXLUNAR_DESC", text);
-			}
-		}
-
-		public static class ArtificerExtended
-		{
-			private static int state = -1;
-			public static bool enabled
-			{
-				get
-				{
-					if (state == -1)
-					{
-						if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Borbo.ArtificerExtended")) state = 1;
-						else state = 0;
-					}
-					return state == 1;
-				}
-			}
-		}
-
-		public static class AspectAbilities
-		{
-			private static int state = -1;
-			public static bool enabled
-			{
-				get
-				{
-					if (state == -1)
-					{
-						if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.TheMysticSword.AspectAbilities")) state = 1;
-						else state = 0;
-					}
-					return state == 1;
-				}
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixWhite, ZetAspectsContent.Sprites.AffixWhite, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixBlue, ZetAspectsContent.Sprites.AffixBlue, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixRed, ZetAspectsContent.Sprites.AffixRed, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixHaunted, ZetAspectsContent.Sprites.AffixHaunted, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixPoison, ZetAspectsContent.Sprites.AffixPoison, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixLunar, ZetAspectsContent.Sprites.AffixLunar, ZetAspectsContent.Sprites.OutlineBlue);
 			}
 		}
 
@@ -210,13 +100,13 @@ namespace TPDespair.ZetAspects
 			public static bool populated = false;
 
 			private static int state = -1;
-			public static bool enabled
+			public static bool Enabled
 			{
 				get
 				{
 					if (state == -1)
 					{
-						if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.themysticsword.elitevariety")) state = 1;
+						if (PluginLoaded("com.themysticsword.elitevariety")) state = 1;
 						else state = 0;
 					}
 					return state == 1;
@@ -226,16 +116,6 @@ namespace TPDespair.ZetAspects
 
 
 			public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
-
-			public static class Buffs
-			{
-				public static BuffDef AffixArmored;
-				public static BuffDef AffixBuffing;
-				public static BuffDef AffixImpPlane;
-				public static BuffDef AffixPillaging;
-				public static BuffDef AffixSandstorm;
-				public static BuffDef AffixTinkerer;
-			}
 
 			public static class Equipment
 			{
@@ -247,29 +127,47 @@ namespace TPDespair.ZetAspects
 				public static EquipmentDef AffixTinkerer;
 			}
 
-
-
-			internal static void PopulateBuffs()
+			public static class Buffs
 			{
-				BuffIndex index;
+				public static BuffDef AffixArmored;
+				public static BuffDef AffixBuffing;
+				public static BuffDef AffixImpPlane;
+				public static BuffDef AffixPillaging;
+				public static BuffDef AffixSandstorm;
+				public static BuffDef AffixTinkerer;
+			}
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixArmored");
-				if (index != BuffIndex.None) Buffs.AffixArmored = BuffCatalog.GetBuffDef(index);
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixBuffing");
-				if (index != BuffIndex.None) Buffs.AffixBuffing = BuffCatalog.GetBuffDef(index);
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixImpPlane");
-				if (index != BuffIndex.None) Buffs.AffixImpPlane = BuffCatalog.GetBuffDef(index);
+			public static void Init()
+			{
+				if (Enabled)
+				{
+					SetupText();
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixPillaging");
-				if (index != BuffIndex.None) Buffs.AffixPillaging = BuffCatalog.GetBuffDef(index);
+					PopulateEquipment();
+					PopulateBuffs();
+					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixSandstorm");
-				if (index != BuffIndex.None) Buffs.AffixSandstorm = BuffCatalog.GetBuffDef(index);
+					DisableInactiveItems();
 
-				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixTinkerer");
-				if (index != BuffIndex.None) Buffs.AffixTinkerer = BuffCatalog.GetBuffDef(index);
+					CopyModelPrefabs();
+					ApplyEquipmentIcons();
+
+					populated = true;
+				}
+			}
+
+
+
+			internal static void SetupText()
+			{
+				ZetAspectArmor.SetupTokens();
+				ZetAspectBanner.SetupTokens();
+				ZetAspectImpale.SetupTokens();
+				ZetAspectGolden.SetupTokens();
+				ZetAspectCyclone.SetupTokens();
+				ZetAspectTinker.SetupTokens();
 			}
 
 			internal static void PopulateEquipment()
@@ -295,168 +193,232 @@ namespace TPDespair.ZetAspects
 				if (index != EquipmentIndex.None) Equipment.AffixTinkerer = EquipmentCatalog.GetEquipmentDef(index);
 			}
 
+			internal static void PopulateBuffs()
+			{
+				BuffIndex index;
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixArmored");
+				if (index != BuffIndex.None) Buffs.AffixArmored = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixBuffing");
+				if (index != BuffIndex.None) Buffs.AffixBuffing = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixImpPlane");
+				if (index != BuffIndex.None) Buffs.AffixImpPlane = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixPillaging");
+				if (index != BuffIndex.None) Buffs.AffixPillaging = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixSandstorm");
+				if (index != BuffIndex.None) Buffs.AffixSandstorm = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixTinkerer");
+				if (index != BuffIndex.None) Buffs.AffixTinkerer = BuffCatalog.GetBuffDef(index);
+			}
+
+			internal static void DisableInactiveItems()
+			{
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectArmor, ref Equipment.AffixArmored, ref Buffs.AffixArmored);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectBanner, ref Equipment.AffixBuffing, ref Buffs.AffixBuffing);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectImpale, ref Equipment.AffixImpPlane, ref Buffs.AffixImpPlane);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectGolden, ref Equipment.AffixPillaging, ref Buffs.AffixPillaging);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectCyclone, ref Equipment.AffixSandstorm, ref Buffs.AffixSandstorm);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectTinker, ref Equipment.AffixTinkerer, ref Buffs.AffixTinkerer);
+			}
+
 			internal static void CopyModelPrefabs()
 			{
-				PickupDef pickupDef;
-				EquipmentDef equipDef;
-				ItemDef itemDef;
-
-				equipDef = Equipment.AffixArmored;
-				if(equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectArmor;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
-				equipDef = Equipment.AffixBuffing;
-				if (equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectBanner;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
-				equipDef = Equipment.AffixImpPlane;
-				if (equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectImpale;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
-				equipDef = Equipment.AffixPillaging;
-				if (equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectGolden;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
-				equipDef = Equipment.AffixSandstorm;
-				if (equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectCyclone;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
-				equipDef = Equipment.AffixTinkerer;
-				if (equipDef)
-				{
-					itemDef = ZetAspectsContent.Items.ZetAspectTinker;
-					itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-					pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-					pickupDef.displayPrefab = equipDef.pickupModelPrefab;
-				}
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectArmor, Equipment.AffixArmored);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectBanner, Equipment.AffixBuffing);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectImpale, Equipment.AffixImpPlane);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectGolden, Equipment.AffixPillaging);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectCyclone, Equipment.AffixSandstorm);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectTinker, Equipment.AffixTinkerer);
 			}
 
 			internal static void ApplyEquipmentIcons()
 			{
-				EquipmentIndex index;
-				EquipmentDef def;
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixArmored");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixArmoredIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixBuffing");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffingIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixImpPlane");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixImpPlaneIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixPillaging");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillagingIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixSandstorm");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSandstormIconOrange.png");
-				}
-
-				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixTinkerer");
-				if (index != EquipmentIndex.None)
-				{
-					def = EquipmentCatalog.GetEquipmentDef(index);
-					def.pickupIconSprite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixTinkererIconOrange.png");
-				}
-			}
-
-			internal static void UpdateEquipmentText()
-			{
-				string text;
-				float value = Configuration.AspectEquipmentEffect.Value;
-				string stacks = "\n\nCounts as " + value + " stack" + (value == 1f ? "" : "s");
-				string convertText = "\nClick bottom-right equipment icon to convert";
-
-				bool activeEffect = AspectAbilities.enabled;
-				bool showConvertInfo = Configuration.AspectEquipmentConversion.Value;
-
-				text = "";
-				if (activeEffect) text += "Gain temporary armor increase on use.\n\n";
-				text += ZetAspectArmor.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXARMORED_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Increase banner radius on use.\n\n";
-				text += ZetAspectBanner.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXBUFFING_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Teleport to a target and deal damage on use.\n\n";
-				text += ZetAspectImpale.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXIMPPLANE_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Spend all of your gold for a random item. The more gold spent, the higher chance of getting a rarer item.\n\n";
-				text += ZetAspectGolden.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXPILLAGING_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Dash on use, knocking nearby enemies up.\n\n";
-				text += ZetAspectCyclone.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXSANDSTORM_DESC", text);
-
-				text = "";
-				if (activeEffect) text += "Heal drones on use.\n\n";
-				text += ZetAspectTinker.BuildDescription();
-				text += stacks;
-				if (showConvertInfo) text += convertText;
-				ZetAspectsPlugin.RegisterLanguageToken("EQUIPMENT_ELITEVARIETY_AFFIXTINKERER_DESC", text);
+				ReplaceEquipmentIcon(Equipment.AffixArmored, ZetAspectsContent.Sprites.AffixArmored, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixBuffing, ZetAspectsContent.Sprites.AffixBuffing, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixImpPlane, ZetAspectsContent.Sprites.AffixImpPlane, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixPillaging, ZetAspectsContent.Sprites.AffixPillaging, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixSandstorm, ZetAspectsContent.Sprites.AffixSandstorm, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixTinkerer, ZetAspectsContent.Sprites.AffixTinkerer, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 		}
 
-		public static class DynamicBarrierDecay
+
+
+		public static class LostInTransit
 		{
-			public static bool enabled = false;
-			public static bool slowed = false;
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.swuff.LostInTransit")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			public static class Equipment
+			{
+				public static EquipmentDef AffixLeeching;
+				public static EquipmentDef AffixFrenzied;
+			}
+
+			public static class Buffs
+			{
+				public static BuffDef AffixLeeching;
+				public static BuffDef AffixFrenzied;
+			}
+
+
+
+			public static void Init()
+			{
+				if (Enabled)
+				{
+					SetupText();
+
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+
+					CopyModelPrefabs();
+					ApplyEquipmentIcons();
+
+					populated = true;
+				}
+			}
+
+
+
+			internal static void SetupText()
+			{
+				ZetAspectLeeching.SetupTokens();
+				ZetAspectFrenzied.SetupTokens();
+			}
+
+			internal static void PopulateEquipment()
+			{
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixLeeching");
+				if (index != EquipmentIndex.None) Equipment.AffixLeeching = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixFrenzied");
+				if (index != EquipmentIndex.None) Equipment.AffixFrenzied = EquipmentCatalog.GetEquipmentDef(index);
+			}
+
+			internal static void PopulateBuffs()
+			{
+				BuffIndex index;
+
+				index = BuffCatalog.FindBuffIndex("AffixLeeching");
+				if (index != BuffIndex.None) Buffs.AffixLeeching = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("AffixFrenzied");
+				if (index != BuffIndex.None) Buffs.AffixFrenzied = BuffCatalog.GetBuffDef(index);
+			}
+
+			internal static void DisableInactiveItems()
+			{
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied);
+			}
+
+			internal static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectLeeching, Equipment.AffixLeeching);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectFrenzied, Equipment.AffixFrenzied);
+			}
+
+			internal static void ApplyEquipmentIcons()
+			{
+				ReplaceEquipmentIcon(Equipment.AffixLeeching, ZetAspectsContent.Sprites.AffixLeeching, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixFrenzied, ZetAspectsContent.Sprites.AffixFrenzied, ZetAspectsContent.Sprites.OutlineOrange);
+			}
+		}
+
+
+
+		public static void DeactivateItem(ItemDef itemDef, ref EquipmentDef equipDef, ref BuffDef buffDeff)
+		{
+			if (!itemDef) return;
+
+			bool deactivate = false;
+
+			if (!equipDef)
+			{
+				deactivate = true;
+				Debug.LogWarning(itemDef.name + " : associated equipment not found!");
+			}
+
+			if (!buffDeff)
+			{
+				deactivate = true;
+				Debug.LogWarning(itemDef.name + " : associated buff not found!");
+			}
+
+			if (deactivate)
+			{
+				Debug.LogWarning("ZetAspects - Deactivating : " + itemDef.name);
+
+				equipDef = null;
+				buffDeff = null;
+
+				itemDef.tier = ItemTier.NoTier;
+				itemDef.hidden = true;
+				if (itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+				{
+					ItemTag[] tags = itemDef.tags;
+					int index = tags.Length;
+
+					Array.Resize(ref tags, index + 1);
+					tags[index] = ItemTag.WorldUnique;
+
+					itemDef.tags = tags;
+				}
+			}
+		}
+
+
+
+		public static void CopyEquipmentPrefab(ItemDef itemDef, EquipmentDef equipDef)
+		{
+			if (!itemDef) return;
+
+			if (!equipDef)
+			{
+				Debug.LogWarning("ZetAspects - Could not copy model prefab for " + itemDef.name + " because its associated equipment was not found!");
+				return;
+			}
+
+			itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
+			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
+			pickupDef.displayPrefab = equipDef.pickupModelPrefab;
+		}
+
+		public static void ReplaceEquipmentIcon(EquipmentDef equipDef, Sprite baseSprite, Sprite outlineSprite)
+		{
+			if (equipDef) equipDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(baseSprite, outlineSprite);
+		}
+
+
+
+		public static bool PluginLoaded(string key)
+		{
+			return BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(key);
 		}
 	}
 }
