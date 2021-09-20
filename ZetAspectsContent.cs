@@ -19,6 +19,8 @@ namespace TPDespair.ZetAspects
 		{
 			ZetAspectsPlugin.LoadAssets();
 
+			Sprites.Load();
+
 			Buffs.Create();
 			Items.Create();
 
@@ -39,6 +41,68 @@ namespace TPDespair.ZetAspects
 		{
 			args.ReportProgress(1f);
 			yield break;
+		}
+
+
+
+		public static class Sprites
+		{
+			public static Sprite OutlineRed;
+			public static Sprite OutlineOrange;
+			public static Sprite OutlineYellow;
+			public static Sprite OutlineGreen;
+			public static Sprite OutlineBlue;
+			public static Sprite OutlineWhite;
+
+			public static Sprite AffixWhite;
+			public static Sprite AffixBlue;
+			public static Sprite AffixRed;
+			public static Sprite AffixHaunted;
+			public static Sprite AffixPoison;
+			public static Sprite AffixLunar;
+
+			public static Sprite AffixArmored;
+			public static Sprite AffixBuffing;
+			public static Sprite AffixImpPlane;
+			public static Sprite AffixPillaging;
+			public static Sprite AffixSandstorm;
+			public static Sprite AffixTinkerer;
+
+			public static Sprite AffixLeeching;
+			public static Sprite AffixFrenzied;
+
+			public static void Load()
+			{
+				OutlineRed = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineRed.png");
+				OutlineOrange = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineOrange.png");
+				OutlineYellow = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineYellow.png");
+				OutlineGreen = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineGreen.png");
+				OutlineBlue = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineBlue.png");
+				OutlineWhite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineWhite.png");
+
+				AffixWhite = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWhite.png");
+				AffixBlue = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlue.png");
+				AffixRed = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixRed.png");
+				AffixHaunted = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixHaunted.png");
+				AffixPoison = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPoison.png");
+				AffixLunar = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLunar.png");
+
+				if (Catalog.EliteVariety.Enabled)
+				{
+					AffixArmored = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixArmored.png");
+					AffixBuffing = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffing.png");
+					AffixImpPlane = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixImpPlane.png");
+					AffixPillaging = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillaging.png");
+					AffixSandstorm = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSandstorm.png");
+					AffixTinkerer = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixTinkerer.png");
+				}
+
+				if (Catalog.LostInTransit.Enabled)
+				{
+					AffixLeeching = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLeeching.png");
+					AffixFrenzied = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixFrenzied.png");
+				}
+			}
 		}
 
 
@@ -96,6 +160,9 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectCyclone;
 			public static ItemDef ZetAspectTinker;
 
+			public static ItemDef ZetAspectLeeching;
+			public static ItemDef ZetAspectFrenzied;
+
 			public static List<ItemDef> itemDefs = new List<ItemDef>();
 
 			public static void Create()
@@ -116,7 +183,7 @@ namespace TPDespair.ZetAspects
 
 				itemDefs.AddRange(new ItemDef[] { ZetDropTracker, ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
 
-				if (Catalog.EliteVariety.enabled)
+				if (Catalog.EliteVariety.Enabled)
 				{
 					ZetAspectArmor = ZetAspects.ZetAspectArmor.DefineItem();
 					ZetAspectBanner = ZetAspects.ZetAspectBanner.DefineItem();
@@ -126,6 +193,14 @@ namespace TPDespair.ZetAspects
 					ZetAspectTinker = ZetAspects.ZetAspectTinker.DefineItem();
 
 					itemDefs.AddRange(new ItemDef[] { ZetAspectArmor, ZetAspectBanner, ZetAspectImpale, ZetAspectGolden, ZetAspectCyclone, ZetAspectTinker });
+				}
+
+				if (Catalog.LostInTransit.Enabled)
+				{
+					ZetAspectLeeching = ZetAspects.ZetAspectLeeching.DefineItem();
+					ZetAspectFrenzied = ZetAspects.ZetAspectFrenzied.DefineItem();
+
+					itemDefs.AddRange(new ItemDef[] { ZetAspectLeeching, ZetAspectFrenzied });
 				}
 			}
 		}
