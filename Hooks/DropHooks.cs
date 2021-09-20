@@ -247,11 +247,12 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.PickupDropletController.CreatePickupDroplet += (orig, pickupIndex, position, velocity) =>
 			{
-				if (!Configuration.DropAsEquipment())
+				if (!DropAsEquipment())
 				{
 					EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
 
-					if (equipIndex != EquipmentIndex.None) {
+					if (equipIndex != EquipmentIndex.None)
+					{
 						ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(equipIndex);
 
 						if (newIndex != ItemIndex.None) pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
@@ -260,6 +261,13 @@ namespace TPDespair.ZetAspects
 
 				orig(pickupIndex, position, velocity);
 			};
+		}
+
+		private static bool DropAsEquipment()
+		{
+			if (Catalog.aspectAbilities && Configuration.AspectAbilitiesEliteEquipment.Value) return true;
+			if (Configuration.AspectEliteEquipment.Value) return true;
+			return false;
 		}
 
 		private static void EquipmentAbsorbHook()
