@@ -132,6 +132,22 @@ namespace TPDespair.ZetAspects
 				}
 			}
 
+			if (Catalog.LostInTransit.populated)
+			{
+				targetEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
+				if (targetEquipDef)
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLeeching) > 0) return targetEquipDef;
+					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+				}
+				targetEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
+				if (targetEquipDef)
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFrenzied) > 0) return targetEquipDef;
+					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+				}
+			}
+
 			targetEquipDef = RoR2Content.Equipment.AffixRed;
 			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFire) > 0) return targetEquipDef;
 			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
@@ -185,6 +201,14 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 			}
 
+			if (Catalog.LostInTransit.populated)
+			{
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
+				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
+				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
+			}
+
 			return index;
 		}
 
@@ -229,6 +253,12 @@ namespace TPDespair.ZetAspects
 				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixPillaging, ZetAspectsContent.Items.ZetAspectGolden);
 				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixSandstorm, ZetAspectsContent.Items.ZetAspectCyclone);
 				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixTinkerer, ZetAspectsContent.Items.ZetAspectTinker);
+			}
+
+			if (Catalog.LostInTransit.populated)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixLeeching, ZetAspectsContent.Items.ZetAspectLeeching);
+				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixFrenzied, ZetAspectsContent.Items.ZetAspectFrenzied);
 			}
 		}
 
@@ -299,6 +329,12 @@ namespace TPDespair.ZetAspects
 					if (index == ZetAspectsContent.Items.ZetAspectTinker.itemIndex) return;
 				}
 
+				if (Catalog.LostInTransit.populated)
+				{
+					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
+				}
+
 				orig(self, index);
 			};
 		}
@@ -322,6 +358,12 @@ namespace TPDespair.ZetAspects
 					if (index == ZetAspectsContent.Items.ZetAspectGolden.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectCyclone.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectTinker.itemIndex) return;
+				}
+
+				if (Catalog.LostInTransit.populated)
+				{
+					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
 				}
 
 				orig(self, index);
