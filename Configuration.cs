@@ -512,14 +512,5 @@ namespace TPDespair.ZetAspects
 				"Drone damage taken reduction per stack. Hyperbolic."
 			);
 		}
-
-
-
-		internal static bool DropAsEquipment()
-		{
-			if (Catalog.AspectAbilities.enabled && AspectAbilitiesEliteEquipment.Value) return true;
-			if (AspectEliteEquipment.Value) return true;
-			return false;
-		}
 	}
 }
