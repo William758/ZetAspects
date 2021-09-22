@@ -57,6 +57,8 @@ namespace TPDespair.ZetAspects
 		{
 			stack = Mathf.Max(1f, stack);
 
+			if (stack == 1f) return "";
+
 			if (helperTarget == "tr")
 			{
 				return "\n\n" + stack + " birikim olarak sayılır";
