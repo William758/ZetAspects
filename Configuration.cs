@@ -127,6 +127,19 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
 
 
+		public static ConfigEntry<float> AspectLeechingBaseLeechGain { get; set; }
+		public static ConfigEntry<float> AspectLeechingStackLeechGain { get; set; }
+		public static ConfigEntry<float> AspectLeechingMonsterLeechMult { get; set; }
+
+
+		public static ConfigEntry<float> AspectFrenziedBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackMovementGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterMovementMult { get; set; }
+		public static ConfigEntry<float> AspectFrenziedBaseAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterAttackSpeedMult { get; set; }
+
+
 		internal static void Init(ConfigFile Config)
 		{
 			AspectRedTier = Config.Bind(
@@ -293,7 +306,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectBlueHealthConverted = Config.Bind(
 				"2ab-Lightning Aspect", "lightningHealthConverted", 0.20f,
-				"Set health converted into shield."
+				"Set health converted into shield. Set to 0 to disable."
 			);
 			AspectBlueBaseShieldGain = Config.Bind(
 				"2ab-Lightning Aspect", "lightningBaseShieldGained", 0.20f,
@@ -510,6 +523,47 @@ namespace TPDespair.ZetAspects
 			AspectTinkerStackDamageResistGain = Config.Bind(
 				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
 				"Drone damage taken reduction per stack. Hyperbolic."
+			);
+
+
+			AspectLeechingBaseLeechGain = Config.Bind(
+				"2ca-Leeching Aspect", "leechingBaseLeech", 0.2f,
+				"Damage leeched. Set to 0 to disable."
+			);
+			AspectLeechingStackLeechGain = Config.Bind(
+				"2ca-Leeching Aspect", "leechingAddedLeech", 0.1f,
+				"Damage leeched per stack."
+			);
+			AspectLeechingMonsterLeechMult = Config.Bind(
+				"2ca-Leeching Aspect", "leechingMonsterLeechMult", 5f,
+				"Monster leech multiplier."
+			);
+
+
+
+			AspectFrenziedBaseMovementGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedBaseMovementGained", 0.2f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackMovementGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedAddedMovementGained", 0.1f,
+				"Movement speed gained per stack."
+			);
+			AspectFrenziedMonsterMovementMult = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedMonsterMovementMult", 5f,
+				"Monster movement speed multiplier."
+			);
+			AspectFrenziedBaseAttackSpeedGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedBaseAttackSpeedGained", 0.2f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackAttackSpeedGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedAddedAttackSpeedGained", 0.1f,
+				"Attack speed gained per stack."
+			);
+			AspectFrenziedMonsterAttackSpeedMult = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedMonsterAttackSpeedMult", 5f,
+				"Monster attack speed multiplier."
 			);
 		}
 	}
