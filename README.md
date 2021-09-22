@@ -26,11 +26,9 @@ Amplifies the effect of aspects.
 
 ## Lost In Transit Effects:
 
-Currently not changed and no stacking effects.
+Monster Stacking Effect is multiplied by x5 to keep in line with original values.
 
-Guttural Whimpers(Aspect of Parasitism) : Heal for 100% of the damage you deal.
-
-Primordial Rage(Aspect of Seething) : Double attack speed and movement speed.
+![effects](https://i.imgur.com/IkIuvXT.png)
 
 ## Installation:
 
@@ -39,6 +37,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.4.1 - LostInTransit aspect stacking. Fix BORBO frost blades.
 
 v2.4.0 - Added basic LostInTransit support. Added support for translations.
 
