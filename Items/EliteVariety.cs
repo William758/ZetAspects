@@ -115,7 +115,7 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Battle</style> :";
-			output += "\nGrants nearby allies increased <style=cIsDamage>movement speed</style> and <style=cIsDamage>attack speed</style>.";
+			output += "\nGrants nearby allies increased <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style>.";
 			if (Configuration.AspectBannerBaseAttackSpeedGain.Value > 0f)
 			{
 				output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
