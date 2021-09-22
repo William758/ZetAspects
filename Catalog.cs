@@ -12,6 +12,7 @@ namespace TPDespair.ZetAspects
 
 		public static int barrierDecayMode = 0;
 		public static bool limitChillStacks = false;
+		public static bool borboFrostBlade = false;
 		public static bool aspectAbilities = false;
 
 
@@ -50,6 +51,7 @@ namespace TPDespair.ZetAspects
 			else if(PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1;
 
 			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
+			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
 			if (PluginLoaded("com.TheMysticSword.AspectAbilities")) aspectAbilities = true;
 
 			RiskOfRain.Init();
