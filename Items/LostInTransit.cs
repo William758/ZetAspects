@@ -49,7 +49,24 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Parasitism</style> :";
-			output += "\nDamage dealt is returned as healing. Periodically heal nearby allies for a small amount of health.";
+			output += "\nPeriodically heal nearby allies.";
+			if (LostInTransitHooks.leechHook)
+			{
+				if (Configuration.AspectLeechingBaseLeechGain.Value > 0)
+				{
+					output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
+					output += Configuration.AspectLeechingBaseLeechGain.Value * 100f + "%</style>";
+					if (Configuration.AspectLeechingStackLeechGain.Value != 0)
+					{
+						output += " " + Language.StackText(Configuration.AspectLeechingStackLeechGain.Value * 100f, "", "%");
+					}
+					output += " of the <style=cIsDamage>damage</style> you deal.";
+				}
+			}
+			else
+			{
+				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>100%</style> of the <style=cIsDamage>damage</style> you deal.";
+			}
 
 			return output;
 		}
@@ -100,7 +117,70 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Seething</style> :";
-			output += "\nIncreased attack and move speed. Periodically dash towards enemies at high speeds.";
+			output += "\nPeriodically dash towards enemies.";
+
+			bool frenzyMSHook = LostInTransitHooks.frenzyMSHook;
+			bool frenzyASHook = LostInTransitHooks.frenzyASHook;
+
+			float frenzyBaseMS = Configuration.AspectFrenziedBaseMovementGain.Value;
+			float frenzyStackMS = Configuration.AspectFrenziedStackMovementGain.Value;
+			float frenzyBaseAS = Configuration.AspectFrenziedBaseAttackSpeedGain.Value;
+			float frenzyStackAS = Configuration.AspectFrenziedStackAttackSpeedGain.Value;
+
+			if (frenzyMSHook || frenzyASHook)
+			{
+				if (frenzyMSHook && frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
+				{
+					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += frenzyBaseMS * 100f + "%</style>";
+					if (frenzyStackMS != 0f)
+					{
+						output += " " + Language.StackText(frenzyStackMS * 100f, "", "%");
+					}
+					output += ".";
+				}
+				else
+				{
+					if (frenzyMSHook)
+					{
+						if (frenzyBaseMS > 0f)
+						{
+							output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
+							output += frenzyBaseMS * 100f + "%</style>";
+							if (frenzyStackMS != 0f)
+							{
+								output += " " + Language.StackText(frenzyStackMS * 100f, "", "%");
+							}
+							output += ".";
+						}
+					}
+					else
+					{
+						output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>100%</style>.";
+					}
+					if (frenzyASHook)
+					{
+						if (frenzyBaseAS > 0f)
+						{
+							output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+							output += frenzyBaseAS * 100f + "%</style>";
+							if (frenzyStackAS != 0f)
+							{
+								output += " " + Language.StackText(frenzyStackAS * 100f, "", "%");
+							}
+							output += ".";
+						}
+					}
+					else
+					{
+						output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+					}
+				}
+			}
+			else
+			{
+				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+			}
 
 			return output;
 		}
