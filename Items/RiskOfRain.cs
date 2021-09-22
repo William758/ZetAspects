@@ -135,9 +135,12 @@ namespace TPDespair.ZetAspects
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			output += "\nConvert <style=cIsHealing>";
-			output += Configuration.AspectBlueHealthConverted.Value * 100f;
-			output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+			if (Configuration.AspectBlueHealthConverted.Value > 0f)
+			{
+				output += "\nConvert <style=cIsHealing>";
+				output += Configuration.AspectBlueHealthConverted.Value * 100f;
+				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
 				output += "\nGain <style=cIsHealing>";
