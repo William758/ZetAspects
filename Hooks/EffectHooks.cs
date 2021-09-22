@@ -690,6 +690,9 @@ namespace TPDespair.ZetAspects
 			if (!self.HasBuff(RoR2Content.Buffs.AffixWhite)) return;
 			if (Configuration.AspectWhiteBaseDamage.Value <= 0f) return;
 
+			if (damageInfo.procCoefficient < 0.105f) return;
+			if (damageInfo.procChainMask.HasProc(ProcType.Thorns)) return;
+
 			GameObject gameObject = self.gameObject;
 			TeamIndex teamIndex = self.teamComponent.teamIndex;
 
@@ -698,6 +701,9 @@ namespace TPDespair.ZetAspects
 
 			damage *= Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (count - 1f);
 			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
+
+			var procMask = default(ProcChainMask);
+			if (Catalog.borboFrostBlade) procMask.AddProc(ProcType.Thorns);
 
 			LightningOrb lightningOrb = new LightningOrb
 			{
@@ -710,7 +716,7 @@ namespace TPDespair.ZetAspects
 				isCrit = damageInfo.crit,
 				lightningType = LightningOrb.LightningType.RazorWire,
 				origin = gameObject.transform.position,
-				procChainMask = default,
+				procChainMask = procMask,
 				procCoefficient = 0f,
 				range = 0f,
 				teamIndex = teamIndex,
