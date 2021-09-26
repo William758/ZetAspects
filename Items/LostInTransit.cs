@@ -119,17 +119,14 @@ namespace TPDespair.ZetAspects
 			string output = "<style=cDeath>Aspect of Seething</style> :";
 			output += "\nPeriodically dash towards enemies.";
 
-			bool frenzyMSHook = LostInTransitHooks.frenzyMSHook;
-			bool frenzyASHook = LostInTransitHooks.frenzyASHook;
-
 			float frenzyBaseMS = Configuration.AspectFrenziedBaseMovementGain.Value;
 			float frenzyStackMS = Configuration.AspectFrenziedStackMovementGain.Value;
 			float frenzyBaseAS = Configuration.AspectFrenziedBaseAttackSpeedGain.Value;
 			float frenzyStackAS = Configuration.AspectFrenziedStackAttackSpeedGain.Value;
 
-			if (frenzyMSHook || frenzyASHook)
+			if (LostInTransitHooks.frenzyMSHook || LostInTransitHooks.frenzyASHook)
 			{
-				if (frenzyMSHook && frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
+				if (LostInTransitHooks.frenzyMSHook && LostInTransitHooks.frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
 				{
 					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
 					output += frenzyBaseMS * 100f + "%</style>";
@@ -141,7 +138,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					if (frenzyMSHook)
+					if (LostInTransitHooks.frenzyMSHook)
 					{
 						if (frenzyBaseMS > 0f)
 						{
@@ -158,7 +155,7 @@ namespace TPDespair.ZetAspects
 					{
 						output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>100%</style>.";
 					}
-					if (frenzyASHook)
+					if (LostInTransitHooks.frenzyASHook)
 					{
 						if (frenzyBaseAS > 0f)
 						{
@@ -180,6 +177,24 @@ namespace TPDespair.ZetAspects
 			else
 			{
 				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+			}
+
+			if (LostInTransitHooks.frenzyCDRHook == 4)
+			{
+				if (Configuration.AspectFrenziedBaseCooldownGain.Value != 0f)
+				{
+					output += "\nReduces <style=cIsUtility>skill cooldowns</style> by <style=cIsUtility>";
+					output += Mathf.Abs(Configuration.AspectFrenziedBaseCooldownGain.Value) * 100f + "%</style>";
+					if (Configuration.AspectFrenziedStackCooldownGain.Value != 0f)
+					{
+						output += " " + Language.StackText(Mathf.Abs(Configuration.AspectFrenziedStackCooldownGain.Value) * 100f, "", "%");
+					}
+					output += ".";
+				}
+			}
+			else
+			{
+				output += "\nGreatly Reduces <style=cIsUtility>skill cooldowns</style>.";
 			}
 
 			return output;
