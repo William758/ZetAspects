@@ -26,9 +26,9 @@ Amplifies the effect of aspects.
 
 ## Lost In Transit Effects:
 
-Monster Stacking Effect is multiplied by x5 to keep in line with original values.
+Monster Aspect Effect is multiplied by x5 to keep in line with original values.
 
-![effects](https://i.imgur.com/IkIuvXT.png)
+![effects](https://i.imgur.com/v8FnyOq.png)
 
 ## Installation:
 
@@ -37,6 +37,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.4.2 - Fix aspect icons being affected by the texture resolution setting. Added CDR config for Primordial Rage.
 
 v2.4.1 - LostInTransit aspect stacking. Fix BORBO frost blades.
 
