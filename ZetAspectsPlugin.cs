@@ -21,7 +21,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.4.1";
+		public const string ModVer = "2.4.2";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -84,7 +84,7 @@ namespace TPDespair.ZetAspects
 				if (outlinePixels[i].a > 11) basePixels[i] = outlinePixels[i];
 			}
 
-			Texture2D newTexture = new Texture2D(128, 128);
+			Texture2D newTexture = new Texture2D(128, 128, TextureFormat.RGBA32, false);
 
 			newTexture.SetPixels32(basePixels);
 			newTexture.Apply();
