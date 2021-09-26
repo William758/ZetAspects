@@ -138,6 +138,9 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectFrenziedBaseAttackSpeedGain { get; set; }
 		public static ConfigEntry<float> AspectFrenziedStackAttackSpeedGain { get; set; }
 		public static ConfigEntry<float> AspectFrenziedMonsterAttackSpeedMult { get; set; }
+		public static ConfigEntry<float> AspectFrenziedBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
 
 
 		internal static void Init(ConfigFile Config)
@@ -564,6 +567,18 @@ namespace TPDespair.ZetAspects
 			AspectFrenziedMonsterAttackSpeedMult = Config.Bind(
 				"2cb-Frenzied Aspect", "frenziedMonsterAttackSpeedMult", 5f,
 				"Monster attack speed multiplier."
+			);
+			AspectFrenziedBaseCooldownGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedBaseCooldownGained", 0.2f,
+				"Cooldown gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackCooldownGain = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedAddedCooldownGained", 0.1f,
+				"Cooldown gained per stack."
+			);
+			AspectFrenziedMonsterCooldownMult = Config.Bind(
+				"2cb-Frenzied Aspect", "frenziedMonsterCooldownMult", 5f,
+				"Monster cooldown multiplier."
 			);
 		}
 	}
