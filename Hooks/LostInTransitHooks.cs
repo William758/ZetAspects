@@ -10,8 +10,8 @@ using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
-    internal static class LostInTransitHooks
-    {
+	internal static class LostInTransitHooks
+	{
 		private static BaseUnityPlugin Plugin;
 		private static Assembly PluginAssembly;
 
@@ -20,9 +20,12 @@ namespace TPDespair.ZetAspects
 		private static MethodInfo LeechingHealMethod;
 		private static MethodInfo FrenziedStatMethod;
 
+		private static FieldInfo FrenziedDoingAbilityField;
+
 		internal static bool leechHook = false;
 		internal static bool frenzyMSHook = false;
 		internal static bool frenzyASHook = false;
+		internal static int frenzyCDRHook = 0;
 
 
 
@@ -33,49 +36,68 @@ namespace TPDespair.ZetAspects
 
 			if (PluginAssembly != null)
 			{
-				Debug.LogWarning("LostInTransit Assembly Found");
+				FindStuff();
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Assembly");
+			}
 
-				Type type;
+			if (LeechingHealMethod != null) HookEndpointManager.Modify(LeechingHealMethod, (ILContext.Manipulator)LeechAmountHook);
 
-				type = Type.GetType("LostInTransit.Buffs.AffixLeeching, " + PluginAssembly.FullName, false);
+			if (FrenziedStatMethod != null)
+			{
+				HookEndpointManager.Modify(FrenziedStatMethod, (ILContext.Manipulator)FrenzyStatHook);
+
+				if (FrenziedDoingAbilityField != null) HookEndpointManager.Modify(FrenziedStatMethod, (ILContext.Manipulator)FrenzyCooldownHook);
+			}
+		}
+
+
+
+		private static void FindStuff()
+		{
+			Type type;
+
+			type = Type.GetType("LostInTransit.Buffs.AffixLeeching, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType("AffixLeechingBehavior", Flags);
 				if (type != null)
 				{
-					Debug.LogWarning("LostInTransit.Buffs.AffixLeeching Type Found");
-
-					type = type.GetNestedType("AffixLeechingBehavior", Flags);
-					if (type != null)
-					{
-						Debug.LogWarning("AffixLeechingBehavior Type Found");
-
-						LeechingHealMethod = type.GetMethod("OnDamageDealtServer", Flags);
-						if (LeechingHealMethod != null)
-						{
-							Debug.LogWarning("OnDamageDealtServer Method Found");
-
-							HookEndpointManager.Modify(LeechingHealMethod, (ILContext.Manipulator)LeechAmountHook);
-						}
-					}
+					LeechingHealMethod = type.GetMethod("OnDamageDealtServer", Flags);
+					if (LeechingHealMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : OnDamageDealtServer");
 				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [LIT] - Could Not Find NestedType : AffixLeechingBehavior");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixLeeching");
+			}
 
-				type = Type.GetType("LostInTransit.Buffs.AffixFrenzied, " + PluginAssembly.FullName, false);
+			type = Type.GetType("LostInTransit.Buffs.AffixFrenzied, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType("AffixFrenziedBehavior", Flags);
 				if (type != null)
 				{
-					Debug.LogWarning("LostInTransit.Buffs.AffixFrenzied Type Found");
+					FrenziedStatMethod = type.GetMethod("RecalculateStatsEnd", Flags);
+					if (FrenziedStatMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : RecalculateStatsEnd");
 
-					type = type.GetNestedType("AffixFrenziedBehavior", Flags);
-					if (type != null)
-					{
-						Debug.LogWarning("AffixFrenziedBehavior Type Found");
-
-						FrenziedStatMethod = type.GetMethod("RecalculateStatsEnd", Flags);
-						if (FrenziedStatMethod != null)
-						{
-							Debug.LogWarning("RecalculateStatsEnd Method Found");
-
-							HookEndpointManager.Modify(FrenziedStatMethod, (ILContext.Manipulator)FrenzyStatHook);
-						}
-					}
+					FrenziedDoingAbilityField = type.GetField("doingAbility", Flags);
+					if (FrenziedDoingAbilityField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : doingAbility");
 				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [LIT] - Could Not Find NestedType : AffixFrenziedBehavior");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixFrenzied");
 			}
 		}
 
@@ -111,7 +133,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspects - LIT : LeechAmountHook Failed");
+				Debug.LogWarning("ZetAspects [LIT] - LeechAmountHook Failed");
 			}
 		}
 
@@ -148,7 +170,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspects - LIT : FrenzyStatHook - MoveSpeed Failed");
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyStatHook:MoveSpeed Failed");
 			}
 
 			c.Index = 0;
@@ -182,7 +204,199 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspects - LIT : FrenzyStatHook - AttackSpeed Failed");
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyStatHook:AttackSpeed Failed");
+			}
+		}
+
+		private static void FrenzyCooldownHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			int index = 0;
+
+			bool found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("primary"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					frenzyCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldfld, FrenziedDoingAbilityField);
+					c.EmitDelegate<Func<GenericSkill, bool, float>>((skill, doingAbility) =>
+					{
+						return GetFrenziedCooldownReduction(skill, doingAbility);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:SetPrimary Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:GetPrimary Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("secondary"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					frenzyCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldfld, FrenziedDoingAbilityField);
+					c.EmitDelegate<Func<GenericSkill, bool, float>>((skill, doingAbility) =>
+					{
+						return GetFrenziedCooldownReduction(skill, doingAbility);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:SetSecondary Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:GetSecondary Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("utility"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					frenzyCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldfld, FrenziedDoingAbilityField);
+					c.EmitDelegate<Func<GenericSkill, bool, float>>((skill, doingAbility) =>
+					{
+						return GetFrenziedCooldownReduction(skill, doingAbility);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:SetUtility Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:GetUtility Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("special"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					frenzyCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldfld, FrenziedDoingAbilityField);
+					c.EmitDelegate<Func<GenericSkill, bool, float>>((skill, doingAbility) =>
+					{
+						return GetFrenziedCooldownReduction(skill, doingAbility);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:SetSpecial Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - FrenzyCooldownHook:GetSpecial Failed");
+			}
+		}
+
+
+
+		private static float GetFrenziedCooldownReduction(GenericSkill skill, bool doingAbility)
+		{
+			if (doingAbility) return -1f;
+			else
+			{
+				CharacterBody body = skill.characterBody;
+				float scale = skill.cooldownScale;
+
+				if (!body)
+				{
+					return scale;
+				}
+				else
+				{
+					BuffDef AffixFrenzied = Catalog.LostInTransit.Buffs.AffixFrenzied;
+
+					float count = AffixFrenzied ? ZetAspectsPlugin.GetStackMagnitude(body, AffixFrenzied) : 1f;
+					float value = Mathf.Abs(Configuration.AspectFrenziedBaseCooldownGain.Value) + Mathf.Abs(Configuration.AspectFrenziedStackCooldownGain.Value) * (count - 1f);
+
+					if (body.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectFrenziedMonsterCooldownMult.Value;
+
+					return scale * (1f / (1f + value));
+				}
 			}
 		}
 	}
