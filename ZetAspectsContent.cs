@@ -71,6 +71,8 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixLeeching;
 			public static Sprite AffixFrenzied;
 
+			public static Sprite AffixSanguine;
+
 			public static void Load()
 			{
 				OutlineRed = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineRed.png");
@@ -101,6 +103,11 @@ namespace TPDespair.ZetAspects
 				{
 					AffixLeeching = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLeeching.png");
 					AffixFrenzied = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixFrenzied.png");
+				}
+
+				if (Catalog.Aetherium.Enabled)
+				{
+					AffixSanguine = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSanguine.png");
 				}
 			}
 		}
@@ -163,6 +170,8 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectLeeching;
 			public static ItemDef ZetAspectFrenzied;
 
+			public static ItemDef ZetAspectSanguine;
+
 			public static List<ItemDef> itemDefs = new List<ItemDef>();
 
 			public static void Create()
@@ -201,6 +210,13 @@ namespace TPDespair.ZetAspects
 					ZetAspectFrenzied = ZetAspects.ZetAspectFrenzied.DefineItem();
 
 					itemDefs.AddRange(new ItemDef[] { ZetAspectLeeching, ZetAspectFrenzied });
+				}
+
+				if (Catalog.Aetherium.Enabled)
+				{
+					ZetAspectSanguine = ZetAspects.ZetAspectSanguine.DefineItem();
+
+					itemDefs.AddRange(new ItemDef[] { ZetAspectSanguine });
 				}
 			}
 		}
