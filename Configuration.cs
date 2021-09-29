@@ -143,7 +143,22 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
 
 
+		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
+		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
+		public static ConfigEntry<float> AspectSanguineBleedDuration { get; set; }
+		public static ConfigEntry<float> AspectSanguineBaseDamage { get; set; }
+		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
+
+
 		internal static void Init(ConfigFile Config)
+		{
+			GeneralConfigs(Config);
+			HeadHunterConfigs(Config);
+			AspectConfigs(Config);
+		}
+
+
+		private static void GeneralConfigs(ConfigFile Config)
 		{
 			AspectRedTier = Config.Bind(
 				"0a-General", "aspectRedTier", false,
@@ -217,8 +232,11 @@ namespace TPDespair.ZetAspects
 				"0c-Tweaks", "transcendenceShieldRegen", 0.20f,
 				"Health regen converted into shield regen. Set to 0 to disable."
 			);
+		}
 
 
+		private static void HeadHunterConfigs(ConfigFile Config)
+		{
 			HeadHunterCountExtra = Config.Bind(
 				"1a-Headhunter", "hunterExtraCount", -1,
 				"Count extra headhunters up to amount. -1 for no limit."
@@ -265,8 +283,11 @@ namespace TPDespair.ZetAspects
 				"1b-Headhunter Buff", "hunterIncreasedCritChance", 2f,
 				"Increased crit chance per headhunter buff."
 			);
+		}
 
 
+		private static void AspectConfigs(ConfigFile Config)
+		{
 			AspectEffectMonsterDamageMult = Config.Bind(
 				"20-Aspect Effects", "effectMonsterDamageMult", 1f,
 				"Multiply damage value of aspect effects from monsters."
@@ -277,6 +298,15 @@ namespace TPDespair.ZetAspects
 			);
 
 
+			RiskOfRainConfigs(Config);
+			EliteVarietyConfigs(Config);
+			LostInTransitConfigs(Config);
+			AetheriumConfigs(Config);
+		}
+
+
+		private static void RiskOfRainConfigs(ConfigFile Config)
+		{
 			AspectWhiteFreezeChance = Config.Bind(
 				"2aa-Ice Aspect", "iceBaseFreezeChance", 6.0f,
 				"Set freeze chance. Hyperbolic. Player Only. Set to 0 to disable."
@@ -451,8 +481,11 @@ namespace TPDespair.ZetAspects
 				"2af-Perfect Aspect", "perfectAddedShieldGained", 0.10f,
 				"Set extra shield per stack."
 			);
+		}
 
 
+		private static void EliteVarietyConfigs(ConfigFile Config)
+		{
 			AspectArmorBaseArmorGain = Config.Bind(
 				"2ba-Armor Aspect", "armorBaseArmor", 30f,
 				"Armor gained. Set to 0 to disable."
@@ -527,8 +560,11 @@ namespace TPDespair.ZetAspects
 				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
 				"Drone damage taken reduction per stack. Hyperbolic."
 			);
+		}
 
 
+		private static void LostInTransitConfigs(ConfigFile Config)
+		{
 			AspectLeechingBaseLeechGain = Config.Bind(
 				"2ca-Leeching Aspect", "leechingBaseLeech", 0.2f,
 				"Damage leeched. Set to 0 to disable."
@@ -541,7 +577,6 @@ namespace TPDespair.ZetAspects
 				"2ca-Leeching Aspect", "leechingMonsterLeechMult", 5f,
 				"Monster leech multiplier."
 			);
-
 
 
 			AspectFrenziedBaseMovementGain = Config.Bind(
@@ -579,6 +614,31 @@ namespace TPDespair.ZetAspects
 			AspectFrenziedMonsterCooldownMult = Config.Bind(
 				"2cb-Frenzied Aspect", "frenziedMonsterCooldownMult", 5f,
 				"Monster cooldown multiplier."
+			);
+		}
+
+
+		private static void AetheriumConfigs(ConfigFile Config)
+		{
+			AspectSanguineBaseDotAmp = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBaseDotAmp", 0.20f,
+				"DOT damage multiplier gained. Set to 0 to disable."
+			);
+			AspectSanguineStackDotAmp = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineAddedDotAmp", 0.10f,
+				"DOT damage multiplier gained per stack."
+			);
+			AspectSanguineBleedDuration = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBleedDuration", 4.0f,
+				"Set bleed duration in seconds."
+			);
+			AspectSanguineBaseDamage = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBaseTotalDamage", 2.4f,
+				"Base total damage of bleed over duration. Set to 0 to disable."
+			);
+			AspectSanguineStackDamage = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineAddedTotalDamage", 0.8f,
+				"Added total damage of bleed per stack."
 			);
 		}
 	}
