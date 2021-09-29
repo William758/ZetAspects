@@ -57,6 +57,7 @@ namespace TPDespair.ZetAspects
 			RiskOfRain.Init();
 			EliteVariety.Init();
 			LostInTransit.Init();
+			Aetherium.Init();
 
 			Debug.LogWarning("ZetAspects Catalog Set");
 
@@ -349,6 +350,97 @@ namespace TPDespair.ZetAspects
 			{
 				ReplaceEquipmentIcon(Equipment.AffixLeeching, ZetAspectsContent.Sprites.AffixLeeching, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixFrenzied, ZetAspectsContent.Sprites.AffixFrenzied, ZetAspectsContent.Sprites.OutlineOrange);
+			}
+		}
+
+
+
+		public static class Aetherium
+		{
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.KomradeSpectre.Aetherium")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			public static class Equipment
+			{
+				public static EquipmentDef AffixSanguine;
+			}
+
+			public static class Buffs
+			{
+				public static BuffDef AffixSanguine;
+			}
+
+
+
+			public static void Init()
+			{
+				if (Enabled)
+				{
+					SetupText();
+
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+
+					CopyModelPrefabs();
+					ApplyEquipmentIcons();
+
+					populated = true;
+				}
+			}
+
+
+
+			internal static void SetupText()
+			{
+				ZetAspectSanguine.SetupTokens();
+			}
+
+			internal static void PopulateEquipment()
+			{
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE");
+				if (index != EquipmentIndex.None) Equipment.AffixSanguine = EquipmentCatalog.GetEquipmentDef(index);
+			}
+
+			internal static void PopulateBuffs()
+			{
+				BuffIndex index;
+
+				index = BuffCatalog.FindBuffIndex("AFFIX_SANGUINE");
+				if (index != BuffIndex.None) Buffs.AffixSanguine = BuffCatalog.GetBuffDef(index);
+			}
+
+			internal static void DisableInactiveItems()
+			{
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectSanguine, ref Equipment.AffixSanguine, ref Buffs.AffixSanguine);
+			}
+
+			internal static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectSanguine, Equipment.AffixSanguine);
+			}
+
+			internal static void ApplyEquipmentIcons()
+			{
+				ReplaceEquipmentIcon(Equipment.AffixSanguine, ZetAspectsContent.Sprites.AffixSanguine, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 		}
 
