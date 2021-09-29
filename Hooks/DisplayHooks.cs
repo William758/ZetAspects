@@ -98,6 +98,16 @@ namespace TPDespair.ZetAspects
 			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCelestial) > 0) return targetEquipDef;
 			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
 
+			if (Catalog.Aetherium.populated)
+			{
+				targetEquipDef = Catalog.Aetherium.Equipment.AffixSanguine;
+				if (targetEquipDef)
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectSanguine) > 0) return targetEquipDef;
+					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+				}
+			}
+
 			if (Catalog.EliteVariety.populated)
 			{
 				targetEquipDef = Catalog.EliteVariety.Equipment.AffixArmored;
@@ -209,6 +219,12 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 			}
 
+			if (Catalog.Aetherium.populated)
+			{
+				modEquipDef = Catalog.Aetherium.Equipment.AffixSanguine;
+				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
+			}
+
 			return index;
 		}
 
@@ -259,6 +275,11 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixLeeching, ZetAspectsContent.Items.ZetAspectLeeching);
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixFrenzied, ZetAspectsContent.Items.ZetAspectFrenzied);
+			}
+
+			if (Catalog.Aetherium.populated)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Aetherium.Equipment.AffixSanguine, ZetAspectsContent.Items.ZetAspectSanguine);
 			}
 		}
 
@@ -335,6 +356,11 @@ namespace TPDespair.ZetAspects
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
 				}
 
+				if (Catalog.Aetherium.populated)
+				{
+					if (index == ZetAspectsContent.Items.ZetAspectSanguine.itemIndex) return;
+				}
+
 				orig(self, index);
 			};
 		}
@@ -364,6 +390,11 @@ namespace TPDespair.ZetAspects
 				{
 					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
+				}
+
+				if (Catalog.Aetherium.populated)
+				{
+					if (index == ZetAspectsContent.Items.ZetAspectSanguine.itemIndex) return;
 				}
 
 				orig(self, index);
