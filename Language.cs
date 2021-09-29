@@ -75,10 +75,10 @@ namespace TPDespair.ZetAspects
 			return "\nClick bottom-right equipment icon to convert";
 		}
 
-		public static string EquipmentDescription(string baseDesc, string activeEffect)
+		public static string EquipmentDescription(string baseDesc, string activeEffect, bool activeAlwaysAvailable = false)
 		{
 			string output = "";
-			if (Catalog.aspectAbilities) output += activeEffect + "\n\n";
+			if (Catalog.aspectAbilities || activeAlwaysAvailable) output += activeEffect + "\n\n";
 			output += baseDesc;
 			output += EquipmentStackText(Configuration.AspectEquipmentEffect.Value);
 			if (Configuration.AspectEquipmentConversion.Value) output += EquipmentConvertText();
