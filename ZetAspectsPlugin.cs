@@ -16,12 +16,13 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
+	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.swuff.LostInTransit", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.4.2";
+		public const string ModVer = "2.5.0";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -51,6 +52,7 @@ namespace TPDespair.ZetAspects
 			DisplayHooks.Init();
 
 			if (Catalog.LostInTransit.Enabled) LostInTransitHooks.Init();
+			if (Catalog.Aetherium.Enabled) AetheriumHooks.Init();
 
 			Language.Override();
 			ChangeText();
@@ -69,6 +71,30 @@ namespace TPDespair.ZetAspects
 		private void ContentManager_collectContentPackProviders(ContentManager.AddContentPackProviderDelegate addContentPackProvider)
 		{
 			addContentPackProvider(new ZetAspectsContent());
+		}
+
+
+
+		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, DotController.DotIndex dotIndex, float duration, float damage)
+		{
+			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
+
+			float ticks = duration / dotDef.interval;
+			float rTicks = Mathf.Ceil(ticks);
+
+			if (rTicks > 0f)
+			{
+				CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
+
+				float dotBaseDPS = atkBody.damage * (dotDef.damageCoefficient / dotDef.interval);
+				float targetDPS = damage / (rTicks * dotDef.interval);
+
+				float damageMult = targetDPS / dotBaseDPS;
+				damageMult *= ticks / (rTicks + 1f);
+
+				float tickedDuration = rTicks * dotDef.interval + (dotDef.interval - 0.01f);
+				DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+			}
 		}
 
 
@@ -181,6 +207,12 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectFrenzied;
 			}
 
+			if (Catalog.Aetherium.populated)
+			{
+				modBuffDef = Catalog.Aetherium.Buffs.AffixSanguine;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectSanguine;
+			}
+
 			return null;
 		}
 
@@ -217,6 +249,12 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixLeeching;
 				modBuffDef = Catalog.LostInTransit.Buffs.AffixFrenzied;
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixFrenzied;
+			}
+
+			if (Catalog.Aetherium.populated)
+			{
+				modBuffDef = Catalog.Aetherium.Buffs.AffixSanguine;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.Aetherium.Equipment.AffixSanguine;
 			}
 
 			return null;
@@ -259,6 +297,12 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectLeeching.itemIndex;
 				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex;
+			}
+
+			if (Catalog.Aetherium.populated)
+			{
+				modEquipDef = Catalog.Aetherium.Equipment.AffixSanguine;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectSanguine.itemIndex;
 			}
 
 			return ItemIndex.None;
