@@ -643,11 +643,20 @@ namespace TPDespair.ZetAspects
 				CharacterBody atkBody = inflictDotInfo.attackerObject.GetComponent<CharacterBody>();
 				if (atkBody)
 				{
+					float mult = 1;
+
 					if (atkBody.HasBuff(Catalog.EliteVariety.Buffs.AffixImpPlane) && Configuration.AspectImpaleBaseDotAmp.Value > 0f)
 					{
 						float count = ZetAspectsPlugin.GetStackMagnitude(atkBody, Catalog.EliteVariety.Buffs.AffixImpPlane);
-						inflictDotInfo.damageMultiplier *= 1f + Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
+						mult += Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
 					}
+					if (atkBody.HasBuff(Catalog.Aetherium.Buffs.AffixSanguine) && Configuration.AspectSanguineBaseDotAmp.Value > 0f)
+					{
+						float count = ZetAspectsPlugin.GetStackMagnitude(atkBody, Catalog.Aetherium.Buffs.AffixSanguine);
+						mult += Configuration.AspectSanguineBaseDotAmp.Value + Configuration.AspectSanguineStackDotAmp.Value * (count - 1f);
+					}
+
+					inflictDotInfo.damageMultiplier *= mult;
 				}
 			}
 
@@ -681,6 +690,7 @@ namespace TPDespair.ZetAspects
 					ApplySapped(attacker, victim, damageInfo);
 					ApplyShredded(attacker, victim, damageInfo);
 					ApplyCripple(attacker, victim, damageInfo);
+					ApplyBleed(attacker, victim, damageInfo);
 				}
 			}
 		}
@@ -815,6 +825,22 @@ namespace TPDespair.ZetAspects
 			float duration = Configuration.AspectLunarCrippleDuration.Value;
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 			if (duration > 0.1f) victim.AddTimedBuff(RoR2Content.Buffs.Cripple, duration);
+		}
+
+		private static void ApplyBleed(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!AetheriumHooks.bleedHook) return;
+
+			BuffDef buffDef = Catalog.Aetherium.Buffs.AffixSanguine;
+
+			if (!buffDef || !self.HasBuff(buffDef)) return;
+
+			float count = ZetAspectsPlugin.GetStackMagnitude(self, buffDef);
+			float damage = Configuration.AspectSanguineBaseDamage.Value + Configuration.AspectSanguineStackDamage.Value * (count - 1f);
+
+			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
+
+			ZetAspectsPlugin.InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
 		}
 
 
@@ -1018,6 +1044,15 @@ namespace TPDespair.ZetAspects
 				if (targetBuff && !self.HasBuff(targetBuff))
 				{
 					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectFrenzied, Catalog.LostInTransit.Equipment.AffixFrenzied)) self.AddTimedBuff(targetBuff, 5f);
+				}
+			}
+
+			if (Catalog.Aetherium.populated)
+			{
+				targetBuff = Catalog.Aetherium.Buffs.AffixSanguine;
+				if (targetBuff && !self.HasBuff(targetBuff))
+				{
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectSanguine, Catalog.Aetherium.Equipment.AffixSanguine)) self.AddTimedBuff(targetBuff, 5f);
 				}
 			}
 		}
