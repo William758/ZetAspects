@@ -30,6 +30,10 @@ Monster Aspect Effect is multiplied by x5 to keep in line with original values.
 
 ![effects](https://i.imgur.com/v8FnyOq.png)
 
+## Aetherium Aspect Effects:
+
+![effects](https://i.imgur.com/ZMnu7xk.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -37,6 +41,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.5.0 - Added Aetherium Support.
 
 v2.4.2 - Fix aspect icons being affected by the texture resolution setting. Added CDR config for Primordial Rage.
 
