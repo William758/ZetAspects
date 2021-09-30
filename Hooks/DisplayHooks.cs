@@ -8,6 +8,8 @@ namespace TPDespair.ZetAspects
 {
 	internal static class DisplayHooks
 	{
+		public static Color32 shieldBarColor = new Color32(52, 111, 255, 255);
+
 		internal static void Init()
 		{
 			CharacterOverlayHook();
@@ -15,6 +17,8 @@ namespace TPDespair.ZetAspects
 			UpdateItemDisplayHook();
 			EnableItemDisplayHook();
 			DisableItemDisplayHook();
+
+			ShieldBarColorHook();
 		}
 
 
@@ -398,6 +402,34 @@ namespace TPDespair.ZetAspects
 				}
 
 				orig(self, index);
+			};
+		}
+
+
+
+		private static void ShieldBarColorHook()
+		{
+			On.RoR2.UI.HealthBar.UpdateBarInfos += (orig, self) =>
+			{
+				orig(self);
+
+				HealthComponent hc = self._source;
+				if (hc)
+				{
+					CharacterBody body = hc.body;
+					if (body)
+					{
+						bool hasBuff = body.HasBuff(RoR2Content.Buffs.AffixLunar);
+						if (hasBuff) self.barInfoCollection.shieldBarInfo.color = shieldBarColor;
+
+						Inventory inventory = body.inventory;
+						if (inventory)
+						{
+							int count = inventory.GetItemCount(RoR2Content.Items.ShieldOnly);
+							if (count > 0) self.barInfoCollection.shieldBarInfo.color = shieldBarColor;
+						}
+					}
+				}
 			};
 		}
 	}
