@@ -157,6 +157,8 @@ namespace TPDespair.ZetAspects
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
 
+					EliteVarietyHooks.LateSetup();
+
 					populated = true;
 				}
 			}
