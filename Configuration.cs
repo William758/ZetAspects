@@ -121,10 +121,12 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectCycloneBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
+		public static ConfigEntry<bool> AspectCycloneTweaks { get; set; }
 
 
 		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
+		public static ConfigEntry<bool> AspectTinkerTweaks { get; set; }
 
 
 		public static ConfigEntry<float> AspectLeechingBaseLeechGain { get; set; }
@@ -550,6 +552,10 @@ namespace TPDespair.ZetAspects
 				"2be-Cyclone Aspect", "cycloneAddedMovementGained", 0.10f,
 				"Movement speed gained per stack."
 			);
+			AspectCycloneTweaks = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneTweaks", false,
+				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect)."
+			);
 
 
 			AspectTinkerBaseDamageResistGain = Config.Bind(
@@ -559,6 +565,10 @@ namespace TPDespair.ZetAspects
 			AspectTinkerStackDamageResistGain = Config.Bind(
 				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
 				"Drone damage taken reduction per stack. Hyperbolic."
+			);
+			AspectTinkerTweaks = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerTweaks", false,
+				"Disable scrap stealing."
 			);
 		}
 
