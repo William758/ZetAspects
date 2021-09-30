@@ -381,7 +381,10 @@ namespace TPDespair.ZetAspects
 		{
 			string output = "<style=cDeath>Aspect of Automatization</style> :";
 			output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
-			output += "\nAttacks steal scrap from the victim.";
+			if (!Configuration.AspectTinkerTweaks.Value)
+			{
+				output += "\nAttacks steal scrap from the victim.";
+			}
 			if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
 			{
 				output += "\nDrones have <style=cIsHealing>damage taken</style> reduced by <style=cIsHealing>";
