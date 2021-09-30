@@ -22,6 +22,10 @@ Amplifies the effect of aspects.
 
 ## Elite Variety Aspect Effects:
 
+cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
+
+tinkerTweaks (disabled by default) : Disable scrap stealing.
+
 ![effects](https://i.imgur.com/s30Qvh5.png)
 
 ## Lost In Transit Effects:
@@ -41,6 +45,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.5.1 - Configs to tweak some EliteVariety behavior.
 
 v2.5.0 - Added Aetherium Support.
 
