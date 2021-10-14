@@ -22,17 +22,13 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.5.1";
+		public const string ModVer = "2.5.3";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
 
 
 		public static AssetBundle Assets;
-
-		public static float MultiplayerChanceCompensation = 1f;
-		public static bool DisableDrops = false;
-		public static int RunDropCount = 0;
 
 
 
@@ -72,30 +68,6 @@ namespace TPDespair.ZetAspects
 		private void ContentManager_collectContentPackProviders(ContentManager.AddContentPackProviderDelegate addContentPackProvider)
 		{
 			addContentPackProvider(new ZetAspectsContent());
-		}
-
-
-
-		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, DotController.DotIndex dotIndex, float duration, float damage)
-		{
-			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
-
-			float ticks = duration / dotDef.interval;
-			float rTicks = Mathf.Ceil(ticks);
-
-			if (rTicks > 0f)
-			{
-				CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
-
-				float dotBaseDPS = atkBody.damage * (dotDef.damageCoefficient / dotDef.interval);
-				float targetDPS = damage / (rTicks * dotDef.interval);
-
-				float damageMult = targetDPS / dotBaseDPS;
-				damageMult *= ticks / (rTicks + 1f);
-
-				float tickedDuration = rTicks * dotDef.interval + (dotDef.interval - 0.01f);
-				DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
-			}
 		}
 
 
