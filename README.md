@@ -22,6 +22,8 @@ Amplifies the effect of aspects.
 
 ## Elite Variety Aspect Effects:
 
+impaleTweaks (disabled by default) : Scale impale damage and duration based on ambient level. No effect at lvl 90.
+
 cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
 
 tinkerTweaks (disabled by default) : Disable scrap stealing.
@@ -45,6 +47,10 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.5.3 - Added impaleTweaks. Config for freeze chance per stack. Config for multiplayer player count drop chance exponent.
+
+v2.5.2 - Fix RichTextChat preventing equipment conversion.
 
 v2.5.1 - Configs to tweak some EliteVariety behavior.
 
