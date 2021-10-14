@@ -119,6 +119,7 @@ namespace TPDespair.ZetAspects
 
 
 			public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
+			public static DotController.DotIndex impaleDotIndex = DotController.DotIndex.None;
 
 			public static class Equipment
 			{
