@@ -30,6 +30,7 @@ namespace TPDespair.ZetAspects
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
+			if (Configuration.AspectImpaleTweaks.Value) ModifyImpaleDot();
 			DotAmpHook();
 			OnHitEnemyHook();
 
@@ -73,12 +74,12 @@ namespace TPDespair.ZetAspects
 
 						if (attacker == null) return;
 						if (victim && victim.baseNameToken == "BROTHER_BODY_NAME") return;
-						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteFreezeChance.Value <= 0f) return;
+						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteBaseFreezeChance.Value <= 0f) return;
 						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.105f) return;
 
 						float count = ZetAspectsPlugin.GetStackMagnitude(attacker, RoR2Content.Buffs.AffixWhite);
-						float chance = Configuration.AspectWhiteFreezeChance.Value * count * damageReport.damageInfo.procCoefficient;
-						chance = Util.ConvertAmplificationPercentageIntoReductionPercentage(chance);
+						float chance = Configuration.AspectWhiteBaseFreezeChance.Value + Configuration.AspectWhiteStackFreezeChance.Value * (count - 1f);
+						chance = Util.ConvertAmplificationPercentageIntoReductionPercentage(chance * damageReport.damageInfo.procCoefficient);
 
 						if (Util.CheckRoll(chance)) state.SetFrozen(Configuration.AspectWhiteFreezeDuration.Value * damageReport.damageInfo.procCoefficient);
 					});
@@ -631,6 +632,38 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void ModifyImpaleDot()
+		{
+			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float += (orig, attacker, victim, index, duration, damage) =>
+			{
+				DotController.DotIndex dotIndex = Catalog.EliteVariety.impaleDotIndex;
+				if (dotIndex != DotController.DotIndex.None && index == dotIndex)
+				{
+					if (Run.instance)
+					{
+						bool isPlayer = false;
+						CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
+						if (atkBody && atkBody.teamComponent.teamIndex == TeamIndex.Player) isPlayer = true;
+
+						float mult = Mathf.Clamp(Run.instance.ambientLevel / 90f, 0.05f, 1f);
+						if (isPlayer)
+						{
+							mult = 1 - mult;
+							mult *= mult;
+							mult = 1 - mult;
+						}
+
+						damage *= mult;
+						duration *= mult;
+
+						duration = Mathf.Ceil(duration / 5f) * 5f + 0.1f;
+					}
+				}
+
+				orig(attacker, victim, index, duration, damage);
+			};
+		}
+
 		private static void DotAmpHook()
 		{
 			On.RoR2.DotController.InflictDot_refInflictDotInfo += DotController_InflictDot_refInflictDotInfo;
@@ -840,7 +873,31 @@ namespace TPDespair.ZetAspects
 
 			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
 
-			ZetAspectsPlugin.InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
+			InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
+		}
+
+
+
+		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, DotController.DotIndex dotIndex, float duration, float damage)
+		{
+			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
+
+			float ticks = duration / dotDef.interval;
+			float rTicks = Mathf.Ceil(ticks);
+
+			if (rTicks > 0f)
+			{
+				CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
+
+				float dotBaseDPS = atkBody.damage * (dotDef.damageCoefficient / dotDef.interval);
+				float targetDPS = damage / (rTicks * dotDef.interval);
+
+				float damageMult = targetDPS / dotBaseDPS;
+				damageMult *= ticks / (rTicks + 1f);
+
+				float tickedDuration = rTicks * dotDef.interval + (dotDef.interval - 0.01f);
+				DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+			}
 		}
 
 
