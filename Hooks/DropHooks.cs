@@ -26,6 +26,10 @@ namespace TPDespair.ZetAspects
 
 	internal static class DropHooks
 	{
+		public static float multiplayerCompensation = 1f;
+		public static bool disableDrops = false;
+		public static int runDropCount = 0;
+
 		internal static void Init()
 		{
 			SceneDirector.onPostPopulateSceneServer += OnScenePopulated;
@@ -49,10 +53,10 @@ namespace TPDespair.ZetAspects
 				UpdateRunDropCount();
 				UpdateZetDropTracker();
 
-				ZetAspectsPlugin.MultiplayerChanceCompensation = Mathf.Max(1f, Mathf.Sqrt(PlayerCharacterMasterController.instances.Count));
-				ZetAspectsPlugin.DisableDrops = false;
+				multiplayerCompensation = Mathf.Max(1f, Mathf.Pow(PlayerCharacterMasterController.instances.Count, Configuration.AspectDropChanceMultiplayer.Value));
+				disableDrops = false;
 				Debug.LogWarning("ZetAspects - ScenePopulated : Drops Enabled");
-				Debug.LogWarning("ZetAspects - RunDropCount : " + ZetAspectsPlugin.RunDropCount);
+				Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
 			}
 		}
 
@@ -70,7 +74,7 @@ namespace TPDespair.ZetAspects
 				}
 			}
 
-			ZetAspectsPlugin.RunDropCount = Math.Max(ZetAspectsPlugin.RunDropCount, highestCount);
+			runDropCount = Math.Max(runDropCount, highestCount);
 		}
 
 		private static void UpdateZetDropTracker()
@@ -84,7 +88,7 @@ namespace TPDespair.ZetAspects
 					if (inventory)
 					{
 						int trackerCount = inventory.GetItemCount(ZetAspectsContent.Items.ZetDropTracker);
-						int dropCount = ZetAspectsPlugin.RunDropCount;
+						int dropCount = runDropCount;
 
 						if (trackerCount < dropCount) inventory.GiveItem(ZetAspectsContent.Items.ZetDropTracker, dropCount - trackerCount);
 					}
@@ -96,7 +100,7 @@ namespace TPDespair.ZetAspects
 		{
 			if (Run.instance)
 			{
-				ZetAspectsPlugin.DisableDrops = true;
+				disableDrops = true;
 				Debug.LogWarning("ZetAspects - SceneExit : Drops Disabled");
 			}
 		}
@@ -107,7 +111,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.Run.Start += (orig, self) =>
 			{
-				ZetAspectsPlugin.RunDropCount = 0;
+				runDropCount = 0;
 				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
@@ -115,7 +119,7 @@ namespace TPDespair.ZetAspects
 
 			On.RoR2.Run.OnDestroy += (orig, self) =>
 			{
-				ZetAspectsPlugin.RunDropCount = 0;
+				runDropCount = 0;
 				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
@@ -145,7 +149,7 @@ namespace TPDespair.ZetAspects
 			if (Run.instance)
 			{
 				int stagesCleared = Run.instance.stageClearCount;
-				int dropCount = ZetAspectsPlugin.RunDropCount;
+				int dropCount = runDropCount;
 
 				if (dropCount < 3)
 				{
@@ -183,22 +187,23 @@ namespace TPDespair.ZetAspects
 					c.EmitDelegate<Func<CharacterMaster, EquipmentIndex, bool>>((master, index) =>
 					{
 						if (index == EquipmentIndex.None) return false;
+						if (ZetAspectsPlugin.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return false;
 
-						if (ZetAspectsPlugin.DisableDrops) return false;
+						if (disableDrops) return false;
 
 						float chance = Configuration.AspectDropChance.Value;
 						if (chance <= 0f) return false;
 
 						float decay = Mathf.Abs(Configuration.AspectDropChanceDecay.Value);
-						if (decay < 1f) chance *= Mathf.Max(Configuration.AspectDropChanceDecayLimit.Value, Mathf.Pow(decay, ZetAspectsPlugin.RunDropCount));
+						if (decay < 1f) chance *= Mathf.Max(Configuration.AspectDropChanceDecayLimit.Value, Mathf.Pow(decay, runDropCount));
 
-						chance *= ZetAspectsPlugin.MultiplayerChanceCompensation;
+						chance *= multiplayerCompensation;
 						if (Configuration.AspectDropChanceCompensation.Value) chance *= ChanceCompensation();
 
 						if (CheckDropRoll(chance, master))
 						{
-							ZetAspectsPlugin.RunDropCount++;
-							Debug.LogWarning("ZetAspects - RunDropCount : " + ZetAspectsPlugin.RunDropCount);
+							runDropCount++;
+							Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
 							UpdateZetDropTracker();
 							return true;
 						}
@@ -372,7 +377,11 @@ namespace TPDespair.ZetAspects
 		private static Chat.UserChatMessage ReconstructMessage(string message)
 		{
 			Match match = Regex.Match(message, "<color=#e5eefc><noparse>(.+?)<\\/noparse>: <noparse>(.+?)<\\/noparse><\\/color>", RegexOptions.Compiled);
-			if (!match.Success || match.Groups.Count < 3) return null;
+			if (!match.Success || match.Groups.Count < 3)
+			{
+				match = Regex.Match(message, "<color=#e5eefc>(.+?): (.+?)<\\/color>", RegexOptions.Compiled);
+				if (!match.Success || match.Groups.Count < 3) return null;
+			}
 
 			GameObject gameObject = null;
 			foreach (NetworkUser networkUser in NetworkUser.readOnlyInstancesList)
