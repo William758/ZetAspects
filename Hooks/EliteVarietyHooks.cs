@@ -18,12 +18,15 @@ namespace TPDespair.ZetAspects
 
 		private static readonly BindingFlags Flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
+		private static Type ImpPlaneImpaledType;
 		private static Type SandstormBlindType;
 
 		private static MethodInfo SandstormAwakeMethod;
 		private static MethodInfo SandstormTickMethod;
 
 		private static MethodInfo TinkerScrapMethod;
+
+		private static FieldInfo ImpaleDotIndexField;
 
 		private static FieldInfo BlindVisionRadiusField;
 		private static FieldInfo BlindCameraEffectField;
@@ -75,16 +78,29 @@ namespace TPDespair.ZetAspects
 		{
 			Type type;
 
+			type = Type.GetType("EliteVariety.Buffs.ImpPlaneImpaled, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				ImpPlaneImpaledType = type;
+
+				ImpaleDotIndexField = type.GetField("dotIndex", Flags);
+				if (ImpaleDotIndexField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : ImpPlaneImpaled.dotIndex");
+			}
+			else
+			{
+				Debug.LogWarning("ZetArtifact [ZetLoopifact] - Could Not Find Type : EliteVariety.Buffs.ImpPlaneImpaled");
+			}
+
 			type = Type.GetType("EliteVariety.Buffs.SandstormBlind, " + PluginAssembly.FullName, false);
 			if (type != null)
 			{
 				SandstormBlindType = type;
 
 				BlindVisionRadiusField = type.GetField("maxVisionRadius", Flags);
-				if (BlindVisionRadiusField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : maxVisionRadius");
+				if (BlindVisionRadiusField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : SandstormBlind.maxVisionRadius");
 
 				BlindCameraEffectField = type.GetField("cameraEffect", Flags);
-				if (BlindCameraEffectField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : cameraEffect");
+				if (BlindCameraEffectField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : SandstormBlind.cameraEffect");
 			}
 			else
 			{
@@ -98,16 +114,16 @@ namespace TPDespair.ZetAspects
 				if (type != null)
 				{
 					SandstormAwakeMethod = type.GetMethod("Awake", Flags);
-					if (SandstormAwakeMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : Awake");
+					if (SandstormAwakeMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : EliteVarietySandstormBehavior.Awake");
 
 					SandstormTickMethod = type.GetMethod("Tick", Flags);
-					if (SandstormTickMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : Tick");
+					if (SandstormTickMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : EliteVarietySandstormBehavior.Tick");
 
 					SandstormDamageField = type.GetField("damage", Flags);
-					if (SandstormDamageField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : damage");
+					if (SandstormDamageField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : EliteVarietySandstormBehavior.damage");
 
 					SandstormFrequencyField = type.GetField("tickFrequency", Flags);
-					if (SandstormFrequencyField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : tickFrequency");
+					if (SandstormFrequencyField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : EliteVarietySandstormBehavior.tickFrequency");
 				}
 				else
 				{
@@ -123,7 +139,7 @@ namespace TPDespair.ZetAspects
 			if (type != null)
 			{
 				TinkerScrapMethod = type.GetMethod("GenericGameEvents_OnHitEnemy", Flags);
-				if (TinkerScrapMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : GenericGameEvents_OnHitEnemy");
+				if (TinkerScrapMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : AffixTinkerer.GenericGameEvents_OnHitEnemy");
 			}
 			else
 			{
@@ -135,8 +151,48 @@ namespace TPDespair.ZetAspects
 
 		internal static void LateSetup()
 		{
-			if (!Configuration.AspectCycloneTweaks.Value) return;
+			if (Configuration.AspectImpaleTweaks.Value)
+			{
+				Catalog.EliteVariety.impaleDotIndex = (DotController.DotIndex)ImpaleDotIndexField.GetValue(ImpPlaneImpaledType);
+				if (Catalog.PluginLoaded("com.TPDespair.ZetArtifacts")) DisableZetArtifactsImpaleReduction();
+			}
+			if (Configuration.AspectCycloneTweaks.Value) ModifyCameraEffect();
+		}
 
+		private static void DisableZetArtifactsImpaleReduction()
+		{
+			BaseUnityPlugin ZetPlugin = Chainloader.PluginInfos["com.TPDespair.ZetArtifacts"].Instance;
+			Assembly ZetPluginAssembly = Assembly.GetAssembly(ZetPlugin.GetType());
+
+			if (ZetPluginAssembly != null)
+			{
+				Type type = Type.GetType("TPDespair.ZetArtifacts.ZetLoopifact, " + ZetPluginAssembly.FullName, false);
+				if (type != null)
+				{
+					FieldInfo impaleReductionField = type.GetField("impaleReduction", Flags);
+					if (impaleReductionField != null)
+					{
+						impaleReductionField.SetValue(type, false);
+						Debug.LogWarning("ZetAspect [EV] - Field ZetLoopifact.impaleReduction => false");
+					}
+					else
+					{
+						Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : ZetLoopifact.impaleReduction");
+					}
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : TPDespair.ZetArtifacts.ZetLoopifact");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [EV] - Could Not Find ZetArtifacts Assembly");
+			}
+		}
+
+		private static void ModifyCameraEffect()
+		{
 			float visionRange = 240f;
 
 			if (BlindVisionRadiusField != null) BlindVisionRadiusField.SetValue(SandstormBlindType, visionRange);
