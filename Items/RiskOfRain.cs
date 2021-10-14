@@ -55,10 +55,13 @@ namespace TPDespair.ZetAspects
 			string output = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for ";
 			output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 			output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
-			if (Configuration.AspectWhiteFreezeChance.Value > 0f)
+			if (Configuration.AspectWhiteBaseFreezeChance.Value > 0f)
 			{
-				output += "\nAttacks have a <style=cIsUtility>" + Configuration.AspectWhiteFreezeChance.Value + "%</style> ";
-				output += Language.StackText(Configuration.AspectWhiteFreezeChance.Value, "%");
+				output += "\nAttacks have a <style=cIsUtility>" + Configuration.AspectWhiteBaseFreezeChance.Value + "%</style>";
+				if (Configuration.AspectWhiteStackFreezeChance.Value != 0f)
+				{
+					output += " " + Language.StackText(Configuration.AspectWhiteStackFreezeChance.Value, "", "%");
+				}
 				output += " chance to <style=cIsUtility>freeze</style> for ";
 				output += Language.SecondText(Configuration.AspectWhiteFreezeDuration.Value) + ".";
 			}
