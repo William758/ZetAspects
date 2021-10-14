@@ -7,6 +7,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectRedTier { get; set; }
 		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
+		public static ConfigEntry<float> AspectDropChanceMultiplayer { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecayLimit { get; set; }
 		public static ConfigEntry<bool> AspectDropChanceCompensation { get; set; }
@@ -46,7 +47,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectEffectPlayerDebuffMult { get; set; }
 
 
-		public static ConfigEntry<float> AspectWhiteFreezeChance { get; set; }
+		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
+		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteFreezeDuration { get; set; }
 		public static ConfigEntry<float> AspectWhiteSlowDuration { get; set; }
 		public static ConfigEntry<float> AspectWhiteBaseDamage { get; set; }
@@ -109,6 +111,7 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectImpaleStackDotAmp { get; set; }
+		public static ConfigEntry<bool> AspectImpaleTweaks { get; set; }
 
 
 		public static ConfigEntry<float> AspectGoldenBaseRegenGain { get; set; }
@@ -174,6 +177,10 @@ namespace TPDespair.ZetAspects
 				"0a-General", "aspectDropChance", 0.2f,
 				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
 			);
+			AspectDropChanceMultiplayer = Config.Bind(
+				"0a-General", "aspectDropChanceMultiplayerExponent", 0.5f,
+				"Drop chance is multiplied by the playercount to the power of value. 0 for no playercount effect."
+			);
 			AspectDropChanceDecay = Config.Bind(
 				"0a-General", "aspectDropChanceDecay", 0.5f,
 				"Multiply drop chance for every aspect that has dropped in a run."
@@ -184,7 +191,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectDropChanceCompensation = Config.Bind(
 				"0a-General", "aspectDropChanceCompensation", true,
-				"Greatly increase drop chance at certain dropcount vs stagecount thresholds."
+				"Greatly increase drop chance at certain dropcount vs stagecount thresholds. 1 drop by stage 4, 2 by 7, 3 by 10, 4 by 15, 5 by 20..."
 			);
 			AspectShowDropText = Config.Bind(
 				"0a-General", "aspectEnableDropText", true,
@@ -202,11 +209,11 @@ namespace TPDespair.ZetAspects
 
 			AspectEliteEquipment = Config.Bind(
 				"0b-Equipment", "eliteEquipmentDrop", false,
-				"Elites drop equipment instead of new items."
+				"Elites drop aspects as equipment. Otherwise they drop aspects as items."
 			);
 			AspectAbilitiesEliteEquipment = Config.Bind(
 				"0b-Equipment", "aspectAbilitiesForceEquipmentDrop", true,
-				"Aspect Abilities forces elites to drop equipment."
+				"Elites drop aspects as equipment instead of items if Aspect Abilities is installed."
 			);
 			AspectEquipmentEffect = Config.Bind(
 				"0b-Equipment", "eliteEquipmentEffect", 3f,
@@ -309,9 +316,13 @@ namespace TPDespair.ZetAspects
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
 		{
-			AspectWhiteFreezeChance = Config.Bind(
+			AspectWhiteBaseFreezeChance = Config.Bind(
 				"2aa-Ice Aspect", "iceBaseFreezeChance", 6.0f,
-				"Set freeze chance. Hyperbolic. Player Only. Set to 0 to disable."
+				"Freeze chance. Hyperbolic. Player Only. Set to 0 to disable."
+			);
+			AspectWhiteStackFreezeChance = Config.Bind(
+				"2aa-Ice Aspect", "iceAddedFreezeChance", 6.0f,
+				"Freeze chance per stack."
 			);
 			AspectWhiteFreezeDuration = Config.Bind(
 				"2aa-Ice Aspect", "iceFreezeDuration", 2.0f,
@@ -515,6 +526,10 @@ namespace TPDespair.ZetAspects
 			AspectImpaleStackDotAmp = Config.Bind(
 				"2bc-Impale Aspect", "impaleAddedDotAmp", 0.10f,
 				"DOT damage multiplier gained per stack."
+			);
+			AspectImpaleTweaks = Config.Bind(
+				"2bc-Impale Aspect", "impaleTweaks", false,
+				"Scale impale damage and duration based on ambient level. No effect at lvl 90."
 			);
 
 
