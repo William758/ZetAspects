@@ -48,6 +48,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.5.4 - Added aspectDropChanceMultiplayerFactor config and allow negative aspectDropChanceMultiplayerExponent.
+
 v2.5.3 - Added impaleTweaks. Config for freeze chance per stack. Config for multiplayer player count drop chance exponent.
 
 v2.5.2 - Fix RichTextChat preventing equipment conversion.
