@@ -7,7 +7,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectRedTier { get; set; }
 		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
-		public static ConfigEntry<float> AspectDropChanceMultiplayer { get; set; }
+		public static ConfigEntry<float> AspectDropChanceMultiplayerFactor { get; set; }
+		public static ConfigEntry<float> AspectDropChanceMultiplayerExponent { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecayLimit { get; set; }
 		public static ConfigEntry<bool> AspectDropChanceCompensation { get; set; }
@@ -177,9 +178,13 @@ namespace TPDespair.ZetAspects
 				"0a-General", "aspectDropChance", 0.2f,
 				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
 			);
-			AspectDropChanceMultiplayer = Config.Bind(
+			AspectDropChanceMultiplayerFactor = Config.Bind(
+				"0a-General", "aspectDropChanceMultiplayerFactor", 1f,
+				"Multiply playercount used in drop chance calculation by value. Applies before playercount exponent."
+			);
+			AspectDropChanceMultiplayerExponent = Config.Bind(
 				"0a-General", "aspectDropChanceMultiplayerExponent", 0.5f,
-				"Drop chance is multiplied by the playercount to the power of value. 0 for no playercount effect."
+				"Drop chance is multiplied by the playercount to the power of value. -1 to divide chance by playercount, 0 to have playercount have no effect on chance, 1 to multiply chance by playercount."
 			);
 			AspectDropChanceDecay = Config.Bind(
 				"0a-General", "aspectDropChanceDecay", 0.5f,
@@ -543,11 +548,11 @@ namespace TPDespair.ZetAspects
 			);
 			AspectGoldenItemScoreFactor = Config.Bind(
 				"2bd-Golden Aspect", "goldenItemScoreFactor", 4.0f,
-				"Itemscore factor. white = 1x, green = 3x, other = 9x. Applies before itemscore exponent."
+				"Multiply itemscore by value. Applies before itemscore exponent. white = 1x, green = 3x, other = 9x."
 			);
 			AspectGoldenItemScoreExponent = Config.Bind(
 				"2bd-Golden Aspect", "goldenItemScoreExponent", 0.65f,
-				"Itemscore exponent. Raise itemscore to the power of exponent."
+				"Itemscore exponent. Raise itemscore to the power of value."
 			);
 			AspectGoldenBaseScoredRegenGain = Config.Bind(
 				"2bd-Golden Aspect", "goldenBaseScoredRegen", 1.0f,
