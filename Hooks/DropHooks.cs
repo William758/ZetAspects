@@ -26,7 +26,6 @@ namespace TPDespair.ZetAspects
 
 	internal static class DropHooks
 	{
-		public static float multiplayerCompensation = 1f;
 		public static bool disableDrops = false;
 		public static int runDropCount = 0;
 
@@ -53,10 +52,11 @@ namespace TPDespair.ZetAspects
 				UpdateRunDropCount();
 				UpdateZetDropTracker();
 
-				multiplayerCompensation = Mathf.Max(1f, Mathf.Pow(PlayerCharacterMasterController.instances.Count, Configuration.AspectDropChanceMultiplayer.Value));
 				disableDrops = false;
 				Debug.LogWarning("ZetAspects - ScenePopulated : Drops Enabled");
+
 				Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
+				LogDropChance();
 			}
 		}
 
@@ -112,7 +112,6 @@ namespace TPDespair.ZetAspects
 			On.RoR2.Run.Start += (orig, self) =>
 			{
 				runDropCount = 0;
-				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
 			};
@@ -120,10 +119,77 @@ namespace TPDespair.ZetAspects
 			On.RoR2.Run.OnDestroy += (orig, self) =>
 			{
 				runDropCount = 0;
-				//Debug.LogWarning("ZetAspects - RunDropCount : 0");
 
 				orig(self);
 			};
+		}
+
+
+
+		private static void LogDropChance()
+		{
+			float baseChance = Configuration.AspectDropChance.Value;
+
+			float decayMult = DecayChanceFactor();
+			float playerMult = PlayerChanceFactor();
+			float stageMult = StageChanceFactor();
+
+			float currentChance = baseChance * decayMult * playerMult * stageMult;
+
+			string output = "ZetAspects - DropChance : ";
+			output += $"{currentChance:0.###}% : ";
+			output += "[base]" + $"{baseChance:0.###}% x ";
+			output += "[decay]" + $"{decayMult:0.###} x ";
+			output += "[player]" + $"{playerMult:0.###} x ";
+			output += "[stage]" + $"{stageMult:0.###}";
+
+			Debug.LogWarning(output);
+		}
+
+		private static float GetDropChance()
+		{
+			float chance = Configuration.AspectDropChance.Value;
+
+			chance *= DecayChanceFactor();
+			chance *= PlayerChanceFactor();
+			chance *= StageChanceFactor();
+
+			return chance;
+		}
+
+		private static float DecayChanceFactor()
+		{
+			float decay = Mathf.Abs(Configuration.AspectDropChanceDecay.Value);
+			if (decay < 1f) return Mathf.Max(Configuration.AspectDropChanceDecayLimit.Value, Mathf.Pow(decay, runDropCount));
+			return 1f;
+		}
+
+		private static float PlayerChanceFactor()
+		{
+			float count = PlayerCharacterMasterController.instances.Count * Mathf.Abs(Configuration.AspectDropChanceMultiplayerFactor.Value);
+			return Mathf.Max(0.001f, Mathf.Pow(count, Configuration.AspectDropChanceMultiplayerExponent.Value));
+		}
+
+		private static float StageChanceFactor()
+		{
+			if (!Configuration.AspectDropChanceCompensation.Value) return 1f;
+
+			if (Run.instance)
+			{
+				int stagesCleared = Run.instance.stageClearCount;
+				int dropCount = runDropCount;
+
+				if (dropCount < 3)
+				{
+					if (stagesCleared >= (dropCount + 1) * 3) return 8f;
+				}
+				else
+				{
+					if (stagesCleared >= (dropCount * 5) - 1) return 8f;
+				}
+			}
+
+			return 1f;
 		}
 
 		private static bool CheckDropRoll(float chance, CharacterMaster master)
@@ -142,26 +208,6 @@ namespace TPDespair.ZetAspects
 			}
 
 			return roll <= chance;
-		}
-
-		private static float ChanceCompensation()
-		{
-			if (Run.instance)
-			{
-				int stagesCleared = Run.instance.stageClearCount;
-				int dropCount = runDropCount;
-
-				if (dropCount < 3)
-				{
-					if (stagesCleared >= (dropCount + 1) * 3) return 12f;
-				}
-				else
-				{
-					if (stagesCleared >= (dropCount * 5) - 1) return 8f;
-				}
-			}
-
-			return 1f;
 		}
 
 		private static void DropChanceHook()
@@ -191,20 +237,15 @@ namespace TPDespair.ZetAspects
 
 						if (disableDrops) return false;
 
-						float chance = Configuration.AspectDropChance.Value;
+						float chance = GetDropChance();
 						if (chance <= 0f) return false;
-
-						float decay = Mathf.Abs(Configuration.AspectDropChanceDecay.Value);
-						if (decay < 1f) chance *= Mathf.Max(Configuration.AspectDropChanceDecayLimit.Value, Mathf.Pow(decay, runDropCount));
-
-						chance *= multiplayerCompensation;
-						if (Configuration.AspectDropChanceCompensation.Value) chance *= ChanceCompensation();
 
 						if (CheckDropRoll(chance, master))
 						{
 							runDropCount++;
-							Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
 							UpdateZetDropTracker();
+							Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
+							LogDropChance();
 							return true;
 						}
 
