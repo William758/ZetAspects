@@ -32,9 +32,9 @@ tinkerTweaks (disabled by default) : Disable scrap stealing.
 
 ## Lost In Transit Effects:
 
-Monster Aspect Effect is multiplied by x5 to keep in line with original values.
+Effect of Guttural Whimpers and Primordial Rage for monsters is multiplied by x5 to keep in line with LIT original values.
 
-![effects](https://i.imgur.com/v8FnyOq.png)
+![effects](https://i.imgur.com/cFjlsbK.png)
 
 ## Aetherium Aspect Effects:
 
@@ -48,15 +48,17 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.5.5 - Added Volatile Elite support.
+
 v2.5.4 - Added aspectDropChanceMultiplayerFactor config and allow negative aspectDropChanceMultiplayerExponent.
 
-v2.5.3 - Added impaleTweaks. Config for freeze chance per stack. Config for multiplayer player count drop chance exponent.
+v2.5.3 - Added impaleTweaks. Config for freeze chance per stack. Added aspectDropChanceMultiplayerExponent config.
 
 v2.5.2 - Fix RichTextChat preventing equipment conversion.
 
 v2.5.1 - Configs to tweak some EliteVariety behavior.
 
-v2.5.0 - Added Aetherium Support.
+v2.5.0 - Added Aetherium support.
 
 v2.4.2 - Fix aspect icons being affected by the texture resolution setting. Added CDR config for Primordial Rage.
 
