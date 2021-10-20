@@ -200,4 +200,73 @@ namespace TPDespair.ZetAspects
 			return output;
 		}
 	}
+
+	public static class ZetAspectVolatile
+	{
+		public static string identifier = "ZetAspectVolatile";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
+			if (Configuration.AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			Sprite outlineSprite;
+			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
+			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
+			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixVolatile, outlineSprite);
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+
+			Language.helperTarget = "default";
+			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Lingering Torment");
+			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of instability.");
+
+			string desc = BuildDescription();
+			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			Language.RegisterToken("LIT_EQUIP_AFFIXVOLATILE_DESC", Language.EquipmentDescription(desc, "- ? Activation Effect ? -"));
+		}
+
+		public static string BuildDescription()
+		{
+			string output = "<style=cDeath>Aspect of Instability</style> :";
+			output += "\nOccasionally drop Spite bombs when damaged.";
+
+			if (LostInTransitHooks.explodeHook)
+			{
+				if (Configuration.AspectVolatileBaseDamage.Value > 0)
+				{
+					output += "\nAttacks <style=cIsDamage>explode</style> on hit, dealing <style=cIsDamage>";
+					output += Configuration.AspectVolatileBaseDamage.Value * 100f + "%</style>";
+					if (Configuration.AspectVolatileStackDamage.Value != 0)
+					{
+						output += " " + Language.StackText(Configuration.AspectVolatileStackDamage.Value * 100f, "", "%");
+					}
+					output += " TOTAL damage.";
+				}
+			}
+			else
+			{
+				output += "\nAttacks <style=cIsDamage>explode</style> on hit, dealing <style=cIsDamage>30%</style> TOTAL damage.";
+			}
+
+			return output;
+		}
+	}
 }
