@@ -22,7 +22,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.5.4";
+		public const string ModVer = "2.5.5";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -178,6 +178,8 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectLeeching;
 				modBuffDef = Catalog.LostInTransit.Buffs.AffixFrenzied;
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectFrenzied;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixVolatile;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectVolatile;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -222,6 +224,8 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixLeeching;
 				modBuffDef = Catalog.LostInTransit.Buffs.AffixFrenzied;
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixFrenzied;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixVolatile;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixVolatile;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -270,6 +274,8 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectLeeching.itemIndex;
 				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectVolatile.itemIndex;
 			}
 
 			if (Catalog.Aetherium.populated)
