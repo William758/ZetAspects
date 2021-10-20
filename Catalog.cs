@@ -279,12 +279,16 @@ namespace TPDespair.ZetAspects
 			{
 				public static EquipmentDef AffixLeeching;
 				public static EquipmentDef AffixFrenzied;
+				public static EquipmentDef AffixVolatile;
+				public static EquipmentDef AffixBlighted;
 			}
 
 			public static class Buffs
 			{
 				public static BuffDef AffixLeeching;
 				public static BuffDef AffixFrenzied;
+				public static BuffDef AffixVolatile;
+				public static BuffDef AffixBlighted;
 			}
 
 
@@ -313,6 +317,7 @@ namespace TPDespair.ZetAspects
 			{
 				ZetAspectLeeching.SetupTokens();
 				ZetAspectFrenzied.SetupTokens();
+				ZetAspectVolatile.SetupTokens();
 			}
 
 			internal static void PopulateEquipment()
@@ -324,6 +329,12 @@ namespace TPDespair.ZetAspects
 
 				index = EquipmentCatalog.FindEquipmentIndex("AffixFrenzied");
 				if (index != EquipmentIndex.None) Equipment.AffixFrenzied = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixVolatile");
+				if (index != EquipmentIndex.None) Equipment.AffixVolatile = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixBlighted");
+				if (index != EquipmentIndex.None) Equipment.AffixBlighted = EquipmentCatalog.GetEquipmentDef(index);
 			}
 
 			internal static void PopulateBuffs()
@@ -335,24 +346,33 @@ namespace TPDespair.ZetAspects
 
 				index = BuffCatalog.FindBuffIndex("AffixFrenzied");
 				if (index != BuffIndex.None) Buffs.AffixFrenzied = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("AffixVolatile");
+				if (index != BuffIndex.None) Buffs.AffixVolatile = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("AffixBlighted");
+				if (index != BuffIndex.None) Buffs.AffixBlighted = BuffCatalog.GetBuffDef(index);
 			}
 
 			internal static void DisableInactiveItems()
 			{
 				DeactivateItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching);
 				DeactivateItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied);
+				DeactivateItem(ZetAspectsContent.Items.ZetAspectVolatile, ref Equipment.AffixVolatile, ref Buffs.AffixVolatile);
 			}
 
 			internal static void CopyModelPrefabs()
 			{
 				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectLeeching, Equipment.AffixLeeching);
 				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectFrenzied, Equipment.AffixFrenzied);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectVolatile, Equipment.AffixVolatile);
 			}
 
 			internal static void ApplyEquipmentIcons()
 			{
 				ReplaceEquipmentIcon(Equipment.AffixLeeching, ZetAspectsContent.Sprites.AffixLeeching, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixFrenzied, ZetAspectsContent.Sprites.AffixFrenzied, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixVolatile, ZetAspectsContent.Sprites.AffixVolatile, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 		}
 
