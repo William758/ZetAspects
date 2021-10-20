@@ -149,6 +149,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
 
 
+		public static ConfigEntry<float> AspectVolatileBaseDamage { get; set; }
+		public static ConfigEntry<float> AspectVolatileStackDamage { get; set; }
+
+
 		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineBleedDuration { get; set; }
@@ -597,7 +601,7 @@ namespace TPDespair.ZetAspects
 		{
 			AspectLeechingBaseLeechGain = Config.Bind(
 				"2ca-Leeching Aspect", "leechingBaseLeech", 0.2f,
-				"Damage leeched. Set to 0 to disable."
+				"Damage leeched."
 			);
 			AspectLeechingStackLeechGain = Config.Bind(
 				"2ca-Leeching Aspect", "leechingAddedLeech", 0.1f,
@@ -644,6 +648,16 @@ namespace TPDespair.ZetAspects
 			AspectFrenziedMonsterCooldownMult = Config.Bind(
 				"2cb-Frenzied Aspect", "frenziedMonsterCooldownMult", 5f,
 				"Monster cooldown multiplier."
+			);
+
+
+			AspectVolatileBaseDamage = Config.Bind(
+				"2cc-Volatile Aspect", "volatileBaseTotalDamage", 0.20f,
+				"Base total damage of explosion."
+			);
+			AspectVolatileStackDamage = Config.Bind(
+				"2cc-Volatile Aspect", "volatileAddedTotalDamage", 0.10f,
+				"Added total damage of explosion per stack."
 			);
 		}
 
