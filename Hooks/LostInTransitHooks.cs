@@ -19,6 +19,7 @@ namespace TPDespair.ZetAspects
 
 		private static MethodInfo LeechingHealMethod;
 		private static MethodInfo FrenziedStatMethod;
+		private static MethodInfo VolatileExplodeMethod;
 
 		private static FieldInfo FrenziedDoingAbilityField;
 
@@ -26,6 +27,7 @@ namespace TPDespair.ZetAspects
 		internal static bool frenzyMSHook = false;
 		internal static bool frenzyASHook = false;
 		internal static int frenzyCDRHook = 0;
+		internal static bool explodeHook = false;
 
 
 
@@ -51,6 +53,8 @@ namespace TPDespair.ZetAspects
 
 				if (FrenziedDoingAbilityField != null) HookEndpointManager.Modify(FrenziedStatMethod, (ILContext.Manipulator)FrenzyCooldownHook);
 			}
+
+			if (VolatileExplodeMethod != null) HookEndpointManager.Modify(VolatileExplodeMethod, (ILContext.Manipulator)ExplodeDamageHook);
 		}
 
 
@@ -66,7 +70,7 @@ namespace TPDespair.ZetAspects
 				if (type != null)
 				{
 					LeechingHealMethod = type.GetMethod("OnDamageDealtServer", Flags);
-					if (LeechingHealMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : OnDamageDealtServer");
+					if (LeechingHealMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixLeechingBehavior.OnDamageDealtServer");
 				}
 				else
 				{
@@ -85,10 +89,10 @@ namespace TPDespair.ZetAspects
 				if (type != null)
 				{
 					FrenziedStatMethod = type.GetMethod("RecalculateStatsEnd", Flags);
-					if (FrenziedStatMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : RecalculateStatsEnd");
+					if (FrenziedStatMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixFrenziedBehavior.RecalculateStatsEnd");
 
 					FrenziedDoingAbilityField = type.GetField("doingAbility", Flags);
-					if (FrenziedDoingAbilityField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : doingAbility");
+					if (FrenziedDoingAbilityField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : AffixFrenziedBehavior.doingAbility");
 				}
 				else
 				{
@@ -98,6 +102,25 @@ namespace TPDespair.ZetAspects
 			else
 			{
 				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixFrenzied");
+			}
+
+			type = Type.GetType("LostInTransit.Buffs.AffixVolatile, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType("AffixVolatileBehavior", Flags);
+				if (type != null)
+				{
+					VolatileExplodeMethod = type.GetMethod("OnHitAll", Flags);
+					if (VolatileExplodeMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixVolatileBehavior.OnHitAll");
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [LIT] - Could Not Find NestedType : AffixVolatileBehavior");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixVolatile");
 			}
 		}
 
@@ -128,7 +151,7 @@ namespace TPDespair.ZetAspects
 
 					if (attacker.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectLeechingMonsterLeechMult.Value;
 
-					return damageReport.damageDealt * damageReport.damageInfo.procCoefficient * value;
+					return Mathf.Max(1f, damageReport.damageDealt * damageReport.damageInfo.procCoefficient * value);
 				});
 			}
 			else
@@ -136,6 +159,8 @@ namespace TPDespair.ZetAspects
 				Debug.LogWarning("ZetAspects [LIT] - LeechAmountHook Failed");
 			}
 		}
+
+
 
 		private static void FrenzyStatHook(ILContext il)
 		{
@@ -372,8 +397,6 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-
-
 		private static float GetFrenziedCooldownReduction(GenericSkill skill, bool doingAbility)
 		{
 			if (doingAbility) return -1f;
@@ -397,6 +420,50 @@ namespace TPDespair.ZetAspects
 
 					return scale * (1f / (1f + value));
 				}
+			}
+		}
+
+
+
+		private static void ExplodeDamageHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			bool found = c.TryGotoNext(
+				x => x.MatchStfld<BlastAttack>("baseDamage")
+			);
+
+			if (found)
+			{
+				explodeHook = true;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldarg, 1);
+				c.EmitDelegate<Func<DamageInfo, float>>((damageInfo) =>
+				{
+					float count = 1f;
+					float value = Configuration.AspectVolatileBaseDamage.Value;
+
+					GameObject attacker = damageInfo.attacker;
+					if (attacker)
+					{
+						CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
+						if (atkBody)
+						{
+							BuffDef AffixVolatile = Catalog.LostInTransit.Buffs.AffixVolatile;
+							count = AffixVolatile ? ZetAspectsPlugin.GetStackMagnitude(atkBody, AffixVolatile) : 1f;
+						}
+
+						value += Configuration.AspectVolatileStackDamage.Value * (count - 1f);
+						if (atkBody && atkBody.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectEffectMonsterDamageMult.Value;
+					}
+
+					return Mathf.Max(1f, damageInfo.damage * value);
+				});
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - ExplodeDamageHook Failed");
 			}
 		}
 	}
