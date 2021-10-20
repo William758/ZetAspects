@@ -235,6 +235,9 @@ namespace TPDespair.ZetAspects
 						if (index == EquipmentIndex.None) return false;
 						if (ZetAspectsPlugin.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return false;
 
+						// prevent blacklisted equipment from dropping
+						if (index == Catalog.LostInTransit.Equipment.AffixBlighted.equipmentIndex) return false;
+
 						if (disableDrops) return false;
 
 						float chance = GetDropChance();
