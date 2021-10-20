@@ -148,16 +148,22 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.LostInTransit.populated)
 			{
-				targetEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
+				targetEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
 				if (targetEquipDef)
 				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLeeching) > 0) return targetEquipDef;
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectVolatile) > 0) return targetEquipDef;
 					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
 				}
 				targetEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
 				if (targetEquipDef)
 				{
 					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFrenzied) > 0) return targetEquipDef;
+					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+				}
+				targetEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
+				if (targetEquipDef)
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLeeching) > 0) return targetEquipDef;
 					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
 				}
 			}
@@ -221,6 +227,8 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
+				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -279,6 +287,7 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixLeeching, ZetAspectsContent.Items.ZetAspectLeeching);
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixFrenzied, ZetAspectsContent.Items.ZetAspectFrenzied);
+				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixVolatile, ZetAspectsContent.Items.ZetAspectVolatile);
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -358,6 +367,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
 				}
 
 				if (Catalog.Aetherium.populated)
@@ -394,6 +404,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
 				}
 
 				if (Catalog.Aetherium.populated)
