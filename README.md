@@ -48,6 +48,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.5.6 - Fix NullRef preventing aspect drops and interfering with OnCharacterDeath. Only show LogBook entries if item/equipment is obtainable.
+
 v2.5.5 - Added Volatile Elite support.
 
 v2.5.4 - Added aspectDropChanceMultiplayerFactor config and allow negative aspectDropChanceMultiplayerExponent.
