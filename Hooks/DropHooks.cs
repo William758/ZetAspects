@@ -236,7 +236,8 @@ namespace TPDespair.ZetAspects
 						if (ZetAspectsPlugin.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return false;
 
 						// prevent blacklisted equipment from dropping
-						if (index == Catalog.LostInTransit.Equipment.AffixBlighted.equipmentIndex) return false;
+						EquipmentDef equipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
+						if (equipDef && index == equipDef.equipmentIndex) return false;
 
 						if (disableDrops) return false;
 
@@ -317,6 +318,23 @@ namespace TPDespair.ZetAspects
 			if (Catalog.aspectAbilities && Configuration.AspectAbilitiesEliteEquipment.Value) return true;
 			if (Configuration.AspectEliteEquipment.Value) return true;
 			return false;
+		}
+
+		internal static bool CanObtainEquipment()
+		{
+			return DropAsEquipment();
+		}
+
+		internal static bool CanObtainItem()
+		{
+			if (DropAsEquipment())
+			{
+				if (Configuration.AspectEquipmentConversion.Value) return true;
+				if (Configuration.AspectEquipmentAbsorb.Value) return true;
+				if (!Configuration.AspectWorldUnique.Value) return true;
+				return false;
+			}
+			else return true;
 		}
 
 		private static void EquipmentAbsorbHook()
