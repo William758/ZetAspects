@@ -43,7 +43,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			Language.RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", Language.EquipmentDescription(desc, "Teleport dash and gain brief invulnurability on use.", true));
+			Language.RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", Language.EquipmentDescription(desc, "Teleport dash and gain brief invulnurability on use.", true));
 		}
 
 		public static string BuildDescription()
