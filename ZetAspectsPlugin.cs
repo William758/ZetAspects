@@ -22,7 +22,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.5.5";
+		public const string ModVer = "2.5.6";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -40,7 +40,8 @@ namespace TPDespair.ZetAspects
 			Configuration.Init(Config);
 			ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
 
-			Catalog.SetOnLogBookControllerInit();
+			Catalog.OnLogBookInit();
+			Catalog.OnMainMenuEnter();
 
 			StatHooks.Init();
 			EffectHooks.Init();
