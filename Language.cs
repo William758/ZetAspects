@@ -57,6 +57,7 @@ namespace TPDespair.ZetAspects
 		{
 			stack = Mathf.Max(1f, stack);
 
+			if (!DropHooks.CanObtainItem()) return "";
 			if (stack == 1f) return "";
 
 			if (helperTarget == "tr")
@@ -65,7 +66,6 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				if (stack == 1.0f) return "\n\nCounts as 1 stack";
 				return "\n\nCounts as " + stack + " stacks";
 			}
 		}
