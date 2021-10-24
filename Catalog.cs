@@ -1,5 +1,6 @@
 using RoR2;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
@@ -9,24 +10,63 @@ namespace TPDespair.ZetAspects
 		public static bool set = false;
 		public static bool menu = false;
 
-
+		public static List<ItemDef> disabledItemDefs = new List<ItemDef>();
+		public static List<ItemIndex> disabledItemIndexes = new List<ItemIndex>();
 
 		public static int barrierDecayMode = 0;
 		public static bool limitChillStacks = false;
 		public static bool borboFrostBlade = false;
 		public static bool aspectAbilities = false;
 
+		public static bool ChillCanStack => RoR2Content.Buffs.Slow80.canStack;
 
 
-		public static bool ChillCanStack
+
+		internal static void OnTransmuteManagerInit()
 		{
-			get
+			On.RoR2.PickupTransmutationManager.Init += (orig) =>
 			{
-				return RoR2Content.Buffs.Slow80.canStack;
-			}
+				try
+				{
+					EliteVariety.PreInit();
+					LostInTransit.PreInit();
+					Aetherium.PreInit();
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+				}
+
+				orig();
+			};
 		}
 
+		internal static void OnRuleCatalogInit()
+		{
+			On.RoR2.RuleCatalog.Init += (orig) =>
+			{
+				try
+				{
+					EliteVariety.PreInit();
+					LostInTransit.PreInit();
+					Aetherium.PreInit();
 
+					if (Configuration.AspectWorldUnique.Value)
+					{
+						RiskOfRain.ItemEntries(false);
+						if (EliteVariety.Enabled) EliteVariety.ItemEntries(false);
+						if (LostInTransit.Enabled) LostInTransit.ItemEntries(false);
+						if (Aetherium.Enabled) Aetherium.ItemEntries(false);
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+				}
+
+				orig();
+			};
+		}
 
 		internal static void OnLogBookInit()
 		{
@@ -79,9 +119,27 @@ namespace TPDespair.ZetAspects
 			LostInTransit.Init();
 			Aetherium.Init();
 
+			HandleDisabledItems();
+
 			Debug.LogWarning("ZetAspects Catalog - Setup Complete");
 
 			set = true;
+		}
+
+		private static void HandleDisabledItems()
+		{
+			foreach (RuleDef ruleDef in RuleCatalog.allRuleDefs)
+			{
+				if (ruleDef.choices != null && ruleDef.choices.Count > 0)
+				{
+					ItemIndex itemIndex = ruleDef.choices[0].itemIndex;
+
+					if (itemIndex != ItemIndex.None && disabledItemIndexes.Contains(itemIndex))
+					{
+						foreach (RuleChoiceDef ruleDefChoice in ruleDef.choices) ruleDefChoice.excludeByDefault = true;
+					}
+				}
+			}
 		}
 
 		private static void FirstMenuVisit()
@@ -120,7 +178,7 @@ namespace TPDespair.ZetAspects
 			internal static void Init()
 			{
 				SetupText();
-				if (!DropHooks.CanObtainItem()) ItemEntries(false);
+				ItemEntries(DropHooks.CanObtainItem());
 
 				ApplyEquipmentIcons();
 				if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
@@ -138,14 +196,14 @@ namespace TPDespair.ZetAspects
 				ZetAspectPerfect.SetupTokens();
 			}
 
-			internal static void ItemEntries(bool value)
+			internal static void ItemEntries(bool shown)
 			{
-				SetItemState(ZetAspectsContent.Items.ZetAspectIce, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectLightning, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectFire, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectCelestial, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectMalachite, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectPerfect, value);
+				SetItemState(ZetAspectsContent.Items.ZetAspectIce, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectLightning, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectFire, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectCelestial, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectMalachite, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectPerfect, shown);
 			}
 
 			private static void ApplyEquipmentIcons()
@@ -158,19 +216,21 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixLunar, ZetAspectsContent.Sprites.AffixLunar, ZetAspectsContent.Sprites.OutlineBlue);
 			}
 
-			internal static void EquipmentEntries(bool value)
+			internal static void EquipmentEntries(bool shown)
 			{
-				SetEquipmentDropField(RoR2Content.Equipment.AffixWhite, value);
-				SetEquipmentDropField(RoR2Content.Equipment.AffixBlue, value);
-				SetEquipmentDropField(RoR2Content.Equipment.AffixRed, value);
-				SetEquipmentDropField(RoR2Content.Equipment.AffixHaunted, value);
-				SetEquipmentDropField(RoR2Content.Equipment.AffixPoison, value);
-				SetEquipmentDropField(RoR2Content.Equipment.AffixLunar, value);
+				SetEquipmentState(RoR2Content.Equipment.AffixWhite, shown);
+				SetEquipmentState(RoR2Content.Equipment.AffixBlue, shown);
+				SetEquipmentState(RoR2Content.Equipment.AffixRed, shown);
+				SetEquipmentState(RoR2Content.Equipment.AffixHaunted, shown);
+				SetEquipmentState(RoR2Content.Equipment.AffixPoison, shown);
+				SetEquipmentState(RoR2Content.Equipment.AffixLunar, shown);
 			}
 		}
 
 		public static class EliteVariety
 		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -214,6 +274,15 @@ namespace TPDespair.ZetAspects
 
 
 
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
 			internal static void Init()
 			{
 				if (Enabled)
@@ -224,7 +293,7 @@ namespace TPDespair.ZetAspects
 
 					DisableInactiveItems();
 					SetupText();
-					if (!DropHooks.CanObtainItem()) ItemEntries(false);
+					ItemEntries(DropHooks.CanObtainItem());
 
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
@@ -240,6 +309,8 @@ namespace TPDespair.ZetAspects
 
 			private static void PopulateEquipment()
 			{
+				if (equipDefPopulated) return;
+
 				EquipmentIndex index;
 
 				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixArmored");
@@ -259,10 +330,14 @@ namespace TPDespair.ZetAspects
 
 				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixTinkerer");
 				if (index != EquipmentIndex.None) Equipment.AffixTinkerer = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
 			}
 
 			private static void PopulateBuffs()
 			{
+				if (buffDefPopulated) return;
+
 				BuffIndex index;
 
 				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixArmored");
@@ -282,18 +357,22 @@ namespace TPDespair.ZetAspects
 
 				index = BuffCatalog.FindBuffIndex("EliteVariety_AffixTinkerer");
 				if (index != BuffIndex.None) Buffs.AffixTinkerer = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
 			}
 
 
 
 			private static void DisableInactiveItems()
 			{
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectArmor, ref Equipment.AffixArmored, ref Buffs.AffixArmored);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectBanner, ref Equipment.AffixBuffing, ref Buffs.AffixBuffing);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectImpale, ref Equipment.AffixImpPlane, ref Buffs.AffixImpPlane);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectGolden, ref Equipment.AffixPillaging, ref Buffs.AffixPillaging);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectCyclone, ref Equipment.AffixSandstorm, ref Buffs.AffixSandstorm);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectTinker, ref Equipment.AffixTinkerer, ref Buffs.AffixTinkerer);
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectArmor, ref Equipment.AffixArmored, ref Buffs.AffixArmored, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectBanner, ref Equipment.AffixBuffing, ref Buffs.AffixBuffing, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectImpale, ref Equipment.AffixImpPlane, ref Buffs.AffixImpPlane, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectGolden, ref Equipment.AffixPillaging, ref Buffs.AffixPillaging, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectCyclone, ref Equipment.AffixSandstorm, ref Buffs.AffixSandstorm, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectTinker, ref Equipment.AffixTinkerer, ref Buffs.AffixTinkerer, state);
 			}
 
 			private static void SetupText()
@@ -306,14 +385,14 @@ namespace TPDespair.ZetAspects
 				ZetAspectTinker.SetupTokens();
 			}
 
-			internal static void ItemEntries(bool value)
+			internal static void ItemEntries(bool shown)
 			{
-				SetItemState(ZetAspectsContent.Items.ZetAspectArmor, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectBanner, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectImpale, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectGolden, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectCyclone, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectTinker, value);
+				SetItemState(ZetAspectsContent.Items.ZetAspectArmor, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectBanner, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectImpale, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectGolden, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectCyclone, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectTinker, shown);
 			}
 
 			private static void CopyModelPrefabs()
@@ -336,14 +415,14 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equipment.AffixTinkerer, ZetAspectsContent.Sprites.AffixTinkerer, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 
-			internal static void EquipmentEntries(bool value)
+			internal static void EquipmentEntries(bool shown)
 			{
-				SetEquipmentDropField(Equipment.AffixArmored, value);
-				SetEquipmentDropField(Equipment.AffixBuffing, value);
-				SetEquipmentDropField(Equipment.AffixImpPlane, value);
-				SetEquipmentDropField(Equipment.AffixPillaging, value);
-				SetEquipmentDropField(Equipment.AffixSandstorm, value);
-				SetEquipmentDropField(Equipment.AffixTinkerer, value);
+				SetEquipmentState(Equipment.AffixArmored, shown);
+				SetEquipmentState(Equipment.AffixBuffing, shown);
+				SetEquipmentState(Equipment.AffixImpPlane, shown);
+				SetEquipmentState(Equipment.AffixPillaging, shown);
+				SetEquipmentState(Equipment.AffixSandstorm, shown);
+				SetEquipmentState(Equipment.AffixTinkerer, shown);
 			}
 		}
 
@@ -351,6 +430,8 @@ namespace TPDespair.ZetAspects
 
 		public static class LostInTransit
 		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -387,6 +468,15 @@ namespace TPDespair.ZetAspects
 
 
 
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
 			internal static void Init()
 			{
 				if (Enabled)
@@ -396,7 +486,7 @@ namespace TPDespair.ZetAspects
 
 					DisableInactiveItems();
 					SetupText();
-					if (!DropHooks.CanObtainItem()) ItemEntries(false);
+					ItemEntries(DropHooks.CanObtainItem());
 
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
@@ -410,6 +500,8 @@ namespace TPDespair.ZetAspects
 
 			private static void PopulateEquipment()
 			{
+				if (equipDefPopulated) return;
+
 				EquipmentIndex index;
 
 				index = EquipmentCatalog.FindEquipmentIndex("AffixLeeching");
@@ -423,10 +515,14 @@ namespace TPDespair.ZetAspects
 
 				index = EquipmentCatalog.FindEquipmentIndex("AffixBlighted");
 				if (index != EquipmentIndex.None) Equipment.AffixBlighted = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
 			}
 
 			private static void PopulateBuffs()
 			{
+				if (buffDefPopulated) return;
+
 				BuffIndex index;
 
 				index = BuffCatalog.FindBuffIndex("AffixLeeching");
@@ -440,15 +536,19 @@ namespace TPDespair.ZetAspects
 
 				index = BuffCatalog.FindBuffIndex("AffixBlighted");
 				if (index != BuffIndex.None) Buffs.AffixBlighted = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
 			}
 
 
 
 			private static void DisableInactiveItems()
 			{
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied);
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectVolatile, ref Equipment.AffixVolatile, ref Buffs.AffixVolatile);
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectVolatile, ref Equipment.AffixVolatile, ref Buffs.AffixVolatile, state);
 			}
 
 			private static void SetupText()
@@ -458,11 +558,11 @@ namespace TPDespair.ZetAspects
 				ZetAspectVolatile.SetupTokens();
 			}
 
-			internal static void ItemEntries(bool value)
+			internal static void ItemEntries(bool shown)
 			{
-				SetItemState(ZetAspectsContent.Items.ZetAspectLeeching, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectFrenzied, value);
-				SetItemState(ZetAspectsContent.Items.ZetAspectVolatile, value);
+				SetItemState(ZetAspectsContent.Items.ZetAspectLeeching, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectFrenzied, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectVolatile, shown);
 			}
 
 			private static void CopyModelPrefabs()
@@ -479,11 +579,11 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equipment.AffixVolatile, ZetAspectsContent.Sprites.AffixVolatile, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 
-			internal static void EquipmentEntries(bool value)
+			internal static void EquipmentEntries(bool shown)
 			{
-				SetEquipmentDropField(Equipment.AffixLeeching, value);
-				SetEquipmentDropField(Equipment.AffixFrenzied, value);
-				SetEquipmentDropField(Equipment.AffixVolatile, value);
+				SetEquipmentState(Equipment.AffixLeeching, shown);
+				SetEquipmentState(Equipment.AffixFrenzied, shown);
+				SetEquipmentState(Equipment.AffixVolatile, shown);
 			}
 		}
 
@@ -491,6 +591,8 @@ namespace TPDespair.ZetAspects
 
 		public static class Aetherium
 		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -521,6 +623,15 @@ namespace TPDespair.ZetAspects
 
 
 
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
 			internal static void Init()
 			{
 				if (Enabled)
@@ -530,7 +641,7 @@ namespace TPDespair.ZetAspects
 
 					DisableInactiveItems();
 					SetupText();
-					if (!DropHooks.CanObtainItem()) ItemEntries(false);
+					ItemEntries(DropHooks.CanObtainItem());
 
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
@@ -544,25 +655,35 @@ namespace TPDespair.ZetAspects
 
 			private static void PopulateEquipment()
 			{
+				if (equipDefPopulated) return;
+
 				EquipmentIndex index;
 
 				index = EquipmentCatalog.FindEquipmentIndex("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE");
 				if (index != EquipmentIndex.None) Equipment.AffixSanguine = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
 			}
 
 			private static void PopulateBuffs()
 			{
+				if (buffDefPopulated) return;
+
 				BuffIndex index;
 
 				index = BuffCatalog.FindBuffIndex("AFFIX_SANGUINE");
 				if (index != BuffIndex.None) Buffs.AffixSanguine = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
 			}
 
 
 
 			private static void DisableInactiveItems()
 			{
-				DeactivateItem(ZetAspectsContent.Items.ZetAspectSanguine, ref Equipment.AffixSanguine, ref Buffs.AffixSanguine);
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectSanguine, ref Equipment.AffixSanguine, ref Buffs.AffixSanguine, state);
 			}
 
 			private static void SetupText()
@@ -570,9 +691,9 @@ namespace TPDespair.ZetAspects
 				ZetAspectSanguine.SetupTokens();
 			}
 
-			internal static void ItemEntries(bool value)
+			internal static void ItemEntries(bool shown)
 			{
-				SetItemState(ZetAspectsContent.Items.ZetAspectSanguine, value);
+				SetItemState(ZetAspectsContent.Items.ZetAspectSanguine, shown);
 			}
 
 			private static void CopyModelPrefabs()
@@ -585,55 +706,93 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equipment.AffixSanguine, ZetAspectsContent.Sprites.AffixSanguine, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 
-			internal static void EquipmentEntries(bool value)
+			internal static void EquipmentEntries(bool shown)
 			{
-				SetEquipmentDropField(Equipment.AffixSanguine, value);
+				SetEquipmentState(Equipment.AffixSanguine, shown);
 			}
 		}
 
 
 
-		public static void DeactivateItem(ItemDef itemDef, ref EquipmentDef equipDef, ref BuffDef buffDeff)
+		private static int GetPopulatedState(bool equip, bool buff)
+		{
+			int value = 0;
+
+			if (equip) value += 1;
+			if (buff) value += 2;
+
+			return value;
+		}
+
+		private static void DisableInactiveItem(ItemDef itemDef, ref EquipmentDef equipDef, ref BuffDef buffDeff, int state)
 		{
 			if (!itemDef) return;
 
-			bool deactivate = false;
-
-			if (!equipDef)
+			if (state > 0)
 			{
-				deactivate = true;
-				Debug.LogWarning(itemDef.name + " : associated equipment not found!");
+				if ((state & 1) > 0) DeactivateItem(itemDef, equipDef);
+				if ((state & 2) > 0) DeactivateItem(itemDef, buffDeff);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects Catalog - Tried to disable " + itemDef.name + " without any BuffDefs or EquipmentDefs populated!");
 			}
 
-			if (!buffDeff)
+			if (disabledItemDefs.Contains(itemDef))
 			{
-				deactivate = true;
-				Debug.LogWarning(itemDef.name + " : associated buff not found!");
-			}
-
-			if (deactivate)
-			{
-				Debug.LogWarning("ZetAspects - Deactivating : " + itemDef.name);
-
-				equipDef = null;
-				buffDeff = null;
-
-				itemDef.tier = ItemTier.NoTier;
-				itemDef.hidden = true;
-				if (itemDef.DoesNotContainTag(ItemTag.WorldUnique))
-				{
-					ItemTag[] tags = itemDef.tags;
-					int index = tags.Length;
-
-					Array.Resize(ref tags, index + 1);
-					tags[index] = ItemTag.WorldUnique;
-
-					itemDef.tags = tags;
-				}
+				if (equipDef != null) equipDef = null;
+				if (buffDeff != null) buffDeff = null;
 			}
 		}
 
-		internal static void SetItemState(ItemDef itemDef, bool shown)
+		private static void DeactivateItem(ItemDef itemDef, EquipmentDef equipDef)
+		{
+			if (disabledItemDefs.Contains(itemDef)) return;
+
+			if (!equipDef)
+			{
+				Debug.LogWarning(itemDef.name + " : associated equipment not found!");
+				DeactivateItem(itemDef);
+			}
+		}
+
+		private static void DeactivateItem(ItemDef itemDef, BuffDef buffDeff)
+		{
+			if (disabledItemDefs.Contains(itemDef)) return;
+
+			if (!buffDeff)
+			{
+				Debug.LogWarning(itemDef.name + " : associated buff not found!");
+				DeactivateItem(itemDef);
+			}
+		}
+
+		private static void DeactivateItem(ItemDef itemDef)
+		{
+			if (disabledItemDefs.Contains(itemDef)) return;
+
+			Debug.LogWarning("ZetAspects - Deactivating : " + itemDef.name);
+
+			itemDef.tier = ItemTier.NoTier;
+			itemDef.hidden = true;
+			if (itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+			{
+				ItemTag[] tags = itemDef.tags;
+				int index = tags.Length;
+
+				Array.Resize(ref tags, index + 1);
+				tags[index] = ItemTag.WorldUnique;
+
+				itemDef.tags = tags;
+			}
+
+			disabledItemDefs.Add(itemDef);
+			disabledItemIndexes.Add(itemDef.itemIndex);
+		}
+
+
+
+		private static void SetItemState(ItemDef itemDef, bool shown)
 		{
 			if (itemDef && !itemDef.hidden)
 			{
@@ -644,7 +803,7 @@ namespace TPDespair.ZetAspects
 
 		public static void CopyEquipmentPrefab(ItemDef itemDef, EquipmentDef equipDef)
 		{
-			if (!itemDef) return;
+			if (!itemDef || disabledItemDefs.Contains(itemDef)) return;
 
 			if (!equipDef)
 			{
@@ -662,7 +821,7 @@ namespace TPDespair.ZetAspects
 			if (equipDef) equipDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(baseSprite, outlineSprite);
 		}
 
-		internal static void SetEquipmentDropField(EquipmentDef equipDef, bool canDrop)
+		private static void SetEquipmentState(EquipmentDef equipDef, bool canDrop)
 		{
 			if (equipDef) equipDef.canDrop = canDrop;
 		}
