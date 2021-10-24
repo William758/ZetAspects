@@ -24,7 +24,7 @@ namespace TPDespair.ZetAspects
 
 
 
-	internal static class DropHooks
+	public static class DropHooks
 	{
 		public static bool disableDrops = false;
 		public static int runDropCount = 0;
@@ -320,12 +320,12 @@ namespace TPDespair.ZetAspects
 			return false;
 		}
 
-		internal static bool CanObtainEquipment()
+		public static bool CanObtainEquipment()
 		{
 			return DropAsEquipment();
 		}
 
-		internal static bool CanObtainItem()
+		public static bool CanObtainItem()
 		{
 			if (DropAsEquipment())
 			{
