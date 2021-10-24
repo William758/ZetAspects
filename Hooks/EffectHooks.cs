@@ -32,7 +32,7 @@ namespace TPDespair.ZetAspects
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
-			if (Configuration.AspectImpaleTweaks.Value) ModifyImpaleDot();
+			ModifyDot();
 			DotAmpHook();
 			OnHitEnemyHook();
 
@@ -634,14 +634,16 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void ModifyImpaleDot()
+		private static void ModifyDot()
 		{
 			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float += (orig, attacker, victim, index, duration, damage) =>
 			{
 				DotController.DotIndex dotIndex = Catalog.EliteVariety.impaleDotIndex;
 				if (dotIndex != DotController.DotIndex.None && index == dotIndex)
 				{
-					if (Run.instance)
+					damage *= Configuration.AspectImpaleDamageMult.Value;
+
+					if (Configuration.AspectImpaleTweaks.Value && Run.instance)
 					{
 						bool isPlayer = false;
 						CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
