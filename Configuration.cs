@@ -110,6 +110,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBannerStackAttackSpeedGain { get; set; }
 
 
+		public static ConfigEntry<float> AspectImpaleDamageMult { get; set; }
 		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectImpaleStackDotAmp { get; set; }
 		public static ConfigEntry<bool> AspectImpaleTweaks { get; set; }
@@ -528,6 +529,10 @@ namespace TPDespair.ZetAspects
 			);
 
 
+			AspectImpaleDamageMult = Config.Bind(
+				"2bc-Impale Aspect", "impaleDotDamageMult", 0.75f,
+				"Multiply impale DOT damage. This setting reduces impale damage to counteract DotAmp."
+			);
 			AspectImpaleBaseDotAmp = Config.Bind(
 				"2bc-Impale Aspect", "impaleBaseDotAmp", 0.20f,
 				"DOT damage multiplier gained. Set to 0 to disable."
