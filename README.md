@@ -22,6 +22,8 @@ Amplifies the effect of aspects.
 
 ## Elite Variety Aspect Effects:
 
+Impale Dot Damage : Damage multiplied by x0.75 to counteract effect of aspect DotAmp.
+
 impaleTweaks (disabled by default) : Scale impale damage and duration based on ambient level. No effect at lvl 90.
 
 cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
@@ -47,6 +49,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.5.7 - Automatically display or hide item/equipment entries in LogBook, RuleBook, and PickupPicker menus. If configured to make item aspects unobtainable, equipment aspect descriptions show total effects only. Reduce Impale damage to negate DotAmp effect.
 
 v2.5.6 - Fix NullRef preventing aspect drops and interfering with OnCharacterDeath. Only show LogBook entries if item/equipment is obtainable.
 
