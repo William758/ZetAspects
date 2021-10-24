@@ -43,6 +43,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", Language.EquipmentDescription(desc, "Teleport dash and gain brief invulnurability on use.", true));
 		}
 
@@ -76,6 +77,36 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectSanguineStackDotAmp.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of The Red Plane</style> :";
+			if (AetheriumHooks.bleedHook)
+			{
+				if (Configuration.AspectSanguineBaseDamage.Value > 0f)
+				{
+					value = Configuration.AspectSanguineBaseDamage.Value + Configuration.AspectSanguineStackDamage.Value * (stacks - 1f);
+					output += "\nAttacks <style=cIsDamage>bleed</style> on hit for <style=cIsDamage>";
+					output += value * 100f + "%</style>";
+					output += " base damage over ";
+					output += Language.SecondText(Configuration.AspectSanguineBleedDuration.Value) + ".";
+				}
+			}
+			else
+			{
+				output += "\nAttacks <style=cIsDamage>bleed</style> on hit for <style=cIsDamage>240%</style> base damage over 3 seconds.";
+			}
+			if (Configuration.AspectSanguineBaseDotAmp.Value > 0f)
+			{
+				value = Configuration.AspectSanguineBaseDotAmp.Value + Configuration.AspectSanguineStackDotAmp.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsUtility>damage over time multiplier</style> by <style=cIsUtility>";
+				output += value * 100f + "%</style>.";
 			}
 
 			return output;
