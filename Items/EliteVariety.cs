@@ -43,6 +43,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXARMORED_DESC", Language.EquipmentDescription(desc, "Gain temporary armor increase on use."));
 		}
 
@@ -62,6 +63,25 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectArmorStackArmorGain.Value);
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Durability</style> :";
+			output += "\nSpawn with full barrier";
+			if (Catalog.barrierDecayMode == 0) output += " that doesn't decay";
+			else if (Catalog.barrierDecayMode == 1) output += " that slowly decays";
+			output += ".\nAttacks <style=cIsUtility>root</style> on hit, immobilizing the target.";
+			if (Configuration.AspectArmorBaseArmorGain.Value > 0f)
+			{
+				value = Configuration.AspectArmorBaseArmorGain.Value + Configuration.AspectArmorStackArmorGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
+				output += value + "</style>.";
 			}
 
 			return output;
@@ -109,6 +129,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXBUFFING_DESC", Language.EquipmentDescription(desc, "Increase banner radius on use."));
 		}
 
@@ -125,6 +146,22 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectBannerStackAttackSpeedGain.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Battle</style> :";
+			output += "\nGrants nearby allies increased <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style>.";
+			if (Configuration.AspectBannerBaseAttackSpeedGain.Value > 0f)
+			{
+				value = Configuration.AspectBannerBaseAttackSpeedGain.Value + Configuration.AspectBannerStackAttackSpeedGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+				output += value * 100f + "%</style>.";
 			}
 
 			return output;
@@ -172,6 +209,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXIMPPLANE_DESC", Language.EquipmentDescription(desc, "Teleport to a target and deal damage on use."));
 		}
 
@@ -189,6 +227,23 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectImpaleStackDotAmp.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Violence</style> :";
+			output += "\nEnemies looking directly at you are <style=cIsUtility>marked</style>, increasing damage taken.";
+			output += "\nAttacks <style=cIsDamage>impale</style> on hit, periodically dealing heavy damage over 60 seconds.";
+			if (Configuration.AspectImpaleBaseDotAmp.Value > 0f)
+			{
+				value = Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsUtility>damage over time multiplier</style> by <style=cIsUtility>";
+				output += value * 100f + "%</style>.";
 			}
 
 			return output;
@@ -236,6 +291,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXPILLAGING_DESC", Language.EquipmentDescription(desc, "Spend all of your gold for a random item. The more gold spent, the higher chance of getting a rarer item."));
 		}
 
@@ -263,6 +319,26 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectGoldenStackScoredRegenGain.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Theft</style> :";
+			output += "\nAttacks steal gold on hit.";
+			if (Configuration.AspectGoldenBaseRegenGain.Value > 0f)
+			{
+				value = Configuration.AspectGoldenBaseRegenGain.Value + Configuration.AspectGoldenStackRegenGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsHealing>health regeneration</style> by <style=cIsHealing>";
+				output += value + "hp/s</style>.";
+			}
+			if (Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f)
+			{
+				output += "\nBonus <style=cIsHealing>health regeneration</style> based on quantity and tier of items owned.";
 			}
 
 			return output;
@@ -310,6 +386,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXSANDSTORM_DESC", Language.EquipmentDescription(desc, "Dash on use, knocking nearby enemies up."));
 		}
 
@@ -327,6 +404,23 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectCycloneStackMovementGain.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Sand</style> :";
+			output += "\nSurrounded by a sandstorm that damages enemies on contact.";
+			output += "\nAttacks <style=cIsUtility>blind</style> on hit, reducing visibility.";
+			if (Configuration.AspectCycloneBaseMovementGain.Value > 0f)
+			{
+				value = Configuration.AspectCycloneBaseMovementGain.Value + Configuration.AspectCycloneStackMovementGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
+				output += value * 100f + "%</style>.";
 			}
 
 			return output;
@@ -374,6 +468,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("EQUIPMENT_ELITEVARIETY_AFFIXTINKERER_DESC", Language.EquipmentDescription(desc, "Heal drones on use."));
 		}
 
@@ -394,6 +489,26 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectTinkerStackDamageResistGain.Value * 100f, "", "%");
 				}
 				output += ".";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Automatization</style> :";
+			output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
+			if (!Configuration.AspectTinkerTweaks.Value)
+			{
+				output += "\nAttacks steal scrap from the victim.";
+			}
+			if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
+			{
+				value = Configuration.AspectTinkerBaseDamageResistGain.Value + Configuration.AspectTinkerStackDamageResistGain.Value * (stacks - 1f);
+				output += "\nDrones have <style=cIsHealing>damage taken</style> reduced by <style=cIsHealing>";
+				output += value * 100f + "%</style>.";
 			}
 
 			return output;
