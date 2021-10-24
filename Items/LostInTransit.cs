@@ -43,6 +43,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("LIT_EQUIP_AFFIXLEECHING_DESC", Language.EquipmentDescription(desc, "- ? Activation Effect ? -"));
 		}
 
@@ -60,6 +61,30 @@ namespace TPDespair.ZetAspects
 					{
 						output += " " + Language.StackText(Configuration.AspectLeechingStackLeechGain.Value * 100f, "", "%");
 					}
+					output += " of the <style=cIsDamage>damage</style> you deal.";
+				}
+			}
+			else
+			{
+				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>100%</style> of the <style=cIsDamage>damage</style> you deal.";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Parasitism</style> :";
+			output += "\nPeriodically heal nearby allies.";
+			if (LostInTransitHooks.leechHook)
+			{
+				if (Configuration.AspectLeechingBaseLeechGain.Value > 0)
+				{
+					value = Configuration.AspectLeechingBaseLeechGain.Value + Configuration.AspectLeechingStackLeechGain.Value * (stacks - 1f);
+					output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
+					output += value * 100f + "%</style>";
 					output += " of the <style=cIsDamage>damage</style> you deal.";
 				}
 			}
@@ -111,6 +136,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("LIT_EQUIP_AFFIXFRENZIED_DESC", Language.EquipmentDescription(desc, "- ? Activation Effect ? -"));
 		}
 
@@ -199,6 +225,78 @@ namespace TPDespair.ZetAspects
 
 			return output;
 		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Seething</style> :";
+			output += "\nPeriodically dash towards enemies.";
+
+			float frenzyBaseMS = Configuration.AspectFrenziedBaseMovementGain.Value;
+			float frenzyStackMS = Configuration.AspectFrenziedStackMovementGain.Value;
+			float frenzyBaseAS = Configuration.AspectFrenziedBaseAttackSpeedGain.Value;
+			float frenzyStackAS = Configuration.AspectFrenziedStackAttackSpeedGain.Value;
+
+			if (LostInTransitHooks.frenzyMSHook || LostInTransitHooks.frenzyASHook)
+			{
+				if (LostInTransitHooks.frenzyMSHook && LostInTransitHooks.frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
+				{
+					value = frenzyBaseMS + frenzyStackMS * (stacks - 1f);
+					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += value * 100f + "%</style>.";
+				}
+				else
+				{
+					if (LostInTransitHooks.frenzyMSHook)
+					{
+						if (frenzyBaseMS > 0f)
+						{
+							value = frenzyBaseMS + frenzyStackMS * (stacks - 1f);
+							output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
+							output += value * 100f + "%</style>.";
+						}
+					}
+					else
+					{
+						output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>100%</style>.";
+					}
+					if (LostInTransitHooks.frenzyASHook)
+					{
+						if (frenzyBaseAS > 0f)
+						{
+							value = frenzyBaseAS + frenzyStackAS * (stacks - 1f);
+							output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+							output += value * 100f + "%</style>.";
+						}
+					}
+					else
+					{
+						output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+					}
+				}
+			}
+			else
+			{
+				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+			}
+
+			if (LostInTransitHooks.frenzyCDRHook == 4)
+			{
+				if (Configuration.AspectFrenziedBaseCooldownGain.Value != 0f)
+				{
+					value = Mathf.Abs(Configuration.AspectFrenziedBaseCooldownGain.Value) + Mathf.Abs(Configuration.AspectFrenziedStackCooldownGain.Value) * (stacks - 1f);
+					output += "\nReduces <style=cIsUtility>skill cooldowns</style> by <style=cIsUtility>";
+					output += value * 100f + "%</style>.";
+				}
+			}
+			else
+			{
+				output += "\nGreatly Reduces <style=cIsUtility>skill cooldowns</style>.";
+			}
+
+			return output;
+		}
 	}
 
 	public static class ZetAspectVolatile
@@ -240,6 +338,7 @@ namespace TPDespair.ZetAspects
 
 			string desc = BuildDescription();
 			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
 			Language.RegisterToken("LIT_EQUIP_AFFIXVOLATILE_DESC", Language.EquipmentDescription(desc, "- ? Activation Effect ? -"));
 		}
 
@@ -258,6 +357,31 @@ namespace TPDespair.ZetAspects
 					{
 						output += " " + Language.StackText(Configuration.AspectVolatileStackDamage.Value * 100f, "", "%");
 					}
+					output += " TOTAL damage.";
+				}
+			}
+			else
+			{
+				output += "\nAttacks <style=cIsDamage>explode</style> on hit, dealing <style=cIsDamage>30%</style> TOTAL damage.";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Instability</style> :";
+			output += "\nOccasionally drop Spite bombs when damaged.";
+
+			if (LostInTransitHooks.explodeHook)
+			{
+				if (Configuration.AspectVolatileBaseDamage.Value > 0)
+				{
+					value = Configuration.AspectVolatileBaseDamage.Value + Configuration.AspectVolatileStackDamage.Value * (stacks - 1f);
+					output += "\nAttacks <style=cIsDamage>explode</style> on hit, dealing <style=cIsDamage>";
+					output += value * 100f + "%</style>";
 					output += " TOTAL damage.";
 				}
 			}
