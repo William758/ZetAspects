@@ -22,7 +22,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.5.7";
+		public const string ModVer = "2.6.0";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -40,10 +40,7 @@ namespace TPDespair.ZetAspects
 			Configuration.Init(Config);
 			ContentManager.collectContentPackProviders += ContentManager_collectContentPackProviders;
 
-			Catalog.OnTransmuteManagerInit();
-			Catalog.OnRuleCatalogInit();
-			Catalog.OnLogBookInit();
-			Catalog.OnMainMenuEnter();
+			Catalog.Init();
 
 			StatHooks.Init();
 			EffectHooks.Init();
@@ -57,6 +54,17 @@ namespace TPDespair.ZetAspects
 			Language.Override();
 			ChangeText();
 		}
+
+		public void FixedUpdate()
+		{
+			EffectHooks.OnFixedUpdate();
+		}
+		/*
+		public void Update()
+		{
+			DebugDrops();
+		}
+		//*/
 
 
 
@@ -121,6 +129,8 @@ namespace TPDespair.ZetAspects
 			float aspect = inventory.GetItemCount(GetAspectItemDef(buffDef));
 			float hunter = inventory.GetItemCount(RoR2Content.Items.HeadHunter);
 
+			if (BlightedStateManager.HasAspectFromBlighted(self, buffDef)) aspect += 1f;
+
 			if (HasAspectEquipment(inventory, buffDef))
 			{
 				if (self.teamComponent.teamIndex == TeamIndex.Player)
@@ -183,6 +193,8 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectFrenzied;
 				modBuffDef = Catalog.LostInTransit.Buffs.AffixVolatile;
 				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectVolatile;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixBlighted;
+				if (modBuffDef && modBuffDef == buffDef) return ZetAspectsContent.Items.ZetAspectBlighted;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -229,6 +241,8 @@ namespace TPDespair.ZetAspects
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixFrenzied;
 				modBuffDef = Catalog.LostInTransit.Buffs.AffixVolatile;
 				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixVolatile;
+				modBuffDef = Catalog.LostInTransit.Buffs.AffixBlighted;
+				if (modBuffDef && modBuffDef == buffDef) return Catalog.LostInTransit.Equipment.AffixBlighted;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -279,6 +293,8 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex;
 				modEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
 				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectVolatile.itemIndex;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
+				if (modEquipDef && modEquipDef == equipDef) return ZetAspectsContent.Items.ZetAspectBlighted.itemIndex;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -344,5 +360,59 @@ namespace TPDespair.ZetAspects
 			if (equipDef.passiveBuffDef == null) return null;
 			return equipDef.passiveBuffDef.eliteDef;
 		}
+
+
+		/*
+		private static void DebugDrops()
+		{
+			if (Input.GetKeyDown(KeyCode.F2))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
+				CreateDroplet(RoR2Content.Equipment.AffixWhite, transform.position + new Vector3(-5f, 5f, 5f));
+				CreateDroplet(RoR2Content.Equipment.AffixBlue, transform.position + new Vector3(0f, 5f, 7.5f));
+				CreateDroplet(RoR2Content.Equipment.AffixRed, transform.position + new Vector3(5f, 5f, 5f));
+				CreateDroplet(RoR2Content.Equipment.AffixHaunted, transform.position + new Vector3(-5f, 5f, -5f));
+				CreateDroplet(RoR2Content.Equipment.AffixPoison, transform.position + new Vector3(0f, 5f, -7.5f));
+				CreateDroplet(RoR2Content.Equipment.AffixLunar, transform.position + new Vector3(5f, 5f, -5f));
+			}
+			if (Input.GetKeyDown(KeyCode.F3))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
+				if (Catalog.EliteVariety.populated)
+				{
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixArmored, transform.position + new Vector3(-5f, 5f, 5f));
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixBuffing, transform.position + new Vector3(0f, 5f, 7.5f));
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixImpPlane, transform.position + new Vector3(5f, 5f, 5f));
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixPillaging, transform.position + new Vector3(-5f, 5f, -5f));
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixSandstorm, transform.position + new Vector3(0f, 5f, -7.5f));
+					CreateDroplet(Catalog.EliteVariety.Equipment.AffixTinkerer, transform.position + new Vector3(5f, 5f, -5f));
+				}
+			}
+			if (Input.GetKeyDown(KeyCode.F4))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
+				if (Catalog.LostInTransit.populated)
+				{
+					CreateDroplet(Catalog.LostInTransit.Equipment.AffixLeeching, transform.position + new Vector3(-5f, 5f, 5f));
+					CreateDroplet(Catalog.LostInTransit.Equipment.AffixFrenzied, transform.position + new Vector3(0f, 5f, 7.5f));
+					CreateDroplet(Catalog.LostInTransit.Equipment.AffixVolatile, transform.position + new Vector3(5f, 5f, 5f));
+					CreateDroplet(Catalog.LostInTransit.Equipment.AffixBlighted, transform.position + new Vector3(-5f, 5f, -5f));
+				}
+
+				if (Catalog.Aetherium.populated)
+				{
+					CreateDroplet(Catalog.Aetherium.Equipment.AffixSanguine, transform.position + new Vector3(0f, 5f, -7.5f));
+				}
+			}
+		}
+
+		private static void CreateDroplet(EquipmentDef def, Vector3 pos)
+		{
+			PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(def.equipmentIndex), pos, Vector3.zero);
+		}
+		//*/
 	}
 }
