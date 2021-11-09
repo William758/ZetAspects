@@ -82,6 +82,16 @@ namespace TPDespair.ZetAspects
 			EquipmentDef targetEquipDef;
 			bool eliteEquipDefNotNull = !(eliteEquipDef == null);
 
+			if (Catalog.LostInTransit.populated)
+			{
+				targetEquipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
+				if (targetEquipDef)
+				{
+					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectBlighted) > 0) return targetEquipDef;
+					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
+				}
+			}
+
 			if (Catalog.EliteVariety.populated)
 			{
 				targetEquipDef = Catalog.EliteVariety.Equipment.AffixImpPlane;
@@ -229,6 +239,8 @@ namespace TPDespair.ZetAspects
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 				modEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
 				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
+				modEquipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
+				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -288,6 +300,7 @@ namespace TPDespair.ZetAspects
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixLeeching, ZetAspectsContent.Items.ZetAspectLeeching);
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixFrenzied, ZetAspectsContent.Items.ZetAspectFrenzied);
 				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixVolatile, ZetAspectsContent.Items.ZetAspectVolatile);
+				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixBlighted, ZetAspectsContent.Items.ZetAspectBlighted);
 			}
 
 			if (Catalog.Aetherium.populated)
@@ -368,6 +381,7 @@ namespace TPDespair.ZetAspects
 					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectBlighted.itemIndex) return;
 				}
 
 				if (Catalog.Aetherium.populated)
@@ -405,6 +419,7 @@ namespace TPDespair.ZetAspects
 					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
 					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
+					if (index == ZetAspectsContent.Items.ZetAspectBlighted.itemIndex) return;
 				}
 
 				if (Catalog.Aetherium.populated)
