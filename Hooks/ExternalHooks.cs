@@ -21,6 +21,8 @@ namespace TPDespair.ZetAspects
 		private static Type ImpPlaneImpaledType;
 		private static Type SandstormBlindType;
 
+		private static MethodInfo ImpaleDotBehaviorMethod;
+
 		private static MethodInfo SandstormAwakeMethod;
 		private static MethodInfo SandstormTickMethod;
 
@@ -38,6 +40,8 @@ namespace TPDespair.ZetAspects
 
 		internal static void Init()
 		{
+			if (!Configuration.EliteVarietyHooks.Value) return;
+
 			Plugin = Chainloader.PluginInfos["com.themysticsword.elitevariety"].Instance;
 			PluginAssembly = Assembly.GetAssembly(Plugin.GetType());
 
@@ -48,6 +52,14 @@ namespace TPDespair.ZetAspects
 			else
 			{
 				Debug.LogWarning("ZetAspect [EV] - Could Not Find Assembly");
+			}
+
+			if (Configuration.AspectImpaleTweaks.Value)
+			{
+				if (ImpaleDotBehaviorMethod != null)
+				{
+					HookEndpointManager.Modify(ImpaleDotBehaviorMethod, (ILContext.Manipulator)ImpaleBehaviorHook);
+				}
 			}
 
 			if (Configuration.AspectCycloneTweaks.Value)
@@ -85,6 +97,44 @@ namespace TPDespair.ZetAspects
 
 				ImpaleDotIndexField = type.GetField("dotIndex", Flags);
 				if (ImpaleDotIndexField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : ImpPlaneImpaled.dotIndex");
+
+				int i;
+				MethodInfo[] methodInfos;
+				MethodInfo methodInfo;
+				ParameterInfo[] pars;
+			
+				methodInfos = type.GetMethods(Flags);
+				for (i = 0; i < methodInfos.Length; i++)
+				{
+					methodInfo = methodInfos[i];
+					pars = methodInfo.GetParameters();
+					if (pars.Length == 2 && pars[0].ParameterType == typeof(DotController) && pars[1].ParameterType == typeof(DotController.DotStack))
+					{
+						ImpaleDotBehaviorMethod = methodInfo;
+						break;
+					}
+				}
+
+				if (ImpaleDotBehaviorMethod == null)
+				{
+					type = type.GetNestedType("<>c", Flags);
+					if (type != null)
+					{
+						methodInfos = type.GetMethods(Flags);
+						for (i = 0; i < methodInfos.Length; i++)
+						{
+							methodInfo = methodInfos[i];
+							pars = methodInfo.GetParameters();
+							if (pars.Length == 2 && pars[0].ParameterType == typeof(DotController) && pars[1].ParameterType == typeof(DotController.DotStack))
+							{
+								ImpaleDotBehaviorMethod = methodInfo;
+								break;
+							}
+						}
+					}
+				}
+
+				if (ImpaleDotBehaviorMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find ImpaleDotBehaviorMethod");
 			}
 			else
 			{
@@ -151,11 +201,14 @@ namespace TPDespair.ZetAspects
 
 		internal static void LateSetup()
 		{
+			if (!Configuration.EliteVarietyHooks.Value) return;
+
 			if (Configuration.AspectImpaleTweaks.Value)
 			{
 				Catalog.EliteVariety.impaleDotIndex = (DotController.DotIndex)ImpaleDotIndexField.GetValue(ImpPlaneImpaledType);
 				if (Catalog.PluginLoaded("com.TPDespair.ZetArtifacts")) DisableZetArtifactsImpaleReduction();
 			}
+
 			if (Configuration.AspectCycloneTweaks.Value) ModifyCameraEffect();
 		}
 
@@ -218,6 +271,32 @@ namespace TPDespair.ZetAspects
 		}
 
 
+
+		private static void ImpaleBehaviorHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			bool found = c.TryGotoNext(
+				x => x.MatchCallOrCallvirt<HealthComponent>("get_fullCombinedHealth"),
+				x => x.MatchLdcR4(out _)
+			);
+
+			if (found)
+			{
+				c.Index += 2;
+
+				c.EmitDelegate<Func<float, float>>((value) =>
+				{
+					float mult = Run.instance ? Mathf.Clamp(Run.instance.ambientLevel / 90f, 0.05f, 1f) : 0.5f;
+
+					return Mathf.Min(value, 0.33f * mult);
+				});
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [EV] - ImpaleBehaviorHook Failed");
+			}
+		}
 
 		private static void TickValueHook(ILContext il)
 		{
@@ -284,19 +363,35 @@ namespace TPDespair.ZetAspects
 		private static MethodInfo LeechingHealMethod;
 		private static MethodInfo FrenziedStatMethod;
 		private static MethodInfo VolatileExplodeMethod;
+		private static MethodInfo BlightedStatMethod;
+		private static MethodInfo BlightedSetElitesMethod;
+		private static MethodInfo BlightedOnDestroyMethod;
+		private static MethodInfo BlightedStatStartMethod;
+		private static MethodInfo BlightedStatDestroyMethod;
 
 		private static FieldInfo FrenziedDoingAbilityField;
+		private static FieldInfo BlightedBodyField;
+		private static FieldInfo BlightedFirstBuffField;
+		private static FieldInfo BlightedSecondBuffField;
 
 		internal static bool leechHook = false;
+		internal static int leechMatchedIndex = 0;
 		internal static bool frenzyMSHook = false;
 		internal static bool frenzyASHook = false;
 		internal static int frenzyCDRHook = 0;
 		internal static bool explodeHook = false;
+		internal static int blightCDRHook = 0;
+		internal static int blightSetEliteHook = 0;
+		internal static int blightOnDestroyHook = 0;
+		internal static bool blightBuffControl = false;
+		internal static bool blightStatControl = false;
 
 
 
 		internal static void Init()
 		{
+			if (!Configuration.LostInTransitHooks.Value) return;
+
 			Plugin = Chainloader.PluginInfos["com.swuff.LostInTransit"].Instance;
 			PluginAssembly = Assembly.GetAssembly(Plugin.GetType());
 
@@ -319,6 +414,36 @@ namespace TPDespair.ZetAspects
 			}
 
 			if (VolatileExplodeMethod != null) HookEndpointManager.Modify(VolatileExplodeMethod, (ILContext.Manipulator)ExplodeDamageHook);
+
+			if (BlightedStatMethod != null) HookEndpointManager.Modify(BlightedStatMethod, (ILContext.Manipulator)BlightCooldownHook);
+
+			if (BlightedBodyField != null && BlightedFirstBuffField != null && BlightedSecondBuffField != null)
+			{
+				if (BlightedSetElitesMethod != null && BlightedOnDestroyMethod != null)
+				{
+					HookEndpointManager.Modify(BlightedSetElitesMethod, (ILContext.Manipulator)BlightEliteHook);
+					HookEndpointManager.Modify(BlightedOnDestroyMethod, (ILContext.Manipulator)BlightDestroyHook);
+
+					if (blightSetEliteHook != 4 || blightOnDestroyHook != 2)
+					{
+						HookEndpointManager.Unmodify(BlightedSetElitesMethod, (ILContext.Manipulator)BlightEliteHook);
+						HookEndpointManager.Unmodify(BlightedOnDestroyMethod, (ILContext.Manipulator)BlightDestroyHook);
+
+						Debug.LogWarning("ZetAspect [LIT] - Could Not Fully Control Blight Buffs!");
+					}
+					else
+					{
+						blightBuffControl = true;
+					}
+				}
+			}
+
+			if (BlightedStatStartMethod != null && BlightedStatDestroyMethod != null)
+			{
+				HookEndpointManager.Modify(BlightedStatStartMethod, (ILContext.Manipulator)GenericReturnHook);
+				HookEndpointManager.Modify(BlightedStatDestroyMethod, (ILContext.Manipulator)GenericReturnHook);
+				blightStatControl = true;
+			}
 		}
 
 
@@ -386,6 +511,59 @@ namespace TPDespair.ZetAspects
 			{
 				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixVolatile");
 			}
+
+
+
+			type = Type.GetType("LostInTransit.Buffs.AffixBlighted, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType("AffixBlightedBehavior", Flags);
+				if (type != null)
+				{
+					BlightedStatMethod = type.GetMethod("RecalculateStatsEnd", Flags);
+					if (BlightedStatMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixBlightedBehavior.RecalculateStatsEnd");
+					BlightedSetElitesMethod = type.GetMethod("SetElites", Flags);
+					if (BlightedSetElitesMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixBlightedBehavior.SetElites");
+					BlightedOnDestroyMethod = type.GetMethod("OnDestroy", Flags);
+					if (BlightedOnDestroyMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixBlightedBehavior.OnDestroy");
+
+					BlightedBodyField = type.GetField("body", Flags);
+					if (BlightedBodyField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : AffixFrenziedBehavior.body");
+					BlightedFirstBuffField = type.GetField("firstBuff", Flags);
+					if (BlightedFirstBuffField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : AffixBlightedBehavior.firstBuff");
+					BlightedSecondBuffField = type.GetField("secondBuff", Flags);
+					if (BlightedSecondBuffField == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Field : AffixBlightedBehavior.secondBuff");
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [LIT] - Could Not Find NestedType : AffixBlightedBehavior");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Buffs.AffixBlighted");
+			}
+
+			type = Type.GetType("LostInTransit.Equipments.AffixBlighted, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType("BlightStatIncrease", Flags);
+				if (type != null)
+				{
+					BlightedStatStartMethod = type.GetMethod("Start", Flags);
+					if (BlightedStatStartMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : BlightStatIncrease.Start");
+					BlightedStatDestroyMethod = type.GetMethod("OnDestroy", Flags);
+					if (BlightedStatDestroyMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : BlightStatIncrease.OnDestroy");
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspect [LIT] - Could Not Find NestedType : BlightStatIncrease");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : LostInTransit.Equipments.AffixBlighted");
+			}
 		}
 
 
@@ -394,14 +572,17 @@ namespace TPDespair.ZetAspects
 		{
 			ILCursor c = new ILCursor(il);
 
+			int localIndex = 0;
+
 			bool found = c.TryGotoNext(
-				x => x.MatchLdloca(1),
+				x => x.MatchLdloca(out localIndex),
 				x => x.MatchInitobj<ProcChainMask>()
 			);
 
 			if (found)
 			{
 				leechHook = true;
+				leechMatchedIndex = localIndex;
 
 				c.Emit(OpCodes.Pop);
 				c.Emit(OpCodes.Ldarg, 1);
@@ -663,27 +844,24 @@ namespace TPDespair.ZetAspects
 
 		private static float GetFrenziedCooldownReduction(GenericSkill skill, bool doingAbility)
 		{
-			if (doingAbility) return -1f;
+			CharacterBody body = skill.characterBody;
+			float scale = skill.cooldownScale;
+
+			if (!body)
+			{
+				return scale;
+			}
 			else
 			{
-				CharacterBody body = skill.characterBody;
-				float scale = skill.cooldownScale;
+				BuffDef AffixFrenzied = Catalog.LostInTransit.Buffs.AffixFrenzied;
 
-				if (!body)
-				{
-					return scale;
-				}
-				else
-				{
-					BuffDef AffixFrenzied = Catalog.LostInTransit.Buffs.AffixFrenzied;
+				float count = AffixFrenzied ? ZetAspectsPlugin.GetStackMagnitude(body, AffixFrenzied) : 1f;
+				float value = Mathf.Abs(Configuration.AspectFrenziedBaseCooldownGain.Value) + Mathf.Abs(Configuration.AspectFrenziedStackCooldownGain.Value) * (count - 1f);
+				if (doingAbility) value *= 2;
 
-					float count = AffixFrenzied ? ZetAspectsPlugin.GetStackMagnitude(body, AffixFrenzied) : 1f;
-					float value = Mathf.Abs(Configuration.AspectFrenziedBaseCooldownGain.Value) + Mathf.Abs(Configuration.AspectFrenziedStackCooldownGain.Value) * (count - 1f);
+				if (body.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectFrenziedMonsterCooldownMult.Value;
 
-					if (body.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectFrenziedMonsterCooldownMult.Value;
-
-					return scale * (1f / (1f + value));
-				}
+				return scale * (1f / (1f + value));
 			}
 		}
 
@@ -730,6 +908,352 @@ namespace TPDespair.ZetAspects
 				Debug.LogWarning("ZetAspects [LIT] - ExplodeDamageHook Failed");
 			}
 		}
+
+
+
+		private static void BlightCooldownHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			int index = 0;
+
+			bool found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("primary"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					blightCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.EmitDelegate<Func<GenericSkill, float>>((skill) =>
+					{
+						return GetBlightedCooldownReduction(skill);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:SetPrimary Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:GetPrimary Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("secondary"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					blightCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.EmitDelegate<Func<GenericSkill, float>>((skill) =>
+					{
+						return GetBlightedCooldownReduction(skill);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:SetSecondary Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:GetSecondary Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("utility"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					blightCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.EmitDelegate<Func<GenericSkill, float>>((skill) =>
+					{
+						return GetBlightedCooldownReduction(skill);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:SetUtility Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:GetUtility Failed");
+			}
+
+			index = 0;
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdfld<SkillLocator>("special"),
+				x => x.MatchDup(),
+				x => x.MatchCallOrCallvirt<GenericSkill>("get_cooldownScale")
+			);
+
+			if (found)
+			{
+				index = c.Index;
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<GenericSkill>("set_cooldownScale")
+				);
+
+				if (found && c.Index - index < 12)
+				{
+					blightCDRHook++;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Dup);
+					c.EmitDelegate<Func<GenericSkill, float>>((skill) =>
+					{
+						return GetBlightedCooldownReduction(skill);
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:SetSpecial Failed");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightCooldownHook:GetSpecial Failed");
+			}
+		}
+
+		private static float GetBlightedCooldownReduction(GenericSkill skill)
+		{
+			CharacterBody body = skill.characterBody;
+			float scale = skill.cooldownScale;
+
+			if (!body)
+			{
+				return scale;
+			}
+			else
+			{
+				BuffDef AffixBlighted = Catalog.LostInTransit.Buffs.AffixBlighted;
+
+				float count = AffixBlighted ? ZetAspectsPlugin.GetStackMagnitude(body, AffixBlighted) : 1f;
+				float value = Mathf.Abs(Configuration.AspectBlightedBaseCooldownGain.Value) + Mathf.Abs(Configuration.AspectBlightedStackCooldownGain.Value) * (count - 1f);
+
+				if (body.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectBlightedMonsterCooldownMult.Value;
+
+				return scale * (1f / (1f + value));
+			}
+		}
+
+		private static void BlightEliteHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			c.Index = 0;
+
+			c.Emit(OpCodes.Ldarg, 0);
+			c.Emit(OpCodes.Ldfld, BlightedBodyField);
+			c.Emit(OpCodes.Ldarg, 1);
+			c.Emit(OpCodes.Ldarg, 2);
+			c.EmitDelegate<Action<CharacterBody, int, int>>((body, firstElite, secondElite) =>
+			{
+				EliteDef firstEliteDef = EliteCatalog.GetEliteDef((EliteIndex)firstElite);
+				EliteDef secondEliteDef = EliteCatalog.GetEliteDef((EliteIndex)secondElite);
+
+				BlightedStateManager.SetElites(body, firstEliteDef.eliteEquipmentDef.passiveBuffDef.buffIndex, secondEliteDef.eliteEquipmentDef.passiveBuffDef.buffIndex);
+			});
+
+			bool found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedFirstBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("RemoveBuff")
+			);
+
+			if (found)
+			{
+				blightSetEliteHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightEliteHook:PreventFirstRemoveBuff Failed");
+			}
+
+			found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedSecondBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("RemoveBuff")
+			);
+
+			if (found)
+			{
+				blightSetEliteHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightEliteHook:PreventSecondRemoveBuff Failed");
+			}
+
+			c.Index = 0;
+
+			found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedFirstBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("AddBuff")
+			);
+
+			if (found)
+			{
+				blightSetEliteHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightEliteHook:PreventFirstAddBuff Failed");
+			}
+
+			found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedSecondBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("AddBuff")
+			);
+
+			if (found)
+			{
+				blightSetEliteHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightEliteHook:PreventSecondAddBuff Failed");
+			}
+		}
+
+		private static void BlightDestroyHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			c.Index = 0;
+
+			c.Emit(OpCodes.Ldarg, 0);
+			c.Emit(OpCodes.Ldfld, BlightedBodyField);
+			c.EmitDelegate<Action<CharacterBody>>((body) =>
+			{
+				BlightedStateManager.Destroyed(body);
+			});
+
+			bool found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedFirstBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("RemoveBuff")
+			);
+
+			if (found)
+			{
+				blightOnDestroyHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightDestroyHook:PreventFirstRemoveBuff Failed");
+			}
+
+			found = c.TryGotoNext(
+				x => x.MatchLdarg(0),
+				x => x.MatchLdfld(BlightedSecondBuffField),
+				x => x.MatchCallOrCallvirt<CharacterBody>("RemoveBuff")
+			);
+
+			if (found)
+			{
+				blightOnDestroyHook++;
+
+				c.Index += 2;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspects [LIT] - BlightDestroyHook:PreventSecondRemoveBuff Failed");
+			}
+		}
+
+
+
+		private static void GenericReturnHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			c.Index = 0;
+
+			c.Emit(OpCodes.Ret);
+		}
 	}
 
 
@@ -749,6 +1273,8 @@ namespace TPDespair.ZetAspects
 
 		internal static void Init()
 		{
+			if (!Configuration.AetheriumHooks.Value) return;
+
 			Plugin = Chainloader.PluginInfos["com.KomradeSpectre.Aetherium"].Instance;
 			PluginAssembly = Assembly.GetAssembly(Plugin.GetType());
 
