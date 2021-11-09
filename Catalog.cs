@@ -22,7 +22,15 @@ namespace TPDespair.ZetAspects
 
 
 
-		internal static void OnTransmuteManagerInit()
+		internal static void Init()
+		{
+			OnTransmuteManagerInit();
+			OnRuleCatalogInit();
+			OnLogBookInit();
+			OnMainMenuEnter();
+		}
+
+		private static void OnTransmuteManagerInit()
 		{
 			On.RoR2.PickupTransmutationManager.Init += (orig) =>
 			{
@@ -41,7 +49,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		internal static void OnRuleCatalogInit()
+		private static void OnRuleCatalogInit()
 		{
 			On.RoR2.RuleCatalog.Init += (orig) =>
 			{
@@ -68,7 +76,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		internal static void OnLogBookInit()
+		private static void OnLogBookInit()
 		{
 			On.RoR2.UI.LogBook.LogBookController.Init += (orig) =>
 			{
@@ -86,7 +94,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		internal static void OnMainMenuEnter()
+		private static void OnMainMenuEnter()
 		{
 			On.RoR2.UI.MainMenu.BaseMainMenuScreen.OnEnter += (orig, self, controller) =>
 			{
@@ -546,9 +554,12 @@ namespace TPDespair.ZetAspects
 			{
 				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
 
+				if (!LostInTransitHooks.blightBuffControl) DeactivateItem(ZetAspectsContent.Items.ZetAspectBlighted);
+
 				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching, state);
 				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied, state);
 				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectVolatile, ref Equipment.AffixVolatile, ref Buffs.AffixVolatile, state);
+				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectBlighted, ref Equipment.AffixBlighted, ref Buffs.AffixBlighted, state);
 			}
 
 			private static void SetupText()
@@ -556,6 +567,7 @@ namespace TPDespair.ZetAspects
 				ZetAspectLeeching.SetupTokens();
 				ZetAspectFrenzied.SetupTokens();
 				ZetAspectVolatile.SetupTokens();
+				ZetAspectBlighted.SetupTokens();
 			}
 
 			internal static void ItemEntries(bool shown)
@@ -563,6 +575,7 @@ namespace TPDespair.ZetAspects
 				SetItemState(ZetAspectsContent.Items.ZetAspectLeeching, shown);
 				SetItemState(ZetAspectsContent.Items.ZetAspectFrenzied, shown);
 				SetItemState(ZetAspectsContent.Items.ZetAspectVolatile, shown);
+				SetItemState(ZetAspectsContent.Items.ZetAspectBlighted, shown);
 			}
 
 			private static void CopyModelPrefabs()
@@ -570,6 +583,7 @@ namespace TPDespair.ZetAspects
 				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectLeeching, Equipment.AffixLeeching);
 				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectFrenzied, Equipment.AffixFrenzied);
 				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectVolatile, Equipment.AffixVolatile);
+				CopyEquipmentPrefab(ZetAspectsContent.Items.ZetAspectBlighted, Equipment.AffixBlighted);
 			}
 
 			private static void ApplyEquipmentIcons()
@@ -577,6 +591,7 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equipment.AffixLeeching, ZetAspectsContent.Sprites.AffixLeeching, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixFrenzied, ZetAspectsContent.Sprites.AffixFrenzied, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixVolatile, ZetAspectsContent.Sprites.AffixVolatile, ZetAspectsContent.Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equipment.AffixBlighted, ZetAspectsContent.Sprites.AffixBlighted, ZetAspectsContent.Sprites.OutlineOrange);
 			}
 
 			internal static void EquipmentEntries(bool shown)
@@ -584,6 +599,7 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(Equipment.AffixLeeching, shown);
 				SetEquipmentState(Equipment.AffixFrenzied, shown);
 				SetEquipmentState(Equipment.AffixVolatile, shown);
+				SetEquipmentState(Equipment.AffixBlighted, shown);
 			}
 		}
 
