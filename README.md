@@ -34,9 +34,11 @@ tinkerTweaks (disabled by default) : Disable scrap stealing.
 
 ## Lost In Transit Effects:
 
-Effect of Guttural Whimpers and Primordial Rage for monsters is multiplied by x5 to keep in line with LIT original values.
+Effect of Guttural Whimpers and Primordial Rage for monsters is multiplied by x5.
 
-![effects](https://i.imgur.com/cFjlsbK.png)
+Effect of Betrayal of the Bulwark for monsters is multiplied by x5 for damage and cooldowns. Health multiplier is x10.
+
+![effects](https://i.imgur.com/CHrYGzw.png)
 
 ## Aetherium Aspect Effects:
 
@@ -49,6 +51,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.6.0 - Added support for Blighted Elites from LostInTransit. Tweak how mod updates inventory behaviors.
 
 v2.5.7 - Automatically display or hide item/equipment entries in LogBook, RuleBook, and PickupPicker menus. If configured to make item aspects unobtainable, equipment aspect descriptions show total effects only. Reduce Impale damage to negate DotAmp effect.
 
