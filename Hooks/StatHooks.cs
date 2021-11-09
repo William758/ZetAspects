@@ -157,6 +157,13 @@ namespace TPDespair.ZetAspects
 						{
 							value += Configuration.HeadHunterBuffDamage.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
 						}
+						if (LostInTransitHooks.blightStatControl && self.HasBuff(Catalog.LostInTransit.Buffs.AffixBlighted) && Configuration.AspectBlightedBaseDamageGain.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.LostInTransit.Buffs.AffixBlighted);
+							float boost = Configuration.AspectBlightedBaseDamageGain.Value + Configuration.AspectBlightedStackDamageGain.Value * (count - 1f);
+							if (self.teamComponent.teamIndex != TeamIndex.Player) boost *= Configuration.AspectBlightedMonsterDamageMult.Value;
+							value += boost;
+						}
 
 						return value;
 					});
@@ -264,6 +271,13 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
 						{
 							value += Configuration.HeadHunterBuffHealth.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
+						}
+						if (LostInTransitHooks.blightStatControl && self.HasBuff(Catalog.LostInTransit.Buffs.AffixBlighted) && Configuration.AspectBlightedBaseHealthGain.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.LostInTransit.Buffs.AffixBlighted);
+							float boost = Configuration.AspectBlightedBaseHealthGain.Value + Configuration.AspectBlightedStackHealthGain.Value * (count - 1f);
+							if (self.teamComponent.teamIndex != TeamIndex.Player) boost *= Configuration.AspectBlightedMonsterHealthMult.Value;
+							value += boost;
 						}
 
 						return value;
@@ -477,7 +491,7 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Pop);
 					c.EmitDelegate<Func<float>>(() =>
 					{
-						return Configuration.AspectBlueHealthConverted.Value;
+						return Mathf.Abs(Configuration.AspectBlueHealthConverted.Value);
 					});
 
 					c.Index += 11;
