@@ -16,7 +16,6 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<string> AspectDropText { get; set; }
 		public static ConfigEntry<bool> AspectSkinApply { get; set; }
 
-
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
 		public static ConfigEntry<float> AspectEquipmentEffect { get; set; }
@@ -24,16 +23,13 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
 		public static ConfigEntry<bool> AspectSkinEquipmentPriority { get; set; }
 
-
 		public static ConfigEntry<int> LeechSeedHeal { get; set; }
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
-
 
 		public static ConfigEntry<int> HeadHunterCountExtra { get; set; }
 		public static ConfigEntry<float> HeadHunterExtraEffect { get; set; }
 		public static ConfigEntry<float> HeadHunterBaseDuration { get; set; }
 		public static ConfigEntry<float> HeadHunterStackDuration { get; set; }
-
 
 		public static ConfigEntry<bool> HeadHunterBuffEnable { get; set; }
 		public static ConfigEntry<float> HeadHunterBuffHealth { get; set; }
@@ -43,10 +39,12 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> HeadHunterBuffAttackSpeed { get; set; }
 		public static ConfigEntry<float> HeadHunterBuffCritChance { get; set; }
 
-
 		public static ConfigEntry<float> AspectEffectMonsterDamageMult { get; set; }
 		public static ConfigEntry<float> AspectEffectPlayerDebuffMult { get; set; }
 
+		public static ConfigEntry<bool> EliteVarietyHooks { get; set; }
+		public static ConfigEntry<bool> LostInTransitHooks { get; set; }
+		public static ConfigEntry<bool> AetheriumHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -54,7 +52,6 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectWhiteSlowDuration { get; set; }
 		public static ConfigEntry<float> AspectWhiteBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackDamage { get; set; }
-
 
 		public static ConfigEntry<float> AspectBlueSappedDuration { get; set; }
 		public static ConfigEntry<float> AspectBlueSappedDamage { get; set; }
@@ -65,7 +62,6 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBlueBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectBlueStackDamage { get; set; }
 
-
 		public static ConfigEntry<bool> AspectRedTrail { get; set; }
 		public static ConfigEntry<bool> AspectRedExtraJump { get; set; }
 		public static ConfigEntry<float> AspectRedBaseMovementGain { get; set; }
@@ -75,14 +71,12 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectRedBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectRedStackDamage { get; set; }
 
-
 		public static ConfigEntry<bool> AspectGhostSlowEffect { get; set; }
 		public static ConfigEntry<float> AspectGhostShredDuration { get; set; }
 		public static ConfigEntry<float> AspectGhostShredArmor { get; set; }
 		public static ConfigEntry<float> AspectGhostAllyArmorGain { get; set; }
 		public static ConfigEntry<float> AspectGhostBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectGhostStackArmorGain { get; set; }
-
 
 		public static ConfigEntry<bool> AspectPoisonFireSpikes { get; set; }
 		public static ConfigEntry<float> AspectPoisonNullDuration { get; set; }
@@ -92,7 +86,6 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<int> AspectPoisonBaseHeal { get; set; }
 		public static ConfigEntry<int> AspectPoisonStackHeal { get; set; }
 
-
 		public static ConfigEntry<bool> AspectLunarProjectiles { get; set; }
 		public static ConfigEntry<float> AspectLunarCrippleDuration { get; set; }
 		public static ConfigEntry<float> AspectLunarRegen { get; set; }
@@ -101,20 +94,16 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectLunarBaseShieldGain { get; set; }
 		public static ConfigEntry<float> AspectLunarStackShieldGain { get; set; }
 
-
 		public static ConfigEntry<float> AspectArmorBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectArmorStackArmorGain { get; set; }
 
-
 		public static ConfigEntry<float> AspectBannerBaseAttackSpeedGain { get; set; }
 		public static ConfigEntry<float> AspectBannerStackAttackSpeedGain { get; set; }
-
 
 		public static ConfigEntry<float> AspectImpaleDamageMult { get; set; }
 		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectImpaleStackDotAmp { get; set; }
 		public static ConfigEntry<bool> AspectImpaleTweaks { get; set; }
-
 
 		public static ConfigEntry<float> AspectGoldenBaseRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldenStackRegenGain { get; set; }
@@ -123,21 +112,17 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectGoldenBaseScoredRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldenStackScoredRegenGain { get; set; }
 
-
 		public static ConfigEntry<float> AspectCycloneBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
 		public static ConfigEntry<bool> AspectCycloneTweaks { get; set; }
-
 
 		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
 		public static ConfigEntry<bool> AspectTinkerTweaks { get; set; }
 
-
 		public static ConfigEntry<float> AspectLeechingBaseLeechGain { get; set; }
 		public static ConfigEntry<float> AspectLeechingStackLeechGain { get; set; }
 		public static ConfigEntry<float> AspectLeechingMonsterLeechMult { get; set; }
-
 
 		public static ConfigEntry<float> AspectFrenziedBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectFrenziedStackMovementGain { get; set; }
@@ -149,10 +134,18 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectFrenziedStackCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
 
-
 		public static ConfigEntry<float> AspectVolatileBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectVolatileStackDamage { get; set; }
 
+		public static ConfigEntry<float> AspectBlightedBaseHealthGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackHealthGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedMonsterHealthMult { get; set; }
+		public static ConfigEntry<float> AspectBlightedBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedMonsterDamageMult { get; set; }
+		public static ConfigEntry<float> AspectBlightedBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedMonsterCooldownMult { get; set; }
 
 		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
@@ -161,13 +154,13 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
 
 
+
 		internal static void Init(ConfigFile Config)
 		{
 			GeneralConfigs(Config);
 			HeadHunterConfigs(Config);
 			AspectConfigs(Config);
 		}
-
 
 		private static void GeneralConfigs(ConfigFile Config)
 		{
@@ -217,6 +210,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectEliteEquipment = Config.Bind(
 				"0b-Equipment", "eliteEquipmentDrop", false,
 				"Elites drop aspects as equipment. Otherwise they drop aspects as items."
@@ -243,16 +237,16 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			LeechSeedHeal = Config.Bind(
 				"0c-Tweaks", "seedLifeGainOnHit", 2,
 				"Health gained on hit from Leech Seed."
 			);
 			TranscendenceRegen = Config.Bind(
-				"0c-Tweaks", "transcendenceShieldRegen", 0.20f,
-				"Health regen converted into shield regen. Set to 0 to disable."
+				"0c-Tweaks", "transcendenceShieldRegen", 0.50f,
+				"Health regen gained as shield regen. Set to 0 to disable."
 			);
 		}
-
 
 		private static void HeadHunterConfigs(ConfigFile Config)
 		{
@@ -272,6 +266,7 @@ namespace TPDespair.ZetAspects
 				"1a-Headhunter", "hunterAddedBuffDuration", 10f,
 				"Added duration of buff effect per stack."
 			);
+
 
 
 			HeadHunterBuffEnable = Config.Bind(
@@ -304,7 +299,6 @@ namespace TPDespair.ZetAspects
 			);
 		}
 
-
 		private static void AspectConfigs(ConfigFile Config)
 		{
 			AspectEffectMonsterDamageMult = Config.Bind(
@@ -317,12 +311,27 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
+			EliteVarietyHooks = Config.Bind(
+				"21-Mod Compatibility", "eliteVarietyHooks", true,
+				"Allows modification of functions and values within the EliteVariety mod."
+			);
+			LostInTransitHooks = Config.Bind(
+				"21-Mod Compatibility", "lostInTransitHooks", true,
+				"Allows modification of functions and values within the LostInTransit mod."
+			);
+			AetheriumHooks = Config.Bind(
+				"21-Mod Compatibility", "aetheriumHooks", true,
+				"Allows modification of functions and values within the Aetherium mod."
+			);
+
+
+
 			RiskOfRainConfigs(Config);
 			EliteVarietyConfigs(Config);
 			LostInTransitConfigs(Config);
 			AetheriumConfigs(Config);
 		}
-
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
 		{
@@ -350,6 +359,7 @@ namespace TPDespair.ZetAspects
 				"2aa-Ice Aspect", "iceAddedTotalDamage", 0.10f,
 				"Added total damage of blades per stack."
 			);
+
 
 
 			AspectBlueSappedDuration = Config.Bind(
@@ -386,6 +396,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectRedTrail = Config.Bind(
 				"2ac-Fire Aspect", "firePlayerTrail", true,
 				"Set whether players leave fire trail."
@@ -420,6 +431,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectGhostSlowEffect = Config.Bind(
 				"2ad-Celestial Aspect", "celestialSlowEffect", false,
 				"Set whether applies slow. Shares duration with ice aspect."
@@ -444,6 +456,7 @@ namespace TPDespair.ZetAspects
 				"2ad-Celestial Aspect", "celestialAddedArmor", 30f,
 				"Armor gained per stack."
 			);
+
 
 
 			AspectPoisonFireSpikes = Config.Bind(
@@ -476,6 +489,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectLunarProjectiles = Config.Bind(
 				"2af-Perfect Aspect", "perfectPlayerProjectiles", true,
 				"Set whether players shoot projectiles during combat."
@@ -485,8 +499,8 @@ namespace TPDespair.ZetAspects
 				"Set cripple duration in seconds."
 			);
 			AspectLunarRegen = Config.Bind(
-				"2af-Perfect Aspect", "perfectShieldRegen", 0.50f,
-				"Health regen converted into shield regen. Set to 0 to disable."
+				"2af-Perfect Aspect", "perfectShieldRegen", 1.00f,
+				"Health regen gained as shield regen. Set to 0 to disable."
 			);
 			AspectLunarBaseMovementGain = Config.Bind(
 				"2af-Perfect Aspect", "perfectBaseMovementGained", 0.20f,
@@ -506,7 +520,6 @@ namespace TPDespair.ZetAspects
 			);
 		}
 
-
 		private static void EliteVarietyConfigs(ConfigFile Config)
 		{
 			AspectArmorBaseArmorGain = Config.Bind(
@@ -519,6 +532,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectBannerBaseAttackSpeedGain = Config.Bind(
 				"2bb-Banner Aspect", "bannerBaseAttackSpeedGained", 0.20f,
 				"Attack speed gained. Set to 0 to disable."
@@ -527,6 +541,7 @@ namespace TPDespair.ZetAspects
 				"2bb-Banner Aspect", "bannerAddedAttackSpeedGained", 0.10f,
 				"Attack speed gained per stack."
 			);
+
 
 
 			AspectImpaleDamageMult = Config.Bind(
@@ -545,6 +560,7 @@ namespace TPDespair.ZetAspects
 				"2bc-Impale Aspect", "impaleTweaks", false,
 				"Scale impale damage and duration based on ambient level. No effect at lvl 90."
 			);
+
 
 
 			AspectGoldenBaseRegenGain = Config.Bind(
@@ -573,6 +589,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectCycloneBaseMovementGain = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneBaseMovementGained", 0.20f,
 				"Movement speed gained. Set to 0 to disable."
@@ -585,6 +602,7 @@ namespace TPDespair.ZetAspects
 				"2be-Cyclone Aspect", "cycloneTweaks", false,
 				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect)."
 			);
+
 
 
 			AspectTinkerBaseDamageResistGain = Config.Bind(
@@ -601,7 +619,6 @@ namespace TPDespair.ZetAspects
 			);
 		}
 
-
 		private static void LostInTransitConfigs(ConfigFile Config)
 		{
 			AspectLeechingBaseLeechGain = Config.Bind(
@@ -616,6 +633,7 @@ namespace TPDespair.ZetAspects
 				"2ca-Leeching Aspect", "leechingMonsterLeechMult", 5f,
 				"Monster leech multiplier."
 			);
+
 
 
 			AspectFrenziedBaseMovementGain = Config.Bind(
@@ -656,6 +674,7 @@ namespace TPDespair.ZetAspects
 			);
 
 
+
 			AspectVolatileBaseDamage = Config.Bind(
 				"2cc-Volatile Aspect", "volatileBaseTotalDamage", 0.20f,
 				"Base total damage of explosion."
@@ -664,8 +683,46 @@ namespace TPDespair.ZetAspects
 				"2cc-Volatile Aspect", "volatileAddedTotalDamage", 0.10f,
 				"Added total damage of explosion per stack."
 			);
-		}
 
+
+
+			AspectBlightedBaseHealthGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedBaseHealthGained", 0.5f,
+				"Health gained. Set to 0 to disable."
+			);
+			AspectBlightedStackHealthGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedAddedHealthGained", 0.25f,
+				"Health gained per stack."
+			);
+			AspectBlightedMonsterHealthMult = Config.Bind(
+				"2cd-Blighted Aspect", "blightedMonsterHealthMult", 10f,
+				"Monster health multiplier."
+			);
+			AspectBlightedBaseDamageGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedBaseDamageGained", 0.2f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectBlightedStackDamageGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedAddedDamageGained", 0.1f,
+				"Damage gained per stack."
+			);
+			AspectBlightedMonsterDamageMult = Config.Bind(
+				"2cd-Blighted Aspect", "blightedMonsterDamageMult", 5f,
+				"Monster damage multiplier."
+			);
+			AspectBlightedBaseCooldownGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedBaseCooldownGained", 0.2f,
+				"Cooldown gained. Set to 0 to disable."
+			);
+			AspectBlightedStackCooldownGain = Config.Bind(
+				"2cd-Blighted Aspect", "blightedAddedCooldownGained", 0.1f,
+				"Cooldown gained per stack."
+			);
+			AspectBlightedMonsterCooldownMult = Config.Bind(
+				"2cd-Blighted Aspect", "blightedMonsterCooldownMult", 5f,
+				"Monster cooldown multiplier."
+			);
+		}
 
 		private static void AetheriumConfigs(ConfigFile Config)
 		{
