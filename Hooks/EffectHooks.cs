@@ -10,16 +10,155 @@ using UnityEngine.Networking;
 
 namespace TPDespair.ZetAspects
 {
+	public static class BlightedStateManager
+	{
+		public static Dictionary<CharacterBody, BuffIndex[]> Entries = new Dictionary<CharacterBody, BuffIndex[]>();
+
+
+
+		internal static void SetElites(CharacterBody body, BuffIndex firstBuff, BuffIndex secondBuff)
+		{
+			//Debug.LogWarning("BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
+			//Debug.LogWarning("Setting EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
+
+			if (!Entries.ContainsKey(body)) CreateEntry(body);
+
+			BuffIndex oldFirstBuff = Entries[body][0];
+			BuffIndex oldSecondBuff = Entries[body][1];
+
+			Entries[body][0] = firstBuff;
+			Entries[body][1] = secondBuff;
+
+			bool clearBuffs = true;
+
+			Inventory inventory = body.inventory;
+			if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
+			bool destroyed = EffectHooks.DestroyedBodies.ContainsKey(body.netId);
+			if (destroyed) clearBuffs = false;
+
+			if (clearBuffs)
+			{
+				if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
+				if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
+			}
+
+			if (!destroyed) ApplyBlightedAspectBuffs(body);
+		}
+
+		internal static void Destroyed(CharacterBody body)
+		{
+			if (Entries.ContainsKey(body))
+			{
+				//Debug.LogWarning("BlightedStateManager - Destroyed : " + body.name + " - " + body.netId);
+
+				BuffIndex firstBuff = Entries[body][0];
+				BuffIndex secondBuff = Entries[body][1];
+
+				Entries[body][0] = BuffIndex.None;
+				Entries[body][1] = BuffIndex.None;
+
+				bool clearBuffs = true;
+
+				Inventory inventory = body.inventory;
+				if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
+				if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) clearBuffs = false;
+
+				if (clearBuffs)
+				{
+					//Debug.LogWarning("Clearing EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
+
+					if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
+					if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
+				}
+
+				Entries.Remove(body);
+			}
+		}
+
+
+
+		private static void CreateEntry(CharacterBody body)
+		{
+			BuffIndex[] buffs = new BuffIndex[] { BuffIndex.None, BuffIndex.None };
+			Entries.Add(body, buffs);
+		}
+
+
+
+		public static bool HasAspectFromBlighted(CharacterBody body, BuffDef buffDef)
+		{
+			if (Entries.ContainsKey(body))
+			{
+				BuffIndex buffIndex = buffDef.buffIndex;
+
+				if (buffIndex == BuffIndex.None) return false;
+				if (Entries[body][0] == buffIndex) return true;
+				if (Entries[body][1] == buffIndex) return true;
+			}
+
+			return false;
+		}
+
+		internal static void ApplyBlightedAspectBuffs(CharacterBody body)
+		{
+			if (Entries.ContainsKey(body))
+			{
+				BuffIndex targetBuff;
+
+				targetBuff = Entries[body][0];
+				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
+				{
+					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);
+				}
+				targetBuff = Entries[body][1];
+				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
+				{
+					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);
+				}
+			}
+		}
+	}
+
+
+
 	internal static class EffectHooks
 	{
 		public static GameObject lightningStake = Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 
-		public static List<string> DronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
+		public static List<string> dronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
 
-		private const float BuffCycleDuration = 5f;
+		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
+
+		internal const float BuffCycleDuration = 5f;
+		private static float FixedUpdateStopwatch = 0f;
+
+
+		internal static void OnFixedUpdate()
+		{
+			if (!NetworkServer.active) return;
+
+			FixedUpdateStopwatch += Time.fixedDeltaTime;
+
+			if (FixedUpdateStopwatch >= 0.333f)
+			{
+				List<NetworkInstanceId> destroyedBodiesKeys = new List<NetworkInstanceId>(DestroyedBodies.Keys);
+
+				foreach (var netId in destroyedBodiesKeys)
+				{
+					DestroyedBodies[netId] -= FixedUpdateStopwatch;
+					if (DestroyedBodies[netId] <= 0f) DestroyedBodies.Remove(netId);
+				}
+
+				FixedUpdateStopwatch = 0f;
+			}
+		}
+
+
 
 		internal static void Init()
 		{
+			OnDestroyHook();
+
 			FreezeHook();
 			PreventAspectChillHook();
 			OverloadingBombHook();
@@ -41,8 +180,20 @@ namespace TPDespair.ZetAspects
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
-			AspectBuffLostHook();
+			UpdateOnBuffLostHook();
 			RefreshAspectBuffsHook();
+		}
+
+
+
+		private static void OnDestroyHook()
+		{
+			On.RoR2.CharacterBody.OnDestroy += (orig, self) =>
+			{
+				if (NetworkServer.active) DestroyedBodies.Add(self.netId, 3f);
+
+				orig(self);
+			};
 		}
 
 
@@ -537,7 +688,7 @@ namespace TPDespair.ZetAspects
 
 		private static bool IsValidDrone(CharacterMaster minionMaster)
 		{
-			bool result = DronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
+			bool result = dronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
 			//Debug.LogWarning("Checking Master Name : " + minionMaster.name + " - " + result);
 			return result;
 		}
@@ -872,12 +1023,15 @@ namespace TPDespair.ZetAspects
 
 			if (!buffDef || !self.HasBuff(buffDef)) return;
 
-			float count = ZetAspectsPlugin.GetStackMagnitude(self, buffDef);
-			float damage = Configuration.AspectSanguineBaseDamage.Value + Configuration.AspectSanguineStackDamage.Value * (count - 1f);
+			if (Configuration.AspectSanguineBaseDamage.Value > 0f)
+			{
+				float count = ZetAspectsPlugin.GetStackMagnitude(self, buffDef);
+				float damage = Configuration.AspectSanguineBaseDamage.Value + Configuration.AspectSanguineStackDamage.Value * (count - 1f);
 
-			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
+				if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectEffectMonsterDamageMult.Value;
 
-			InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
+				InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
+			}
 		}
 
 
@@ -961,7 +1115,10 @@ namespace TPDespair.ZetAspects
 
 						if (ZetAspectsPlugin.GetAspectEquipmentDef(buffDef))
 						{
-							if (self) self.AddTimedBuff(buffDef, BuffCycleDuration);
+							if (self && !DestroyedBodies.ContainsKey(self.netId))
+							{
+								self.AddTimedBuff(buffDef, BuffCycleDuration);
+							}
 							return null;
 						}
 
@@ -979,7 +1136,13 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterBody.OnInventoryChanged += (orig, self) =>
 			{
-				if (NetworkServer.active) ApplyAspectBuffs(self);
+				if (NetworkServer.active && self)
+				{
+					if (!DestroyedBodies.ContainsKey(self.netId))
+					{
+						ApplyAspectBuffs(self);
+					}
+				}
 
 				orig(self);
 			};
@@ -991,30 +1154,48 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self, deltaTime);
 
-				if (NetworkServer.active) ApplyAspectBuffs(self);
+				if (NetworkServer.active && self)
+				{
+					if (!DestroyedBodies.ContainsKey(self.netId))
+					{
+						ApplyAspectBuffs(self);
+						BlightedStateManager.ApplyBlightedAspectBuffs(self);
+					}
+				}
 			};
 		}
 
-		private static void AspectBuffLostHook()
+		private static void UpdateOnBuffLostHook()
 		{
 			On.RoR2.CharacterBody.OnBuffFinalStackLost += (orig, self, buffDef) =>
 			{
 				orig(self, buffDef);
 
-				if (NetworkServer.active)
+				if (NetworkServer.active && self)
 				{
-					Inventory inventory = self.inventory;
-
-					if (inventory)
+					if (!DestroyedBodies.ContainsKey(self.netId))
 					{
-						if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, buffDef))
+						if (BlightedStateManager.HasAspectFromBlighted(self, buffDef))
 						{
 							self.AddTimedBuff(buffDef, BuffCycleDuration);
 						}
 						else
 						{
-							// update item behaviors
-							self.OnInventoryChanged();
+							Inventory inventory = self.inventory;
+
+							if (inventory)
+							{
+								if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, buffDef))
+								{
+									self.AddTimedBuff(buffDef, BuffCycleDuration);
+								}
+								else
+								{
+									// update item behaviors
+									//self.OnInventoryChanged();
+									inventory.GiveItem(ZetAspectsContent.Items.ZetAspectsUpdateInventory);
+								}
+							}
 						}
 					}
 				}
@@ -1110,6 +1291,11 @@ namespace TPDespair.ZetAspects
 				if (targetBuff && !self.HasBuff(targetBuff))
 				{
 					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectVolatile, Catalog.LostInTransit.Equipment.AffixVolatile)) self.AddTimedBuff(targetBuff, BuffCycleDuration);
+				}
+				targetBuff = Catalog.LostInTransit.Buffs.AffixBlighted;
+				if (targetBuff && !self.HasBuff(targetBuff))
+				{
+					if (ZetAspectsPlugin.HasAspectItemOrEquipment(inventory, ZetAspectsContent.Items.ZetAspectBlighted, Catalog.LostInTransit.Equipment.AffixBlighted)) self.AddTimedBuff(targetBuff, BuffCycleDuration);
 				}
 			}
 
