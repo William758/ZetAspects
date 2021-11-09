@@ -70,7 +70,7 @@ namespace TPDespair.ZetAspects
 				if (master)
 				{
 					Inventory inventory = master.inventory;
-					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ZetAspectsContent.Items.ZetDropTracker));
+					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectsDropCountTracker));
 				}
 			}
 
@@ -87,10 +87,10 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						int trackerCount = inventory.GetItemCount(ZetAspectsContent.Items.ZetDropTracker);
+						int trackerCount = inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectsDropCountTracker);
 						int dropCount = runDropCount;
 
-						if (trackerCount < dropCount) inventory.GiveItem(ZetAspectsContent.Items.ZetDropTracker, dropCount - trackerCount);
+						if (trackerCount < dropCount) inventory.GiveItem(ZetAspectsContent.Items.ZetAspectsDropCountTracker, dropCount - trackerCount);
 					}
 				}
 			}
@@ -235,9 +235,11 @@ namespace TPDespair.ZetAspects
 						if (index == EquipmentIndex.None) return false;
 						if (ZetAspectsPlugin.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return false;
 
-						// prevent blacklisted equipment from dropping
 						EquipmentDef equipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
-						if (equipDef && index == equipDef.equipmentIndex) return false;
+						if (equipDef && index == equipDef.equipmentIndex)
+						{
+							if (!LostInTransitHooks.blightBuffControl) return false;
+						}
 
 						if (disableDrops) return false;
 
