@@ -71,6 +71,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixLeeching;
 			public static Sprite AffixFrenzied;
 			public static Sprite AffixVolatile;
+			public static Sprite AffixBlighted;
 
 			public static Sprite AffixSanguine;
 
@@ -105,6 +106,7 @@ namespace TPDespair.ZetAspects
 					AffixLeeching = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLeeching.png");
 					AffixFrenzied = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixFrenzied.png");
 					AffixVolatile = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVolatile.png");
+					AffixBlighted = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlighted.png");
 				}
 
 				if (Catalog.Aetherium.Enabled)
@@ -153,7 +155,8 @@ namespace TPDespair.ZetAspects
 
 		public static class Items
 		{
-			public static ItemDef ZetDropTracker;
+			public static ItemDef ZetAspectsDropCountTracker;
+			public static ItemDef ZetAspectsUpdateInventory;
 
 			public static ItemDef ZetAspectIce;
 			public static ItemDef ZetAspectLightning;
@@ -172,6 +175,7 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectLeeching;
 			public static ItemDef ZetAspectFrenzied;
 			public static ItemDef ZetAspectVolatile;
+			public static ItemDef ZetAspectBlighted;
 
 			public static ItemDef ZetAspectSanguine;
 
@@ -179,12 +183,19 @@ namespace TPDespair.ZetAspects
 
 			public static void Create()
 			{
-				ZetDropTracker = ScriptableObject.CreateInstance<ItemDef>();
-				ZetDropTracker.name = "ZetDropTracker";
-				ZetDropTracker.tier = ItemTier.NoTier;
-				ZetDropTracker.AutoPopulateTokens();
-				ZetDropTracker.hidden = true;
-				ZetDropTracker.canRemove = false;
+				ZetAspectsDropCountTracker = ScriptableObject.CreateInstance<ItemDef>();
+				ZetAspectsDropCountTracker.name = "ZetAspectsDropCountTracker";
+				ZetAspectsDropCountTracker.tier = ItemTier.NoTier;
+				ZetAspectsDropCountTracker.AutoPopulateTokens();
+				ZetAspectsDropCountTracker.hidden = true;
+				ZetAspectsDropCountTracker.canRemove = false;
+
+				ZetAspectsUpdateInventory = ScriptableObject.CreateInstance<ItemDef>();
+				ZetAspectsUpdateInventory.name = "ZetAspectsUpdateInventory";
+				ZetAspectsUpdateInventory.tier = ItemTier.NoTier;
+				ZetAspectsUpdateInventory.AutoPopulateTokens();
+				ZetAspectsUpdateInventory.hidden = true;
+				ZetAspectsUpdateInventory.canRemove = false;
 
 				ZetAspectIce = ZetAspects.ZetAspectIce.DefineItem();
 				ZetAspectLightning = ZetAspects.ZetAspectLightning.DefineItem();
@@ -193,7 +204,7 @@ namespace TPDespair.ZetAspects
 				ZetAspectMalachite = ZetAspects.ZetAspectMalachite.DefineItem();
 				ZetAspectPerfect = ZetAspects.ZetAspectPerfect.DefineItem();
 
-				itemDefs.AddRange(new ItemDef[] { ZetDropTracker, ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
+				itemDefs.AddRange(new ItemDef[] { ZetAspectsDropCountTracker, ZetAspectsUpdateInventory, ZetAspectIce, ZetAspectLightning, ZetAspectFire, ZetAspectCelestial, ZetAspectMalachite, ZetAspectPerfect });
 
 				if (Catalog.EliteVariety.Enabled)
 				{
@@ -212,8 +223,9 @@ namespace TPDespair.ZetAspects
 					ZetAspectLeeching = ZetAspects.ZetAspectLeeching.DefineItem();
 					ZetAspectFrenzied = ZetAspects.ZetAspectFrenzied.DefineItem();
 					ZetAspectVolatile = ZetAspects.ZetAspectVolatile.DefineItem();
+					ZetAspectBlighted = ZetAspects.ZetAspectBlighted.DefineItem();
 
-					itemDefs.AddRange(new ItemDef[] { ZetAspectLeeching, ZetAspectFrenzied, ZetAspectVolatile });
+					itemDefs.AddRange(new ItemDef[] { ZetAspectLeeching, ZetAspectFrenzied, ZetAspectVolatile, ZetAspectBlighted });
 				}
 
 				if (Catalog.Aetherium.Enabled)
