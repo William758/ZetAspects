@@ -20,6 +20,7 @@ namespace TPDespair.ZetAspects
 
 		private static Type ImpPlaneImpaledType;
 		private static Type SandstormBlindType;
+		private static Type AffixTinkererType;
 
 		private static MethodInfo ImpaleDotBehaviorMethod;
 
@@ -36,6 +37,11 @@ namespace TPDespair.ZetAspects
 		private static FieldInfo SandstormDamageField;
 		private static FieldInfo SandstormFrequencyField;
 
+		private static FieldInfo TinkerDeploySlotField;
+
+		internal static bool tinkerStealHook = false;
+		internal static bool tinkerLimitHook = false;
+
 
 
 		internal static void Init()
@@ -51,7 +57,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspect [EV] - Could Not Find Assembly");
+				Debug.LogWarning("ZetAspect - Could Not Find EliteVariety Assembly");
 			}
 
 			if (Configuration.AspectImpaleTweaks.Value)
@@ -80,6 +86,7 @@ namespace TPDespair.ZetAspects
 				if (TinkerScrapMethod != null)
 				{
 					HookEndpointManager.Modify(TinkerScrapMethod, (ILContext.Manipulator)TinkerScrapHook);
+					tinkerStealHook = true;
 				}
 			}
 		}
@@ -138,7 +145,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetArtifact [ZetLoopifact] - Could Not Find Type : EliteVariety.Buffs.ImpPlaneImpaled");
+				Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : EliteVariety.Buffs.ImpPlaneImpaled");
 			}
 
 			type = Type.GetType("EliteVariety.Buffs.SandstormBlind, " + PluginAssembly.FullName, false);
@@ -154,7 +161,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Type : EliteVariety.Buffs.SandstormBlind");
+				Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : EliteVariety.Buffs.SandstormBlind");
 			}
 
 			type = Type.GetType("EliteVariety.Buffs.AffixSandstorm, " + PluginAssembly.FullName, false);
@@ -188,8 +195,13 @@ namespace TPDespair.ZetAspects
 			type = Type.GetType("EliteVariety.Buffs.AffixTinkerer, " + PluginAssembly.FullName, false);
 			if (type != null)
 			{
+				AffixTinkererType = type;
+
 				TinkerScrapMethod = type.GetMethod("GenericGameEvents_OnHitEnemy", Flags);
 				if (TinkerScrapMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : AffixTinkerer.GenericGameEvents_OnHitEnemy");
+
+				TinkerDeploySlotField = type.GetField("deployableSlot", Flags);
+				if (TinkerDeploySlotField == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Field : AffixTinkerer.deployableSlot");
 			}
 			else
 			{
@@ -205,11 +217,29 @@ namespace TPDespair.ZetAspects
 
 			if (Configuration.AspectImpaleTweaks.Value)
 			{
-				Catalog.EliteVariety.impaleDotIndex = (DotController.DotIndex)ImpaleDotIndexField.GetValue(ImpPlaneImpaledType);
-				if (Catalog.PluginLoaded("com.TPDespair.ZetArtifacts")) DisableZetArtifactsImpaleReduction();
+				if (ImpPlaneImpaledType != null && ImpaleDotIndexField != null)
+				{
+					Catalog.EliteVariety.impaleDotIndex = (DotController.DotIndex)ImpaleDotIndexField.GetValue(ImpPlaneImpaledType);
+					if (Catalog.PluginLoaded("com.TPDespair.ZetArtifacts")) DisableZetArtifactsImpaleReduction();
+				}
 			}
 
-			if (Configuration.AspectCycloneTweaks.Value) ModifyCameraEffect();
+			if (Configuration.AspectCycloneTweaks.Value)
+			{
+				if (SandstormBlindType != null)
+				{
+					ModifyCameraEffect();
+				}
+			}
+
+			if (Configuration.AspectTinkerTweaks.Value)
+			{
+				if (AffixTinkererType != null && TinkerDeploySlotField != null)
+				{
+					Catalog.EliteVariety.tinkerDeploySlot = (DeployableSlot)TinkerDeploySlotField.GetValue(AffixTinkererType);
+					tinkerLimitHook = true;
+				}
+			}
 		}
 
 		private static void DisableZetArtifactsImpaleReduction()
@@ -235,7 +265,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : TPDespair.ZetArtifacts.ZetLoopifact");
+					Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : ZetArtifacts.ZetLoopifact");
 				}
 			}
 			else
@@ -401,7 +431,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspect [LIT] - Could Not Find Assembly");
+				Debug.LogWarning("ZetAspect [LIT] - Could Not Find LostInTransit Assembly");
 			}
 
 			if (LeechingHealMethod != null) HookEndpointManager.Modify(LeechingHealMethod, (ILContext.Manipulator)LeechAmountHook);
@@ -1284,7 +1314,7 @@ namespace TPDespair.ZetAspects
 			}
 			else
 			{
-				Debug.LogWarning("ZetAspect [AETH] - Could Not Find Assembly");
+				Debug.LogWarning("ZetAspect [AETH] - Could Not Find Aetherium Assembly");
 			}
 
 			if (ApplyBleedMethod != null) HookEndpointManager.Modify(ApplyBleedMethod, (ILContext.Manipulator)DisableBleedHook);
@@ -1300,7 +1330,7 @@ namespace TPDespair.ZetAspects
 			if (type != null)
 			{
 				ApplyBleedMethod = type.GetMethod("BleedOnHit", Flags);
-				if (ApplyBleedMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : BleedOnHit");
+				if (ApplyBleedMethod == null) Debug.LogWarning("ZetAspect [LIT] - Could Not Find Method : AffixSanguine.BleedOnHit");
 			}
 			else
 			{
