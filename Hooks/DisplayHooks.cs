@@ -2,13 +2,18 @@ using System;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using RoR2.Stats;
+using RoR2.UI;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
 {
 	internal static class DisplayHooks
 	{
-		public static Color32 shieldBarColor = new Color32(52, 111, 255, 255);
+		public static Color32 shieldConvertColor = new Color32(52, 111, 255, 255);
+		public static Color32 shieldCriticalColor = new Color32(204, 219, 255, 255);
+		public static Color32 shieldImmuneColor = new Color32(45, 225, 225, 255);
+		public static Color32 healthImmuneColor = new Color32(225, 225, 45, 255);
 
 		internal static void Init()
 		{
@@ -17,6 +22,8 @@ namespace TPDespair.ZetAspects
 			UpdateItemDisplayHook();
 			EnableItemDisplayHook();
 			DisableItemDisplayHook();
+
+			FixItemCountStatHook();
 
 			ShieldBarColorHook();
 		}
@@ -433,30 +440,105 @@ namespace TPDespair.ZetAspects
 
 
 
+		private static void FixItemCountStatHook()
+		{
+			IL.RoR2.Stats.StatManager.ProcessItemCollectedEvents += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(0),
+					x => x.MatchLdfld("RoR2.Stats.StatManager/ItemCollectedEvent", "quantity")
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Ldloc, 0);
+					c.EmitDelegate<Func<int, StatManager.ItemCollectedEvent, int>>((count, ice) =>
+					{
+						ItemDef itemDef = ItemCatalog.GetItemDef(ice.itemIndex);
+						if (itemDef.hidden) return 0;
+						return count;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - FixItemCountStatHook Hook Failed");
+				}
+			};
+		}
+
+
+
 		private static void ShieldBarColorHook()
 		{
 			On.RoR2.UI.HealthBar.UpdateBarInfos += (orig, self) =>
 			{
 				orig(self);
 
-				HealthComponent hc = self._source;
-				if (hc)
+				int shieledColor = GetShieldColorIndex(self);
+				if (shieledColor != 0)
 				{
-					CharacterBody body = hc.body;
-					if (body)
+					if (shieledColor == 3)
 					{
-						bool hasBuff = body.HasBuff(RoR2Content.Buffs.AffixLunar);
-						if (hasBuff) self.barInfoCollection.shieldBarInfo.color = shieldBarColor;
+						SetShieldColor(self, shieldImmuneColor);
+						SetHealthColor(self, healthImmuneColor);
+					}
+					if (shieledColor == 2) SetShieldColor(self, shieldCriticalColor);
+					if (shieledColor == 1) SetShieldColor(self, shieldConvertColor);
+				}
+			};
+		}
 
+		private static int GetShieldColorIndex(HealthBar hpBar)
+		{
+			int output = 0;
+
+			if (hpBar.healthCritical && hpBar.style.flashOnHealthCritical)
+			{
+				if (Mathf.FloorToInt(Time.fixedTime * 10f) % 2 == 0) output = 2;
+			}
+
+			HealthComponent hc = hpBar._source;
+			if (hc)
+			{
+				CharacterBody body = hc.body;
+				if (body)
+				{
+					if (Catalog.immuneHealth)
+					{
+						if (hc.godMode || body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) || body.HasBuff(RoR2Content.Buffs.Immune)) output = Math.Max(output, 3);
+					}
+
+					if (body.HasBuff(RoR2Content.Buffs.AffixLunar))
+					{
+						output = Math.Max(output, 1);
+					}
+					else
+					{
 						Inventory inventory = body.inventory;
 						if (inventory)
 						{
 							int count = inventory.GetItemCount(RoR2Content.Items.ShieldOnly);
-							if (count > 0) self.barInfoCollection.shieldBarInfo.color = shieldBarColor;
+							if (count > 0) output = Math.Max(output, 1);
 						}
 					}
 				}
-			};
+			}
+
+			return output;
+		}
+
+		private static void SetShieldColor(HealthBar hpBar, Color32 color)
+		{
+			hpBar.barInfoCollection.shieldBarInfo.color = color;
+		}
+
+		private static void SetHealthColor(HealthBar hpBar, Color32 color)
+		{
+			hpBar.barInfoCollection.healthBarInfo.color = color;
 		}
 	}
 }
