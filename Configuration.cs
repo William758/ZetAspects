@@ -25,6 +25,7 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<int> LeechSeedHeal { get; set; }
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
+		public static ConfigEntry<bool> RecolorImmuneHealth { get; set; }
 
 		public static ConfigEntry<int> HeadHunterCountExtra { get; set; }
 		public static ConfigEntry<float> HeadHunterExtraEffect { get; set; }
@@ -119,6 +120,12 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
 		public static ConfigEntry<bool> AspectTinkerTweaks { get; set; }
+		public static ConfigEntry<int> AspectTinkerMonsterLimit { get; set; }
+		public static ConfigEntry<float> AspectTinkerMonsterDamageMult { get; set; }
+		public static ConfigEntry<float> AspectTinkerMonsterHealthMult { get; set; }
+		public static ConfigEntry<int> AspectTinkerPlayerLimit { get; set; }
+		public static ConfigEntry<float> AspectTinkerPlayerDamageMult { get; set; }
+		public static ConfigEntry<float> AspectTinkerPlayerHealthMult { get; set; }
 
 		public static ConfigEntry<float> AspectLeechingBaseLeechGain { get; set; }
 		public static ConfigEntry<float> AspectLeechingStackLeechGain { get; set; }
@@ -245,6 +252,10 @@ namespace TPDespair.ZetAspects
 			TranscendenceRegen = Config.Bind(
 				"0c-Tweaks", "transcendenceShieldRegen", 0.50f,
 				"Health regen gained as shield regen. Set to 0 to disable."
+			);
+			RecolorImmuneHealth = Config.Bind(
+				"0c-Tweaks", "recolorImmuneHealth", false,
+				"Change healthbar color while immune."
 			);
 		}
 
@@ -615,7 +626,31 @@ namespace TPDespair.ZetAspects
 			);
 			AspectTinkerTweaks = Config.Bind(
 				"2bf-Tinker Aspect", "tinkerTweaks", false,
-				"Disable scrap stealing."
+				"Disable scrap stealing. Allow changing limits and stats."
+			);
+			AspectTinkerMonsterLimit = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerMonsterLimit", 1,
+				"Maximum tinkerer drones for monsters."
+			);
+			AspectTinkerMonsterDamageMult = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerMonsterDamage", 1.5f,
+				"Damage multiplier for monster tinkerer drones."
+			);
+			AspectTinkerMonsterHealthMult = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerMonsterHealth", 2f,
+				"Health multiplier for monster tinkerer drones."
+			);
+			AspectTinkerPlayerLimit = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerPlayerLimit", 2,
+				"Maximum tinkerer drones for players."
+			);
+			AspectTinkerPlayerDamageMult = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerPlayerDamage", 1.5f,
+				"Damage multiplier for player tinkerer drones."
+			);
+			AspectTinkerPlayerHealthMult = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerPlayerHealth", 2f,
+				"Health multiplier for player tinkerer drones."
 			);
 		}
 
