@@ -17,8 +17,13 @@ namespace TPDespair.ZetAspects
 		public static bool limitChillStacks = false;
 		public static bool borboFrostBlade = false;
 		public static bool aspectAbilities = false;
+		public static bool immuneHealth = false;
 
 		public static bool ChillCanStack => RoR2Content.Buffs.Slow80.canStack;
+
+
+
+		private static GameObject BossDropletPrefab;
 
 
 
@@ -36,6 +41,7 @@ namespace TPDespair.ZetAspects
 			{
 				try
 				{
+					RiskOfRain.PreInit();
 					EliteVariety.PreInit();
 					LostInTransit.PreInit();
 					Aetherium.PreInit();
@@ -55,6 +61,7 @@ namespace TPDespair.ZetAspects
 			{
 				try
 				{
+					RiskOfRain.PreInit();
 					EliteVariety.PreInit();
 					LostInTransit.PreInit();
 					Aetherium.PreInit();
@@ -122,6 +129,9 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
 			if (PluginLoaded("com.TheMysticSword.AspectAbilities")) aspectAbilities = true;
 
+			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
+			if (Configuration.RecolorImmuneHealth.Value) immuneHealth = true;
+
 			RiskOfRain.Init();
 			EliteVariety.Init();
 			LostInTransit.Init();
@@ -183,6 +193,15 @@ namespace TPDespair.ZetAspects
 
 		public static class RiskOfRain
 		{
+			private static bool iconsReplaced = false;
+
+
+
+			internal static void PreInit()
+			{
+				ApplyEquipmentIcons();
+			}
+
 			internal static void Init()
 			{
 				SetupText();
@@ -190,6 +209,11 @@ namespace TPDespair.ZetAspects
 
 				ApplyEquipmentIcons();
 				if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+				EquipmentColor();
+
+				BuffDef buffDef = RoR2Content.Buffs.AffixHauntedRecipient;
+				buffDef.buffColor = Color.white;
+				buffDef.iconSprite = ZetAspectsContent.Sprites.HauntCloak;
 			}
 
 
@@ -216,12 +240,16 @@ namespace TPDespair.ZetAspects
 
 			private static void ApplyEquipmentIcons()
 			{
+				if (iconsReplaced) return;
+
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixWhite, ZetAspectsContent.Sprites.AffixWhite, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixBlue, ZetAspectsContent.Sprites.AffixBlue, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixRed, ZetAspectsContent.Sprites.AffixRed, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixHaunted, ZetAspectsContent.Sprites.AffixHaunted, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixPoison, ZetAspectsContent.Sprites.AffixPoison, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(RoR2Content.Equipment.AffixLunar, ZetAspectsContent.Sprites.AffixLunar, ZetAspectsContent.Sprites.OutlineBlue);
+
+				iconsReplaced = true;
 			}
 
 			internal static void EquipmentEntries(bool shown)
@@ -233,12 +261,23 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(RoR2Content.Equipment.AffixPoison, shown);
 				SetEquipmentState(RoR2Content.Equipment.AffixLunar, shown);
 			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixWhite);
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixBlue);
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixRed);
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixHaunted);
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixPoison);
+				ColorEquipmentDroplet(RoR2Content.Equipment.AffixLunar);
+			}
 		}
 
 		public static class EliteVariety
 		{
 			private static bool equipDefPopulated = false;
 			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -258,6 +297,7 @@ namespace TPDespair.ZetAspects
 
 
 			public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
+			public static DeployableSlot tinkerDeploySlot = DeployableSlot.EngiMine;
 			public static DotController.DotIndex impaleDotIndex = DotController.DotIndex.None;
 
 			public static class Equipment
@@ -288,6 +328,7 @@ namespace TPDespair.ZetAspects
 				{
 					PopulateEquipment();
 					DisableInactiveItems();
+					ApplyEquipmentIcons();
 				}
 			}
 
@@ -299,6 +340,8 @@ namespace TPDespair.ZetAspects
 					PopulateBuffs();
 					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
 
+					EliteVarietyHooks.LateSetup();
+
 					DisableInactiveItems();
 					SetupText();
 					ItemEntries(DropHooks.CanObtainItem());
@@ -306,8 +349,7 @@ namespace TPDespair.ZetAspects
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
 					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
-
-					EliteVarietyHooks.LateSetup();
+					EquipmentColor();
 
 					populated = true;
 				}
@@ -415,12 +457,16 @@ namespace TPDespair.ZetAspects
 
 			private static void ApplyEquipmentIcons()
 			{
+				if (iconsReplaced) return;
+
 				ReplaceEquipmentIcon(Equipment.AffixArmored, ZetAspectsContent.Sprites.AffixArmored, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixBuffing, ZetAspectsContent.Sprites.AffixBuffing, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixImpPlane, ZetAspectsContent.Sprites.AffixImpPlane, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixPillaging, ZetAspectsContent.Sprites.AffixPillaging, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixSandstorm, ZetAspectsContent.Sprites.AffixSandstorm, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixTinkerer, ZetAspectsContent.Sprites.AffixTinkerer, ZetAspectsContent.Sprites.OutlineOrange);
+
+				iconsReplaced = true;
 			}
 
 			internal static void EquipmentEntries(bool shown)
@@ -432,6 +478,16 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(Equipment.AffixSandstorm, shown);
 				SetEquipmentState(Equipment.AffixTinkerer, shown);
 			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equipment.AffixArmored);
+				ColorEquipmentDroplet(Equipment.AffixBuffing);
+				ColorEquipmentDroplet(Equipment.AffixImpPlane);
+				ColorEquipmentDroplet(Equipment.AffixPillaging);
+				ColorEquipmentDroplet(Equipment.AffixSandstorm);
+				ColorEquipmentDroplet(Equipment.AffixTinkerer);
+			}
 		}
 
 
@@ -440,6 +496,7 @@ namespace TPDespair.ZetAspects
 		{
 			private static bool equipDefPopulated = false;
 			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -482,6 +539,7 @@ namespace TPDespair.ZetAspects
 				{
 					PopulateEquipment();
 					DisableInactiveItems();
+					ApplyEquipmentIcons();
 				}
 			}
 
@@ -499,6 +557,7 @@ namespace TPDespair.ZetAspects
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
 					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
 
 					populated = true;
 				}
@@ -588,10 +647,14 @@ namespace TPDespair.ZetAspects
 
 			private static void ApplyEquipmentIcons()
 			{
+				if (iconsReplaced) return;
+
 				ReplaceEquipmentIcon(Equipment.AffixLeeching, ZetAspectsContent.Sprites.AffixLeeching, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixFrenzied, ZetAspectsContent.Sprites.AffixFrenzied, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixVolatile, ZetAspectsContent.Sprites.AffixVolatile, ZetAspectsContent.Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equipment.AffixBlighted, ZetAspectsContent.Sprites.AffixBlighted, ZetAspectsContent.Sprites.OutlineOrange);
+
+				iconsReplaced = true;
 			}
 
 			internal static void EquipmentEntries(bool shown)
@@ -601,6 +664,14 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(Equipment.AffixVolatile, shown);
 				SetEquipmentState(Equipment.AffixBlighted, shown);
 			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equipment.AffixLeeching);
+				ColorEquipmentDroplet(Equipment.AffixFrenzied);
+				ColorEquipmentDroplet(Equipment.AffixVolatile);
+				ColorEquipmentDroplet(Equipment.AffixBlighted);
+			}
 		}
 
 
@@ -609,6 +680,7 @@ namespace TPDespair.ZetAspects
 		{
 			private static bool equipDefPopulated = false;
 			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
 			public static bool populated = false;
 
 			private static int state = -1;
@@ -645,6 +717,7 @@ namespace TPDespair.ZetAspects
 				{
 					PopulateEquipment();
 					DisableInactiveItems();
+					ApplyEquipmentIcons();
 				}
 			}
 
@@ -662,6 +735,7 @@ namespace TPDespair.ZetAspects
 					CopyModelPrefabs();
 					ApplyEquipmentIcons();
 					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
 
 					populated = true;
 				}
@@ -719,12 +793,21 @@ namespace TPDespair.ZetAspects
 
 			private static void ApplyEquipmentIcons()
 			{
+				if (iconsReplaced) return;
+
 				ReplaceEquipmentIcon(Equipment.AffixSanguine, ZetAspectsContent.Sprites.AffixSanguine, ZetAspectsContent.Sprites.OutlineOrange);
+
+				iconsReplaced = true;
 			}
 
 			internal static void EquipmentEntries(bool shown)
 			{
 				SetEquipmentState(Equipment.AffixSanguine, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equipment.AffixSanguine);
 			}
 		}
 
@@ -834,12 +917,38 @@ namespace TPDespair.ZetAspects
 
 		public static void ReplaceEquipmentIcon(EquipmentDef equipDef, Sprite baseSprite, Sprite outlineSprite)
 		{
-			if (equipDef) equipDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(baseSprite, outlineSprite);
+			if (equipDef)
+			{
+				equipDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(baseSprite, outlineSprite);
+
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
+				pickupDef.iconSprite = equipDef.pickupIconSprite;
+				pickupDef.iconTexture = equipDef.pickupIconSprite.texture;
+			}
 		}
 
 		private static void SetEquipmentState(EquipmentDef equipDef, bool canDrop)
 		{
 			if (equipDef) equipDef.canDrop = canDrop;
+		}
+
+		private static void ColorEquipmentDroplet(EquipmentDef equipDef)
+		{
+			if (!BossDropletPrefab) BossDropletPrefab = Resources.Load<GameObject>("Prefabs/ItemPickups/BossOrb");
+
+			if (equipDef)
+			{
+				equipDef.isBoss = true;
+				equipDef.colorIndex = ColorCatalog.ColorIndex.Artifact;
+
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
+
+				pickupDef.isBoss = true;
+				pickupDef.dropletDisplayPrefab = BossDropletPrefab;
+				pickupDef.baseColor = new Color(0.9f, 0.7f, 0.75f);
+				pickupDef.darkColor = new Color(0.9f, 0.7f, 0.75f);
+				//pickupDef.darkColor = new Color(0.5f, 0.385f, 0.425f);
+			}
 		}
 
 
