@@ -182,6 +182,12 @@ namespace TPDespair.ZetAspects
 							value *= 1f - Mathf.Min(0.9f, delta);
 						}
 
+						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.EliteVariety.tinkerDroneBodyIndex)
+						{
+							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterDamageMult.Value;
+							else value *= Configuration.AspectTinkerPlayerDamageMult.Value;
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, 66);
@@ -283,6 +289,23 @@ namespace TPDespair.ZetAspects
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, 51);
+
+					c.Index += 4;
+
+					// multiplier
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, 50);
+					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
+					{
+						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.EliteVariety.tinkerDroneBodyIndex)
+						{
+							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterHealthMult.Value;
+							else value *= Configuration.AspectTinkerPlayerHealthMult.Value;
+						}
+
+						return value;
+					});
+					c.Emit(OpCodes.Stloc, 50);
 				}
 				else
 				{
