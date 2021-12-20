@@ -47,6 +47,8 @@ namespace TPDespair.ZetAspects
 
 		public static class Sprites
 		{
+			public static Sprite HauntCloak;
+
 			public static Sprite OutlineRed;
 			public static Sprite OutlineOrange;
 			public static Sprite OutlineYellow;
@@ -77,6 +79,8 @@ namespace TPDespair.ZetAspects
 
 			public static void Load()
 			{
+				HauntCloak = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloakIcon.png");
+
 				OutlineRed = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineRed.png");
 				OutlineOrange = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineOrange.png");
 				OutlineYellow = ZetAspectsPlugin.Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineYellow.png");
