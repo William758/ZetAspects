@@ -28,7 +28,7 @@ impaleTweaks (disabled by default) : Scale impale damage and duration based on a
 
 cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
 
-tinkerTweaks (disabled by default) : Disable scrap stealing.
+tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts and increase health and damage(configurable).
 
 ![effects](https://i.imgur.com/s30Qvh5.png)
 
@@ -51,6 +51,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.6.1 - TinkerTweaks allows configuring drone count and stats. Change color of elite equipment droplets. Added server checks to blight manager. Change some health bar colors.
 
 v2.6.0 - Added support for Blighted Elites from LostInTransit. Tweak how mod updates inventory behaviors.
 
