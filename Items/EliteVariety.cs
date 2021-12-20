@@ -475,10 +475,30 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Automatization</style> :";
-			output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
 			if (!Configuration.AspectTinkerTweaks.Value)
 			{
+				output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
 				output += "\nAttacks steal scrap from the victim.";
+			}
+			else
+			{
+				if (EliteVarietyHooks.tinkerLimitHook)
+				{
+					if (Configuration.AspectTinkerPlayerLimit.Value < 2)
+					{
+						output += "\nSpawn a Tinkerer's Drone that become stronger with scrap.";
+					}
+					else
+					{
+						output += "\nSpawn upto " + Configuration.AspectTinkerPlayerLimit.Value + " Tinkerer's Drones that become stronger with scrap.";
+					}
+				}
+				else
+				{
+					output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
+				}
+
+				if (!EliteVarietyHooks.tinkerStealHook) output += "\nAttacks steal scrap from the victim.";
 			}
 			if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
 			{
@@ -499,10 +519,30 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Automatization</style> :";
-			output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
 			if (!Configuration.AspectTinkerTweaks.Value)
 			{
+				output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
 				output += "\nAttacks steal scrap from the victim.";
+			}
+			else
+			{
+				if (EliteVarietyHooks.tinkerLimitHook)
+				{
+					if (Configuration.AspectTinkerPlayerLimit.Value < 2)
+					{
+						output += "\nSpawn a Tinkerer's Drone that become stronger with scrap.";
+					}
+					else
+					{
+						output += "\nSpawn upto " + Configuration.AspectTinkerPlayerLimit.Value + " Tinkerer's Drones that become stronger with scrap.";
+					}
+				}
+				else
+				{
+					output += "\nSpawn up to 3 Tinkerer's Drones that become stronger with scrap.";
+				}
+
+				if (!EliteVarietyHooks.tinkerStealHook) output += "\nAttacks steal scrap from the victim.";
 			}
 			if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
 			{
