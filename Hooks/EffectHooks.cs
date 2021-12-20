@@ -18,8 +18,8 @@ namespace TPDespair.ZetAspects
 
 		internal static void SetElites(CharacterBody body, BuffIndex firstBuff, BuffIndex secondBuff)
 		{
-			//Debug.LogWarning("BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
-			//Debug.LogWarning("Setting EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
+			Debug.LogWarning("ZetAspects - BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
+			Debug.LogWarning("Setting EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
 
 			if (!Entries.ContainsKey(body)) CreateEntry(body);
 
@@ -29,20 +29,23 @@ namespace TPDespair.ZetAspects
 			Entries[body][0] = firstBuff;
 			Entries[body][1] = secondBuff;
 
-			bool clearBuffs = true;
-
-			Inventory inventory = body.inventory;
-			if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-			bool destroyed = EffectHooks.DestroyedBodies.ContainsKey(body.netId);
-			if (destroyed) clearBuffs = false;
-
-			if (clearBuffs)
+			if (NetworkServer.active)
 			{
-				if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
-				if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
-			}
+				bool clearBuffs = true;
 
-			if (!destroyed) ApplyBlightedAspectBuffs(body);
+				Inventory inventory = body.inventory;
+				if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
+				bool destroyed = EffectHooks.DestroyedBodies.ContainsKey(body.netId);
+				if (destroyed) clearBuffs = false;
+
+				if (clearBuffs)
+				{
+					if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
+					if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
+				}
+
+				if (!destroyed) ApplyBlightedAspectBuffs(body);
+			}
 		}
 
 		internal static void Destroyed(CharacterBody body)
@@ -57,18 +60,21 @@ namespace TPDespair.ZetAspects
 				Entries[body][0] = BuffIndex.None;
 				Entries[body][1] = BuffIndex.None;
 
-				bool clearBuffs = true;
-
-				Inventory inventory = body.inventory;
-				if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-				if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) clearBuffs = false;
-
-				if (clearBuffs)
+				if (NetworkServer.active)
 				{
-					//Debug.LogWarning("Clearing EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
+					bool clearBuffs = true;
 
-					if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
-					if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
+					Inventory inventory = body.inventory;
+					if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
+					if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) clearBuffs = false;
+
+					if (clearBuffs)
+					{
+						//Debug.LogWarning("Clearing EliteBuffs : " + BuffCatalog.GetBuffDef(firstBuff).name + " - " + BuffCatalog.GetBuffDef(secondBuff).name);
+
+						if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
+						if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
+					}
 				}
 
 				Entries.Remove(body);
@@ -133,6 +139,7 @@ namespace TPDespair.ZetAspects
 		private static float FixedUpdateStopwatch = 0f;
 
 
+
 		internal static void OnFixedUpdate()
 		{
 			if (!NetworkServer.active) return;
@@ -172,6 +179,7 @@ namespace TPDespair.ZetAspects
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
 			ModifyDot();
+			ModifyDeploySlot();
 			DotAmpHook();
 			OnHitEnemyHook();
 
@@ -816,6 +824,29 @@ namespace TPDespair.ZetAspects
 				}
 
 				orig(attacker, victim, index, duration, damage);
+			};
+		}
+
+		private static void ModifyDeploySlot()
+		{
+			On.RoR2.CharacterMaster.GetDeployableSameSlotLimit += (orig, self, slot) =>
+			{
+				DeployableSlot deploySlot = Catalog.EliteVariety.tinkerDeploySlot;
+				if (deploySlot != DeployableSlot.EngiMine && slot == deploySlot)
+				{
+					int output;
+
+					if (self.teamIndex == TeamIndex.Player) output = Configuration.AspectTinkerPlayerLimit.Value;
+					else output = Configuration.AspectTinkerMonsterLimit.Value;
+
+					if (RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.swarmsArtifactDef)) output *= 2;
+
+					return output;
+				}
+				else
+				{
+					return orig(self, slot);
+				}
 			};
 		}
 
