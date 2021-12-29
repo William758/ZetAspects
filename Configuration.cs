@@ -98,8 +98,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectArmorBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectArmorStackArmorGain { get; set; }
 
-		public static ConfigEntry<float> AspectBannerBaseAttackSpeedGain { get; set; }
-		public static ConfigEntry<float> AspectBannerStackAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectBannerBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBannerStackDamageGain { get; set; }
+		public static ConfigEntry<bool> AspectBannerExtraJump { get; set; }
+		public static ConfigEntry<bool> AspectBannerTweaks { get; set; }
 
 		public static ConfigEntry<float> AspectImpaleDamageMult { get; set; }
 		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
@@ -115,10 +117,17 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectCycloneBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneBaseAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneStackAttackSpeedGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneBaseDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneStackDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectCycloneBlindDodgeEffect { get; set; }
 		public static ConfigEntry<bool> AspectCycloneTweaks { get; set; }
 
 		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectTinkerBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectTinkerStackDamageGain { get; set; }
 		public static ConfigEntry<bool> AspectTinkerTweaks { get; set; }
 		public static ConfigEntry<int> AspectTinkerMonsterLimit { get; set; }
 		public static ConfigEntry<float> AspectTinkerMonsterDamageMult { get; set; }
@@ -544,13 +553,21 @@ namespace TPDespair.ZetAspects
 
 
 
-			AspectBannerBaseAttackSpeedGain = Config.Bind(
-				"2bb-Banner Aspect", "bannerBaseAttackSpeedGained", 0.20f,
-				"Attack speed gained. Set to 0 to disable."
+			AspectBannerBaseDamageGain = Config.Bind(
+				"2bb-Banner Aspect", "bannerBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
 			);
-			AspectBannerStackAttackSpeedGain = Config.Bind(
-				"2bb-Banner Aspect", "bannerAddedAttackSpeedGained", 0.10f,
-				"Attack speed gained per stack."
+			AspectBannerStackDamageGain = Config.Bind(
+				"2bb-Banner Aspect", "bannerAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+			AspectBannerExtraJump = Config.Bind(
+				"2bb-Banner Aspect", "bannerExtraJump", false,
+				"Extra jump. Player Only"
+			);
+			AspectBannerTweaks = Config.Bind(
+				"2bb-Banner Aspect", "bannerTweaks", false,
+				"Prevents buffward type from changing. Will only provide warbanner buff."
 			);
 
 
@@ -609,6 +626,26 @@ namespace TPDespair.ZetAspects
 				"2be-Cyclone Aspect", "cycloneAddedMovementGained", 0.10f,
 				"Movement speed gained per stack."
 			);
+			AspectCycloneBaseAttackSpeedGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneBaseAttackSpeedGained", 0.20f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectCycloneStackAttackSpeedGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneAddedAttackSpeedGained", 0.10f,
+				"Attack speed gained per stack."
+			);
+			AspectCycloneBaseDodgeGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneBaseDodgeGained", 0.25f,
+				"Dodge chance gained. Set to 0 to disable."
+			);
+			AspectCycloneStackDodgeGain = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneAddedDodgeGained", 0.10f,
+				"Dodge chance gained per stack."
+			);
+			AspectCycloneBlindDodgeEffect = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneBlindDodgeEffect", 0.25f,
+				"Dodge chance effect from blind. Set to 0 to disable."
+			);
 			AspectCycloneTweaks = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneTweaks", false,
 				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect)."
@@ -623,6 +660,14 @@ namespace TPDespair.ZetAspects
 			AspectTinkerStackDamageResistGain = Config.Bind(
 				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
 				"Drone damage taken reduction per stack. Hyperbolic."
+			);
+			AspectTinkerBaseDamageGain = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerBaseDroneDamageGain", 0.20f,
+				"Drone damage gained. Set to 0 to disable."
+			);
+			AspectTinkerStackDamageGain = Config.Bind(
+				"2bf-Tinker Aspect", "tinkerAddedDroneDamageGain", 0.10f,
+				"Drone damage gained per stack."
 			);
 			AspectTinkerTweaks = Config.Bind(
 				"2bf-Tinker Aspect", "tinkerTweaks", false,
