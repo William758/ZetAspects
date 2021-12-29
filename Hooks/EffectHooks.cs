@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
+using RoR2.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -135,6 +138,8 @@ namespace TPDespair.ZetAspects
 
 		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
 
+		private static FieldInfo DamageInfoRejectedField;
+
 		internal const float BuffCycleDuration = 5f;
 		private static float FixedUpdateStopwatch = 0f;
 
@@ -166,6 +171,8 @@ namespace TPDespair.ZetAspects
 		{
 			OnDestroyHook();
 
+			DamageInfoRejectedField = typeof(DamageInfo).GetField("rejected");
+
 			FreezeHook();
 			PreventAspectChillHook();
 			OverloadingBombHook();
@@ -178,18 +185,27 @@ namespace TPDespair.ZetAspects
 			DamageTakenHook();
 			LifeGainOnHitHook();
 			HeadHunterBuffHook();
-			ModifyDot();
-			ModifyDeploySlot();
 			DotAmpHook();
 			OnHitEnemyHook();
-
 			FixTimedChillApplication();
+			ShieldRegenHook();
 
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
 			UpdateOnBuffLostHook();
 			RefreshAspectBuffsHook();
+		}
+
+		internal static void LateSetup(){
+			if (Catalog.EliteVariety.Enabled)
+			{
+				EffectManagerHook();
+				DodgeHook();
+
+				ModifyDot();
+				ModifyDeploySlot();
+			}
 		}
 
 
@@ -201,6 +217,157 @@ namespace TPDespair.ZetAspects
 				if (NetworkServer.active) DestroyedBodies.Add(self.netId, 3f);
 
 				orig(self);
+			};
+		}
+
+
+
+		private static void EffectManagerHook()
+		{
+			On.RoR2.EffectManager.SpawnEffect_EffectIndex_EffectData_bool += (orig, index, data, transmit) =>
+			{
+				if ((int)index == 1758001 && !transmit)
+				{
+					if (data.genericUInt == 1u)
+					{
+						CreateMissText(data);
+					}
+					else
+					{
+						Debug.LogWarning("ZetAspects - Unknown SpawnEffect : " + data.genericUInt);
+					}
+
+					return;
+				}
+
+				orig(index, data, transmit);
+			};
+		}
+
+		private static void CreateMissText(EffectData effectData)
+		{
+			EffectDef effectDef = Catalog.RejectTextDef;
+
+			if (effectDef == null) return;
+
+			if (!VFXBudget.CanAffordSpawn(effectDef.prefabVfxAttributes)) return;
+			if (effectDef.cullMethod != null && !effectDef.cullMethod(effectData)) return;
+
+			EffectData effectDataClone = effectData.Clone();
+			GameObject gameObject = UnityEngine.Object.Instantiate(effectDef.prefab, effectDataClone.origin, effectDataClone.rotation);
+			if (gameObject)
+			{
+				EffectComponent effectComponent = gameObject.GetComponent<EffectComponent>();
+				if (effectComponent)
+				{
+					effectComponent.effectData = effectDataClone.Clone();
+
+					Transform textTransform = effectComponent.transform.Find("TextMeshPro");
+					if (textTransform)
+					{
+						TextMeshPro textMesh = textTransform.GetComponent<TextMeshPro>();
+						if (textMesh)
+						{
+							LanguageTextMeshController controller = textMesh.gameObject.GetComponent<LanguageTextMeshController>();
+							if (controller)
+							{
+								controller.token = "MISS";
+								textMesh.text = "MISS";
+								textMesh.fontSize = 1.75f;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private static void DodgeHook()
+		{
+			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(1),
+					x => x.MatchLdfld<DamageInfo>("rejected"),
+					x => x.MatchBrtrue(out _),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<HealthComponent>("body"),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("BodyArmor"))
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<HealthComponent, DamageInfo, bool>>((hc, damageInfo) =>
+					{
+						bool rejected = damageInfo.rejected;
+
+						if (!rejected)
+						{
+							float effect = 0f;
+
+							if (damageInfo.attacker)
+							{
+								CharacterBody attackBody = damageInfo.attacker.GetComponent<CharacterBody>();
+								if (attackBody)
+								{
+									if (attackBody.teamComponent.teamIndex == TeamIndex.Player)
+									{
+										// attacker is player at close range (20m) : prevent victim from dodging
+										if ((attackBody.corePosition - damageInfo.position).sqrMagnitude < 400f) return rejected;
+									}
+
+									if (attackBody.HasBuff(Catalog.EliteVariety.blindBuffIndex) && Configuration.AspectCycloneBlindDodgeEffect.Value > 0f)
+									{
+										effect += Configuration.AspectCycloneBlindDodgeEffect.Value;
+									}
+								}
+							}
+
+							CharacterBody body = hc.body;
+
+							if (body && body.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm) && Configuration.AspectCycloneBaseDodgeGain.Value > 0f)
+							{
+								float count = ZetAspectsPlugin.GetStackMagnitude(body, Catalog.EliteVariety.Buffs.AffixSandstorm);
+								effect += Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (count - 1f);
+							}
+
+							if (effect > 0f)
+							{
+								effect = Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f);
+
+								if (body && body.teamComponent.teamIndex == TeamIndex.Player)
+								{
+									if (Catalog.diluvianArtifactIndex != ArtifactIndex.None)
+									{
+										RunArtifactManager artifactManager = RunArtifactManager.instance;
+										if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) effect *= 0.5f;
+									}
+								}
+
+								if (Util.CheckRoll(effect, 0f, null))
+								{
+									EffectManager.SpawnEffect((EffectIndex)1758001, new EffectData { genericUInt = 1u, origin = damageInfo.position }, true);
+
+									rejected = true;
+								}
+							}
+						}
+
+						return rejected;
+					});
+					c.Emit(OpCodes.Stfld, DamageInfoRejectedField);
+
+					c.Emit(OpCodes.Ldarg, 1);
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects : DodgeHook Failed");
+				}
 			};
 		}
 
@@ -667,7 +834,7 @@ namespace TPDespair.ZetAspects
 							damage *= 1f + extraDamage;
 						}
 
-						if (Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
+						if (Catalog.EliteVariety.Enabled && Configuration.AspectTinkerBaseDamageResistGain.Value > 0f)
 						{
 							CharacterMaster master = self.master;
 							if (master && IsValidDrone(master))
@@ -694,14 +861,14 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static bool IsValidDrone(CharacterMaster minionMaster)
+		internal static bool IsValidDrone(CharacterMaster minionMaster)
 		{
 			bool result = dronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
 			//Debug.LogWarning("Checking Master Name : " + minionMaster.name + " - " + result);
 			return result;
 		}
 
-		private static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
+		internal static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
 		{
 			MinionOwnership minionOwnership = minionMaster.minionOwnership;
 			if (!minionOwnership) return null;
@@ -1086,6 +1253,71 @@ namespace TPDespair.ZetAspects
 
 				float tickedDuration = rTicks * dotDef.interval + (dotDef.interval - 0.01f);
 				DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+			}
+		}
+
+
+
+		private static void ShieldRegenHook()
+		{
+			IL.RoR2.HealthComponent.ServerFixedUpdate += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchMul(),
+					x => x.MatchAdd(),
+					x => x.MatchStfld<HealthComponent>("regenAccumulator")
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<float, HealthComponent, float>>((regenAccumulator, healthComponent) =>
+					{
+						float toShield = 0f;
+						Inventory inventory = healthComponent.body.inventory;
+
+						if (healthComponent.body.HasBuff(RoR2Content.Buffs.AffixLunar)) toShield = Mathf.Max(toShield, Configuration.AspectLunarRegen.Value);
+						if (inventory && inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) toShield = Mathf.Max(toShield, Configuration.TranscendenceRegen.Value);
+
+						if (toShield <= 0f) return regenAccumulator;
+						if (healthComponent.shield >= healthComponent.fullShield) return regenAccumulator;
+
+						if (regenAccumulator > 1f)
+						{
+							float num = Mathf.Floor(regenAccumulator);
+							regenAccumulator -= num;
+							num *= toShield;
+							AddShieldToHealthComponent(healthComponent, num);
+						}
+
+						return regenAccumulator;
+					});
+				}
+				else
+				{
+					Debug.LogWarning("ZetAspects - Shield Regen Hook Failed");
+				}
+			};
+		}
+
+		private static void AddShieldToHealthComponent(HealthComponent healthComponent, float value)
+		{
+			if (!NetworkServer.active)
+			{
+				Debug.LogWarning("[Server] function 'System.Void ZetAspects::AddShieldToHealthComponent(ROR2.HealthComponent, System.Single)' called on client");
+				return;
+			}
+			if (!healthComponent.alive)
+			{
+				return;
+			}
+			if (healthComponent.shield < healthComponent.fullShield)
+			{
+				healthComponent.Networkshield = Mathf.Min(healthComponent.shield + value, healthComponent.fullShield);
 			}
 		}
 
