@@ -24,6 +24,11 @@ namespace TPDespair.ZetAspects
 
 
 		private static GameObject BossDropletPrefab;
+		internal static EffectDef RejectTextDef;
+
+
+
+		internal static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
 
 
 
@@ -122,6 +127,8 @@ namespace TPDespair.ZetAspects
 
 		private static void SetupCatalog()
 		{
+			EffectHooks.LateSetup();
+
 			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 2;
 			else if(PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1;
 
@@ -131,6 +138,12 @@ namespace TPDespair.ZetAspects
 
 			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
 			if (Configuration.RecolorImmuneHealth.Value) immuneHealth = true;
+
+			GameObject effectPrefab = Resources.Load<GameObject>("Prefabs/Effects/DamageRejected");
+			EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
+			RejectTextDef = EffectCatalog.GetEffectDef(effectIndex);
+
+			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 
 			RiskOfRain.Init();
 			EliteVariety.Init();
@@ -299,6 +312,7 @@ namespace TPDespair.ZetAspects
 			public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
 			public static DeployableSlot tinkerDeploySlot = DeployableSlot.EngiMine;
 			public static DotController.DotIndex impaleDotIndex = DotController.DotIndex.None;
+			public static BuffIndex blindBuffIndex = BuffIndex.None;
 
 			public static class Equipment
 			{
@@ -339,6 +353,7 @@ namespace TPDespair.ZetAspects
 					PopulateEquipment();
 					PopulateBuffs();
 					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
+					blindBuffIndex = BuffCatalog.FindBuffIndex("EliteVariety_SandstormBlind");
 
 					EliteVarietyHooks.LateSetup();
 
