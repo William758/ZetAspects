@@ -156,7 +156,7 @@ namespace TPDespair.ZetAspects
 			{
 				if (LostInTransitHooks.frenzyMSHook && LostInTransitHooks.frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
 				{
-					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>";
 					output += frenzyBaseMS * 100f + "%</style>";
 					if (frenzyStackMS != 0f)
 					{
@@ -187,7 +187,7 @@ namespace TPDespair.ZetAspects
 					{
 						if (frenzyBaseAS > 0f)
 						{
-							output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+							output += "\nIncreases <style=cIsDamage>attack speed</style> by <style=cIsDamage>";
 							output += frenzyBaseAS * 100f + "%</style>";
 							if (frenzyStackAS != 0f)
 							{
@@ -198,13 +198,13 @@ namespace TPDespair.ZetAspects
 					}
 					else
 					{
-						output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+						output += "\nIncreases <style=cIsDamage>attack speed</style> by <style=cIsDamage>100%</style>.";
 					}
 				}
 			}
 			else
 			{
-				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>100%</style>.";
 			}
 
 			if (LostInTransitHooks.frenzyCDRHook == 4)
@@ -245,7 +245,7 @@ namespace TPDespair.ZetAspects
 				if (LostInTransitHooks.frenzyMSHook && LostInTransitHooks.frenzyASHook && frenzyBaseMS == frenzyBaseAS && frenzyStackMS == frenzyStackAS)
 				{
 					value = frenzyBaseMS + frenzyStackMS * (stacks - 1f);
-					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>";
 					output += value * 100f + "%</style>.";
 				}
 				else
@@ -268,19 +268,19 @@ namespace TPDespair.ZetAspects
 						if (frenzyBaseAS > 0f)
 						{
 							value = frenzyBaseAS + frenzyStackAS * (stacks - 1f);
-							output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+							output += "\nIncreases <style=cIsDamage>attack speed</style> by <style=cIsDamage>";
 							output += value * 100f + "%</style>.";
 						}
 					}
 					else
 					{
-						output += "\nIncreases <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+						output += "\nIncreases <style=cIsDamage>attack speed</style> by <style=cIsDamage>100%</style>.";
 					}
 				}
 			}
 			else
 			{
-				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsUtility>attack speed</style> by <style=cIsUtility>100%</style>.";
+				output += "\nIncreases <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>100%</style>.";
 			}
 
 			if (LostInTransitHooks.frenzyCDRHook == 4)
