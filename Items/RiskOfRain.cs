@@ -405,6 +405,7 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
+			output += "\nEmit an aura that cloaks nearby allies.";
 			if (Configuration.AspectGhostSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
@@ -413,9 +414,9 @@ namespace TPDespair.ZetAspects
 			}
 			if (Configuration.AspectGhostShredDuration.Value > 0f)
 			{
-				output += "\nAttacks <style=cIsUtility>shred</style> on hit for ";
+				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
-				output += ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
 			}
 			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
@@ -442,6 +443,7 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
+			output += "\nEmit an aura that cloaks nearby allies.";
 			if (Configuration.AspectGhostSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
@@ -450,9 +452,9 @@ namespace TPDespair.ZetAspects
 			}
 			if (Configuration.AspectGhostShredDuration.Value > 0f)
 			{
-				output += "\nAttacks <style=cIsUtility>shred</style> on hit for ";
+				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
-				output += ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
 			}
 			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
@@ -527,11 +529,11 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			output += "\nAttacks <style=cIsUtility>nullify</style> on hit for ";
+			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
 			output += Language.SecondText(Configuration.AspectPoisonNullDuration.Value);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 			{
-				output += ", increasing <style=cIsUtility>damage taken</style> by <style=cIsUtility>";
+				output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
@@ -568,11 +570,11 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			output += "\nAttacks <style=cIsUtility>nullify</style> on hit for ";
+			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
 			output += Language.SecondText(Configuration.AspectPoisonNullDuration.Value);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 			{
-				output += ", increasing <style=cIsUtility>damage taken</style> by <style=cIsUtility>";
+				output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
@@ -650,9 +652,9 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically fire projectiles while in combat.";
 			}
-			output += "\nAttacks <style=cIsUtility>cripple</style> on hit for ";
+			output += "\nAttacks <style=cIsDamage>cripple</style> on hit for ";
 			output += Language.SecondText(Configuration.AspectLunarCrippleDuration.Value);
-			output += ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>20</style> and";
+			output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and";
 			output += " <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.";
 			if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
 			{
@@ -694,9 +696,9 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically fire projectiles while in combat.";
 			}
-			output += "\nAttacks <style=cIsUtility>cripple</style> on hit for ";
+			output += "\nAttacks <style=cIsDamage>cripple</style> on hit for ";
 			output += Language.SecondText(Configuration.AspectLunarCrippleDuration.Value);
-			output += ", reducing <style=cIsUtility>armor</style> by <style=cIsUtility>20</style> and";
+			output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and";
 			output += " <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.";
 			if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
 			{
