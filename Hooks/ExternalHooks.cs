@@ -29,6 +29,8 @@ namespace TPDespair.ZetAspects
 
 		private static MethodInfo TinkerScrapMethod;
 
+		private static MethodInfo BannerBoostMethod;
+
 		private static FieldInfo ImpaleDotIndexField;
 
 		private static FieldInfo BlindVisionRadiusField;
@@ -85,8 +87,16 @@ namespace TPDespair.ZetAspects
 			{
 				if (TinkerScrapMethod != null)
 				{
-					HookEndpointManager.Modify(TinkerScrapMethod, (ILContext.Manipulator)TinkerScrapHook);
+					HookEndpointManager.Modify(TinkerScrapMethod, (ILContext.Manipulator)GenericReturnHook);
 					tinkerStealHook = true;
+				}
+			}
+
+			if (Configuration.AspectBannerTweaks.Value)
+			{
+				if (BannerBoostMethod != null)
+				{
+					HookEndpointManager.Modify(BannerBoostMethod, (ILContext.Manipulator)GenericReturnHook);
 				}
 			}
 		}
@@ -206,6 +216,17 @@ namespace TPDespair.ZetAspects
 			else
 			{
 				Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : EliteVariety.Buffs.AffixTinkerer");
+			}
+
+			type = Type.GetType("EliteVariety.Buffs.AffixBuffing, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				BannerBoostMethod = type.GetMethod("GenericGameEvents_OnHitEnemy", Flags);
+				if (BannerBoostMethod == null) Debug.LogWarning("ZetAspect [EV] - Could Not Find Method : AffixBuffing.GenericGameEvents_OnHitEnemy");
+			}
+			else
+			{
+				Debug.LogWarning("ZetAspect [EV] - Could Not Find Type : EliteVariety.Buffs.AffixBuffing");
 			}
 		}
 
@@ -371,7 +392,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		private static void TinkerScrapHook(ILContext il)
+		private static void GenericReturnHook(ILContext il)
 		{
 			ILCursor c = new ILCursor(il);
 
