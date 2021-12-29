@@ -3,7 +3,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace TPDespair.ZetAspects
 {
@@ -23,7 +22,6 @@ namespace TPDespair.ZetAspects
 
 			OverloadingShieldConversionHook();
 			FullShieldConversionHook();
-			ShieldRegenHook();
 		}
 
 
@@ -117,9 +115,11 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, 8);
 					c.EmitDelegate<Func<CharacterBody, int, int>>((self, value) =>
 					{
-						if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedExtraJump.Value)
+						if (self.teamComponent.teamIndex == TeamIndex.Player)
 						{
-							if (self.teamComponent.teamIndex == TeamIndex.Player) value++;
+							if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedExtraJump.Value) value++;
+
+							if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixBuffing) && Configuration.AspectBannerExtraJump.Value) value++;
 						}
 
 						return value;
@@ -156,6 +156,24 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(ZetAspectsContent.Buffs.ZetHeadHunter))
 						{
 							value += Configuration.HeadHunterBuffDamage.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
+						}
+						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixBuffing) && Configuration.AspectBannerBaseDamageGain.Value > 0f)
+						{
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixBuffing);
+							value += Configuration.AspectBannerBaseDamageGain.Value + Configuration.AspectBannerStackDamageGain.Value * (count - 1f);
+						}
+						if (Catalog.EliteVariety.Enabled && Configuration.AspectTinkerBaseDamageGain.Value > 0f)
+						{
+							CharacterMaster master = self.master;
+							if (master && EffectHooks.IsValidDrone(master))
+							{
+								CharacterBody ownerBody = EffectHooks.GetMinionOwnerBody(master);
+								if (ownerBody && ownerBody.HasBuff(Catalog.EliteVariety.Buffs.AffixTinkerer))
+								{
+									float count = ZetAspectsPlugin.GetStackMagnitude(ownerBody, Catalog.EliteVariety.Buffs.AffixTinkerer);
+									value += Configuration.AspectTinkerBaseDamageGain.Value + Configuration.AspectTinkerStackDamageGain.Value * (count - 1f);
+								}
+							}
 						}
 						if (LostInTransitHooks.blightStatControl && self.HasBuff(Catalog.LostInTransit.Buffs.AffixBlighted) && Configuration.AspectBlightedBaseDamageGain.Value > 0f)
 						{
@@ -384,10 +402,10 @@ namespace TPDespair.ZetAspects
 						{
 							value += Configuration.HeadHunterBuffAttackSpeed.Value * self.GetBuffCount(ZetAspectsContent.Buffs.ZetHeadHunter);
 						}
-						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixBuffing) && Configuration.AspectBannerBaseAttackSpeedGain.Value > 0f)
+						if (self.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm) && Configuration.AspectCycloneBaseAttackSpeedGain.Value > 0f)
 						{
-							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixBuffing);
-							value += Configuration.AspectBannerBaseAttackSpeedGain.Value + Configuration.AspectBannerStackAttackSpeedGain.Value * (count - 1f);
+							float count = ZetAspectsPlugin.GetStackMagnitude(self, Catalog.EliteVariety.Buffs.AffixSandstorm);
+							value += Configuration.AspectCycloneBaseAttackSpeedGain.Value + Configuration.AspectCycloneStackAttackSpeedGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -470,10 +488,14 @@ namespace TPDespair.ZetAspects
 									float itemScore = 0f;
 
 									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
-									itemScore += 3 * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
-									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
-									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
-									itemScore += 9 * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+									itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+
+									float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+									if (ZetAspectsPlugin.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+									if (ZetAspectsPlugin.ItemizeEliteEquipment(inventory.alternateEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
 
 									itemScore *= Configuration.AspectGoldenItemScoreFactor.Value;
 									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldenItemScoreExponent.Value);
@@ -574,69 +596,6 @@ namespace TPDespair.ZetAspects
 					Debug.LogWarning("ZetAspects - Full Shield Conversion Hook Failed");
 				}
 			};
-		}
-
-		private static void ShieldRegenHook()
-		{
-			IL.RoR2.HealthComponent.ServerFixedUpdate += (il) =>
-			{
-				ILCursor c = new ILCursor(il);
-
-				bool found = c.TryGotoNext(
-					x => x.MatchMul(),
-					x => x.MatchAdd(),
-					x => x.MatchStfld<HealthComponent>("regenAccumulator")
-				);
-
-				if (found)
-				{
-					c.Index += 2;
-
-					c.Emit(OpCodes.Ldarg, 0);
-					c.EmitDelegate<Func<float, HealthComponent, float>>((regenAccumulator, healthComponent) =>
-					{
-						float toShield = 0f;
-						Inventory inventory = healthComponent.body.inventory;
-
-						if (healthComponent.body.HasBuff(RoR2Content.Buffs.AffixLunar)) toShield = Mathf.Max(toShield, Configuration.AspectLunarRegen.Value);
-						if (inventory && inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) toShield = Mathf.Max(toShield, Configuration.TranscendenceRegen.Value);
-
-						if (toShield <= 0f) return regenAccumulator;
-						if (healthComponent.shield >= healthComponent.fullShield) return regenAccumulator;
-
-						if (regenAccumulator > 1f)
-						{
-							float num = Mathf.Floor(regenAccumulator);
-							regenAccumulator -= num;
-							num *= toShield;
-							AddShieldToHealthComponent(healthComponent, num);
-						}
-
-						return regenAccumulator;
-					});
-				}
-				else
-				{
-					Debug.LogWarning("ZetAspects - Shield Regen Hook Failed");
-				}
-			};
-		}
-
-		private static void AddShieldToHealthComponent(HealthComponent healthComponent, float value)
-		{
-			if (!NetworkServer.active)
-			{
-				Debug.LogWarning("[Server] function 'System.Void ZetAspects::AddShieldToHealthComponent(ROR2.HealthComponent, System.Single)' called on client");
-				return;
-			}
-			if (!healthComponent.alive)
-			{
-				return;
-			}
-			if (healthComponent.shield < healthComponent.fullShield)
-			{
-				healthComponent.Networkshield = Mathf.Min(healthComponent.shield + value, healthComponent.fullShield);
-			}
 		}
 	}
 }
