@@ -70,7 +70,7 @@ namespace TPDespair.ZetAspects
 			}
 			if (Configuration.AspectSanguineBaseDotAmp.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsUtility>damage over time multiplier</style> by <style=cIsUtility>";
+				output += "\nIncreases <style=cIsDamage>damage over time multiplier</style> by <style=cIsDamage>";
 				output += Configuration.AspectSanguineBaseDotAmp.Value * 100f + "%</style>";
 				if (Configuration.AspectSanguineStackDotAmp.Value != 0f)
 				{
@@ -105,7 +105,7 @@ namespace TPDespair.ZetAspects
 			if (Configuration.AspectSanguineBaseDotAmp.Value > 0f)
 			{
 				value = Configuration.AspectSanguineBaseDotAmp.Value + Configuration.AspectSanguineStackDotAmp.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsUtility>damage over time multiplier</style> by <style=cIsUtility>";
+				output += "\nIncreases <style=cIsDamage>damage over time multiplier</style> by <style=cIsDamage>";
 				output += value * 100f + "%</style>.";
 			}
 
