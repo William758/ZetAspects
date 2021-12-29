@@ -1,6 +1,8 @@
 # ZetAspects
 
-Drop Rate from Killed Elites changed to 1 in 500, Halving every time one drops in a run. 
+Drop Rate from Killed Elites changed to 1 in 500.
+
+Drop chance is halved every time one drops in a run (0.2% -> 0.1%).
 
 Changes the Elite Aspects into scalable Drop Only Boss Tier Items.
 
@@ -14,15 +16,15 @@ Clicking the Equipment icon at the bottom-right of the screen will Convert it in
 
 Now lasts for 20 (+10 per stack) seconds and also gives a buff to stats on killing elites.
 
-Amplifies the effect of aspects.
-
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/COYuGlr.png)
+![effects](https://i.imgur.com/UJejZyv.png)
 
 ## Elite Variety Aspect Effects:
 
 Impale Dot Damage : Damage multiplied by x0.75 to counteract effect of aspect DotAmp.
+
+bannerTweaks (disabled by default) : Aura will only provide warbanner buff and not warcry buff.
 
 impaleTweaks (disabled by default) : Scale impale damage and duration based on ambient level. No effect at lvl 90.
 
@@ -30,7 +32,7 @@ cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s ->
 
 tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts and increase health and damage(configurable).
 
-![effects](https://i.imgur.com/s30Qvh5.png)
+![effects](https://i.imgur.com/g82PmCo.png)
 
 ## Lost In Transit Effects:
 
@@ -38,11 +40,11 @@ Effect of Guttural Whimpers and Primordial Rage for monsters is multiplied by x5
 
 Effect of Betrayal of the Bulwark for monsters is multiplied by x5 for damage and cooldowns. Health multiplier is x10.
 
-![effects](https://i.imgur.com/CHrYGzw.png)
+![effects](https://i.imgur.com/7EHZtrm.png)
 
 ## Aetherium Aspect Effects:
 
-![effects](https://i.imgur.com/ZMnu7xk.png)
+![effects](https://i.imgur.com/RifeVeV.png)
 
 ## Installation:
 
@@ -51,6 +53,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.6.2 - Adjust some EliteVariety effects. Added bannerTweaks. Added dodge effect to Sandstorm Elite. Change some aspect descriptions.
 
 v2.6.1 - TinkerTweaks allows configuring drone count and stats. Change color of elite equipment droplets. Added server checks to blight manager. Change some health bar colors.
 
