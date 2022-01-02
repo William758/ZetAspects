@@ -37,6 +37,7 @@ namespace TPDespair.ZetAspects
 			OnTransmuteManagerInit();
 			OnRuleCatalogInit();
 			OnLogBookInit();
+			OnUserProfilesInit();
 			OnMainMenuEnter();
 		}
 
@@ -99,6 +100,23 @@ namespace TPDespair.ZetAspects
 				catch (Exception ex)
 				{
 					Debug.Log("Failed To Setup ZetAspects Catalog!");
+					Debug.LogError(ex);
+				}
+
+				orig();
+			};
+		}
+
+		private static void OnUserProfilesInit()
+		{
+			On.RoR2.UserProfile.LoadUserProfiles += (orig) =>
+			{
+				try
+				{
+					FinalizeLogbookEntries();
+				}
+				catch (Exception ex)
+				{
 					Debug.LogError(ex);
 				}
 
@@ -178,6 +196,15 @@ namespace TPDespair.ZetAspects
 			Debug.LogWarning("ZetAspects ItemObtainable : " + DropHooks.CanObtainItem());
 			Debug.LogWarning("ZetAspects EquipObtainable : " + DropHooks.CanObtainEquipment());
 
+			FinalizeLogbookEntries();
+
+			Debug.LogWarning("ZetAspects Catalog - Reset Entries");
+
+			menu = true;
+		}
+
+		private static void FinalizeLogbookEntries()
+		{
 			RiskOfRain.ItemEntries(true);
 			RiskOfRain.EquipmentEntries(false);
 
@@ -196,10 +223,6 @@ namespace TPDespair.ZetAspects
 				Aetherium.ItemEntries(true);
 				Aetherium.EquipmentEntries(false);
 			}
-
-			Debug.LogWarning("ZetAspects Catalog - Reset Entries");
-
-			menu = true;
 		}
 
 
@@ -628,7 +651,11 @@ namespace TPDespair.ZetAspects
 			{
 				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
 
-				if (!LostInTransitHooks.blightBuffControl) DeactivateItem(ZetAspectsContent.Items.ZetAspectBlighted);
+				if (!LostInTransitHooks.blightBuffControl)
+				{
+					Debug.LogWarning(ZetAspectsContent.Items.ZetAspectBlighted.name + " : Could not control the blight!!!");
+					DeactivateItem(ZetAspectsContent.Items.ZetAspectBlighted);
+				}
 
 				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectLeeching, ref Equipment.AffixLeeching, ref Buffs.AffixLeeching, state);
 				DisableInactiveItem(ZetAspectsContent.Items.ZetAspectFrenzied, ref Equipment.AffixFrenzied, ref Buffs.AffixFrenzied, state);
@@ -886,6 +913,14 @@ namespace TPDespair.ZetAspects
 			if (disabledItemDefs.Contains(itemDef)) return;
 
 			Debug.LogWarning("ZetAspects - Deactivating : " + itemDef.name);
+
+			if (itemDef.tier == ItemTier.Tier3)
+			{
+				if (ItemCatalog.tier3ItemList.Contains(itemDef.itemIndex))
+				{
+					ItemCatalog.tier3ItemList.Remove(itemDef.itemIndex);
+				}
+			}
 
 			itemDef.tier = ItemTier.NoTier;
 			itemDef.hidden = true;
