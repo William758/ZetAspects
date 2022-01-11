@@ -414,7 +414,8 @@ namespace TPDespair.ZetAspects
 			output += "\nAttacks <style=cIsUtility>blind</style> on hit";
 			if (Configuration.AspectCycloneBlindDodgeEffect.Value > 0f)
 			{
-				output += ", reducing visibility and hit-chance.";
+				output += ", reducing <style=cIsHealing>hit-chance</style> by <style=cIsHealing>";
+				output += Configuration.AspectCycloneBlindDodgeEffect.Value * 100f + "%</style>.";
 			}
 			else
 			{
@@ -429,7 +430,9 @@ namespace TPDespair.ZetAspects
 				{
 					output += " " + Language.StackText(Configuration.AspectCycloneStackDodgeGain.Value * 100f, "", "%");
 				}
-				output += " chance to <style=cIsHealing>dodge</style> incoming damage. <style=cIsUtility>Unaffected by luck</style>.";
+				output += " chance to <style=cIsHealing>dodge</style> incoming damage";
+				if (Configuration.AspectCycloneDodgeBlindOnly.Value) output += " against <style=cIsUtility>blinded</style> enemies";
+				output += ". <style=cIsUtility>Unaffected by luck</style>.";
 			}
 
 			float cycloneBaseMS = Configuration.AspectCycloneBaseMovementGain.Value;
@@ -484,7 +487,8 @@ namespace TPDespair.ZetAspects
 			output += "\nAttacks <style=cIsUtility>blind</style> on hit";
 			if (Configuration.AspectCycloneBlindDodgeEffect.Value > 0f)
 			{
-				output += ", reducing visibility and hit-chance.";
+				output += ", reducing <style=cIsHealing>hit-chance</style> by <style=cIsHealing>";
+				output += Configuration.AspectCycloneBlindDodgeEffect.Value * 100f + "%</style>.";
 			}
 			else
 			{
@@ -495,7 +499,9 @@ namespace TPDespair.ZetAspects
 			{
 				value = Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (stacks - 1f);
 				output += "\n<style=cIsHealing>" + value * 100f + "%</style>";
-				output += " chance to <style=cIsHealing>dodge</style> incoming damage. <style=cIsUtility>Unaffected by luck</style>.";
+				output += " chance to <style=cIsHealing>dodge</style> incoming damage";
+				if (Configuration.AspectCycloneDodgeBlindOnly.Value) output += " against <style=cIsUtility>blinded</style> enemies";
+				output += ". <style=cIsUtility>Unaffected by luck</style>.";
 			}
 
 			float cycloneBaseMS = Configuration.AspectCycloneBaseMovementGain.Value;
