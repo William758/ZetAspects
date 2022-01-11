@@ -304,43 +304,61 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Func<HealthComponent, DamageInfo, bool>>((hc, damageInfo) =>
 					{
-						bool rejected = damageInfo.rejected;
+						if (damageInfo.rejected) return true;
+						
+						float effect = 0f;
+						float rangeMult = 1f;
+						bool attackerBlind = false;
 
-						if (!rejected)
+						if (damageInfo.attacker)
 						{
-							float effect = 0f;
-
-							if (damageInfo.attacker)
+							CharacterBody attackBody = damageInfo.attacker.GetComponent<CharacterBody>();
+							if (attackBody)
 							{
-								CharacterBody attackBody = damageInfo.attacker.GetComponent<CharacterBody>();
-								if (attackBody)
+								// attacker is player at close range
+								if (Configuration.AspectCycloneDodgeNegate.Value && attackBody.teamComponent.teamIndex == TeamIndex.Player)
 								{
-									if (attackBody.teamComponent.teamIndex == TeamIndex.Player)
-									{
-										// attacker is player at close range (20m) : prevent victim from dodging
-										if ((attackBody.corePosition - damageInfo.position).sqrMagnitude < 400f) return rejected;
-									}
+									rangeMult = (attackBody.corePosition - damageInfo.position).sqrMagnitude;
 
-									if (attackBody.HasBuff(Catalog.EliteVariety.blindBuffIndex) && Configuration.AspectCycloneBlindDodgeEffect.Value > 0f)
-									{
-										effect += Configuration.AspectCycloneBlindDodgeEffect.Value;
-									}
+									if (rangeMult < 400f) return false;
+
+									if (rangeMult < 900f) rangeMult = 0.5f;
+									else rangeMult = 1f;
+								}
+
+								if (attackBody.HasBuff(Catalog.EliteVariety.blindBuffIndex))
+								{
+									attackerBlind = true;
+
+									if (Configuration.AspectCycloneBlindDodgeEffect.Value > 0f) effect += Configuration.AspectCycloneBlindDodgeEffect.Value;
 								}
 							}
+						}
 
-							CharacterBody body = hc.body;
+						CharacterBody body = hc.body;
 
-							if (body && body.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm) && Configuration.AspectCycloneBaseDodgeGain.Value > 0f)
+						if (Configuration.AspectCycloneBaseDodgeGain.Value > 0f)
+						{
+							if (!Configuration.AspectCycloneDodgeBlindOnly.Value || attackerBlind)
 							{
-								float count = ZetAspectsPlugin.GetStackMagnitude(body, Catalog.EliteVariety.Buffs.AffixSandstorm);
-								effect += Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (count - 1f);
+								if (body && body.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm))
+								{
+                                    float count = ZetAspectsPlugin.GetStackMagnitude(body, Catalog.EliteVariety.Buffs.AffixSandstorm);
+									effect += Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (count - 1f);
+								}
 							}
+						}
 
-							if (effect > 0f)
+						if (effect > 0f)
+						{
+							effect = Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f);
+							effect *= rangeMult;
+
+							if (body)
 							{
-								effect = Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f);
+								if (body.bodyIndex == Catalog.RiskOfRain.mithrixBodyIndex) effect *= 0.5f;
 
-								if (body && body.teamComponent.teamIndex == TeamIndex.Player)
+								if (body.teamComponent.teamIndex == TeamIndex.Player)
 								{
 									if (Catalog.diluvianArtifactIndex != ArtifactIndex.None)
 									{
@@ -348,17 +366,17 @@ namespace TPDespair.ZetAspects
 										if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) effect *= 0.5f;
 									}
 								}
+							}
 
-								if (Util.CheckRoll(effect, 0f, null))
-								{
-									EffectManager.SpawnEffect((EffectIndex)1758001, new EffectData { genericUInt = 1u, origin = damageInfo.position }, true);
+							if (Util.CheckRoll(effect, 0f, null))
+							{
+								EffectManager.SpawnEffect((EffectIndex)1758001, new EffectData { genericUInt = 1u, origin = damageInfo.position }, true);
 
-									rejected = true;
-								}
+								return true;
 							}
 						}
 
-						return rejected;
+						return false;
 					});
 					c.Emit(OpCodes.Stfld, DamageInfoRejectedField);
 
@@ -401,7 +419,7 @@ namespace TPDespair.ZetAspects
 						CharacterBody victim = damageReport.victimBody;
 
 						if (attacker == null) return;
-						if (victim && victim.baseNameToken == "BROTHER_BODY_NAME") return;
+						if (victim && victim.bodyIndex == Catalog.RiskOfRain.mithrixBodyIndex) return;
 						if (!attacker.HasBuff(RoR2Content.Buffs.AffixWhite) || Configuration.AspectWhiteBaseFreezeChance.Value <= 0f) return;
 						if (!state.canBeFrozen || attacker.teamComponent.teamIndex != TeamIndex.Player || damageReport.damageInfo.procCoefficient < 0.105f) return;
 
