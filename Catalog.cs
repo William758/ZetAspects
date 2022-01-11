@@ -113,7 +113,7 @@ namespace TPDespair.ZetAspects
 			{
 				try
 				{
-					FinalizeLogbookEntries();
+					FinalizeEntryStates();
 				}
 				catch (Exception ex)
 				{
@@ -196,14 +196,14 @@ namespace TPDespair.ZetAspects
 			Debug.LogWarning("ZetAspects ItemObtainable : " + DropHooks.CanObtainItem());
 			Debug.LogWarning("ZetAspects EquipObtainable : " + DropHooks.CanObtainEquipment());
 
-			FinalizeLogbookEntries();
+			FinalizeEntryStates();
 
 			Debug.LogWarning("ZetAspects Catalog - Reset Entries");
 
 			menu = true;
 		}
 
-		private static void FinalizeLogbookEntries()
+		private static void FinalizeEntryStates()
 		{
 			RiskOfRain.ItemEntries(true);
 			RiskOfRain.EquipmentEntries(false);
@@ -233,6 +233,10 @@ namespace TPDespair.ZetAspects
 
 
 
+			public static BodyIndex mithrixBodyIndex = BodyIndex.None;
+
+
+
 			internal static void PreInit()
 			{
 				ApplyEquipmentIcons();
@@ -240,6 +244,8 @@ namespace TPDespair.ZetAspects
 
 			internal static void Init()
 			{
+				mithrixBodyIndex = BodyCatalog.FindBodyIndex("BrotherBody");
+
 				SetupText();
 				ItemEntries(DropHooks.CanObtainItem());
 
