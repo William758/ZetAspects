@@ -119,6 +119,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneBaseAttackSpeedGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneStackAttackSpeedGain { get; set; }
+		public static ConfigEntry<bool> AspectCycloneDodgeBlindOnly { get; set; }
+		public static ConfigEntry<bool> AspectCycloneDodgeNegate { get; set; }
 		public static ConfigEntry<float> AspectCycloneBaseDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneStackDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneBlindDodgeEffect { get; set; }
@@ -633,6 +635,14 @@ namespace TPDespair.ZetAspects
 			AspectCycloneStackAttackSpeedGain = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneAddedAttackSpeedGained", 0.10f,
 				"Attack speed gained per stack."
+			);
+			AspectCycloneDodgeBlindOnly = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneDodgeBlindOnly", false,
+				"Aspect dodge effect only works against blinded enemies."
+			);
+			AspectCycloneDodgeNegate = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneDodgeNegate", true,
+				"Monster dodge chance is ignored if player is near target."
 			);
 			AspectCycloneBaseDodgeGain = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneBaseDodgeGained", 0.25f,
