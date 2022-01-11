@@ -54,6 +54,10 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.6.4 - Added blind dodge effect value to Sandstorm Elite description. Configs to change when dodge effect is applicable.
+
+v2.6.3 - Fix disabled red items breaking ItemDropList menu.
+
 v2.6.2 - Adjust some EliteVariety effects. Added bannerTweaks. Added dodge effect to Sandstorm Elite. Change some aspect descriptions.
 
 v2.6.1 - TinkerTweaks allows configuring drone count and stats. Change color of elite equipment droplets. Added server checks to blight manager. Change some health bar colors.
