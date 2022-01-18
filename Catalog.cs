@@ -13,6 +13,8 @@ namespace TPDespair.ZetAspects
 		public static List<ItemDef> disabledItemDefs = new List<ItemDef>();
 		public static List<ItemIndex> disabledItemIndexes = new List<ItemIndex>();
 
+		public static List<ItemIndex> aspectItemIndexes = new List<ItemIndex>();
+
 		public static int barrierDecayMode = 0;
 		public static bool limitChillStacks = false;
 		public static bool borboFrostBlade = false;
@@ -29,6 +31,7 @@ namespace TPDespair.ZetAspects
 
 
 		internal static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
+		internal static BuffIndex altSlow80 = BuffIndex.None;
 
 
 
@@ -47,6 +50,7 @@ namespace TPDespair.ZetAspects
 			{
 				try
 				{
+					// disable item if equipment not found else set equipment icon
 					RiskOfRain.PreInit();
 					EliteVariety.PreInit();
 					LostInTransit.PreInit();
@@ -67,18 +71,11 @@ namespace TPDespair.ZetAspects
 			{
 				try
 				{
+					// disable item if equipment not found else set equipment icon
 					RiskOfRain.PreInit();
 					EliteVariety.PreInit();
 					LostInTransit.PreInit();
 					Aetherium.PreInit();
-
-					if (Configuration.AspectWorldUnique.Value)
-					{
-						RiskOfRain.ItemEntries(false);
-						if (EliteVariety.Enabled) EliteVariety.ItemEntries(false);
-						if (LostInTransit.Enabled) LostInTransit.ItemEntries(false);
-						if (Aetherium.Enabled) Aetherium.ItemEntries(false);
-					}
 				}
 				catch (Exception ex)
 				{
@@ -147,8 +144,10 @@ namespace TPDespair.ZetAspects
 		{
 			EffectHooks.LateSetup();
 
-			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 2;
-			else if(PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1;
+			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats
+			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 1; // character fixedupdate
+			else if (PluginLoaded("com.RiskyLives.RiskyMod")) barrierDecayMode = 1; // server fixedupdate override
+			else if (PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1; // server fixedupdate override
 
 			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
 			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
@@ -162,20 +161,23 @@ namespace TPDespair.ZetAspects
 			RejectTextDef = EffectCatalog.GetEffectDef(effectIndex);
 
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
+			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
+
+			EliteReworksCompat.LateSetup();
 
 			RiskOfRain.Init();
 			EliteVariety.Init();
 			LostInTransit.Init();
 			Aetherium.Init();
 
-			HandleDisabledItems();
+			RuleCatalogExcludeItemChoices();
 
 			Debug.LogWarning("ZetAspects Catalog - Setup Complete");
 
 			set = true;
 		}
 
-		private static void HandleDisabledItems()
+		private static void RuleCatalogExcludeItemChoices()
 		{
 			foreach (RuleDef ruleDef in RuleCatalog.allRuleDefs)
 			{
@@ -183,9 +185,17 @@ namespace TPDespair.ZetAspects
 				{
 					ItemIndex itemIndex = ruleDef.choices[0].itemIndex;
 
-					if (itemIndex != ItemIndex.None && disabledItemIndexes.Contains(itemIndex))
+					if (itemIndex != ItemIndex.None)
 					{
-						foreach (RuleChoiceDef ruleDefChoice in ruleDef.choices) ruleDefChoice.excludeByDefault = true;
+						if (disabledItemIndexes.Contains(itemIndex) || (Configuration.AspectWorldUnique.Value && aspectItemIndexes.Contains(itemIndex)))
+						{
+							foreach (RuleChoiceDef ruleDefChoice in ruleDef.choices)
+							{
+								ruleDefChoice.excludeByDefault = true;
+							}
+
+							Debug.LogWarning("ZetAspects Catalog - Hiding RuleCatalog Entry For : " + ItemCatalog.GetItemDef(itemIndex).nameToken);
+						}
 					}
 				}
 			}
@@ -193,16 +203,29 @@ namespace TPDespair.ZetAspects
 
 		private static void FirstMenuVisit()
 		{
-			Debug.LogWarning("ZetAspects ItemObtainable : " + DropHooks.CanObtainItem());
-			Debug.LogWarning("ZetAspects EquipObtainable : " + DropHooks.CanObtainEquipment());
+			bool obtainEquip = DropHooks.CanObtainEquipment();
+			Debug.LogWarning("ZetAspects EquipObtainable : " + obtainEquip);
+
+			bool obtainItems = DropHooks.CanObtainItem();
+			Debug.LogWarning("ZetAspects ItemObtainable : " + obtainItems);
+			
+			bool convertEquip = Configuration.AspectEquipmentConversion.Value;
+			bool absorbEquip = Configuration.AspectEquipmentAbsorb.Value;
+			string msg = "ZetAspects EquipConvert : " + (convertEquip || absorbEquip);
+			if (convertEquip) msg += " [Click]";
+			if (absorbEquip) msg += " [Absorb]";
+			Debug.LogWarning(msg);
+
+			Debug.LogWarning("ZetAspects ItemWorldUnique : " + Configuration.AspectWorldUnique.Value);
 
 			FinalizeEntryStates();
 
-			Debug.LogWarning("ZetAspects Catalog - Reset Entries");
+			Debug.LogWarning("ZetAspects Catalog - Finalize Entries");
 
 			menu = true;
 		}
 
+		// set items to their actual tier if not disabled and sets equipment canDrop to false
 		private static void FinalizeEntryStates()
 		{
 			RiskOfRain.ItemEntries(true);
@@ -384,7 +407,7 @@ namespace TPDespair.ZetAspects
 					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
 					blindBuffIndex = BuffCatalog.FindBuffIndex("EliteVariety_SandstormBlind");
 
-					EliteVarietyHooks.LateSetup();
+					EliteVarietyCompat.LateSetup();
 
 					DisableInactiveItems();
 					SetupText();
@@ -657,7 +680,7 @@ namespace TPDespair.ZetAspects
 			{
 				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
 
-				if (!LostInTransitHooks.blightBuffControl)
+				if (!LostInTransitCompat.blightBuffControl)
 				{
 					Debug.LogWarning(ZetAspectsContent.Items.ZetAspectBlighted.name + " : Could not control the blight!!!");
 					DeactivateItem(ZetAspectsContent.Items.ZetAspectBlighted);
@@ -949,6 +972,11 @@ namespace TPDespair.ZetAspects
 
 		private static void SetItemState(ItemDef itemDef, bool shown)
 		{
+			if (!aspectItemIndexes.Contains(itemDef.itemIndex))
+			{
+				aspectItemIndexes.Add(itemDef.itemIndex);
+			}
+
 			if (itemDef && !itemDef.hidden)
 			{
 				if (!shown) itemDef.tier = ItemTier.NoTier;
