@@ -54,6 +54,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.6.5 - Aspect Descriptions reflect changes made by EliteReworks.
+
 v2.6.4 - Added blind dodge effect value to Sandstorm Elite description. Configs to change when dodge effect is applicable.
 
 v2.6.3 - Fix disabled red items breaking ItemDropList menu.
