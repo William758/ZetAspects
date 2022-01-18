@@ -22,7 +22,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.6.4";
+		public const string ModVer = "2.6.5";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -47,9 +47,9 @@ namespace TPDespair.ZetAspects
 			DropHooks.Init();
 			DisplayHooks.Init();
 
-			if (Catalog.LostInTransit.Enabled) LostInTransitHooks.Init();
-			if (Catalog.Aetherium.Enabled) AetheriumHooks.Init();
-			if (Catalog.EliteVariety.Enabled) EliteVarietyHooks.Init();
+			if (Catalog.LostInTransit.Enabled) LostInTransitCompat.Init();
+			if (Catalog.Aetherium.Enabled) AetheriumCompat.Init();
+			if (Catalog.EliteVariety.Enabled) EliteVarietyCompat.Init();
 
 			Language.Override();
 			ChangeText();
