@@ -125,6 +125,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectCycloneStackDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectCycloneBlindDodgeEffect { get; set; }
 		public static ConfigEntry<bool> AspectCycloneTweaks { get; set; }
+		public static ConfigEntry<float> AspectCycloneProc { get; set; }
 
 		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
 		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
@@ -658,7 +659,11 @@ namespace TPDespair.ZetAspects
 			);
 			AspectCycloneTweaks = Config.Bind(
 				"2be-Cyclone Aspect", "cycloneTweaks", false,
-				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect)."
+				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect). Allows changing ProcCoeff."
+			);
+			AspectCycloneProc = Config.Bind(
+				"2be-Cyclone Aspect", "cycloneSandstormProc", 0f,
+				"Sandstorm ProcCoefficient. Original value is 0.25"
 			);
 
 
