@@ -158,6 +158,10 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
+			if (EliteReworksCompat.affixBlueEnabled)
+			{
+				output += "\nDrop scatter bombs passively and from attacks.";
+			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -165,11 +169,14 @@ namespace TPDespair.ZetAspects
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (Configuration.AspectBlueHealthConverted.Value > 0f)
+			if (!EliteReworksCompat.affixBlueShield)
 			{
-				output += "\nConvert <style=cIsHealing>";
-				output += Configuration.AspectBlueHealthConverted.Value * 100f;
-				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				if (Configuration.AspectBlueHealthConverted.Value > 0f)
+				{
+					output += "\nConvert <style=cIsHealing>";
+					output += Configuration.AspectBlueHealthConverted.Value * 100f;
+					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				}
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -181,16 +188,23 @@ namespace TPDespair.ZetAspects
 				}
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (Configuration.AspectBlueBaseDamage.Value > 0f)
+			if (EffectHooks.preventedDefaultOverloadingBomb || EliteReworksCompat.affixBlueEnabled)
 			{
-				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-				output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
-				if (Configuration.AspectBlueStackDamage.Value != 0f)
+				if (Configuration.AspectBlueBaseDamage.Value > 0f)
 				{
-					output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
+					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
+					output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
+					if (Configuration.AspectBlueStackDamage.Value != 0f)
+					{
+						output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
+					}
+					output += " TOTAL damage after ";
+					output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
 				}
-				output += " TOTAL damage after ";
-				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
+			}
+			else
+			{
+				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
 			}
 
 			return output;
@@ -201,6 +215,10 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
+			if (EliteReworksCompat.affixBlueEnabled)
+			{
+				output += "\nDrop scatter bombs passively and from attacks.";
+			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -208,11 +226,14 @@ namespace TPDespair.ZetAspects
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (Configuration.AspectBlueHealthConverted.Value > 0f)
+			if (!EliteReworksCompat.affixBlueShield)
 			{
-				output += "\nConvert <style=cIsHealing>";
-				output += Configuration.AspectBlueHealthConverted.Value * 100f;
-				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				if (Configuration.AspectBlueHealthConverted.Value > 0f)
+				{
+					output += "\nConvert <style=cIsHealing>";
+					output += Configuration.AspectBlueHealthConverted.Value * 100f;
+					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				}
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -221,13 +242,20 @@ namespace TPDespair.ZetAspects
 				output += value * 100f + "%</style>";
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (Configuration.AspectBlueBaseDamage.Value > 0f)
+			if (EffectHooks.preventedDefaultOverloadingBomb || EliteReworksCompat.affixBlueEnabled)
 			{
-				value = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stacks - 1f);
-				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-				output += value * 100f + "%</style>";
-				output += " TOTAL damage after ";
-				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
+				if (Configuration.AspectBlueBaseDamage.Value > 0f)
+				{
+					value = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stacks - 1f);
+					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
+					output += value * 100f + "%</style>";
+					output += " TOTAL damage after ";
+					output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
+				}
+			}
+			else
+			{
+				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
 			}
 
 			return output;
@@ -405,19 +433,36 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			output += "\nEmit an aura that cloaks nearby allies.";
+			if (!EliteReworksCompat.affixHauntedEnabled)
+			{
+				output += "\nEmit an aura that cloaks nearby allies.";
+			}
+			else
+			{
+				output += "\nAttach to some nearby allies, possessing them.";
+			}
 			if (Configuration.AspectGhostSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (Configuration.AspectGhostShredDuration.Value > 0f)
+			if (!EliteReworksCompat.affixHauntedEnabled)
+			{
+				if (Configuration.AspectGhostShredDuration.Value > 0f)
+				{
+					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
+					output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
+					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
+				}
+			}
+			else
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
+				output += Language.SecondText(3f);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
+				output += 20f + "</style>.";
 			}
 			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
 			{
@@ -429,10 +474,13 @@ namespace TPDespair.ZetAspects
 				}
 				output += ".";
 			}
-			if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
+			if (!EliteReworksCompat.affixHauntedEnabled)
 			{
-				output += "\nGrants nearby allies <style=cIsHealing>";
-				output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
+				if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
+				{
+					output += "\nGrants nearby allies <style=cIsHealing>";
+					output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
+				}
 			}
 
 			return output;
@@ -443,19 +491,36 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			output += "\nEmit an aura that cloaks nearby allies.";
+			if (!EliteReworksCompat.affixHauntedEnabled)
+			{
+				output += "\nEmit an aura that cloaks nearby allies.";
+			}
+			else
+			{
+				output += "\nAttach to some nearby allies, possessing them.";
+			}
 			if (Configuration.AspectGhostSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (Configuration.AspectGhostShredDuration.Value > 0f)
+			if (!EliteReworksCompat.affixHauntedEnabled)
+			{
+				if (Configuration.AspectGhostShredDuration.Value > 0f)
+				{
+					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
+					output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
+					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
+				}
+			}
+			else
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
+				output += Language.SecondText(3f);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
+				output += 20f + "</style>.";
 			}
 			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
 			{
@@ -463,10 +528,13 @@ namespace TPDespair.ZetAspects
 				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
 				output += value + "</style>.";
 			}
-			if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
+			if (!EliteReworksCompat.affixHauntedEnabled)
 			{
-				output += "\nGrants nearby allies <style=cIsHealing>";
-				output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
+				if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
+				{
+					output += "\nGrants nearby allies <style=cIsHealing>";
+					output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
+				}
 			}
 
 			return output;
@@ -524,19 +592,32 @@ namespace TPDespair.ZetAspects
 
 		public static string BuildDescription()
 		{
+			float nullDuration = Configuration.AspectPoisonNullDuration.Value;
 			string output = "<style=cDeath>Aspect of Corruption</style> :";
 			if (Configuration.AspectPoisonFireSpikes.Value)
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
+			if (EliteReworksCompat.affixPoisonEnabled)
+			{
+				output += "\nEmit an aura that <style=cIsDamage>nullifies</style> nearby allies.";
+				nullDuration = 8f;
+			}
 			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectPoisonNullDuration.Value);
+			output += Language.SecondText(nullDuration);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 			{
-				output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
+				output += ", <style=cDeath>preventing healing</style> and increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
+			if (EliteReworksCompat.affixPoisonEnabled)
+			{
+				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
+				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>.";
+				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
+			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
@@ -565,19 +646,32 @@ namespace TPDespair.ZetAspects
 		{
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
+			float nullDuration = Configuration.AspectPoisonNullDuration.Value;
 			string output = "<style=cDeath>Aspect of Corruption</style> :";
 			if (Configuration.AspectPoisonFireSpikes.Value)
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
+			if (EliteReworksCompat.affixPoisonEnabled)
+			{
+				output += "\nEmit an aura that <style=cIsDamage>nullifies</style> nearby allies.";
+				nullDuration = 8f;
+			}
 			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectPoisonNullDuration.Value);
+			output += Language.SecondText(nullDuration);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 			{
-				output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
+				output += ", <style=cDeath>preventing healing</style> and increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
+			if (EliteReworksCompat.affixPoisonEnabled)
+			{
+				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
+				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>.";
+				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
+			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				value = Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (stacks - 1f);
