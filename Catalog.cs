@@ -163,7 +163,7 @@ namespace TPDespair.ZetAspects
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
 
-			EliteReworksCompat.LateSetup();
+			if (PluginLoaded("com.Moffein.EliteReworks")) EliteReworksCompat.LateSetup();
 
 			RiskOfRain.Init();
 			EliteVariety.Init();
@@ -214,6 +214,13 @@ namespace TPDespair.ZetAspects
 			string msg = "ZetAspects EquipConvert : " + (convertEquip || absorbEquip);
 			if (convertEquip) msg += " [Click]";
 			if (absorbEquip) msg += " [Absorb]";
+			Debug.LogWarning(msg);
+
+			bool dropDefault = Configuration.AspectEliteEquipment.Value;
+			bool dropAbility = aspectAbilities && Configuration.AspectAbilitiesEliteEquipment.Value;
+			msg = "ZetAspects DropAsEquipment : " + (dropDefault || dropAbility);
+			if (dropDefault) msg += " [Default]";
+			if (dropAbility) msg += " [AspectAbilities]";
 			Debug.LogWarning(msg);
 
 			Debug.LogWarning("ZetAspects ItemWorldUnique : " + Configuration.AspectWorldUnique.Value);
