@@ -142,6 +142,8 @@ namespace TPDespair.ZetAspects
 
 		private static void SetupCatalog()
 		{
+			if (set) return;
+
 			EffectHooks.LateSetup();
 
 			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats
@@ -194,7 +196,7 @@ namespace TPDespair.ZetAspects
 								ruleDefChoice.excludeByDefault = true;
 							}
 
-							Debug.LogWarning("ZetAspects Catalog - Hiding RuleCatalog Entry For : " + ItemCatalog.GetItemDef(itemIndex).nameToken);
+							Debug.LogWarning("ZetAspects Catalog - Hiding RuleCatalog Entry For : " + ItemCatalog.GetItemDef(itemIndex).name);
 						}
 					}
 				}
@@ -203,6 +205,22 @@ namespace TPDespair.ZetAspects
 
 		private static void FirstMenuVisit()
 		{
+			if (!set)
+			{
+				Debug.LogWarning("ZetAspects FirstMenuVisit - Logbook Initialization Failed!");
+				Debug.LogWarning("Attempting Catalog Setup Fallback");
+
+				try
+				{
+					SetupCatalog();
+				}
+				catch (Exception ex)
+				{
+					Debug.Log("Failed To Setup ZetAspects Catalog!");
+					Debug.LogError(ex);
+				}
+			}
+
 			bool obtainEquip = DropHooks.CanObtainEquipment();
 			Debug.LogWarning("ZetAspects EquipObtainable : " + obtainEquip);
 
@@ -227,7 +245,7 @@ namespace TPDespair.ZetAspects
 
 			FinalizeEntryStates();
 
-			Debug.LogWarning("ZetAspects Catalog - Finalize Entries");
+			Debug.LogWarning("ZetAspects FirstMenuVisit - Finalized Catalog Entries");
 
 			menu = true;
 		}
