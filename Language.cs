@@ -88,7 +88,7 @@ namespace TPDespair.ZetAspects
 
 
 
-		internal static void Override()
+		internal static void Init()
 		{
 			RegisteredHook();
 			StringHook();
@@ -122,8 +122,6 @@ namespace TPDespair.ZetAspects
 			{
 				string language = self.name;
 
-				//Debug.LogWarning(language);
-
 				if (token != null)
 				{
 					if (tokens.ContainsKey(language))
@@ -138,6 +136,26 @@ namespace TPDespair.ZetAspects
 
 				return orig(self, token);
 			};
+		}
+
+
+
+		internal static void ChangeText()
+		{
+			string text;
+			RegisterToken("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
+			text = "Convert <style=cIsHealing>100%</style> of health into <style=cIsHealing>regenerating shields</style>.\nGain <style=cIsHealing>50%</style> <style=cStack>(+25% per stack)</style> extra <style=cIsHealing>shield</style> from conversion.";
+			if (Configuration.TranscendenceRegen.Value > 0f)
+			{
+				text += "\nAt least <style=cIsHealing>";
+				text += Configuration.TranscendenceRegen.Value * 100f + "%</style>";
+				text += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
+			}
+			if (Catalog.shieldJump)
+			{
+				text += "\nGain <style=cIsUtility>+1</style> maximum <style=cIsUtility>jump count</style>.";
+			}
+			RegisterToken("ITEM_SHIELDONLY_DESC", text);
 		}
 	}
 }
