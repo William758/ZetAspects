@@ -1,12 +1,12 @@
-using RoR2;
 using System;
 using UnityEngine;
+using RoR2;
 
-namespace TPDespair.ZetAspects
+namespace TPDespair.ZetAspects.Items
 {
-	public static class ZetAspectIce
+	public static class ZetAspectWhite
 	{
-		public static string identifier = "ZetAspectIce";
+		public static string identifier = "ZetAspectWhite";
 
 		internal static ItemDef DefineItem()
 		{
@@ -18,15 +18,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixWhite, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixWhite, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -108,9 +108,9 @@ namespace TPDespair.ZetAspects
 
 
 
-	public static class ZetAspectLightning
+	public static class ZetAspectBlue
 	{
-		public static string identifier = "ZetAspectLightning";
+		public static string identifier = "ZetAspectBlue";
 
 		internal static ItemDef DefineItem()
 		{
@@ -122,15 +122,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixBlue, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBlue, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -158,10 +158,6 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
-			if (EliteReworksCompat.affixBlueEnabled)
-			{
-				output += "\nDrop scatter bombs passively and from attacks.";
-			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -169,14 +165,11 @@ namespace TPDespair.ZetAspects
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (!EliteReworksCompat.affixBlueShield)
+			if (Configuration.AspectBlueHealthConverted.Value > 0f)
 			{
-				if (Configuration.AspectBlueHealthConverted.Value > 0f)
-				{
-					output += "\nConvert <style=cIsHealing>";
-					output += Configuration.AspectBlueHealthConverted.Value * 100f;
-					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-				}
+				output += "\nConvert <style=cIsHealing>";
+				output += Configuration.AspectBlueHealthConverted.Value * 100f;
+				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -188,7 +181,7 @@ namespace TPDespair.ZetAspects
 				}
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (EffectHooks.preventedDefaultOverloadingBomb || EliteReworksCompat.affixBlueEnabled)
+			if (EffectHooks.preventedDefaultOverloadingBomb)
 			{
 				if (Configuration.AspectBlueBaseDamage.Value > 0f)
 				{
@@ -215,10 +208,6 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
-			if (EliteReworksCompat.affixBlueEnabled)
-			{
-				output += "\nDrop scatter bombs passively and from attacks.";
-			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -226,14 +215,11 @@ namespace TPDespair.ZetAspects
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (!EliteReworksCompat.affixBlueShield)
+			if (Configuration.AspectBlueHealthConverted.Value > 0f)
 			{
-				if (Configuration.AspectBlueHealthConverted.Value > 0f)
-				{
-					output += "\nConvert <style=cIsHealing>";
-					output += Configuration.AspectBlueHealthConverted.Value * 100f;
-					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-				}
+				output += "\nConvert <style=cIsHealing>";
+				output += Configuration.AspectBlueHealthConverted.Value * 100f;
+				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -242,7 +228,7 @@ namespace TPDespair.ZetAspects
 				output += value * 100f + "%</style>";
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (EffectHooks.preventedDefaultOverloadingBomb || EliteReworksCompat.affixBlueEnabled)
+			if (EffectHooks.preventedDefaultOverloadingBomb)
 			{
 				if (Configuration.AspectBlueBaseDamage.Value > 0f)
 				{
@@ -264,9 +250,9 @@ namespace TPDespair.ZetAspects
 
 
 
-	public static class ZetAspectFire
+	public static class ZetAspectRed
 	{
-		public static string identifier = "ZetAspectFire";
+		public static string identifier = "ZetAspectRed";
 
 		internal static ItemDef DefineItem()
 		{
@@ -278,15 +264,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixRed");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixRed, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixRed, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -383,9 +369,9 @@ namespace TPDespair.ZetAspects
 
 
 
-	public static class ZetAspectCelestial
+	public static class ZetAspectHaunted
 	{
-		public static string identifier = "ZetAspectCelestial";
+		public static string identifier = "ZetAspectHaunted";
 
 		internal static ItemDef DefineItem()
 		{
@@ -397,15 +383,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixHaunted");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixHaunted, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixHaunted, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -433,54 +419,34 @@ namespace TPDespair.ZetAspects
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			if (!EliteReworksCompat.affixHauntedEnabled)
-			{
-				output += "\nEmit an aura that cloaks nearby allies.";
-			}
-			else
-			{
-				output += "\nAttach to some nearby allies, possessing them.";
-			}
-			if (Configuration.AspectGhostSlowEffect.Value)
+			output += "\nEmit an aura that cloaks nearby allies.";
+			if (Configuration.AspectHauntedSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (!EliteReworksCompat.affixHauntedEnabled)
-			{
-				if (Configuration.AspectGhostShredDuration.Value > 0f)
-				{
-					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-					output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
-					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
-				}
-			}
-			else
+			if (Configuration.AspectHauntedShredDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(3f);
+				output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += 20f + "</style>.";
+				output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
 			}
-			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
+			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
 			{
 				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
-				output += Configuration.AspectGhostBaseArmorGain.Value + "</style>";
-				if (Configuration.AspectGhostStackArmorGain.Value != 0f)
+				output += Configuration.AspectHauntedBaseArmorGain.Value + "</style>";
+				if (Configuration.AspectHauntedStackArmorGain.Value != 0f)
 				{
-					output += " " + Language.StackText(Configuration.AspectGhostStackArmorGain.Value);
+					output += " " + Language.StackText(Configuration.AspectHauntedStackArmorGain.Value);
 				}
 				output += ".";
 			}
-			if (!EliteReworksCompat.affixHauntedEnabled)
+			if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
 			{
-				if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
-				{
-					output += "\nGrants nearby allies <style=cIsHealing>";
-					output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
-				}
+				output += "\nGrants nearby allies <style=cIsHealing>";
+				output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
 			}
 
 			return output;
@@ -491,50 +457,30 @@ namespace TPDespair.ZetAspects
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			if (!EliteReworksCompat.affixHauntedEnabled)
-			{
-				output += "\nEmit an aura that cloaks nearby allies.";
-			}
-			else
-			{
-				output += "\nAttach to some nearby allies, possessing them.";
-			}
-			if (Configuration.AspectGhostSlowEffect.Value)
+			output += "\nEmit an aura that cloaks nearby allies.";
+			if (Configuration.AspectHauntedSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (!EliteReworksCompat.affixHauntedEnabled)
-			{
-				if (Configuration.AspectGhostShredDuration.Value > 0f)
-				{
-					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-					output += Language.SecondText(Configuration.AspectGhostShredDuration.Value);
-					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectGhostShredArmor.Value) + "</style>.";
-				}
-			}
-			else
+			if (Configuration.AspectHauntedShredDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(3f);
+				output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += 20f + "</style>.";
+				output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
 			}
-			if (Configuration.AspectGhostBaseArmorGain.Value > 0f)
+			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
 			{
-				value = Configuration.AspectGhostBaseArmorGain.Value + Configuration.AspectGhostStackArmorGain.Value * (stacks - 1f);
+				value = Configuration.AspectHauntedBaseArmorGain.Value + Configuration.AspectHauntedStackArmorGain.Value * (stacks - 1f);
 				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
 				output += value + "</style>.";
 			}
-			if (!EliteReworksCompat.affixHauntedEnabled)
+			if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
 			{
-				if (Configuration.AspectGhostAllyArmorGain.Value > 0f)
-				{
-					output += "\nGrants nearby allies <style=cIsHealing>";
-					output += Configuration.AspectGhostAllyArmorGain.Value + " armor</style>.";
-				}
+				output += "\nGrants nearby allies <style=cIsHealing>";
+				output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
 			}
 
 			return output;
@@ -543,9 +489,9 @@ namespace TPDespair.ZetAspects
 
 
 
-	public static class ZetAspectMalachite
+	public static class ZetAspectPoison
 	{
-		public static string identifier = "ZetAspectMalachite";
+		public static string identifier = "ZetAspectPoison";
 
 		internal static ItemDef DefineItem()
 		{
@@ -557,15 +503,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixPoison");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixPoison, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPoison, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -598,11 +544,6 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			if (EliteReworksCompat.affixPoisonEnabled)
-			{
-				output += "\nEmit an aura that <style=cIsDamage>nullifies</style> nearby allies.";
-				nullDuration = 8f;
-			}
 			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
 			output += Language.SecondText(nullDuration);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
@@ -611,13 +552,6 @@ namespace TPDespair.ZetAspects
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
-			if (EliteReworksCompat.affixPoisonEnabled)
-			{
-				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
-				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>.";
-				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
-			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
@@ -627,16 +561,6 @@ namespace TPDespair.ZetAspects
 					output += " " + Language.StackText(Configuration.AspectPoisonStackHealthGain.Value);
 				}
 				output += ".";
-			}
-			if (Configuration.AspectPoisonBaseHeal.Value > 0)
-			{
-				output += "\nDealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>";
-				output += Configuration.AspectPoisonBaseHeal.Value + "</style>";
-				if (Configuration.AspectPoisonStackHeal.Value != 0)
-				{
-					output += " " + Language.StackText(Configuration.AspectPoisonStackHeal.Value);
-				}
-				output += " <style=cIsHealing>health</style>.";
 			}
 
 			return output;
@@ -652,11 +576,6 @@ namespace TPDespair.ZetAspects
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			if (EliteReworksCompat.affixPoisonEnabled)
-			{
-				output += "\nEmit an aura that <style=cIsDamage>nullifies</style> nearby allies.";
-				nullDuration = 8f;
-			}
 			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
 			output += Language.SecondText(nullDuration);
 			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
@@ -665,25 +584,11 @@ namespace TPDespair.ZetAspects
 				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 			}
 			output += ".";
-			if (EliteReworksCompat.affixPoisonEnabled)
-			{
-				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
-				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>.";
-				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
-			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				value = Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (stacks - 1f);
 				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
 				output += value + "</style>.";
-			}
-			if (Configuration.AspectPoisonBaseHeal.Value > 0)
-			{
-				value = Configuration.AspectPoisonBaseHeal.Value + Configuration.AspectPoisonStackHeal.Value * (stacks - 1f);
-				output += "\nDealing damage <style=cIsHealing>heals</style> you for <style=cIsHealing>";
-				output += value + "</style>";
-				output += " <style=cIsHealing>health</style>.";
 			}
 
 			return output;
@@ -692,9 +597,9 @@ namespace TPDespair.ZetAspects
 
 
 
-	public static class ZetAspectPerfect
+	public static class ZetAspectLunar
 	{
-		public static string identifier = "ZetAspectPerfect";
+		public static string identifier = "ZetAspectLunar";
 
 		internal static ItemDef DefineItem()
 		{
@@ -706,15 +611,15 @@ namespace TPDespair.ZetAspects
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = ZetAspectsContent.Sprites.OutlineRed;
-			else outlineSprite = ZetAspectsContent.Sprites.OutlineYellow;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
 			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixLunar");
-			itemDef.pickupIconSprite = ZetAspectsPlugin.CreateAspectSprite(ZetAspectsContent.Sprites.AffixLunar, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixLunar, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
