@@ -6,29 +6,27 @@ namespace TPDespair.ZetAspects
 	{
 		public static ConfigEntry<bool> AspectRedTier { get; set; }
 		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
+		public static ConfigEntry<bool> AspectShowDropText { get; set; }
+		public static ConfigEntry<string> AspectDropText { get; set; }
+		public static ConfigEntry<bool> AspectSkinItemApply { get; set; }
+		public static ConfigEntry<bool> AspectSkinEquipmentPriority { get; set; }
+
 		public static ConfigEntry<float> AspectDropChance { get; set; }
 		public static ConfigEntry<float> AspectDropChanceMultiplayerFactor { get; set; }
 		public static ConfigEntry<float> AspectDropChanceMultiplayerExponent { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecayLimit { get; set; }
-		public static ConfigEntry<bool> AspectDropChanceCompensation { get; set; }
-		public static ConfigEntry<bool> AspectShowDropText { get; set; }
-		public static ConfigEntry<string> AspectDropText { get; set; }
-		public static ConfigEntry<bool> AspectSkinApply { get; set; }
+		public static ConfigEntry<float> AspectDropChanceCompensation { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
 		public static ConfigEntry<float> AspectEquipmentEffect { get; set; }
 		public static ConfigEntry<bool> AspectEquipmentAbsorb { get; set; }
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
-		public static ConfigEntry<bool> AspectSkinEquipmentPriority { get; set; }
 
-		public static ConfigEntry<int> LeechSeedHeal { get; set; }
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
-		public static ConfigEntry<bool> RecolorImmuneHealth { get; set; }
+		//public static ConfigEntry<bool> RecolorImmuneHealth { get; set; }
 
-		public static ConfigEntry<int> HeadHunterCountExtra { get; set; }
-		public static ConfigEntry<float> HeadHunterExtraEffect { get; set; }
 		public static ConfigEntry<float> HeadHunterBaseDuration { get; set; }
 		public static ConfigEntry<float> HeadHunterStackDuration { get; set; }
 
@@ -40,12 +38,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> HeadHunterBuffAttackSpeed { get; set; }
 		public static ConfigEntry<float> HeadHunterBuffCritChance { get; set; }
 
-		public static ConfigEntry<float> AspectEffectMonsterDamageMult { get; set; }
-		public static ConfigEntry<float> AspectEffectPlayerDebuffMult { get; set; }
-
-		public static ConfigEntry<bool> EliteVarietyHooks { get; set; }
-		public static ConfigEntry<bool> LostInTransitHooks { get; set; }
-		public static ConfigEntry<bool> AetheriumHooks { get; set; }
+		//public static ConfigEntry<bool> AetheriumHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -53,6 +46,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectWhiteSlowDuration { get; set; }
 		public static ConfigEntry<float> AspectWhiteBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackDamage { get; set; }
+		public static ConfigEntry<float> AspectWhiteMonsterDamageMult { get; set; }
 
 		public static ConfigEntry<float> AspectBlueSappedDuration { get; set; }
 		public static ConfigEntry<float> AspectBlueSappedDamage { get; set; }
@@ -62,6 +56,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBlueBombDuration { get; set; }
 		public static ConfigEntry<float> AspectBlueBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectBlueStackDamage { get; set; }
+		public static ConfigEntry<float> AspectBlueMonsterDamageMult { get; set; }
 
 		public static ConfigEntry<bool> AspectRedTrail { get; set; }
 		public static ConfigEntry<bool> AspectRedExtraJump { get; set; }
@@ -71,21 +66,20 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectRedBurnDuration { get; set; }
 		public static ConfigEntry<float> AspectRedBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectRedStackDamage { get; set; }
+		public static ConfigEntry<float> AspectRedMonsterDamageMult { get; set; }
 
-		public static ConfigEntry<bool> AspectGhostSlowEffect { get; set; }
-		public static ConfigEntry<float> AspectGhostShredDuration { get; set; }
-		public static ConfigEntry<float> AspectGhostShredArmor { get; set; }
-		public static ConfigEntry<float> AspectGhostAllyArmorGain { get; set; }
-		public static ConfigEntry<float> AspectGhostBaseArmorGain { get; set; }
-		public static ConfigEntry<float> AspectGhostStackArmorGain { get; set; }
+		public static ConfigEntry<bool> AspectHauntedSlowEffect { get; set; }
+		public static ConfigEntry<float> AspectHauntedShredDuration { get; set; }
+		public static ConfigEntry<float> AspectHauntedShredArmor { get; set; }
+		public static ConfigEntry<float> AspectHauntedAllyArmorGain { get; set; }
+		public static ConfigEntry<float> AspectHauntedBaseArmorGain { get; set; }
+		public static ConfigEntry<float> AspectHauntedStackArmorGain { get; set; }
 
 		public static ConfigEntry<bool> AspectPoisonFireSpikes { get; set; }
 		public static ConfigEntry<float> AspectPoisonNullDuration { get; set; }
 		public static ConfigEntry<float> AspectPoisonNullDamageTaken { get; set; }
 		public static ConfigEntry<float> AspectPoisonBaseHealthGain { get; set; }
 		public static ConfigEntry<float> AspectPoisonStackHealthGain { get; set; }
-		public static ConfigEntry<int> AspectPoisonBaseHeal { get; set; }
-		public static ConfigEntry<int> AspectPoisonStackHeal { get; set; }
 
 		public static ConfigEntry<bool> AspectLunarProjectiles { get; set; }
 		public static ConfigEntry<float> AspectLunarCrippleDuration { get; set; }
@@ -94,84 +88,14 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectLunarStackMovementGain { get; set; }
 		public static ConfigEntry<float> AspectLunarBaseShieldGain { get; set; }
 		public static ConfigEntry<float> AspectLunarStackShieldGain { get; set; }
-
-		public static ConfigEntry<float> AspectArmorBaseArmorGain { get; set; }
-		public static ConfigEntry<float> AspectArmorStackArmorGain { get; set; }
-
-		public static ConfigEntry<float> AspectBannerBaseDamageGain { get; set; }
-		public static ConfigEntry<float> AspectBannerStackDamageGain { get; set; }
-		public static ConfigEntry<bool> AspectBannerExtraJump { get; set; }
-		public static ConfigEntry<bool> AspectBannerTweaks { get; set; }
-
-		public static ConfigEntry<float> AspectImpaleDamageMult { get; set; }
-		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
-		public static ConfigEntry<float> AspectImpaleStackDotAmp { get; set; }
-		public static ConfigEntry<bool> AspectImpaleTweaks { get; set; }
-
-		public static ConfigEntry<float> AspectGoldenBaseRegenGain { get; set; }
-		public static ConfigEntry<float> AspectGoldenStackRegenGain { get; set; }
-		public static ConfigEntry<float> AspectGoldenItemScoreFactor { get; set; }
-		public static ConfigEntry<float> AspectGoldenItemScoreExponent { get; set; }
-		public static ConfigEntry<float> AspectGoldenBaseScoredRegenGain { get; set; }
-		public static ConfigEntry<float> AspectGoldenStackScoredRegenGain { get; set; }
-
-		public static ConfigEntry<float> AspectCycloneBaseMovementGain { get; set; }
-		public static ConfigEntry<float> AspectCycloneStackMovementGain { get; set; }
-		public static ConfigEntry<float> AspectCycloneBaseAttackSpeedGain { get; set; }
-		public static ConfigEntry<float> AspectCycloneStackAttackSpeedGain { get; set; }
-		public static ConfigEntry<bool> AspectCycloneDodgeBlindOnly { get; set; }
-		public static ConfigEntry<bool> AspectCycloneDodgeNegate { get; set; }
-		public static ConfigEntry<float> AspectCycloneBaseDodgeGain { get; set; }
-		public static ConfigEntry<float> AspectCycloneStackDodgeGain { get; set; }
-		public static ConfigEntry<float> AspectCycloneBlindDodgeEffect { get; set; }
-		public static ConfigEntry<bool> AspectCycloneTweaks { get; set; }
-		public static ConfigEntry<float> AspectCycloneProc { get; set; }
-
-		public static ConfigEntry<float> AspectTinkerBaseDamageResistGain { get; set; }
-		public static ConfigEntry<float> AspectTinkerStackDamageResistGain { get; set; }
-		public static ConfigEntry<float> AspectTinkerBaseDamageGain { get; set; }
-		public static ConfigEntry<float> AspectTinkerStackDamageGain { get; set; }
-		public static ConfigEntry<bool> AspectTinkerTweaks { get; set; }
-		public static ConfigEntry<int> AspectTinkerMonsterLimit { get; set; }
-		public static ConfigEntry<float> AspectTinkerMonsterDamageMult { get; set; }
-		public static ConfigEntry<float> AspectTinkerMonsterHealthMult { get; set; }
-		public static ConfigEntry<int> AspectTinkerPlayerLimit { get; set; }
-		public static ConfigEntry<float> AspectTinkerPlayerDamageMult { get; set; }
-		public static ConfigEntry<float> AspectTinkerPlayerHealthMult { get; set; }
-
-		public static ConfigEntry<float> AspectLeechingBaseLeechGain { get; set; }
-		public static ConfigEntry<float> AspectLeechingStackLeechGain { get; set; }
-		public static ConfigEntry<float> AspectLeechingMonsterLeechMult { get; set; }
-
-		public static ConfigEntry<float> AspectFrenziedBaseMovementGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedStackMovementGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedMonsterMovementMult { get; set; }
-		public static ConfigEntry<float> AspectFrenziedBaseAttackSpeedGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedStackAttackSpeedGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedMonsterAttackSpeedMult { get; set; }
-		public static ConfigEntry<float> AspectFrenziedBaseCooldownGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedStackCooldownGain { get; set; }
-		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
-
-		public static ConfigEntry<float> AspectVolatileBaseDamage { get; set; }
-		public static ConfigEntry<float> AspectVolatileStackDamage { get; set; }
-
-		public static ConfigEntry<float> AspectBlightedBaseHealthGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedStackHealthGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedMonsterHealthMult { get; set; }
-		public static ConfigEntry<float> AspectBlightedBaseDamageGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedStackDamageGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedMonsterDamageMult { get; set; }
-		public static ConfigEntry<float> AspectBlightedBaseCooldownGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedStackCooldownGain { get; set; }
-		public static ConfigEntry<float> AspectBlightedMonsterCooldownMult { get; set; }
-
+		/*
 		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineBleedDuration { get; set; }
 		public static ConfigEntry<float> AspectSanguineBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
-
+		public static ConfigEntry<float> AspectSanguineMonsterDamageMult { get; set; }
+		*/
 
 
 		internal static void Init(ConfigFile Config)
@@ -189,31 +113,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectWorldUnique = Config.Bind(
 				"0a-General", "aspectWorldUnique", true,
-				"Make aspects only drop from their respective elites and no where else."
-			);
-			AspectDropChance = Config.Bind(
-				"0a-General", "aspectDropChance", 0.2f,
-				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
-			);
-			AspectDropChanceMultiplayerFactor = Config.Bind(
-				"0a-General", "aspectDropChanceMultiplayerFactor", 1f,
-				"Multiply playercount used in drop chance calculation by value. Applies before playercount exponent."
-			);
-			AspectDropChanceMultiplayerExponent = Config.Bind(
-				"0a-General", "aspectDropChanceMultiplayerExponent", 0.5f,
-				"Drop chance is multiplied by the playercount to the power of value. -1 to divide chance by playercount, 0 to have playercount have no effect on chance, 1 to multiply chance by playercount."
-			);
-			AspectDropChanceDecay = Config.Bind(
-				"0a-General", "aspectDropChanceDecay", 0.5f,
-				"Multiply drop chance for every aspect that has dropped in a run."
-			);
-			AspectDropChanceDecayLimit = Config.Bind(
-				"0a-General", "aspectDropChanceDecayLimit", 0.25f,
-				"Drop chance decay lower limit. Drop chance decay multiplier will not go below this value."
-			);
-			AspectDropChanceCompensation = Config.Bind(
-				"0a-General", "aspectDropChanceCompensation", true,
-				"Greatly increase drop chance at certain dropcount vs stagecount thresholds. 1 drop by stage 4, 2 by 7, 3 by 10, 4 by 15, 5 by 20..."
+				"Make aspects only drop from their respective elites and no where else. Set to false to add them to the drop pool."
 			);
 			AspectShowDropText = Config.Bind(
 				"0a-General", "aspectEnableDropText", true,
@@ -223,64 +123,81 @@ namespace TPDespair.ZetAspects
 				"0a-General", "aspectDropText", "A slain enemy leaves some of its power behind...",
 				"Chat message for when an elite drops an aspect."
 			);
-			AspectSkinApply = Config.Bind(
-				"0a-General", "aspectEliteSkin", true,
-				"Whether to apply elite skin with new items."
-			);
-
-
-
-			AspectEliteEquipment = Config.Bind(
-				"0b-Equipment", "eliteEquipmentDrop", false,
-				"Elites drop aspects as equipment. Otherwise they drop aspects as items."
-			);
-			AspectAbilitiesEliteEquipment = Config.Bind(
-				"0b-Equipment", "aspectAbilitiesForceEquipmentDrop", true,
-				"Elites drop aspects as equipment instead of items if Aspect Abilities is installed."
-			);
-			AspectEquipmentEffect = Config.Bind(
-				"0b-Equipment", "eliteEquipmentEffect", 3f,
-				"Count equipment as this much stacks of aspects for players."
-			);
-			AspectEquipmentAbsorb = Config.Bind(
-				"0b-Equipment", "eliteEquipmentAbsorb", true,
-				"Picking up the same elite equipment will absorb as non-equipment item."
-			);
-			AspectEquipmentConversion = Config.Bind(
-				"0b-Equipment", "eliteEquipmentConversion", true,
-				"Clicking bottom-right equipment icon will convert into non-equipment item."
+			AspectSkinItemApply = Config.Bind(
+				"0a-General", "aspectItemEliteSkin", true,
+				"Whether new items can apply elite skin."
 			);
 			AspectSkinEquipmentPriority = Config.Bind(
-				"0b-Equipment", "eliteEquipmentSkinPriority", true,
+				"0a-General", "eliteEquipmentSkinPriority", true,
 				"Whether elite equipment skin takes priority."
 			);
 
 
 
-			LeechSeedHeal = Config.Bind(
-				"0c-Tweaks", "seedLifeGainOnHit", 2,
-				"Health gained on hit from Leech Seed."
+			AspectDropChance = Config.Bind(
+				"0b-DropChance", "aspectDropChance", 0.2f,
+				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
 			);
+			AspectDropChanceMultiplayerFactor = Config.Bind(
+				"0b-DropChance", "aspectDropChanceMultiplayerFactor", 1f,
+				"Multiply playercount used in drop chance calculation. Applies before playercount exponent."
+			);
+			AspectDropChanceMultiplayerExponent = Config.Bind(
+				"0b-DropChance", "aspectDropChanceMultiplayerExponent", 0.5f,
+				"Drop chance is multiplied by the playercount to the power of value. -1 to divide chance by playercount, 0 to have playercount have no effect on chance, 1 to multiply chance by playercount."
+			);
+			AspectDropChanceDecay = Config.Bind(
+				"0b-DropChance", "aspectDropChanceDecay", 0.5f,
+				"Multiply drop chance for every aspect that has dropped in a run."
+			);
+			AspectDropChanceDecayLimit = Config.Bind(
+				"0b-DropChance", "aspectDropChanceDecayLimit", 0.25f,
+				"Drop chance decay lower limit. Drop chance decay multiplier will not go below this value."
+			);
+			AspectDropChanceCompensation = Config.Bind(
+				"0b-DropChance", "aspectDropChanceCompensation", 4f,
+				"Multiply drop chance at certain dropcount vs stagecount thresholds. 1 drop by stage 4, 2 by 7, 3 by 10, 4 by 15, 5 by 20..."
+			);
+
+
+
+			AspectEliteEquipment = Config.Bind(
+				"0c-Equipment", "eliteEquipmentDrop", false,
+				"Elites drop aspects as equipment. Otherwise they drop aspects as items."
+			);
+			AspectAbilitiesEliteEquipment = Config.Bind(
+				"0c-Equipment", "aspectAbilitiesForceEquipmentDrop", true,
+				"Elites drop aspects as equipment instead of items if Aspect Abilities is installed."
+			);
+			AspectEquipmentEffect = Config.Bind(
+				"0c-Equipment", "eliteEquipmentEffect", 3f,
+				"Count equipment as this many stacks of aspects for players."
+			);
+			AspectEquipmentAbsorb = Config.Bind(
+				"0c-Equipment", "eliteEquipmentAbsorb", false,
+				"Picking up the same elite equipment will absorb as non-equipment item."
+			);
+			AspectEquipmentConversion = Config.Bind(
+				"0c-Equipment", "eliteEquipmentConversion", true,
+				"Clicking bottom-right equipment icon will convert into non-equipment item."
+			);
+
+
+
 			TranscendenceRegen = Config.Bind(
-				"0c-Tweaks", "transcendenceShieldRegen", 0.50f,
+				"0d-Tweaks", "transcendenceShieldRegen", 0.50f,
 				"Health regen gained as shield regen. Set to 0 to disable."
 			);
+			/*
 			RecolorImmuneHealth = Config.Bind(
-				"0c-Tweaks", "recolorImmuneHealth", false,
+				"0d-Tweaks", "recolorImmuneHealth", false,
 				"Change healthbar color while immune."
 			);
+			*/
 		}
 
 		private static void HeadHunterConfigs(ConfigFile Config)
 		{
-			HeadHunterCountExtra = Config.Bind(
-				"1a-Headhunter", "hunterExtraCount", -1,
-				"Count extra headhunters up to amount. -1 for no limit."
-			);
-			HeadHunterExtraEffect = Config.Bind(
-				"1a-Headhunter", "hunterExtraEffect", 0.25f,
-				"Count extra headhunters as this much extra stacks of aspect."
-			);
 			HeadHunterBaseDuration = Config.Bind(
 				"1a-Headhunter", "hunterBaseBuffDuration", 20f,
 				"Base duration of buff effect."
@@ -293,554 +210,268 @@ namespace TPDespair.ZetAspects
 
 
 			HeadHunterBuffEnable = Config.Bind(
-				"1b-Headhunter Buff", "hunterBuffEnable", true,
+				"1b-HeadhunterBuff", "hunterBuffEnable", true,
 				"Killing elites also grants stat buffs."
 			);
 			HeadHunterBuffHealth = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedHealth", 0.05f,
+				"1b-HeadhunterBuff", "hunterIncreasedHealth", 0.05f,
 				"Increased health per headhunter buff."
 			);
 			HeadHunterBuffArmor = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedArmor", 2f,
+				"1b-HeadhunterBuff", "hunterIncreasedArmor", 2f,
 				"Increased armor per headhunter buff."
 			);
 			HeadHunterBuffMovementSpeed = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedMovementSpeed", 0.05f,
+				"1b-HeadhunterBuff", "hunterIncreasedMovementSpeed", 0.05f,
 				"Increased movement speed per headhunter buff."
 			);
 			HeadHunterBuffDamage = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedDamage", 0.02f,
+				"1b-HeadhunterBuff", "hunterIncreasedDamage", 0.02f,
 				"Increased damage per headhunter buff."
 			);
 			HeadHunterBuffAttackSpeed = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedAttackSpeed", 0.02f,
+				"1b-HeadhunterBuff", "hunterIncreasedAttackSpeed", 0.02f,
 				"Increased attack speed per headhunter buff."
 			);
 			HeadHunterBuffCritChance = Config.Bind(
-				"1b-Headhunter Buff", "hunterIncreasedCritChance", 2f,
+				"1b-HeadhunterBuff", "hunterIncreasedCritChance", 2f,
 				"Increased crit chance per headhunter buff."
 			);
 		}
 
 		private static void AspectConfigs(ConfigFile Config)
 		{
-			AspectEffectMonsterDamageMult = Config.Bind(
-				"20-Aspect Effects", "effectMonsterDamageMult", 1f,
-				"Multiply damage value of aspect effects from monsters."
-			);
-			AspectEffectPlayerDebuffMult = Config.Bind(
-				"20-Aspect Effects", "effectPlayerDebuffMult", 1f,
-				"Multiply debuff effect of shredded and nullified applied to players."
-			);
-
-
-
-			EliteVarietyHooks = Config.Bind(
-				"21-Mod Compatibility", "eliteVarietyHooks", true,
-				"Allows modification of functions and values within the EliteVariety mod."
-			);
-			LostInTransitHooks = Config.Bind(
-				"21-Mod Compatibility", "lostInTransitHooks", true,
-				"Allows modification of functions and values within the LostInTransit mod."
-			);
+			/*
 			AetheriumHooks = Config.Bind(
-				"21-Mod Compatibility", "aetheriumHooks", true,
+				"20-ModCompatibility", "aetheriumHooks", true,
 				"Allows modification of functions and values within the Aetherium mod."
 			);
-
+			*/
 
 
 			RiskOfRainConfigs(Config);
-			EliteVarietyConfigs(Config);
-			LostInTransitConfigs(Config);
-			AetheriumConfigs(Config);
+			//AetheriumConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
 		{
 			AspectWhiteBaseFreezeChance = Config.Bind(
-				"2aa-Ice Aspect", "iceBaseFreezeChance", 6.0f,
+				"2aa-AspectWhite", "whiteBaseFreezeChance", 6.0f,
 				"Freeze chance. Hyperbolic. Player Only. Set to 0 to disable."
 			);
 			AspectWhiteStackFreezeChance = Config.Bind(
-				"2aa-Ice Aspect", "iceAddedFreezeChance", 6.0f,
+				"2aa-AspectWhite", "whiteAddedFreezeChance", 6.0f,
 				"Freeze chance per stack."
 			);
 			AspectWhiteFreezeDuration = Config.Bind(
-				"2aa-Ice Aspect", "iceFreezeDuration", 2.0f,
+				"2aa-AspectWhite", "whiteFreezeDuration", 2.0f,
 				"Set freeze duration in seconds."
 			);
 			AspectWhiteSlowDuration = Config.Bind(
-				"2aa-Ice Aspect", "iceSlowDuration", 4.0f,
+				"2aa-AspectWhite", "whiteSlowDuration", 4.0f,
 				"Set slow duration in seconds."
 			);
 			AspectWhiteBaseDamage = Config.Bind(
-				"2aa-Ice Aspect", "iceBaseTotalDamage", 0.20f,
+				"2aa-AspectWhite", "whiteBaseTotalDamage", 0.20f,
 				"Base total damage of blades. Set to 0 to disable."
 			);
 			AspectWhiteStackDamage = Config.Bind(
-				"2aa-Ice Aspect", "iceAddedTotalDamage", 0.10f,
+				"2aa-AspectWhite", "whiteAddedTotalDamage", 0.10f,
 				"Added total damage of blades per stack."
+			);
+			AspectWhiteMonsterDamageMult = Config.Bind(
+				"2aa-AspectWhite", "whiteMonsterDamageMult", 1f,
+				"Multiply damage of aspect effects from monsters."
 			);
 
 
 
 			AspectBlueSappedDuration = Config.Bind(
-				"2ab-Lightning Aspect", "lightningSappedDuration", 4.0f,
+				"2ab-AspectBlue", "blueSappedDuration", 4.0f,
 				"Set sapped duration in seconds. Set to 0 to disable."
 			);
 			AspectBlueSappedDamage = Config.Bind(
-				"2ab-Lightning Aspect", "lightningSappedDamage", 0.10f,
+				"2ab-AspectBlue", "blueSappedDamage", 0.10f,
 				"Base Damage reduction of sapped."
 			);
 			AspectBlueHealthConverted = Config.Bind(
-				"2ab-Lightning Aspect", "lightningHealthConverted", 0.20f,
+				"2ab-AspectBlue", "blueHealthConverted", 0.20f,
 				"Set health converted into shield. Set to 0 to disable."
 			);
 			AspectBlueBaseShieldGain = Config.Bind(
-				"2ab-Lightning Aspect", "lightningBaseShieldGained", 0.20f,
+				"2ab-AspectBlue", "blueBaseShieldGained", 0.20f,
 				"Set shield gained from health. Set to 0 to disable."
 			);
 			AspectBlueStackShieldGain = Config.Bind(
-				"2ab-Lightning Aspect", "lightningAddedShieldGained", 0.10f,
+				"2ab-AspectBlue", "blueAddedShieldGained", 0.10f,
 				"Set shield gained from health per stack."
 			);
 			AspectBlueBombDuration = Config.Bind(
-				"2ab-Lightning Aspect", "lightningBombDuration", 1.0f,
+				"2ab-AspectBlue", "blueBombDuration", 1.0f,
 				"Set detonation timer for bomb."
 			);
 			AspectBlueBaseDamage = Config.Bind(
-				"2ab-Lightning Aspect", "lightningBaseTotalDamage", 0.20f,
+				"2ab-AspectBlue", "blueBaseTotalDamage", 0.20f,
 				"Base total damage of bombs. Set to 0 to disable."
 			);
 			AspectBlueStackDamage = Config.Bind(
-				"2ab-Lightning Aspect", "lightningAddedTotalDamage", 0.10f,
+				"2ab-AspectBlue", "blueAddedTotalDamage", 0.10f,
 				"Added total damage of bombs per stack."
+			);
+			AspectBlueMonsterDamageMult = Config.Bind(
+				"2ab-AspectBlue", "blueMonsterDamageMult", 1f,
+				"Multiply damage of aspect effects from monsters."
 			);
 
 
 
 			AspectRedTrail = Config.Bind(
-				"2ac-Fire Aspect", "firePlayerTrail", true,
+				"2ac-AspectRed", "redPlayerTrail", true,
 				"Set whether players leave fire trail."
 			);
 			AspectRedExtraJump = Config.Bind(
-				"2ac-Fire Aspect", "fireExtraJump", true,
+				"2ac-AspectRed", "redExtraJump", true,
 				"Extra jump. Player Only"
 			);
 			AspectRedBaseMovementGain = Config.Bind(
-				"2ac-Fire Aspect", "fireBaseMovementGained", 0.20f,
+				"2ac-AspectRed", "redBaseMovementGained", 0.20f,
 				"Movement speed gained. Set to 0 to disable."
 			);
 			AspectRedStackMovementGain = Config.Bind(
-				"2ac-Fire Aspect", "fireAddedMovementGained", 0.10f,
+				"2ac-AspectRed", "redAddedMovementGained", 0.10f,
 				"Movement speed gained per stack."
 			);
 			AspectRedUseBase = Config.Bind(
-				"2ac-Fire Aspect", "fireUseBaseDamage", false,
+				"2ac-AspectRed", "redUseBaseDamage", false,
 				"Set whether burn damage is based on BASE or TOTAL damage. Vanilla behavior is 200% BASE damage over 4 seconds."
 			);
 			AspectRedBurnDuration = Config.Bind(
-				"2ac-Fire Aspect", "fireBurnDuration", 4.0f,
+				"2ac-AspectRed", "redBurnDuration", 4.0f,
 				"Set burn duration in seconds."
 			);
 			AspectRedBaseDamage = Config.Bind(
-				"2ac-Fire Aspect", "fireBaseTotalDamage", 0.20f,
+				"2ac-AspectRed", "redBaseTotalDamage", 0.20f,
 				"Base total damage of burn over duration. Set to 0 to disable."
 			);
 			AspectRedStackDamage = Config.Bind(
-				"2ac-Fire Aspect", "fireAddedTotalDamage", 0.10f,
+				"2ac-AspectRed", "redAddedTotalDamage", 0.10f,
 				"Added total damage of burn per stack."
 			);
+			AspectRedMonsterDamageMult = Config.Bind(
+				"2ac-AspectRed", "redMonsterDamageMult", 1f,
+				"Multiply damage of aspect effects from monsters."
+			);
 
 
 
-			AspectGhostSlowEffect = Config.Bind(
-				"2ad-Celestial Aspect", "celestialSlowEffect", false,
+			AspectHauntedSlowEffect = Config.Bind(
+				"2ad-AspectHaunted", "hauntedSlowEffect", false,
 				"Set whether applies slow. Shares duration with ice aspect."
 			);
-			AspectGhostShredDuration = Config.Bind(
-				"2ad-Celestial Aspect", "celestialShredDuration", 4.0f,
+			AspectHauntedShredDuration = Config.Bind(
+				"2ad-AspectHaunted", "hauntedShredDuration", 4.0f,
 				"Set shred duration in seconds. Set to 0 to disable."
 			);
-			AspectGhostShredArmor = Config.Bind(
-				"2ad-Celestial Aspect", "celestialShredArmor", 20f,
+			AspectHauntedShredArmor = Config.Bind(
+				"2ad-AspectHaunted", "hauntedShredArmor", 20f,
 				"Armor reduction of shred."
 			);
-			AspectGhostAllyArmorGain = Config.Bind(
-				"2ad-Celestial Aspect", "celestialAllyArmor", 20f,
+			AspectHauntedAllyArmorGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedAllyArmor", 20f,
 				"Armor granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
 			);
-			AspectGhostBaseArmorGain = Config.Bind(
-				"2ad-Celestial Aspect", "celestialBaseArmor", 60f,
+			AspectHauntedBaseArmorGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedBaseArmor", 60f,
 				"Armor gained. Set to 0 to disable."
 			);
-			AspectGhostStackArmorGain = Config.Bind(
-				"2ad-Celestial Aspect", "celestialAddedArmor", 30f,
+			AspectHauntedStackArmorGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedAddedArmor", 30f,
 				"Armor gained per stack."
 			);
 
 
 
 			AspectPoisonFireSpikes = Config.Bind(
-				"2ae-Malachite Aspect", "malachitePlayerSpikes", true,
+				"2ae-AspectPoison", "poisonPlayerSpikes", true,
 				"Set whether players throw spike balls."
 			);
 			AspectPoisonNullDuration = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteNullDuration", 4.0f,
+				"2ae-AspectPoison", "poisonNullDuration", 4.0f,
 				"Set nullification duration for players in seconds. Monsters is 8 seconds."
 			);
 			AspectPoisonNullDamageTaken = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteNullDamageTaken", 0.15f,
+				"2ae-AspectPoison", "poisonNullDamageTaken", 0.15f,
 				"Damage taken increase from nullification. Set to 0 to disable."
 			);
 			AspectPoisonBaseHealthGain = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteBaseHealth", 400f,
+				"2ae-AspectPoison", "poisonBaseHealth", 400f,
 				"Health gained. Set to 0 to disable."
 			);
 			AspectPoisonStackHealthGain = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteAddedHealth", 200f,
+				"2ae-AspectPoison", "poisonAddedHealth", 200f,
 				"Health gained per stack."
-			);
-			AspectPoisonBaseHeal = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteBaseLifeGainOnHit", 8,
-				"Health gained on hit. Set to 0 to disable."
-			);
-			AspectPoisonStackHeal = Config.Bind(
-				"2ae-Malachite Aspect", "malachiteAddedLifeGainOnHit", 4,
-				"Health gained on hit per stack."
 			);
 
 
 
 			AspectLunarProjectiles = Config.Bind(
-				"2af-Perfect Aspect", "perfectPlayerProjectiles", true,
+				"2af-AspectLunar", "lunarPlayerProjectiles", true,
 				"Set whether players shoot projectiles during combat."
 			);
 			AspectLunarCrippleDuration = Config.Bind(
-				"2af-Perfect Aspect", "perfectCrippleDuration", 4.0f,
+				"2af-AspectLunar", "lunarCrippleDuration", 4.0f,
 				"Set cripple duration in seconds."
 			);
 			AspectLunarRegen = Config.Bind(
-				"2af-Perfect Aspect", "perfectShieldRegen", 1.00f,
+				"2af-AspectLunar", "lunarShieldRegen", 1.00f,
 				"Health regen gained as shield regen. Set to 0 to disable."
 			);
 			AspectLunarBaseMovementGain = Config.Bind(
-				"2af-Perfect Aspect", "perfectBaseMovementGained", 0.20f,
+				"2af-AspectLunar", "lunarBaseMovementGained", 0.20f,
 				"Movement speed gained. Set to 0 to disable."
 			);
 			AspectLunarStackMovementGain = Config.Bind(
-				"2af-Perfect Aspect", "perfectAddedMovementGained", 0.10f,
+				"2af-AspectLunar", "lunarAddedMovementGained", 0.10f,
 				"Movement speed gained per stack."
 			);
 			AspectLunarBaseShieldGain = Config.Bind(
-				"2af-Perfect Aspect", "perfectBaseShieldGained", 0.20f,
+				"2af-AspectLunar", "lunarBaseShieldGained", 0.20f,
 				"Set extra shield. Set to 0 to disable."
 			);
 			AspectLunarStackShieldGain = Config.Bind(
-				"2af-Perfect Aspect", "perfectAddedShieldGained", 0.10f,
+				"2af-AspectLunar", "lunarAddedShieldGained", 0.10f,
 				"Set extra shield per stack."
-			);
-		}
-
-		private static void EliteVarietyConfigs(ConfigFile Config)
-		{
-			AspectArmorBaseArmorGain = Config.Bind(
-				"2ba-Armor Aspect", "armorBaseArmor", 30f,
-				"Armor gained. Set to 0 to disable."
-			);
-			AspectArmorStackArmorGain = Config.Bind(
-				"2ba-Armor Aspect", "armorAddedArmor", 15f,
-				"Armor gained per stack."
-			);
-
-
-
-			AspectBannerBaseDamageGain = Config.Bind(
-				"2bb-Banner Aspect", "bannerBaseDamageGained", 0.20f,
-				"Damage gained. Set to 0 to disable."
-			);
-			AspectBannerStackDamageGain = Config.Bind(
-				"2bb-Banner Aspect", "bannerAddedDamageGained", 0.10f,
-				"Damage gained per stack."
-			);
-			AspectBannerExtraJump = Config.Bind(
-				"2bb-Banner Aspect", "bannerExtraJump", false,
-				"Extra jump. Player Only"
-			);
-			AspectBannerTweaks = Config.Bind(
-				"2bb-Banner Aspect", "bannerTweaks", false,
-				"Prevents buffward type from changing. Will only provide warbanner buff."
-			);
-
-
-
-			AspectImpaleDamageMult = Config.Bind(
-				"2bc-Impale Aspect", "impaleDotDamageMult", 0.75f,
-				"Multiply impale DOT damage. This setting reduces impale damage to counteract DotAmp."
-			);
-			AspectImpaleBaseDotAmp = Config.Bind(
-				"2bc-Impale Aspect", "impaleBaseDotAmp", 0.20f,
-				"DOT damage multiplier gained. Set to 0 to disable."
-			);
-			AspectImpaleStackDotAmp = Config.Bind(
-				"2bc-Impale Aspect", "impaleAddedDotAmp", 0.10f,
-				"DOT damage multiplier gained per stack."
-			);
-			AspectImpaleTweaks = Config.Bind(
-				"2bc-Impale Aspect", "impaleTweaks", false,
-				"Scale impale damage and duration based on ambient level. No effect at lvl 90."
-			);
-
-
-
-			AspectGoldenBaseRegenGain = Config.Bind(
-				"2bd-Golden Aspect", "goldenBaseRegen", 12f,
-				"Health regen gained. Set to 0 to disable."
-			);
-			AspectGoldenStackRegenGain = Config.Bind(
-				"2bd-Golden Aspect", "goldenAddedRegen", 6f,
-				"Health regen gained per stack."
-			);
-			AspectGoldenItemScoreFactor = Config.Bind(
-				"2bd-Golden Aspect", "goldenItemScoreFactor", 4.0f,
-				"Multiply itemscore by value. Applies before itemscore exponent. white = 1x, green = 3x, other = 9x."
-			);
-			AspectGoldenItemScoreExponent = Config.Bind(
-				"2bd-Golden Aspect", "goldenItemScoreExponent", 0.65f,
-				"Itemscore exponent. Raise itemscore to the power of value."
-			);
-			AspectGoldenBaseScoredRegenGain = Config.Bind(
-				"2bd-Golden Aspect", "goldenBaseScoredRegen", 1.0f,
-				"ScoredRegen multiplier gained. Applies after itemscore exponent. Set to 0 to disable."
-			);
-			AspectGoldenStackScoredRegenGain = Config.Bind(
-				"2bd-Golden Aspect", "goldenStackScoredRegen", 0.5f,
-				"ScoredRegen multiplier gained per stack."
-			);
-
-
-
-			AspectCycloneBaseMovementGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneBaseMovementGained", 0.20f,
-				"Movement speed gained. Set to 0 to disable."
-			);
-			AspectCycloneStackMovementGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneAddedMovementGained", 0.10f,
-				"Movement speed gained per stack."
-			);
-			AspectCycloneBaseAttackSpeedGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneBaseAttackSpeedGained", 0.20f,
-				"Attack speed gained. Set to 0 to disable."
-			);
-			AspectCycloneStackAttackSpeedGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneAddedAttackSpeedGained", 0.10f,
-				"Attack speed gained per stack."
-			);
-			AspectCycloneDodgeBlindOnly = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneDodgeBlindOnly", false,
-				"Aspect dodge effect only works against blinded enemies."
-			);
-			AspectCycloneDodgeNegate = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneDodgeNegate", true,
-				"Monster dodge chance is ignored if player is near target."
-			);
-			AspectCycloneBaseDodgeGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneBaseDodgeGained", 0.25f,
-				"Dodge chance gained. Set to 0 to disable."
-			);
-			AspectCycloneStackDodgeGain = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneAddedDodgeGained", 0.10f,
-				"Dodge chance gained per stack."
-			);
-			AspectCycloneBlindDodgeEffect = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneBlindDodgeEffect", 0.25f,
-				"Dodge chance effect from blind. Set to 0 to disable."
-			);
-			AspectCycloneTweaks = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneTweaks", false,
-				"Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect). Allows changing ProcCoeff."
-			);
-			AspectCycloneProc = Config.Bind(
-				"2be-Cyclone Aspect", "cycloneSandstormProc", 0f,
-				"Sandstorm ProcCoefficient. Original value is 0.25"
-			);
-
-
-
-			AspectTinkerBaseDamageResistGain = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerBaseDroneDamageResist", 0.20f,
-				"Drone damage taken reduction. Hyperbolic. Set to 0 to disable."
-			);
-			AspectTinkerStackDamageResistGain = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerAddedDroneDamageResist", 0.10f,
-				"Drone damage taken reduction per stack. Hyperbolic."
-			);
-			AspectTinkerBaseDamageGain = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerBaseDroneDamageGain", 0.20f,
-				"Drone damage gained. Set to 0 to disable."
-			);
-			AspectTinkerStackDamageGain = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerAddedDroneDamageGain", 0.10f,
-				"Drone damage gained per stack."
-			);
-			AspectTinkerTweaks = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerTweaks", false,
-				"Disable scrap stealing. Allow changing limits and stats."
-			);
-			AspectTinkerMonsterLimit = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerMonsterLimit", 1,
-				"Maximum tinkerer drones for monsters."
-			);
-			AspectTinkerMonsterDamageMult = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerMonsterDamage", 1.5f,
-				"Damage multiplier for monster tinkerer drones."
-			);
-			AspectTinkerMonsterHealthMult = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerMonsterHealth", 2f,
-				"Health multiplier for monster tinkerer drones."
-			);
-			AspectTinkerPlayerLimit = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerPlayerLimit", 2,
-				"Maximum tinkerer drones for players."
-			);
-			AspectTinkerPlayerDamageMult = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerPlayerDamage", 1.5f,
-				"Damage multiplier for player tinkerer drones."
-			);
-			AspectTinkerPlayerHealthMult = Config.Bind(
-				"2bf-Tinker Aspect", "tinkerPlayerHealth", 2f,
-				"Health multiplier for player tinkerer drones."
-			);
-		}
-
-		private static void LostInTransitConfigs(ConfigFile Config)
-		{
-			AspectLeechingBaseLeechGain = Config.Bind(
-				"2ca-Leeching Aspect", "leechingBaseLeech", 0.2f,
-				"Damage leeched."
-			);
-			AspectLeechingStackLeechGain = Config.Bind(
-				"2ca-Leeching Aspect", "leechingAddedLeech", 0.1f,
-				"Damage leeched per stack."
-			);
-			AspectLeechingMonsterLeechMult = Config.Bind(
-				"2ca-Leeching Aspect", "leechingMonsterLeechMult", 5f,
-				"Monster leech multiplier."
-			);
-
-
-
-			AspectFrenziedBaseMovementGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedBaseMovementGained", 0.2f,
-				"Movement speed gained. Set to 0 to disable."
-			);
-			AspectFrenziedStackMovementGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedAddedMovementGained", 0.1f,
-				"Movement speed gained per stack."
-			);
-			AspectFrenziedMonsterMovementMult = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedMonsterMovementMult", 5f,
-				"Monster movement speed multiplier."
-			);
-			AspectFrenziedBaseAttackSpeedGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedBaseAttackSpeedGained", 0.2f,
-				"Attack speed gained. Set to 0 to disable."
-			);
-			AspectFrenziedStackAttackSpeedGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedAddedAttackSpeedGained", 0.1f,
-				"Attack speed gained per stack."
-			);
-			AspectFrenziedMonsterAttackSpeedMult = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedMonsterAttackSpeedMult", 5f,
-				"Monster attack speed multiplier."
-			);
-			AspectFrenziedBaseCooldownGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedBaseCooldownGained", 0.2f,
-				"Cooldown gained. Set to 0 to disable."
-			);
-			AspectFrenziedStackCooldownGain = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedAddedCooldownGained", 0.1f,
-				"Cooldown gained per stack."
-			);
-			AspectFrenziedMonsterCooldownMult = Config.Bind(
-				"2cb-Frenzied Aspect", "frenziedMonsterCooldownMult", 5f,
-				"Monster cooldown multiplier."
-			);
-
-
-
-			AspectVolatileBaseDamage = Config.Bind(
-				"2cc-Volatile Aspect", "volatileBaseTotalDamage", 0.20f,
-				"Base total damage of explosion."
-			);
-			AspectVolatileStackDamage = Config.Bind(
-				"2cc-Volatile Aspect", "volatileAddedTotalDamage", 0.10f,
-				"Added total damage of explosion per stack."
-			);
-
-
-
-			AspectBlightedBaseHealthGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedBaseHealthGained", 0.5f,
-				"Health gained. Set to 0 to disable."
-			);
-			AspectBlightedStackHealthGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedAddedHealthGained", 0.25f,
-				"Health gained per stack."
-			);
-			AspectBlightedMonsterHealthMult = Config.Bind(
-				"2cd-Blighted Aspect", "blightedMonsterHealthMult", 10f,
-				"Monster health multiplier."
-			);
-			AspectBlightedBaseDamageGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedBaseDamageGained", 0.2f,
-				"Damage gained. Set to 0 to disable."
-			);
-			AspectBlightedStackDamageGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedAddedDamageGained", 0.1f,
-				"Damage gained per stack."
-			);
-			AspectBlightedMonsterDamageMult = Config.Bind(
-				"2cd-Blighted Aspect", "blightedMonsterDamageMult", 5f,
-				"Monster damage multiplier."
-			);
-			AspectBlightedBaseCooldownGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedBaseCooldownGained", 0.2f,
-				"Cooldown gained. Set to 0 to disable."
-			);
-			AspectBlightedStackCooldownGain = Config.Bind(
-				"2cd-Blighted Aspect", "blightedAddedCooldownGained", 0.1f,
-				"Cooldown gained per stack."
-			);
-			AspectBlightedMonsterCooldownMult = Config.Bind(
-				"2cd-Blighted Aspect", "blightedMonsterCooldownMult", 5f,
-				"Monster cooldown multiplier."
 			);
 		}
 
 		private static void AetheriumConfigs(ConfigFile Config)
 		{
+			/*
 			AspectSanguineBaseDotAmp = Config.Bind(
-				"2da-Sanguine Aspect", "sanguineBaseDotAmp", 0.20f,
+				"2ba-AspectSanguine", "sanguineBaseDotAmp", 0.20f,
 				"DOT damage multiplier gained. Set to 0 to disable."
 			);
 			AspectSanguineStackDotAmp = Config.Bind(
-				"2da-Sanguine Aspect", "sanguineAddedDotAmp", 0.10f,
+				"2ba-AspectSanguine", "sanguineAddedDotAmp", 0.10f,
 				"DOT damage multiplier gained per stack."
 			);
 			AspectSanguineBleedDuration = Config.Bind(
-				"2da-Sanguine Aspect", "sanguineBleedDuration", 4.0f,
+				"2ba-AspectSanguine", "sanguineBleedDuration", 4.0f,
 				"Set bleed duration in seconds."
 			);
 			AspectSanguineBaseDamage = Config.Bind(
-				"2da-Sanguine Aspect", "sanguineBaseTotalDamage", 2.4f,
+				"2ba-AspectSanguine", "sanguineBaseTotalDamage", 1.2f,
 				"Base total damage of bleed over duration. Set to 0 to disable."
 			);
 			AspectSanguineStackDamage = Config.Bind(
-				"2da-Sanguine Aspect", "sanguineAddedTotalDamage", 0.8f,
+				"2ba-AspectSanguine", "sanguineAddedTotalDamage", 0.6f,
 				"Added total damage of bleed per stack."
 			);
+			AspectSanguineMonsterDamageMult = Config.Bind(
+				"2ba-AspectSanguine", "sanguineMonsterDamageMult", 1f,
+				"Multiply damage of aspect effects from monsters."
+			);
+			*/
 		}
 	}
 }
