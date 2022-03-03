@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Networking;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.UI;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Networking;
 
 namespace TPDespair.ZetAspects
 {
@@ -53,9 +53,9 @@ namespace TPDespair.ZetAspects
 				UpdateZetDropTracker();
 
 				disableDrops = false;
-				Debug.LogWarning("ZetAspects - ScenePopulated : Drops Enabled");
+				Logger.Info("ScenePopulated : Drops Enabled");
 
-				Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
+				Logger.Info("RunDropCount : " + runDropCount);
 				LogDropChance();
 			}
 		}
@@ -70,7 +70,7 @@ namespace TPDespair.ZetAspects
 				if (master)
 				{
 					Inventory inventory = master.inventory;
-					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectsDropCountTracker));
+					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(Catalog.Item.ZetAspectsDropCountTracker));
 				}
 			}
 
@@ -87,10 +87,10 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						int trackerCount = inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectsDropCountTracker);
+						int trackerCount = inventory.GetItemCount(Catalog.Item.ZetAspectsDropCountTracker);
 						int dropCount = runDropCount;
 
-						if (trackerCount < dropCount) inventory.GiveItem(ZetAspectsContent.Items.ZetAspectsDropCountTracker, dropCount - trackerCount);
+						if (trackerCount < dropCount) inventory.GiveItem(Catalog.Item.ZetAspectsDropCountTracker, dropCount - trackerCount);
 					}
 				}
 			}
@@ -101,7 +101,7 @@ namespace TPDespair.ZetAspects
 			if (Run.instance)
 			{
 				disableDrops = true;
-				Debug.LogWarning("ZetAspects - SceneExit : Drops Disabled");
+				Logger.Info("SceneExit : Drops Disabled");
 			}
 		}
 
@@ -143,7 +143,7 @@ namespace TPDespair.ZetAspects
 			output += "[player]" + $"{playerMult:0.###} x ";
 			output += "[stage]" + $"{stageMult:0.###}";
 
-			Debug.LogWarning(output);
+			Logger.Info(output);
 		}
 
 		private static float GetDropChance()
@@ -172,7 +172,9 @@ namespace TPDespair.ZetAspects
 
 		private static float StageChanceFactor()
 		{
-			if (!Configuration.AspectDropChanceCompensation.Value) return 1f;
+			float value = Configuration.AspectDropChanceCompensation.Value;
+
+			if (value <= 1f) return 1f;
 
 			if (Run.instance)
 			{
@@ -181,11 +183,11 @@ namespace TPDespair.ZetAspects
 
 				if (dropCount < 3)
 				{
-					if (stagesCleared >= (dropCount + 1) * 3) return 8f;
+					if (stagesCleared >= (dropCount + 1) * 3) return value;
 				}
 				else
 				{
-					if (stagesCleared >= (dropCount * 5) - 1) return 8f;
+					if (stagesCleared >= (dropCount * 5) - 1) return value;
 				}
 			}
 
@@ -217,29 +219,24 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchPop(),
-					x => x.MatchLdcR4(0.025f),
-					x => x.MatchLdloc(14),
+					x => x.MatchLdfld<EquipmentDef>("dropOnDeathChance"),
+					x => x.MatchLdcR4(100f),
+					x => x.MatchMul(),
+					x => x.MatchLdloc(15),
 					x => x.MatchCall("RoR2.Util", "CheckRoll")
 				);
 
 				if (found)
 				{
-					c.Index += 4;
+					c.Index += 5;
 
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 14);
+					c.Emit(OpCodes.Ldloc, 15);
 					c.Emit(OpCodes.Ldloc, 10);
-					c.EmitDelegate<Func<CharacterMaster, EquipmentIndex, bool>>((master, index) =>
+					c.EmitDelegate<Func<bool, CharacterMaster, EquipmentIndex, bool>>((result, master, index) =>
 					{
 						if (index == EquipmentIndex.None) return false;
-						if (ZetAspectsPlugin.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return false;
-
-						EquipmentDef equipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
-						if (equipDef && index == equipDef.equipmentIndex)
-						{
-							if (!LostInTransitHooks.blightBuffControl) return false;
-						}
+						if (Catalog.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return result;
+						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return result;
 
 						if (disableDrops) return false;
 
@@ -250,54 +247,33 @@ namespace TPDespair.ZetAspects
 						{
 							runDropCount++;
 							UpdateZetDropTracker();
-							Debug.LogWarning("ZetAspects - RunDropCount : " + runDropCount);
+							Logger.Info("RunDropCount : " + runDropCount);
 							LogDropChance();
+
+							if (Configuration.AspectShowDropText.Value)
+							{
+								Chat.SendBroadcastChat(new Chat.SimpleChatMessage
+								{
+									baseToken = "<color=#DDDDA0>" + Configuration.AspectDropText.Value + "</color>"
+								});
+							}
+
 							return true;
 						}
 
 						return false;
 					});
-
-					found = c.TryGotoNext(
-						x => x.MatchLdloc(2),
-						x => x.MatchCallOrCallvirt<CharacterBody>("get_isElite")
-					);
-
-					if (found)
-					{
-						c.Index += 2;
-
-						c.EmitDelegate<Func<bool, bool>>((isElite) =>
-						{
-							if (isElite)
-							{
-								if (Configuration.AspectShowDropText.Value)
-								{
-									Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-									{
-										baseToken = "<color=#DDDDA0>" + Configuration.AspectDropText.Value + "</color>"
-									});
-								}
-							}
-
-							return isElite;
-						});
-					}
-					else
-					{
-						Debug.LogWarning("ZetAspects - Elite Aspect Drop Message Hook Failed");
-					}
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspects - Elite Aspect Drop Chance And Message Hook Failed");
+					Logger.Warn("DropChanceHook Failed");
 				}
 			};
 		}
 
 		private static void InterceptAspectDropHook()
 		{
-			On.RoR2.PickupDropletController.CreatePickupDroplet += (orig, pickupIndex, position, velocity) =>
+			On.RoR2.PickupDropletController.CreatePickupDroplet_PickupIndex_Vector3_Vector3 += (orig, pickupIndex, position, velocity) =>
 			{
 				if (!DropAsEquipment())
 				{
@@ -305,7 +281,7 @@ namespace TPDespair.ZetAspects
 
 					if (equipIndex != EquipmentIndex.None)
 					{
-						ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(equipIndex);
+						ItemIndex newIndex = Catalog.ItemizeEliteEquipment(equipIndex);
 
 						if (newIndex != ItemIndex.None) pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
 					}
@@ -341,26 +317,34 @@ namespace TPDespair.ZetAspects
 
 		private static void EquipmentAbsorbHook()
 		{
+			On.RoR2.GenericPickupController.AttemptGrant += (orig, self, body) =>
+			{
+
+
+				orig(self, body);
+			};
+
+
+
 			IL.RoR2.GenericPickupController.AttemptGrant += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdarg(0),
-					x => x.MatchLdcI4(1),
-					x => x.MatchStfld<GenericPickupController>("consumed"),
-					x => x.MatchLdarg(0),
-					x => x.MatchLdfld<GenericPickupController>("pickupIndex")
+					x => x.MatchLdfld<GenericPickupController>("pickupIndex"),
+					x => x.MatchCall("RoR2.PickupCatalog", "GetPickupDef"),
+					x => x.MatchStloc(1)
 				);
 
 				if (found)
 				{
-					c.Index += 7;
+					c.Index += 4;
 
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldarg, 1);
-					c.Emit(OpCodes.Ldloc, 2);
-					c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((gpc, body, pickupDef) =>
+					c.Emit(OpCodes.Ldloc, 1);
+					c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((controller, body, pickupDef) =>
 					{
 						if (Configuration.AspectEquipmentAbsorb.Value)
 						{
@@ -368,23 +352,23 @@ namespace TPDespair.ZetAspects
 
 							if (pickupEquip != EquipmentIndex.None && pickupEquip == body.inventory.currentEquipmentIndex)
 							{
-								ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(pickupEquip);
+								ItemIndex newIndex = Catalog.ItemizeEliteEquipment(pickupEquip);
 
 								if (newIndex != ItemIndex.None)
 								{
-									gpc.pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
-									return PickupCatalog.GetPickupDef(gpc.pickupIndex);
+									controller.pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+									return PickupCatalog.GetPickupDef(controller.pickupIndex);
 								}
 							}
 						}
 
 						return pickupDef;
 					});
-					c.Emit(OpCodes.Stloc, 2);
+					c.Emit(OpCodes.Stloc, 1);
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspects - Equipment Absorb Hook Failed");
+					Logger.Warn("EquipmentAbsorbHook Failed");
 				}
 			};
 		}
@@ -399,7 +383,7 @@ namespace TPDespair.ZetAspects
 
 				if (equipIndex != EquipmentIndex.None)
 				{
-					ItemIndex newIndex = ZetAspectsPlugin.ItemizeEliteEquipment(equipIndex);
+					ItemIndex newIndex = Catalog.ItemizeEliteEquipment(equipIndex);
 
 					if (newIndex != ItemIndex.None) orig(self, PickupCatalog.FindPickupIndex(newIndex));
 				}
@@ -414,7 +398,7 @@ namespace TPDespair.ZetAspects
 
 				if (!Configuration.AspectEquipmentConversion.Value) return;
 
-				string message = Chat.log.DefaultIfEmpty(null).Last();
+				string message = Chat.readOnlyLog.DefaultIfEmpty(null).Last();
 				if (message == null) return;
 				Chat.UserChatMessage userChatMessage = ReconstructMessage(message);
 				if (userChatMessage == null) return;
@@ -427,7 +411,7 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						ItemIndex itemIndex = ZetAspectsPlugin.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
+						ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
 						if (itemIndex != ItemIndex.None)
 						{
 							inventory.GiveItem(itemIndex);
@@ -493,8 +477,8 @@ namespace TPDespair.ZetAspects
 			if (!inventory) return;
 			if (!inventory.hasAuthority) return;
 
-			ItemIndex itemIndex = ZetAspectsPlugin.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
-			if (itemIndex != ItemIndex.None) 
+			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
+			if (itemIndex != ItemIndex.None)
 			{
 				PlayerCharacterMasterController pcmc = handler.GetPCMC();
 				if (!pcmc) return;
