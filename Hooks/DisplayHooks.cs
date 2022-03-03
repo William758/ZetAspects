@@ -1,19 +1,26 @@
 using System;
+using System.Collections.Generic;
+//using UnityEngine;
+using UnityEngine.Networking;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Stats;
-using RoR2.UI;
-using UnityEngine;
+//using RoR2.UI;
 
 namespace TPDespair.ZetAspects
 {
 	internal static class DisplayHooks
 	{
+		/*
 		public static Color32 shieldConvertColor = new Color32(52, 111, 255, 255);
 		public static Color32 shieldCriticalColor = new Color32(204, 219, 255, 255);
 		public static Color32 shieldImmuneColor = new Color32(45, 225, 225, 255);
 		public static Color32 healthImmuneColor = new Color32(225, 225, 45, 255);
+		*/
+		internal static Dictionary<NetworkInstanceId, EquipmentDef> BodyEliteDisplay = new Dictionary<NetworkInstanceId, EquipmentDef>();
+
+
 
 		internal static void Init()
 		{
@@ -25,7 +32,183 @@ namespace TPDespair.ZetAspects
 
 			FixItemCountStatHook();
 
-			ShieldBarColorHook();
+			//ShieldBarColorHook();
+		}
+
+
+
+		private static EquipmentDef GetBodyEliteDisplay(CharacterBody body)
+		{
+			if (BodyEliteDisplay.ContainsKey(body.netId)) return BodyEliteDisplay[body.netId];
+
+			return null;
+		}
+
+		private static void UpdateBodyEliteDisplay(CharacterBody body)
+		{
+			if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) return;
+
+			if (!BodyEliteDisplay.ContainsKey(body.netId)) BodyEliteDisplay.Add(body.netId, null);
+
+			Inventory inventory = body.inventory;
+			if (inventory)
+			{
+				EquipmentDef equipDef;
+				bool aspectSkinItemApply = Configuration.AspectSkinItemApply.Value;
+
+				if (Configuration.AspectSkinEquipmentPriority.Value || !aspectSkinItemApply)
+				{
+					equipDef = GetEliteDisplayFromEquipment(inventory);
+
+					if (equipDef)
+					{
+						BodyEliteDisplay[body.netId] = equipDef;
+						return;
+					}
+					else if (aspectSkinItemApply)
+					{
+						equipDef = GetEliteDisplayFromItem(inventory);
+
+						if (equipDef)
+						{
+							BodyEliteDisplay[body.netId] = equipDef;
+							return;
+						}
+					}
+				}
+				else
+				{
+					equipDef = GetEliteDisplayFromInventory(inventory);
+
+					if (equipDef)
+					{
+						BodyEliteDisplay[body.netId] = equipDef;
+						return;
+					}
+				}
+			}
+
+			BodyEliteDisplay[body.netId] = null;
+		}
+
+		private static EquipmentDef GetEliteDisplayFromInventory(Inventory inventory)
+		{
+			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
+			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
+
+			EquipmentDef targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixLunar;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixPoison;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectPoison) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixHaunted;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectHaunted) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			/*
+			if (Catalog.Aetherium.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSanguine;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+			*/
+			targetEquipDef = Catalog.Equip.AffixRed;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectRed) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixBlue;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectBlue) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixWhite;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			return null;
+		}
+
+		private static EquipmentDef GetEliteDisplayFromEquipment(Inventory inventory)
+		{
+			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
+			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
+
+			EquipmentDef targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixLunar;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixPoison;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixHaunted;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			/*
+			if (Catalog.Aetherium.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSanguine;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+			*/
+			targetEquipDef = Catalog.Equip.AffixRed;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixBlue;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixWhite;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+			return null;
+		}
+
+		private static EquipmentDef GetEliteDisplayFromItem(Inventory inventory)
+		{
+			EquipmentDef targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixLunar;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixPoison;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectPoison) > 0) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixHaunted;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectHaunted) > 0) return targetEquipDef;
+			/*
+			if (Catalog.Aetherium.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSanguine;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
+			}
+			*/
+			targetEquipDef = Catalog.Equip.AffixRed;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectRed) > 0) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixBlue;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectBlue) > 0) return targetEquipDef;
+
+			targetEquipDef = Catalog.Equip.AffixWhite;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
+
+			return null;
 		}
 
 
@@ -51,27 +234,10 @@ namespace TPDespair.ZetAspects
 					c.EmitDelegate<Func<EquipmentDef, CharacterModel, EquipmentDef>>((equipDef, model) =>
 					{
 						CharacterBody body = model.body;
-
-						if (ZetAspectsPlugin.GetEquipmentEliteDef(equipDef) == null)
+						if (body)
 						{
-							if (body && body.inventory)
-							{
-								equipDef = EquipmentCatalog.GetEquipmentDef(body.inventory.alternateEquipmentIndex);
-
-								if (ZetAspectsPlugin.GetEquipmentEliteDef(equipDef) == null) equipDef = null;
-							}
-							else
-							{
-								equipDef = null;
-							}
-						}
-
-						if (equipDef != null && Configuration.AspectSkinEquipmentPriority.Value) return equipDef;
-						if (!Configuration.AspectSkinApply.Value) return equipDef;
-
-						if (body && body.isElite && body.inventory)
-						{
-							return GetEquipmentDefToDisplay(body.inventory, equipDef);
+							EquipmentDef equipDefFromBody = GetBodyEliteDisplay(body);
+							if (equipDefFromBody) equipDef = equipDefFromBody;
 						}
 
 						return equipDef;
@@ -79,184 +245,19 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspects - Character Overlay Hook Failed");
+					Logger.Warn("Character Overlay Hook Failed");
 				}
 			};
-		}
-
-		private static EquipmentDef GetEquipmentDefToDisplay(Inventory inventory, EquipmentDef eliteEquipDef = null)
-		{
-			EquipmentDef targetEquipDef;
-			bool eliteEquipDefNotNull = !(eliteEquipDef == null);
-
-			if (Catalog.LostInTransit.populated)
-			{
-				targetEquipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectBlighted) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-			}
-
-			if (Catalog.EliteVariety.populated)
-			{
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixImpPlane;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectImpale) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-			}
-
-			targetEquipDef = RoR2Content.Equipment.AffixLunar;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectPerfect) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-			targetEquipDef = RoR2Content.Equipment.AffixPoison;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectMalachite) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-			targetEquipDef = RoR2Content.Equipment.AffixHaunted;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCelestial) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-
-			if (Catalog.Aetherium.populated)
-			{
-				targetEquipDef = Catalog.Aetherium.Equipment.AffixSanguine;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectSanguine) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-			}
-
-			if (Catalog.EliteVariety.populated)
-			{
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixArmored;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectArmor) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixBuffing;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectBanner) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixPillaging;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectGolden) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixSandstorm;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectCyclone) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.EliteVariety.Equipment.AffixTinkerer;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectTinker) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-			}
-
-			if (Catalog.LostInTransit.populated)
-			{
-				targetEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectVolatile) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFrenzied) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-				targetEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
-				if (targetEquipDef)
-				{
-					if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLeeching) > 0) return targetEquipDef;
-					if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-				}
-			}
-
-			targetEquipDef = RoR2Content.Equipment.AffixRed;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectFire) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-			targetEquipDef = RoR2Content.Equipment.AffixBlue;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectLightning) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-			targetEquipDef = RoR2Content.Equipment.AffixWhite;
-			if (inventory.GetItemCount(ZetAspectsContent.Items.ZetAspectIce) > 0) return targetEquipDef;
-			if (eliteEquipDefNotNull && eliteEquipDef == targetEquipDef) return targetEquipDef;
-
-			return eliteEquipDef;
 		}
 
 		private static void EquipmentDisplayHook()
 		{
 			On.RoR2.CharacterModel.SetEquipmentDisplay += (orig, self, index) =>
 			{
-				index = PreventDefaultAspectEquipment(index);
+				if (Catalog.aspectEquipIndexes.Contains(index)) index = EquipmentIndex.None;
+
 				orig(self, index);
 			};
-		}
-
-		private static EquipmentIndex PreventDefaultAspectEquipment(EquipmentIndex index)
-		{
-			if (index == EquipmentIndex.None) return index;
-
-			EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(index);
-
-			EquipmentDef modEquipDef;
-
-			if (equipDef == RoR2Content.Equipment.AffixLunar) return EquipmentIndex.None;
-			if (equipDef == RoR2Content.Equipment.AffixPoison) return EquipmentIndex.None;
-			if (equipDef == RoR2Content.Equipment.AffixHaunted) return EquipmentIndex.None;
-			if (equipDef == RoR2Content.Equipment.AffixRed) return EquipmentIndex.None;
-			if (equipDef == RoR2Content.Equipment.AffixBlue) return EquipmentIndex.None;
-			if (equipDef == RoR2Content.Equipment.AffixWhite) return EquipmentIndex.None;
-
-			if (Catalog.EliteVariety.populated)
-			{
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixArmored;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixBuffing;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixImpPlane;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixPillaging;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixSandstorm;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.EliteVariety.Equipment.AffixTinkerer;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-			}
-
-			if (Catalog.LostInTransit.populated)
-			{
-				modEquipDef = Catalog.LostInTransit.Equipment.AffixLeeching;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.LostInTransit.Equipment.AffixFrenzied;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.LostInTransit.Equipment.AffixVolatile;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-				modEquipDef = Catalog.LostInTransit.Equipment.AffixBlighted;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-			}
-
-			if (Catalog.Aetherium.populated)
-			{
-				modEquipDef = Catalog.Aetherium.Equipment.AffixSanguine;
-				if (modEquipDef && modEquipDef == equipDef) return EquipmentIndex.None;
-			}
-
-			return index;
 		}
 
 		private static void UpdateItemDisplayHook()
@@ -264,56 +265,37 @@ namespace TPDespair.ZetAspects
 			On.RoR2.CharacterModel.UpdateItemDisplay += (orig, self, inventory) =>
 			{
 				orig(self, inventory);
-				ApplyAspectDisplays(self, inventory);
+
+				ApplyAspectDisplays(self);
 			};
 		}
 
-		private static void ApplyAspectDisplays(CharacterModel model, Inventory inventory)
+		private static void ApplyAspectDisplays(CharacterModel model)
 		{
 			if (!model.itemDisplayRuleSet) return;
 
-			EquipmentDef displayDef;
-			EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
-			if (ZetAspectsPlugin.GetEquipmentEliteDef(equipDef) == null)
+			EquipmentDef displayDef = null;
+			CharacterBody body = model.body;
+			if (body)
 			{
-				equipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
+				UpdateBodyEliteDisplay(body);
 
-				if (ZetAspectsPlugin.GetEquipmentEliteDef(equipDef) == null) equipDef = null;
+				EquipmentDef equipDefFromBody = GetBodyEliteDisplay(body);
+				if (equipDefFromBody) displayDef = equipDefFromBody;
 			}
 
-			if (equipDef != null && Configuration.AspectSkinEquipmentPriority.Value) displayDef = equipDef;
-			else if (!Configuration.AspectSkinApply.Value) displayDef = equipDef;
-			else displayDef = GetEquipmentDefToDisplay(inventory, equipDef);
-
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixLunar, ZetAspectsContent.Items.ZetAspectPerfect);
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixPoison, ZetAspectsContent.Items.ZetAspectMalachite);
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixHaunted, ZetAspectsContent.Items.ZetAspectCelestial);
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixRed, ZetAspectsContent.Items.ZetAspectFire);
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixBlue, ZetAspectsContent.Items.ZetAspectLightning);
-			HandleAspectDisplay(model, displayDef, RoR2Content.Equipment.AffixWhite, ZetAspectsContent.Items.ZetAspectIce);
-
-			if (Catalog.EliteVariety.populated)
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixLunar, Catalog.Item.ZetAspectLunar);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixPoison, Catalog.Item.ZetAspectPoison);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixHaunted, Catalog.Item.ZetAspectHaunted);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixRed, Catalog.Item.ZetAspectRed);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlue, Catalog.Item.ZetAspectBlue);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWhite, Catalog.Item.ZetAspectWhite);
+			/*
+			if (Catalog.Aetherium.Enabled)
 			{
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixArmored, ZetAspectsContent.Items.ZetAspectArmor);
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixBuffing, ZetAspectsContent.Items.ZetAspectBanner);
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixImpPlane, ZetAspectsContent.Items.ZetAspectImpale);
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixPillaging, ZetAspectsContent.Items.ZetAspectGolden);
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixSandstorm, ZetAspectsContent.Items.ZetAspectCyclone);
-				HandleAspectDisplay(model, displayDef, Catalog.EliteVariety.Equipment.AffixTinkerer, ZetAspectsContent.Items.ZetAspectTinker);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixSanguine, Catalog.Item.ZetAspectSanguine);
 			}
-
-			if (Catalog.LostInTransit.populated)
-			{
-				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixLeeching, ZetAspectsContent.Items.ZetAspectLeeching);
-				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixFrenzied, ZetAspectsContent.Items.ZetAspectFrenzied);
-				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixVolatile, ZetAspectsContent.Items.ZetAspectVolatile);
-				HandleAspectDisplay(model, displayDef, Catalog.LostInTransit.Equipment.AffixBlighted, ZetAspectsContent.Items.ZetAspectBlighted);
-			}
-
-			if (Catalog.Aetherium.populated)
-			{
-				HandleAspectDisplay(model, displayDef, Catalog.Aetherium.Equipment.AffixSanguine, ZetAspectsContent.Items.ZetAspectSanguine);
-			}
+			*/
 		}
 
 		private static void HandleAspectDisplay(CharacterModel model, EquipmentDef display, EquipmentDef target, ItemDef item)
@@ -366,35 +348,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterModel.EnableItemDisplay += (orig, self, index) =>
 			{
-				if (index == ZetAspectsContent.Items.ZetAspectPerfect.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectMalachite.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectCelestial.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectFire.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectLightning.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectIce.itemIndex) return;
-
-				if (Catalog.EliteVariety.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectArmor.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectBanner.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectImpale.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectGolden.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectCyclone.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectTinker.itemIndex) return;
-				}
-
-				if (Catalog.LostInTransit.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectBlighted.itemIndex) return;
-				}
-
-				if (Catalog.Aetherium.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectSanguine.itemIndex) return;
-				}
+				if (Catalog.aspectItemIndexes.Contains(index)) return;
 
 				orig(self, index);
 			};
@@ -404,35 +358,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterModel.DisableItemDisplay += (orig, self, index) =>
 			{
-				if (index == ZetAspectsContent.Items.ZetAspectPerfect.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectMalachite.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectCelestial.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectFire.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectLightning.itemIndex) return;
-				if (index == ZetAspectsContent.Items.ZetAspectIce.itemIndex) return;
-
-				if (Catalog.EliteVariety.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectArmor.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectBanner.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectImpale.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectGolden.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectCyclone.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectTinker.itemIndex) return;
-				}
-
-				if (Catalog.LostInTransit.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectLeeching.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectFrenzied.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectVolatile.itemIndex) return;
-					if (index == ZetAspectsContent.Items.ZetAspectBlighted.itemIndex) return;
-				}
-
-				if (Catalog.Aetherium.populated)
-				{
-					if (index == ZetAspectsContent.Items.ZetAspectSanguine.itemIndex) return;
-				}
+				if (Catalog.aspectItemIndexes.Contains(index)) return;
 
 				orig(self, index);
 			};
@@ -465,13 +391,13 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspects - FixItemCountStatHook Hook Failed");
+					Logger.Warn("FixItemCountStatHook Failed");
 				}
 			};
 		}
 
 
-
+		/*
 		private static void ShieldBarColorHook()
 		{
 			On.RoR2.UI.HealthBar.UpdateBarInfos += (orig, self) =>
@@ -540,5 +466,6 @@ namespace TPDespair.ZetAspects
 		{
 			hpBar.barInfoCollection.healthBarInfo.color = color;
 		}
+		*/
 	}
 }
