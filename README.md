@@ -8,43 +8,23 @@ Changes the Elite Aspects into scalable Drop Only Boss Tier Items.
 
 Aspects can be changed to Red Tier or kept as Equipment.
 
-Having Aspect Abilities installed will make Aspects drop as Equipment by default.
-
 Clicking the Equipment icon at the bottom-right of the screen will Convert it into an Item.
 
-## Wake of Vultures:
+## Item Changes:
 
-Now lasts for 20 (+10 per stack) seconds and also gives a buff to stats on killing elites.
+Wake of Vultures lasts for 20 (+10 per stack) seconds and also gives a buff to stats on killing elites.
+
+Transcendence grants 50% of life regeneration as shield regeneration.
 
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/UJejZyv.png)
+![effects](https://i.imgur.com/4o9Iu74.png)
 
-## Elite Variety Aspect Effects:
+## Survivors of the Void:
 
-Impale Dot Damage : Damage multiplied by x0.75 to counteract effect of aspect DotAmp.
+![effects](https://i.imgur.com/TAC3nXP.png)
 
-bannerTweaks (disabled by default) : Aura will only provide warbanner buff and not warcry buff.
-
-impaleTweaks (disabled by default) : Scale impale damage and duration based on ambient level. No effect at lvl 90.
-
-cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
-
-tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts and increase health and damage(configurable).
-
-![effects](https://i.imgur.com/g82PmCo.png)
-
-## Lost In Transit Effects:
-
-Effect of Guttural Whimpers and Primordial Rage for monsters is multiplied by x5.
-
-Effect of Betrayal of the Bulwark for monsters is multiplied by x5 for damage and cooldowns. Health multiplier is x10.
-
-![effects](https://i.imgur.com/7EHZtrm.png)
-
-## Aetherium Aspect Effects:
-
-![effects](https://i.imgur.com/RifeVeV.png)
+Monster leech multiplier : x5
 
 ## Installation:
 
@@ -53,6 +33,12 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.7.2 - Added Mending Elite support. Fixed aspect burn damage to match description.
+
+v2.7.1 - Fixed missing aspect item models. Logbook hides aspect item/equip if unobtainable.
+
+v2.7.0 - Updated for latest game version. Still need to do new elite types.
 
 v2.6.5 - Aspect Descriptions reflect changes made by EliteReworks.
 
