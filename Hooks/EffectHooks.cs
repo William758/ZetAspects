@@ -792,11 +792,13 @@ namespace TPDespair.ZetAspects
 			if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
 			if (Configuration.AspectBlueBaseDamage.Value <= 0f) return;
 
-			float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
+			float damage = damageInfo.damage;
 			float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
 
 			damage *= Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (count - 1f);
 			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectBlueMonsterDamageMult.Value;
+
+			//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Overloading : " + damage);
 
 			FireProjectileInfo fireProjectileInfo = new FireProjectileInfo
 			{
@@ -844,6 +846,7 @@ namespace TPDespair.ZetAspects
 					ApplyBurn(attacker, victim, damageInfo);
 					ApplyShredded(attacker, victim, damageInfo);
 					ApplyCripple(attacker, victim, damageInfo);
+					HandlePoach(attacker, victim, damageInfo);
 					//ApplyBleed(attacker, victim, damageInfo);
 				}
 			}
@@ -859,7 +862,7 @@ namespace TPDespair.ZetAspects
 			GameObject gameObject = self.gameObject;
 			TeamIndex teamIndex = self.teamComponent.teamIndex;
 
-			float damage = Util.OnHitProcDamage(damageInfo.damage, self.damage, 1f);
+			float damage = damageInfo.damage;
 			float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixWhite);
 
 			damage *= Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (count - 1f);
@@ -867,6 +870,8 @@ namespace TPDespair.ZetAspects
 
 			var procMask = default(ProcChainMask);
 			if (Catalog.borboFrostBlade) procMask.AddProc(ProcType.Thorns);
+
+			//Logger.Warn("Damage : " + damageInfo.damage + " - " + "FrostBlade : " + damage);
 
 			LightningOrb lightningOrb = new LightningOrb
 			{
@@ -1020,6 +1025,8 @@ namespace TPDespair.ZetAspects
 					}
 				}
 
+				//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Burning : " + damage + " - " + "duration : " + duration);
+
 				InflictDotPrecise(victim.gameObject, damageInfo.attacker, dotIndex, duration, damage);
 			}
 		}
@@ -1044,7 +1051,63 @@ namespace TPDespair.ZetAspects
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 			if (duration > 0.1f) victim.AddTimedBuff(RoR2Content.Buffs.Cripple, duration);
 		}
-		
+
+		private static void HandlePoach(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (self.HasBuff(Catalog.Buff.AffixEarth))
+			{
+				float duration = Configuration.AspectEarthPoachedDuration.Value;
+				if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+				if (duration > 0.1f)
+				{
+					victim.AddTimedBuff(Catalog.Buff.ZetPoached, duration);
+
+					float amount = 0f;
+
+					if (Configuration.AspectEarthBaseLeech.Value > 0f)
+					{
+						float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEarth);
+						amount = Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (count - 1f);
+					}
+					if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+					{
+						amount += Configuration.AspectEarthPoachedLeech.Value;
+					}
+
+					if (amount > 0)
+					{
+						amount *= damageInfo.damage;
+
+						if (self.teamComponent.teamIndex != TeamIndex.Player)
+						{
+							amount *= Configuration.AspectEarthMonsterLeechMult.Value;
+						}
+
+						//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
+
+						self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
+					}
+				}
+			}
+			else if (victim.HasBuff(Catalog.Buff.ZetPoached))
+			{
+				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				{
+					float amount = Configuration.AspectEarthPoachedLeech.Value;
+					amount *= damageInfo.damage;
+
+					if (self.teamComponent.teamIndex != TeamIndex.Player)
+					{
+						amount *= Configuration.AspectEarthMonsterLeechMult.Value;
+					}
+
+					//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
+
+					self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
+				}
+			}
+		}
+
 		private static void ApplyBleed(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
 			/*
@@ -1085,8 +1148,37 @@ namespace TPDespair.ZetAspects
 				float damageMult = targetDPS / dotBaseDPS;
 				damageMult *= ticks / (rTicks + 1f);
 
-				float tickedDuration = rTicks * dotDef.interval + (dotDef.interval - 0.01f);
-				DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+				float tickedDuration = (rTicks * dotDef.interval) - 0.01f;
+
+				if (dotIndex == DotController.DotIndex.Burn || dotIndex == DotController.DotIndex.StrongerBurn)
+				{
+					CharacterBody vicBody = victim.GetComponent<CharacterBody>();
+
+					// bypass burn damage being affected by target health
+					float dotStackDamage = dotDef.damageCoefficient * atkBody.damage * damageMult;
+					float dotStackDamageFromBurnOverride = Mathf.Min(dotStackDamage, vicBody.healthComponent.fullCombinedHealth * 0.01f * damageMult);
+					if (dotStackDamage > dotStackDamageFromBurnOverride)
+					{
+						// will cause severe burns if another mod removes health effect within DotController.AddDot
+						damageMult *= dotStackDamage / dotStackDamageFromBurnOverride;
+					}
+
+					InflictDotInfo inflictDotInfo = new InflictDotInfo
+					{
+						attackerObject = attacker,
+						victimObject = victim,
+						totalDamage = null,
+						duration = tickedDuration,
+						damageMultiplier = damageMult,
+						dotIndex = dotIndex,
+						maxStacksFromAttacker = null
+					};
+					DotController.InflictDot(ref inflictDotInfo);
+				}
+				else
+				{
+					DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+				}
 			}
 		}
 
@@ -1268,7 +1360,7 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self, buffDef);
 
-				if (NetworkServer.active && self)
+				if (NetworkServer.active && Run.instance && self)
 				{
 					if (!DestroyedBodies.ContainsKey(self.netId))
 					{
@@ -1304,6 +1396,8 @@ namespace TPDespair.ZetAspects
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixHaunted, Catalog.Item.ZetAspectHaunted, Catalog.Equip.AffixHaunted);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPoison, Catalog.Item.ZetAspectPoison, Catalog.Equip.AffixPoison);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixLunar, Catalog.Item.ZetAspectLunar, Catalog.Equip.AffixLunar);
+
+			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEarth, Catalog.Item.ZetAspectEarth, Catalog.Equip.AffixEarth);
 			/*
 			if (Catalog.Aetherium.populated)
 			{
