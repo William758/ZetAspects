@@ -25,7 +25,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixWhite, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -129,7 +129,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBlue, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -192,7 +192,7 @@ namespace TPDespair.ZetAspects.Items
 						output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
 					}
 					output += " TOTAL damage after ";
-					output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
+					output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
 				}
 			}
 			else
@@ -236,7 +236,7 @@ namespace TPDespair.ZetAspects.Items
 					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
 					output += value * 100f + "%</style>";
 					output += " TOTAL damage after ";
-					output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value) + ".";
+					output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
 				}
 			}
 			else
@@ -271,7 +271,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixRed");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixRed");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixRed, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -390,7 +390,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixHaunted");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixHaunted");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixHaunted, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -510,7 +510,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixPoison");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixPoison");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPoison, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -544,14 +544,18 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-			output += Language.SecondText(nullDuration);
-			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+			if (nullDuration > 0f)
 			{
-				output += ", <style=cDeath>preventing healing</style> and increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
+				output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
+				output += Language.SecondText(nullDuration);
+				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+				{
+					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
+				}
+				output += ".";
+				output += "\n<style=cStack>(Nullify prevents health recovery)</style>";
 			}
-			output += ".";
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
@@ -576,14 +580,18 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-			output += Language.SecondText(nullDuration);
-			if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+			if (nullDuration > 0f)
 			{
-				output += ", <style=cDeath>preventing healing</style> and increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
+				output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
+				output += Language.SecondText(nullDuration);
+				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+				{
+					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
+				}
+				output += ".";
+				output += "\n<style=cStack>(Nullify prevents health recovery)</style>";
 			}
-			output += ".";
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
 				value = Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (stacks - 1f);
@@ -618,7 +626,7 @@ namespace TPDespair.ZetAspects.Items
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
-			itemDef.pickupModelPrefab = Resources.Load<GameObject>("Prefabs/PickupModels/PickupAffixLunar");
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixLunar");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixLunar, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
@@ -718,6 +726,125 @@ namespace TPDespair.ZetAspects.Items
 				output += "\nAt least <style=cIsHealing>";
 				output += Configuration.AspectLunarRegen.Value * 100f + "%</style>";
 				output += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
+			}
+
+			return output;
+		}
+	}
+
+
+
+	public static class ZetAspectEarth
+	{
+		public static string identifier = "ZetAspectEarth";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
+			if (Configuration.AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			Sprite outlineSprite;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixEarth, outlineSprite);
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+
+			Language.helperTarget = "default";
+			Language.RegisterToken("ITEM_" + locToken + "_NAME", "His Reassurance");
+			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of earth.");
+
+			string desc = BuildDescription();
+			Language.RegisterToken("ITEM_" + locToken + "_DESC", BuildDescription());
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
+			Language.RegisterToken("EQUIPMENT_AFFIXEARTH_DESC", Language.EquipmentDescription(desc, ""));
+		}
+
+		public static string BuildDescription()
+		{
+			string output = "<style=cDeath>Aspect of Earth</style> :";
+			output += "\nHeal nearby allies.";
+			if (Configuration.AspectEarthRegeneration.Value > 0)
+			{
+				output += "\nIncreases <style=cIsHealing>health regeneration</style> by <style=cIsHealing>" + Configuration.AspectEarthRegeneration.Value * 100f + "% hp/s</style>.";
+			}
+			if (Configuration.AspectEarthPoachedDuration.Value > 0f)
+			{
+				output += "\nAttacks <style=cIsUtility>poach</style> on hit for ";
+				output += Language.SecondText(Configuration.AspectEarthPoachedDuration.Value);
+				if (Configuration.AspectEarthPoachedAttackSpeed.Value != 0f)
+				{
+					output += ", reducing <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value) * 100f + "%</style>";
+				}
+				output += ".";
+				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				{
+					output += "\n<style=cStack>(Hits against poached enemies heal for "+ Configuration.AspectEarthPoachedLeech.Value * 100f + "% of damage dealt)</style>";
+				}
+			}
+			if (Configuration.AspectEarthBaseLeech.Value > 0)
+			{
+				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
+				output += Configuration.AspectEarthBaseLeech.Value * 100f + "%</style>";
+				if (Configuration.AspectEarthStackLeech.Value != 0)
+				{
+					output += " " + Language.StackText(Configuration.AspectEarthStackLeech.Value * 100f, "", "%");
+				}
+				output += " of the <style=cIsDamage>damage</style> you deal.";
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Earth</style> :";
+			output += "\nHeal nearby allies.";
+			if (Configuration.AspectEarthRegeneration.Value > 0)
+			{
+				output += "\nIncreases <style=cIsHealing>health regeneration</style> by <style=cIsHealing>" + Configuration.AspectEarthRegeneration.Value * 100f + "% hp/s</style>.";
+			}
+			if (Configuration.AspectEarthPoachedDuration.Value > 0f)
+			{
+				output += "\nAttacks <style=cIsUtility>poach</style> on hit for ";
+				output += Language.SecondText(Configuration.AspectEarthPoachedDuration.Value);
+				if (Configuration.AspectEarthPoachedAttackSpeed.Value != 0f)
+				{
+					output += ", reducing <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
+					output += Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value) * 100f + "%</style>";
+				}
+				output += ".";
+				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				{
+					output += "\n<style=cStack>(Hits against poached enemies heal for " + Configuration.AspectEarthPoachedLeech.Value * 100f + "% of damage dealt)</style>";
+				}
+			}
+			if (Configuration.AspectEarthBaseLeech.Value > 0)
+			{
+				value = Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (stacks - 1f);
+				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
+				output += value * 100f + "%</style>";
+				output += " of the <style=cIsDamage>damage</style> you deal.";
 			}
 
 			return output;
