@@ -88,6 +88,14 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectLunarStackMovementGain { get; set; }
 		public static ConfigEntry<float> AspectLunarBaseShieldGain { get; set; }
 		public static ConfigEntry<float> AspectLunarStackShieldGain { get; set; }
+
+		public static ConfigEntry<float> AspectEarthRegeneration { get; set; }
+		public static ConfigEntry<float> AspectEarthPoachedDuration { get; set; }
+		public static ConfigEntry<float> AspectEarthPoachedAttackSpeed { get; set; }
+		public static ConfigEntry<float> AspectEarthPoachedLeech { get; set; }
+		public static ConfigEntry<float> AspectEarthBaseLeech { get; set; }
+		public static ConfigEntry<float> AspectEarthStackLeech { get; set; }
+		public static ConfigEntry<float> AspectEarthMonsterLeechMult { get; set; }
 		/*
 		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
@@ -281,7 +289,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectWhiteMonsterDamageMult = Config.Bind(
 				"2aa-AspectWhite", "whiteMonsterDamageMult", 1f,
-				"Multiply damage of aspect effects from monsters."
+				"Monster blade damage multiplier."
 			);
 
 
@@ -292,19 +300,19 @@ namespace TPDespair.ZetAspects
 			);
 			AspectBlueSappedDamage = Config.Bind(
 				"2ab-AspectBlue", "blueSappedDamage", 0.10f,
-				"Base Damage reduction of sapped."
+				"Damage reduction of sapped."
 			);
 			AspectBlueHealthConverted = Config.Bind(
 				"2ab-AspectBlue", "blueHealthConverted", 0.20f,
-				"Set health converted into shield. Set to 0 to disable."
+				"Health converted into shield. Set to 0 to disable."
 			);
 			AspectBlueBaseShieldGain = Config.Bind(
 				"2ab-AspectBlue", "blueBaseShieldGained", 0.20f,
-				"Set shield gained from health. Set to 0 to disable."
+				"Shield gained from health. Set to 0 to disable."
 			);
 			AspectBlueStackShieldGain = Config.Bind(
 				"2ab-AspectBlue", "blueAddedShieldGained", 0.10f,
-				"Set shield gained from health per stack."
+				"Shield gained from health per stack."
 			);
 			AspectBlueBombDuration = Config.Bind(
 				"2ab-AspectBlue", "blueBombDuration", 1.0f,
@@ -320,14 +328,14 @@ namespace TPDespair.ZetAspects
 			);
 			AspectBlueMonsterDamageMult = Config.Bind(
 				"2ab-AspectBlue", "blueMonsterDamageMult", 1f,
-				"Multiply damage of aspect effects from monsters."
+				"Monster bomb damage multiplier."
 			);
 
 
 
 			AspectRedTrail = Config.Bind(
 				"2ac-AspectRed", "redPlayerTrail", true,
-				"Set whether players leave fire trail."
+				"Players leave fire trail."
 			);
 			AspectRedExtraJump = Config.Bind(
 				"2ac-AspectRed", "redExtraJump", true,
@@ -359,7 +367,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectRedMonsterDamageMult = Config.Bind(
 				"2ac-AspectRed", "redMonsterDamageMult", 1f,
-				"Multiply damage of aspect effects from monsters."
+				"Monster burn damage multiplier."
 			);
 
 
@@ -393,11 +401,11 @@ namespace TPDespair.ZetAspects
 
 			AspectPoisonFireSpikes = Config.Bind(
 				"2ae-AspectPoison", "poisonPlayerSpikes", true,
-				"Set whether players throw spike balls."
+				"Players throw spike balls."
 			);
 			AspectPoisonNullDuration = Config.Bind(
 				"2ae-AspectPoison", "poisonNullDuration", 4.0f,
-				"Set nullification duration for players in seconds. Monsters is 8 seconds."
+				"Set nullification duration for players in seconds. Monster duration is 8 seconds."
 			);
 			AspectPoisonNullDamageTaken = Config.Bind(
 				"2ae-AspectPoison", "poisonNullDamageTaken", 0.15f,
@@ -416,11 +424,11 @@ namespace TPDespair.ZetAspects
 
 			AspectLunarProjectiles = Config.Bind(
 				"2af-AspectLunar", "lunarPlayerProjectiles", true,
-				"Set whether players shoot projectiles during combat."
+				"Players shoot projectiles during combat."
 			);
 			AspectLunarCrippleDuration = Config.Bind(
 				"2af-AspectLunar", "lunarCrippleDuration", 4.0f,
-				"Set cripple duration in seconds."
+				"Set cripple duration in seconds. Set to 0 to disable."
 			);
 			AspectLunarRegen = Config.Bind(
 				"2af-AspectLunar", "lunarShieldRegen", 1.00f,
@@ -436,11 +444,42 @@ namespace TPDespair.ZetAspects
 			);
 			AspectLunarBaseShieldGain = Config.Bind(
 				"2af-AspectLunar", "lunarBaseShieldGained", 0.20f,
-				"Set extra shield. Set to 0 to disable."
+				"Extra shield. Set to 0 to disable."
 			);
 			AspectLunarStackShieldGain = Config.Bind(
 				"2af-AspectLunar", "lunarAddedShieldGained", 0.10f,
-				"Set extra shield per stack."
+				"Extra shield per stack."
+			);
+
+
+
+			AspectEarthRegeneration = Config.Bind(
+				"2ag-AspectEarth", "earthPercentRegeneration", 0.01f,
+				"Percent health regen gained. Monsters need to be outOfCombat. Set to 0 to disable."
+			);
+			AspectEarthPoachedDuration = Config.Bind(
+				"2ag-AspectEarth", "earthPoachedDuration", 4.0f,
+				"Set poached duration in seconds. Set to 0 to disable."
+			);
+			AspectEarthPoachedAttackSpeed = Config.Bind(
+				"2ag-AspectEarth", "earthPoachedAttackSpeed", 0.10f,
+				"Attack speed reduction of poached. Set to 0 to disable."
+			);
+			AspectEarthPoachedLeech = Config.Bind(
+				"2ag-AspectEarth", "earthPoachedLeech", 0.10f,
+				"Percent damage leech amount from poached. Additive with aspect leech. Set to 0 to disable."
+			);
+			AspectEarthBaseLeech = Config.Bind(
+				"2ag-AspectEarth", "earthBaseLeech", 0.10f,
+				"Percent damage leech amount. Set to 0 to disable."
+			);
+			AspectEarthStackLeech = Config.Bind(
+				"2ag-AspectEarth", "earthAddedLeech", 0.10f,
+				"Percent damage leech amount per stack."
+			);
+			AspectEarthMonsterLeechMult = Config.Bind(
+				"2ag-AspectEarth", "earthMonsterLeechMult", 5f,
+				"Monster leech multiplier."
 			);
 		}
 
