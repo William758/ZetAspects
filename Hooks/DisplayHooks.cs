@@ -121,6 +121,11 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 			*/
+			targetEquipDef = Catalog.Equip.AffixEarth;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectEarth) > 0) return targetEquipDef;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 			targetEquipDef = Catalog.Equip.AffixRed;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectRed) > 0) return targetEquipDef;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -165,6 +170,10 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 			*/
+			targetEquipDef = Catalog.Equip.AffixEarth;
+			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 			targetEquipDef = Catalog.Equip.AffixRed;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -199,6 +208,9 @@ namespace TPDespair.ZetAspects
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
 			}
 			*/
+			targetEquipDef = Catalog.Equip.AffixEarth;
+			if (inventory.GetItemCount(Catalog.Item.ZetAspectEarth) > 0) return targetEquipDef;
+
 			targetEquipDef = Catalog.Equip.AffixRed;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectRed) > 0) return targetEquipDef;
 
@@ -290,6 +302,8 @@ namespace TPDespair.ZetAspects
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixRed, Catalog.Item.ZetAspectRed);
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlue, Catalog.Item.ZetAspectBlue);
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWhite, Catalog.Item.ZetAspectWhite);
+
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixEarth, Catalog.Item.ZetAspectEarth);
 			/*
 			if (Catalog.Aetherium.Enabled)
 			{
