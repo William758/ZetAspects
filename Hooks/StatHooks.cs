@@ -18,7 +18,7 @@ namespace TPDespair.ZetAspects
 			ArmorHook();
 			AttackSpeedHook();
 			CritHook();
-			//RegenHook();
+			RegenHook();
 
 			OverloadingShieldConversionHook();
 			FullShieldConversionHook();
@@ -362,6 +362,23 @@ namespace TPDespair.ZetAspects
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
+
+					c.Index += 4;
+
+					// multiplier
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, baseValue);
+					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
+					{
+						if (self.HasBuff(Catalog.Buff.ZetPoached))
+						{
+							float delta = Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value);
+							value *= 1f - Mathf.Min(0.9f, delta);
+						}
+
+						return value;
+					});
+					c.Emit(OpCodes.Stloc, baseValue);
 				}
 				else
 				{
@@ -405,27 +422,57 @@ namespace TPDespair.ZetAspects
 				}
 			}
 		}
-		/*
+		
 		private static void RegenHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
+				const int knurlValue = 68;
+				const int crocoValue = 71;
+
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
-					x => x.MatchStloc(60)
+					x => x.MatchStloc(73)
 				);
 
 				if (found)
 				{
+					// add (affected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 55);
+					c.Emit(OpCodes.Ldloc, knurlValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
+						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+						{
+							value += 1.6f;
+						}
+
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, 55);
+					c.Emit(OpCodes.Stloc, knurlValue);
+
+					// add percent (unaffected by lvl regen scaling and ignites)
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, crocoValue);
+					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
+					{
+						float amount = 0f;
+
+						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+						{
+							amount += Configuration.AspectEarthRegeneration.Value;
+						}
+
+						if (amount > 0f && AllowPercentHealthRegen(self))
+						{
+							value += self.maxHealth * amount;
+						}
+
+						return value;
+					});
+					c.Emit(OpCodes.Stloc, crocoValue);
 				}
 				else
 				{
@@ -433,7 +480,25 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		*/
+
+		private static bool AllowPercentHealthRegen(CharacterBody body)
+		{
+			TeamIndex teamIndex = body.teamComponent.teamIndex;
+
+			if (teamIndex == TeamIndex.Player || body.outOfDanger)
+			{
+				if (!body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) && !body.HasBuff(RoR2Content.Buffs.Immune))
+				{
+					if (body.baseNameToken != "ARTIFACTSHELL_BODY_NAME" && body.baseNameToken != "TITANGOLD_BODY_NAME")
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
 		private static void OverloadingShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
