@@ -17,6 +17,16 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropChanceDecay { get; set; }
 		public static ConfigEntry<float> AspectDropChanceDecayLimit { get; set; }
 		public static ConfigEntry<float> AspectDropChanceCompensation { get; set; }
+		public static ConfigEntry<bool> AspectDropWeightMaster { get; set; }
+		public static ConfigEntry<int> AspectDropWeightLimit { get; set; }
+		public static ConfigEntry<float> AspectDropWeightWhite { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBlue { get; set; }
+		public static ConfigEntry<float> AspectDropWeightRed { get; set; }
+		public static ConfigEntry<float> AspectDropWeightHaunted { get; set; }
+		public static ConfigEntry<float> AspectDropWeightPoison { get; set; }
+		public static ConfigEntry<float> AspectDropWeightLunar { get; set; }
+		public static ConfigEntry<float> AspectDropWeightEarth { get; set; }
+		public static ConfigEntry<float> AspectDropWeightVoid { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -25,7 +35,9 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
 
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
-		//public static ConfigEntry<bool> RecolorImmuneHealth { get; set; }
+		public static ConfigEntry<bool> RecolorHpBar { get; set; }
+		public static ConfigEntry<bool> RecolorImmuneBar { get; set; }
+		public static ConfigEntry<bool> RecolorShieldConvertBar { get; set; }
 
 		public static ConfigEntry<float> HeadHunterBaseDuration { get; set; }
 		public static ConfigEntry<float> HeadHunterStackDuration { get; set; }
@@ -64,8 +76,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectRedStackMovementGain { get; set; }
 		public static ConfigEntry<bool> AspectRedUseBase { get; set; }
 		public static ConfigEntry<float> AspectRedBurnDuration { get; set; }
-		public static ConfigEntry<float> AspectRedBaseDamage { get; set; }
-		public static ConfigEntry<float> AspectRedStackDamage { get; set; }
+		public static ConfigEntry<float> AspectRedBaseBurnDamage { get; set; }
+		public static ConfigEntry<float> AspectRedStackBurnDamage { get; set; }
 		public static ConfigEntry<float> AspectRedMonsterDamageMult { get; set; }
 
 		public static ConfigEntry<bool> AspectHauntedSlowEffect { get; set; }
@@ -96,6 +108,15 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectEarthBaseLeech { get; set; }
 		public static ConfigEntry<float> AspectEarthStackLeech { get; set; }
 		public static ConfigEntry<float> AspectEarthMonsterLeechMult { get; set; }
+
+		public static ConfigEntry<float> AspectVoidBaseHealthGain { get; set; }
+		public static ConfigEntry<float> AspectVoidStackHealthGain { get; set; }
+		public static ConfigEntry<float> AspectVoidBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectVoidStackDamageGain { get; set; }
+		public static ConfigEntry<bool> AspectVoidUseBase { get; set; }
+		public static ConfigEntry<float> AspectVoidBaseCollapseDamage { get; set; }
+		public static ConfigEntry<float> AspectVoidStackCollapseDamage { get; set; }
+		public static ConfigEntry<float> AspectVoidMonsterDamageMult { get; set; }
 		/*
 		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
@@ -166,6 +187,52 @@ namespace TPDespair.ZetAspects
 				"0b-DropChance", "aspectDropChanceCompensation", 4f,
 				"Multiply drop chance at certain dropcount vs stagecount thresholds. 1 drop by stage 4, 2 by 7, 3 by 10, 4 by 15, 5 by 20..."
 			);
+			AspectDropWeightMaster = Config.Bind(
+				"0b-DropWeight", "aspectDropWeightMaster", false,
+				"Enable this config to adjust the drop weight of each individual aspect when dropped by elites. Run the game again after enabling this config to generate drop weight configs."
+			);
+			if (AspectDropWeightMaster.Value)
+			{
+				AspectDropWeightLimit = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightLimit", 5,
+					"Last stage to apply drop weights. 0 to always apply."
+				);
+
+				AspectDropWeightWhite = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightWhite", 1f,
+					"Drop chance multiplier for AffixWhite"
+				);
+				AspectDropWeightBlue = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBlue", 1f,
+					"Drop chance multiplier for AffixBlue"
+				);
+				AspectDropWeightRed = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightRed", 1f,
+					"Drop chance multiplier for AffixRed"
+				);
+				AspectDropWeightHaunted = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightHaunted", 1f,
+					"Drop chance multiplier for AffixHaunted"
+				);
+				AspectDropWeightPoison = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightPoison", 1f,
+					"Drop chance multiplier for AffixPoison"
+				);
+				AspectDropWeightLunar = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightLunar", 1f,
+					"Drop chance multiplier for AffixLunar"
+				);
+				AspectDropWeightEarth = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightEarth", 1f,
+					"Drop chance multiplier for AffixEarth"
+				);
+				AspectDropWeightVoid = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightVoid", 1f,
+					"Drop chance multiplier for AffixVoid"
+				);
+
+				Catalog.dropWeightsAvailable = true;
+			}
 
 
 
@@ -196,12 +263,18 @@ namespace TPDespair.ZetAspects
 				"0d-Tweaks", "transcendenceShieldRegen", 0.50f,
 				"Health regen gained as shield regen. Set to 0 to disable."
 			);
-			/*
-			RecolorImmuneHealth = Config.Bind(
-				"0d-Tweaks", "recolorImmuneHealth", false,
-				"Change healthbar color while immune."
+			RecolorHpBar = Config.Bind(
+				"0d-Tweaks", "recolorHpBar", true,
+				"Tweak the color of various hpbar conditions."
 			);
-			*/
+			RecolorImmuneBar = Config.Bind(
+				"0d-Tweaks", "recolorImmuneBar", false,
+				"Change hpbar color while invulnerable."
+			);
+			RecolorShieldConvertBar = Config.Bind(
+				"0d-Tweaks", "recolorShieldConvertBar", true,
+				"Change hpbar color while all health is converted into shields."
+			);
 		}
 
 		private static void HeadHunterConfigs(ConfigFile Config)
@@ -357,12 +430,12 @@ namespace TPDespair.ZetAspects
 				"2ac-AspectRed", "redBurnDuration", 4.0f,
 				"Set burn duration in seconds."
 			);
-			AspectRedBaseDamage = Config.Bind(
-				"2ac-AspectRed", "redBaseTotalDamage", 0.20f,
+			AspectRedBaseBurnDamage = Config.Bind(
+				"2ac-AspectRed", "redBaseBurnDamage", 0.20f,
 				"Base total damage of burn over duration. Set to 0 to disable."
 			);
-			AspectRedStackDamage = Config.Bind(
-				"2ac-AspectRed", "redAddedTotalDamage", 0.10f,
+			AspectRedStackBurnDamage = Config.Bind(
+				"2ac-AspectRed", "redAddedBurnDamage", 0.10f,
 				"Added total damage of burn per stack."
 			);
 			AspectRedMonsterDamageMult = Config.Bind(
@@ -405,11 +478,11 @@ namespace TPDespair.ZetAspects
 			);
 			AspectPoisonNullDuration = Config.Bind(
 				"2ae-AspectPoison", "poisonNullDuration", 4.0f,
-				"Set nullification duration for players in seconds. Monster duration is 8 seconds."
+				"Set ruin duration for players in seconds. Monster duration is 8 seconds."
 			);
 			AspectPoisonNullDamageTaken = Config.Bind(
 				"2ae-AspectPoison", "poisonNullDamageTaken", 0.15f,
-				"Damage taken increase from nullification. Set to 0 to disable."
+				"Damage taken increase from ruin. Set to 0 to disable."
 			);
 			AspectPoisonBaseHealthGain = Config.Bind(
 				"2ae-AspectPoison", "poisonBaseHealth", 400f,
@@ -480,6 +553,41 @@ namespace TPDespair.ZetAspects
 			AspectEarthMonsterLeechMult = Config.Bind(
 				"2ag-AspectEarth", "earthMonsterLeechMult", 5f,
 				"Monster leech multiplier."
+			);
+
+
+
+			AspectVoidBaseHealthGain = Config.Bind(
+				"2ah-AspectVoid", "voidBaseHealthGained", 0.20f,
+				"Health gained. Set to 0 to disable."
+			);
+			AspectVoidStackHealthGain = Config.Bind(
+				"2ah-AspectVoid", "voidAddedHealthGained", 0.10f,
+				"Health gained per stack."
+			);
+			AspectVoidBaseDamageGain = Config.Bind(
+				"2ah-AspectVoid", "voidBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectVoidStackDamageGain = Config.Bind(
+				"2ah-AspectVoid", "voidAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+			AspectVoidUseBase = Config.Bind(
+				"2ah-AspectVoid", "voidUseBaseDamage", false,
+				"Set whether collapse damage is based on BASE or TOTAL damage. Vanilla behavior is 400% BASE damage."
+			);
+			AspectVoidBaseCollapseDamage = Config.Bind(
+				"2ah-AspectVoid", "voidBaseCollapseDamage", 0.20f,
+				"Base total damage of collapse over duration. Set to 0 to disable."
+			);
+			AspectVoidStackCollapseDamage = Config.Bind(
+				"2ah-AspectVoid", "voidAddedCollapseDamage", 0.10f,
+				"Added total damage of collapse per stack."
+			);
+			AspectVoidMonsterDamageMult = Config.Bind(
+				"2ah-AspectVoid", "voidMonsterDamageMult", 1f,
+				"Monster collapse damage multiplier."
 			);
 		}
 
