@@ -1,23 +1,28 @@
 using System;
 using System.Collections.Generic;
-//using UnityEngine;
+using UnityEngine;
 using UnityEngine.Networking;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Stats;
-//using RoR2.UI;
+using RoR2.UI;
 
 namespace TPDespair.ZetAspects
 {
 	internal static class DisplayHooks
 	{
-		/*
-		public static Color32 shieldConvertColor = new Color32(52, 111, 255, 255);
-		public static Color32 shieldCriticalColor = new Color32(204, 219, 255, 255);
-		public static Color32 shieldImmuneColor = new Color32(45, 225, 225, 255);
+		public static Color32 shieldVoidColor = new Color32(255, 75, 210, 255);
+
+		public static Color32 shieldConvertColor = new Color32(50, 100, 255, 255);
+		public static Color32 shieldConvertVoidColor = new Color32(255, 50, 150, 255);
+
+		public static Color32 shieldCriticalColor = new Color32(200, 200, 200, 255);
+
+		public static Color32 shieldImmuneColor = new Color32(55, 205, 225, 255);
+		public static Color32 shieldImmuneVoidColor = new Color32(205, 55, 255, 255);
 		public static Color32 healthImmuneColor = new Color32(225, 225, 45, 255);
-		*/
+		
 		internal static Dictionary<NetworkInstanceId, EquipmentDef> BodyEliteDisplay = new Dictionary<NetworkInstanceId, EquipmentDef>();
 
 
@@ -32,7 +37,26 @@ namespace TPDespair.ZetAspects
 
 			FixItemCountStatHook();
 
-			//ShieldBarColorHook();
+			if (Configuration.RecolorHpBar.Value) HPBarColorHook();
+		}
+
+
+
+		internal static void OnBodyDeath(CharacterBody body)
+		{
+			if (GetBodyEliteDisplay(body) == Catalog.Equip.AffixVoid)
+			{
+				ModelLocator locator = body.GetComponent<ModelLocator>();
+				if (locator && locator.modelTransform)
+				{
+					CharacterModel model = locator.modelTransform.GetComponent<CharacterModel>();
+					if (model)
+					{
+						ApplyAspectDisplays(model, true);
+						//model.UpdateOverlays();
+					}
+				}
+			}
 		}
 
 
@@ -44,7 +68,7 @@ namespace TPDespair.ZetAspects
 			return null;
 		}
 
-		private static void UpdateBodyEliteDisplay(CharacterBody body)
+		private static void UpdateBodyEliteDisplay(CharacterBody body, bool isDead = false)
 		{
 			if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) return;
 
@@ -58,7 +82,7 @@ namespace TPDespair.ZetAspects
 
 				if (Configuration.AspectSkinEquipmentPriority.Value || !aspectSkinItemApply)
 				{
-					equipDef = GetEliteDisplayFromEquipment(inventory);
+					equipDef = GetEliteDisplayFromEquipment(inventory, isDead);
 
 					if (equipDef)
 					{
@@ -67,7 +91,7 @@ namespace TPDespair.ZetAspects
 					}
 					else if (aspectSkinItemApply)
 					{
-						equipDef = GetEliteDisplayFromItem(inventory);
+						equipDef = GetEliteDisplayFromItem(inventory, isDead);
 
 						if (equipDef)
 						{
@@ -78,7 +102,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					equipDef = GetEliteDisplayFromInventory(inventory);
+					equipDef = GetEliteDisplayFromInventory(inventory, isDead);
 
 					if (equipDef)
 					{
@@ -91,12 +115,20 @@ namespace TPDespair.ZetAspects
 			BodyEliteDisplay[body.netId] = null;
 		}
 
-		private static EquipmentDef GetEliteDisplayFromInventory(Inventory inventory)
+		private static EquipmentDef GetEliteDisplayFromInventory(Inventory inventory, bool isDead = false)
 		{
 			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
 			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
 
 			EquipmentDef targetEquipDef;
+
+			if (!isDead)
+			{
+				targetEquipDef = Catalog.Equip.AffixVoid;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectVoid) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
 
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
@@ -144,12 +176,19 @@ namespace TPDespair.ZetAspects
 			return null;
 		}
 
-		private static EquipmentDef GetEliteDisplayFromEquipment(Inventory inventory)
+		private static EquipmentDef GetEliteDisplayFromEquipment(Inventory inventory, bool isDead = false)
 		{
 			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
 			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
 
 			EquipmentDef targetEquipDef;
+
+			if (!isDead)
+			{
+				targetEquipDef = Catalog.Equip.AffixVoid;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
 
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -189,9 +228,15 @@ namespace TPDespair.ZetAspects
 			return null;
 		}
 
-		private static EquipmentDef GetEliteDisplayFromItem(Inventory inventory)
+		private static EquipmentDef GetEliteDisplayFromItem(Inventory inventory, bool isDead = false)
 		{
 			EquipmentDef targetEquipDef;
+
+			if (!isDead)
+			{
+				targetEquipDef = Catalog.Equip.AffixVoid;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectVoid) > 0) return targetEquipDef;
+			}
 
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
@@ -249,7 +294,9 @@ namespace TPDespair.ZetAspects
 						if (body)
 						{
 							EquipmentDef equipDefFromBody = GetBodyEliteDisplay(body);
-							if (equipDefFromBody) equipDef = equipDefFromBody;
+
+							//if (equipDef && !equipDefFromBody && equipDef == Catalog.Equip.AffixVoid) return null;
+							if (equipDefFromBody) return equipDefFromBody;
 						}
 
 						return equipDef;
@@ -282,7 +329,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void ApplyAspectDisplays(CharacterModel model)
+		private static void ApplyAspectDisplays(CharacterModel model, bool isDead = false)
 		{
 			if (!model.itemDisplayRuleSet) return;
 
@@ -290,7 +337,7 @@ namespace TPDespair.ZetAspects
 			CharacterBody body = model.body;
 			if (body)
 			{
-				UpdateBodyEliteDisplay(body);
+				UpdateBodyEliteDisplay(body, isDead);
 
 				EquipmentDef equipDefFromBody = GetBodyEliteDisplay(body);
 				if (equipDefFromBody) displayDef = equipDefFromBody;
@@ -304,6 +351,7 @@ namespace TPDespair.ZetAspects
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWhite, Catalog.Item.ZetAspectWhite);
 
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixEarth, Catalog.Item.ZetAspectEarth);
+			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixVoid, Catalog.Item.ZetAspectVoid);
 			/*
 			if (Catalog.Aetherium.Enabled)
 			{
@@ -411,64 +459,70 @@ namespace TPDespair.ZetAspects
 		}
 
 
-		/*
-		private static void ShieldBarColorHook()
+
+		private static void HPBarColorHook()
 		{
 			On.RoR2.UI.HealthBar.UpdateBarInfos += (orig, self) =>
 			{
 				orig(self);
 
-				int shieledColor = GetShieldColorIndex(self);
-				if (shieledColor != 0)
-				{
-					if (shieledColor == 3)
-					{
-						SetShieldColor(self, shieldImmuneColor);
-						SetHealthColor(self, healthImmuneColor);
-					}
-					if (shieledColor == 2) SetShieldColor(self, shieldCriticalColor);
-					if (shieledColor == 1) SetShieldColor(self, shieldConvertColor);
-				}
+				HPBarColorOverride(self);
 			};
 		}
 
-		private static int GetShieldColorIndex(HealthBar hpBar)
+		private static void HPBarColorOverride(HealthBar hpBar)
 		{
-			int output = 0;
+			bool critical = false, immune = false, convertShield = false, voidShield = false;
 
 			if (hpBar.healthCritical && hpBar.style.flashOnHealthCritical)
 			{
-				if (Mathf.FloorToInt(Time.fixedTime * 10f) % 2 == 0) output = 2;
+				if (Mathf.FloorToInt(Time.fixedTime * 10f) % 2 == 0) critical = true;
 			}
 
-			HealthComponent hc = hpBar._source;
-			if (hc)
+			HealthComponent healthComponent = hpBar._source;
+			if (healthComponent)
 			{
-				CharacterBody body = hc.body;
+				if (healthComponent.godMode) immune = true;
+
+				CharacterBody body = healthComponent.body;
 				if (body)
 				{
-					if (Catalog.immuneHealth)
-					{
-						if (hc.godMode || body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) || body.HasBuff(RoR2Content.Buffs.Immune)) output = Math.Max(output, 3);
-					}
+					if (body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) || body.HasBuff(RoR2Content.Buffs.Immune)) immune = true;
 
-					if (body.HasBuff(RoR2Content.Buffs.AffixLunar))
+					if (body.HasBuff(RoR2Content.Buffs.AffixLunar)) convertShield = true;
+
+					Inventory inventory = body.inventory;
+					if (inventory)
 					{
-						output = Math.Max(output, 1);
-					}
-					else
-					{
-						Inventory inventory = body.inventory;
-						if (inventory)
-						{
-							int count = inventory.GetItemCount(RoR2Content.Items.ShieldOnly);
-							if (count > 0) output = Math.Max(output, 1);
-						}
+						int count = inventory.GetItemCount(RoR2Content.Items.ShieldOnly);
+						if (count > 0) convertShield = true;
+
+						count = inventory.GetItemCount(DLC1Content.Items.MissileVoid);
+						if (count > 0) voidShield = true;
 					}
 				}
 			}
 
-			return output;
+			if (critical)
+			{
+				SetShieldColor(hpBar, shieldCriticalColor);
+			}
+			else if (immune && (Catalog.immuneHealth || Configuration.RecolorImmuneBar.Value))
+			{
+				SetHealthColor(hpBar, healthImmuneColor);
+
+				if (voidShield) SetShieldColor(hpBar, shieldImmuneVoidColor);
+				else SetShieldColor(hpBar, shieldImmuneColor);
+			}
+			else if (convertShield && Configuration.RecolorShieldConvertBar.Value)
+			{
+				if (voidShield) SetShieldColor(hpBar, shieldConvertVoidColor);
+				else SetShieldColor(hpBar, shieldConvertColor);
+			}
+			else if (voidShield)
+			{
+				SetShieldColor(hpBar, shieldVoidColor);
+			}
 		}
 
 		private static void SetShieldColor(HealthBar hpBar, Color32 color)
@@ -478,8 +532,7 @@ namespace TPDespair.ZetAspects
 
 		private static void SetHealthColor(HealthBar hpBar, Color32 color)
 		{
-			hpBar.barInfoCollection.healthBarInfo.color = color;
+			hpBar.barInfoCollection.trailingOverHealthbarInfo.color = color;
 		}
-		*/
 	}
 }
