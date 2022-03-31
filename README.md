@@ -2,11 +2,13 @@
 
 Drop Rate from Killed Elites changed to 1 in 500.
 
+Configurable drop chance multiplier for each elite type.
+
 Drop chance is halved every time one drops in a run (0.2% -> 0.1%).
 
 Changes the Elite Aspects into scalable Drop Only Boss Tier Items.
 
-Aspects can be changed to Red Tier or kept as Equipment.
+Aspects can be configured to be Red Tier or kept as Equipment.
 
 Clicking the Equipment icon at the bottom-right of the screen will Convert it into an Item.
 
@@ -16,13 +18,15 @@ Wake of Vultures lasts for 20 (+10 per stack) seconds and also gives a buff to s
 
 Transcendence grants 50% of life regeneration as shield regeneration.
 
+Fixed VoidBearCooldown buff and made it stack.
+
 ## Aspect Effects:
 
-![effects](https://i.imgur.com/4o9Iu74.png)
+![effects](https://i.imgur.com/szoURGs.png)
 
 ## Survivors of the Void:
 
-![effects](https://i.imgur.com/TAC3nXP.png)
+![effects](https://i.imgur.com/TEmrOkh.png)
 
 Monster leech multiplier : x5
 
@@ -33,6 +37,10 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.7.4 - Added Voidtouched Elite Support. Renamed burn damage configs. Fixed voidbearcooldown buff and made it stack. Drop weight multiplier configs for each elite type.
+
+v2.7.3 - Re-enabled EliteReworks support and health bar color tweaks.
 
 v2.7.2 - Added Mending Elite support. Fixed aspect burn damage to match description.
 
