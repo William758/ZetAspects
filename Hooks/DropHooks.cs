@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -26,6 +27,9 @@ namespace TPDespair.ZetAspects
 
 	public static class DropHooks
 	{
+		internal static Dictionary<EquipmentIndex, float> DropWeight = new Dictionary<EquipmentIndex, float>();
+		public static bool applyDropWeight = false;
+
 		public static bool disableDrops = false;
 		public static int runDropCount = 0;
 
@@ -51,6 +55,15 @@ namespace TPDespair.ZetAspects
 			{
 				UpdateRunDropCount();
 				UpdateZetDropTracker();
+
+				// Prevent reading non-existant configs
+				if (Catalog.dropWeightsAvailable)
+				{
+					int limit = Configuration.AspectDropWeightLimit.Value;
+					applyDropWeight = limit <= 0 || Run.instance.stageClearCount < limit;
+
+					if (applyDropWeight) UpdateDropWeights();
+				}
 
 				disableDrops = false;
 				Logger.Info("ScenePopulated : Drops Enabled");
@@ -96,6 +109,31 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
+		private static void UpdateDropWeights()
+		{
+			SetDropWeight(Catalog.Equip.AffixWhite, Configuration.AspectDropWeightWhite.Value);
+			SetDropWeight(Catalog.Equip.AffixBlue, Configuration.AspectDropWeightBlue.Value);
+			SetDropWeight(Catalog.Equip.AffixRed, Configuration.AspectDropWeightRed.Value);
+			SetDropWeight(Catalog.Equip.AffixHaunted, Configuration.AspectDropWeightHaunted.Value);
+			SetDropWeight(Catalog.Equip.AffixPoison, Configuration.AspectDropWeightPoison.Value);
+			SetDropWeight(Catalog.Equip.AffixLunar, Configuration.AspectDropWeightLunar.Value);
+			SetDropWeight(Catalog.Equip.AffixEarth, Configuration.AspectDropWeightEarth.Value);
+			SetDropWeight(Catalog.Equip.AffixVoid, Configuration.AspectDropWeightVoid.Value);
+		}
+
+		private static void SetDropWeight(EquipmentDef equipDef, float value)
+		{
+			if (equipDef)
+			{
+				EquipmentIndex equipIndex = equipDef.equipmentIndex;
+				if (equipIndex != EquipmentIndex.None)
+				{
+					if (DropWeight.ContainsKey(equipIndex)) DropWeight[equipIndex] = value;
+					else DropWeight.Add(equipIndex, value);
+				}
+			}
+		}
+
 		private static void OnSceneExit(SceneExitController sceneExitController)
 		{
 			if (Run.instance)
@@ -136,7 +174,7 @@ namespace TPDespair.ZetAspects
 
 			float currentChance = baseChance * decayMult * playerMult * stageMult;
 
-			string output = "ZetAspects - DropChance : ";
+			string output = "BaseDropChance : ";
 			output += $"{currentChance:0.###}% : ";
 			output += "[base]" + $"{baseChance:0.###}% x ";
 			output += "[decay]" + $"{decayMult:0.###} x ";
@@ -146,9 +184,15 @@ namespace TPDespair.ZetAspects
 			Logger.Info(output);
 		}
 
-		private static float GetDropChance()
+		private static float GetDropChance(EquipmentIndex index)
 		{
 			float chance = Configuration.AspectDropChance.Value;
+
+			// can only be set to true after a Catalog.dropWeightsAvailable check
+			if (applyDropWeight)
+			{
+				if (DropWeight.ContainsKey(index)) chance *= DropWeight[index];
+			}
 
 			chance *= DecayChanceFactor();
 			chance *= PlayerChanceFactor();
@@ -240,7 +284,7 @@ namespace TPDespair.ZetAspects
 
 						if (disableDrops) return false;
 
-						float chance = GetDropChance();
+						float chance = GetDropChance(index);
 						if (chance <= 0f) return false;
 
 						if (CheckDropRoll(chance, master))
@@ -254,7 +298,7 @@ namespace TPDespair.ZetAspects
 							{
 								Chat.SendBroadcastChat(new Chat.SimpleChatMessage
 								{
-									baseToken = "<color=#DDDDA0>" + Configuration.AspectDropText.Value + "</color>"
+									baseToken = "<color=#DDDDA0><size=120%>" + Configuration.AspectDropText.Value + "</color></size>"
 								});
 							}
 
@@ -309,6 +353,7 @@ namespace TPDespair.ZetAspects
 			{
 				if (Configuration.AspectEquipmentConversion.Value) return true;
 				if (Configuration.AspectEquipmentAbsorb.Value) return true;
+				// cant get from killing elites but can still find in chests/printers
 				if (!Configuration.AspectWorldUnique.Value) return true;
 				return false;
 			}
@@ -317,15 +362,6 @@ namespace TPDespair.ZetAspects
 
 		private static void EquipmentAbsorbHook()
 		{
-			On.RoR2.GenericPickupController.AttemptGrant += (orig, self, body) =>
-			{
-
-
-				orig(self, body);
-			};
-
-
-
 			IL.RoR2.GenericPickupController.AttemptGrant += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
