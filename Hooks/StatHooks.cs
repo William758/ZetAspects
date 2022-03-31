@@ -157,6 +157,41 @@ namespace TPDespair.ZetAspects
 							value += Configuration.HeadHunterBuffDamage.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixVoid))
+						{
+							bool onPrimaryEquipment = false;
+
+							Inventory inventory = self.inventory;
+							if (inventory)
+							{
+								if (inventory.currentEquipmentIndex == DLC1Content.Equipment.EliteVoidEquipment.equipmentIndex)
+								{
+									onPrimaryEquipment = true;
+								}
+							}
+
+							if (Compat.EliteReworks.eliteVoidEnabled)
+							{
+								float voidDamage = Compat.EliteReworks.eliteVoidDamage;
+
+								if (voidDamage > 0f)
+								{
+									value -= voidDamage - 0.7f;
+								}
+							}
+
+							if (onPrimaryEquipment)
+							{
+								value += 0.3f;
+							}
+
+							if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
+								value += Configuration.AspectVoidBaseDamageGain.Value + Configuration.AspectVoidStackDamageGain.Value * (count - 1f);
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -266,6 +301,31 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
 						{
 							value += Configuration.HeadHunterBuffHealth.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixVoid))
+						{
+							bool onPrimaryEquipment = false;
+
+							Inventory inventory = self.inventory;
+							if (inventory)
+							{
+								if (inventory.currentEquipmentIndex == DLC1Content.Equipment.EliteVoidEquipment.equipmentIndex)
+								{
+									onPrimaryEquipment = true;
+								}
+							}
+
+							if (onPrimaryEquipment)
+							{
+								value -= 0.5f;
+							}
+
+							if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
+								value += Configuration.AspectVoidBaseHealthGain.Value + Configuration.AspectVoidStackHealthGain.Value * (count - 1f);
+							}
 						}
 
 						return value;
