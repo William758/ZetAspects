@@ -157,7 +157,16 @@ namespace TPDespair.ZetAspects.Items
 
 		public static string BuildDescription()
 		{
+			bool defaultBombDisabled = false;
+
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
+			if (Compat.EliteReworks.affixBlueEnabled)
+			{
+				if (Compat.EliteReworks.affixBluePassive)
+				{
+					output += "\nOccasionally Drop scatter bombs around you.";
+				}
+			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -165,11 +174,14 @@ namespace TPDespair.ZetAspects.Items
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (Configuration.AspectBlueHealthConverted.Value > 0f)
+			if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
 			{
-				output += "\nConvert <style=cIsHealing>";
-				output += Configuration.AspectBlueHealthConverted.Value * 100f;
-				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				if (Configuration.AspectBlueHealthConverted.Value > 0f)
+				{
+					output += "\nConvert <style=cIsHealing>";
+					output += Configuration.AspectBlueHealthConverted.Value * 100f;
+					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				}
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -181,23 +193,37 @@ namespace TPDespair.ZetAspects.Items
 				}
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (EffectHooks.preventedDefaultOverloadingBomb)
+			if (Compat.EliteReworks.affixBlueEnabled)
 			{
-				if (Configuration.AspectBlueBaseDamage.Value > 0f)
+				if (Compat.EliteReworks.affixBlueOnHit)
 				{
-					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-					output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
-					if (Configuration.AspectBlueStackDamage.Value != 0f)
-					{
-						output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
-					}
-					output += " TOTAL damage after ";
-					output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
+					defaultBombDisabled = true;
+
+					output += "\nAttacks drop scatter bombs that explodes for <style=cIsDamage>";
+					output += Compat.EliteReworks.affixBlueDamage * 100f + "%</style>";
+					output += " TOTAL damage.";
 				}
 			}
-			else
+			if (!defaultBombDisabled)
 			{
-				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
+				if (EffectHooks.preventedDefaultOverloadingBomb)
+				{
+					if (Configuration.AspectBlueBaseDamage.Value > 0f)
+					{
+						output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
+						output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
+						if (Configuration.AspectBlueStackDamage.Value != 0f)
+						{
+							output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
+						}
+						output += " TOTAL damage after ";
+						output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
+					}
+				}
+				else
+				{
+					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
+				}
 			}
 
 			return output;
@@ -207,7 +233,16 @@ namespace TPDespair.ZetAspects.Items
 		{
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
+			bool defaultBombDisabled = false;
+
 			string output = "<style=cDeath>Aspect of Lightning</style> :";
+			if (Compat.EliteReworks.affixBlueEnabled)
+			{
+				if (Compat.EliteReworks.affixBluePassive)
+				{
+					output += "\nOccasionally Drop scatter bombs around you.";
+				}
+			}
 			if (Configuration.AspectBlueSappedDuration.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
@@ -215,11 +250,14 @@ namespace TPDespair.ZetAspects.Items
 				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
 				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
 			}
-			if (Configuration.AspectBlueHealthConverted.Value > 0f)
+			if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
 			{
-				output += "\nConvert <style=cIsHealing>";
-				output += Configuration.AspectBlueHealthConverted.Value * 100f;
-				output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				if (Configuration.AspectBlueHealthConverted.Value > 0f)
+				{
+					output += "\nConvert <style=cIsHealing>";
+					output += Configuration.AspectBlueHealthConverted.Value * 100f;
+					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+				}
 			}
 			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
 			{
@@ -228,20 +266,34 @@ namespace TPDespair.ZetAspects.Items
 				output += value * 100f + "%</style>";
 				output += " of health as extra <style=cIsHealing>shield</style>.";
 			}
-			if (EffectHooks.preventedDefaultOverloadingBomb)
+			if (Compat.EliteReworks.affixBlueEnabled)
 			{
-				if (Configuration.AspectBlueBaseDamage.Value > 0f)
+				if (Compat.EliteReworks.affixBlueOnHit)
 				{
-					value = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stacks - 1f);
-					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-					output += value * 100f + "%</style>";
-					output += " TOTAL damage after ";
-					output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
+					defaultBombDisabled = true;
+
+					output += "\nAttacks drop scatter bombs that explodes for <style=cIsDamage>";
+					output += Compat.EliteReworks.affixBlueDamage * 100f + "%</style>";
+					output += " TOTAL damage.";
 				}
 			}
-			else
+			if (!defaultBombDisabled)
 			{
-				output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
+				if (EffectHooks.preventedDefaultOverloadingBomb)
+				{
+					if (Configuration.AspectBlueBaseDamage.Value > 0f)
+					{
+						value = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stacks - 1f);
+						output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
+						output += value * 100f + "%</style>";
+						output += " TOTAL damage after ";
+						output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
+					}
+				}
+				else
+				{
+					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
+				}
 			}
 
 			return output;
@@ -318,13 +370,13 @@ namespace TPDespair.ZetAspects.Items
 				}
 				output += ".";
 			}
-			if (Configuration.AspectRedBaseDamage.Value > 0f)
+			if (Configuration.AspectRedBaseBurnDamage.Value > 0f)
 			{
 				output += "\nAttacks <style=cIsDamage>burn</style> on hit for <style=cIsDamage>";
-				output += Configuration.AspectRedBaseDamage.Value * 100f + "%</style>";
-				if (Configuration.AspectRedStackDamage.Value != 0f)
+				output += Configuration.AspectRedBaseBurnDamage.Value * 100f + "%</style>";
+				if (Configuration.AspectRedStackBurnDamage.Value != 0f)
 				{
-					output += " " + Language.StackText(Configuration.AspectRedStackDamage.Value * 100f, "", "%");
+					output += " " + Language.StackText(Configuration.AspectRedStackBurnDamage.Value * 100f, "", "%");
 				}
 				output += Configuration.AspectRedUseBase.Value ? " base" : " TOTAL";
 				output += " damage over ";
@@ -353,9 +405,9 @@ namespace TPDespair.ZetAspects.Items
 				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
 				output += value * 100f + "%</style>.";
 			}
-			if (Configuration.AspectRedBaseDamage.Value > 0f)
+			if (Configuration.AspectRedBaseBurnDamage.Value > 0f)
 			{
-				value = Configuration.AspectRedBaseDamage.Value + Configuration.AspectRedStackDamage.Value * (stacks - 1f);
+				value = Configuration.AspectRedBaseBurnDamage.Value + Configuration.AspectRedStackBurnDamage.Value * (stacks - 1f);
 				output += "\nAttacks <style=cIsDamage>burn</style> on hit for <style=cIsDamage>";
 				output += value * 100f + "%</style>";
 				output += Configuration.AspectRedUseBase.Value ? " base" : " TOTAL";
@@ -419,19 +471,36 @@ namespace TPDespair.ZetAspects.Items
 		public static string BuildDescription()
 		{
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			output += "\nEmit an aura that cloaks nearby allies.";
+			if (!Compat.EliteReworks.affixHauntedEnabled)
+			{
+				output += "\nEmit an aura that cloaks nearby allies.";
+			}
+			else
+			{
+				output += "\nAttach to some nearby allies, possessing them.";
+			}
 			if (Configuration.AspectHauntedSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (Configuration.AspectHauntedShredDuration.Value > 0f)
+			if (!Compat.EliteReworks.affixHauntedEnabled)
+			{
+				if (Configuration.AspectHauntedShredDuration.Value > 0f)
+				{
+					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
+					output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
+					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
+				}
+			}
+			else
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
+				output += Language.SecondText(3f);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
+				output += 20f + "</style>.";
 			}
 			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
 			{
@@ -443,10 +512,13 @@ namespace TPDespair.ZetAspects.Items
 				}
 				output += ".";
 			}
-			if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
+			if (!Compat.EliteReworks.affixHauntedEnabled)
 			{
-				output += "\nGrants nearby allies <style=cIsHealing>";
-				output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
+				if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
+				{
+					output += "\nGrants nearby allies <style=cIsHealing>";
+					output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
+				}
 			}
 
 			return output;
@@ -457,19 +529,36 @@ namespace TPDespair.ZetAspects.Items
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
 			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			output += "\nEmit an aura that cloaks nearby allies.";
+			if (!Compat.EliteReworks.affixHauntedEnabled)
+			{
+				output += "\nEmit an aura that cloaks nearby allies.";
+			}
+			else
+			{
+				output += "\nAttach to some nearby allies, possessing them.";
+			}
 			if (Configuration.AspectHauntedSlowEffect.Value)
 			{
 				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
 				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
 				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
 			}
-			if (Configuration.AspectHauntedShredDuration.Value > 0f)
+			if (!Compat.EliteReworks.affixHauntedEnabled)
+			{
+				if (Configuration.AspectHauntedShredDuration.Value > 0f)
+				{
+					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
+					output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
+					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
+					output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
+				}
+			}
+			else
 			{
 				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
+				output += Language.SecondText(3f);
 				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
+				output += 20f + "</style>.";
 			}
 			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
 			{
@@ -477,10 +566,13 @@ namespace TPDespair.ZetAspects.Items
 				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
 				output += value + "</style>.";
 			}
-			if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
+			if (!Compat.EliteReworks.affixHauntedEnabled)
 			{
-				output += "\nGrants nearby allies <style=cIsHealing>";
-				output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
+				if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
+				{
+					output += "\nGrants nearby allies <style=cIsHealing>";
+					output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
+				}
 			}
 
 			return output;
@@ -538,23 +630,35 @@ namespace TPDespair.ZetAspects.Items
 
 		public static string BuildDescription()
 		{
-			float nullDuration = Configuration.AspectPoisonNullDuration.Value;
+			float ruinDuration = Configuration.AspectPoisonNullDuration.Value;
 			string output = "<style=cDeath>Aspect of Corruption</style> :";
 			if (Configuration.AspectPoisonFireSpikes.Value)
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			if (nullDuration > 0f)
+			if (Compat.EliteReworks.affixPoisonEnabled)
 			{
-				output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-				output += Language.SecondText(nullDuration);
+				output += "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.";
+				ruinDuration = 8f;
+			}
+			if (ruinDuration > 0f)
+			{
+				output += "\nAttacks <style=cIsDamage>ruin</style> on hit for ";
+				output += Language.SecondText(ruinDuration);
 				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 				{
 					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 				}
 				output += ".";
-				output += "\n<style=cStack>(Nullify prevents health recovery)</style>";
+				output += "\n<style=cStack>(Ruin prevents health recovery)</style>";
+			}
+			if (Compat.EliteReworks.affixPoisonEnabled)
+			{
+				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
+				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>";
+				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
 			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
@@ -574,23 +678,35 @@ namespace TPDespair.ZetAspects.Items
 		{
 			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 
-			float nullDuration = Configuration.AspectPoisonNullDuration.Value;
+			float ruinDuration = Configuration.AspectPoisonNullDuration.Value;
 			string output = "<style=cDeath>Aspect of Corruption</style> :";
 			if (Configuration.AspectPoisonFireSpikes.Value)
 			{
 				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
 			}
-			if (nullDuration > 0f)
+			if (Compat.EliteReworks.affixPoisonEnabled)
 			{
-				output += "\nAttacks <style=cIsDamage>nullify</style> on hit for ";
-				output += Language.SecondText(nullDuration);
+				output += "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.";
+				ruinDuration = 8f;
+			}
+			if (ruinDuration > 0f)
+			{
+				output += "\nAttacks <style=cIsDamage>ruin</style> on hit for ";
+				output += Language.SecondText(ruinDuration);
 				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
 				{
 					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
 					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
 				}
 				output += ".";
-				output += "\n<style=cStack>(Nullify prevents health recovery)</style>";
+				output += "\n<style=cStack>(Ruin prevents health recovery)</style>";
+			}
+			if (Compat.EliteReworks.affixPoisonEnabled)
+			{
+				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
+				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
+				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>";
+				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
 			}
 			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 			{
@@ -845,6 +961,157 @@ namespace TPDespair.ZetAspects.Items
 				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
 				output += value * 100f + "%</style>";
 				output += " of the <style=cIsDamage>damage</style> you deal.";
+			}
+
+			return output;
+		}
+	}
+
+
+
+	public static class ZetAspectVoid
+	{
+		public static string identifier = "ZetAspectVoid";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
+			if (Configuration.AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			Sprite outlineSprite;
+			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixVoid;
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixVoid, outlineSprite);
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+
+			Language.helperTarget = "default";
+			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Entropic Fracture");
+			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of void.");
+
+			string desc = BuildDescription();
+			Language.RegisterToken("ITEM_" + locToken + "_DESC", BuildDescription());
+			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
+			Language.RegisterToken("EQUIPMENT_AFFIXVOID_NAME", "Entropic Fracture");
+			Language.RegisterToken("EQUIPMENT_AFFIXVOID_PICKUP", "Become an aspect of void.");
+			Language.RegisterToken("EQUIPMENT_AFFIXVOID_DESC", Language.EquipmentDescription(desc, ""));
+		}
+
+		public static string BuildDescription()
+		{
+			string output = "<style=cDeath>Aspect of Void</style> :";
+
+			output += "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay";
+			if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
+			{
+				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
+				output += Configuration.AspectVoidBaseHealthGain.Value * 100f + "%</style>";
+				if (Configuration.AspectVoidStackHealthGain.Value != 0f)
+				{
+					output += " " + Language.StackText(Configuration.AspectVoidStackHealthGain.Value * 100f, "", "%");
+				}
+				output += ".";
+			}
+			if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
+			{
+				output += "\nIncreases <style=cIsDamage>damage</style> by <style=cIsDamage>";
+				output += Configuration.AspectVoidBaseDamageGain.Value * 100f + "%</style>";
+				if (Configuration.AspectVoidStackDamageGain.Value != 0f)
+				{
+					output += " " + Language.StackText(Configuration.AspectVoidStackDamageGain.Value * 100f, "", "%");
+				}
+				output += ".";
+			}
+			if (Compat.EliteReworks.eliteVoidEnabled)
+			{
+				output += "\nAttacks <style=cIsUtility>nullify</style> on hit for 8 seconds.";
+				output += "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>";
+			}
+			else
+			{
+				if (EffectHooks.preventedDefaultVoidCollapse)
+				{
+					if (Configuration.AspectVoidBaseCollapseDamage.Value > 0f)
+					{
+						output += "\nAttacks <style=cIsDamage>collapse</style> on hit for <style=cIsDamage>";
+						output += Configuration.AspectVoidBaseCollapseDamage.Value * 100f + "%</style>";
+						if (Configuration.AspectVoidStackCollapseDamage.Value != 0f)
+						{
+							output += " " + Language.StackText(Configuration.AspectVoidStackCollapseDamage.Value * 100f, "", "%");
+						}
+						output += Configuration.AspectVoidUseBase.Value ? " base" : " TOTAL";
+						output += " damage after ";
+						output += Language.SecondText(3f) + ".";
+					}
+				}
+				else
+				{
+					output += "<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.";
+				}
+			}
+
+			return output;
+		}
+
+		public static string BuildEquipmentDescription()
+		{
+			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+
+			string output = "<style=cDeath>Aspect of Void</style> :";
+
+			output += "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay";
+			if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
+			{
+				value = Configuration.AspectVoidBaseHealthGain.Value + Configuration.AspectVoidStackHealthGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
+				output += value * 100f + "%</style>.";
+			}
+			if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
+			{
+				value = Configuration.AspectVoidBaseDamageGain.Value + Configuration.AspectVoidStackDamageGain.Value * (stacks - 1f);
+				output += "\nIncreases <style=cIsDamage>damage</style> by <style=cIsDamage>";
+				output += value * 100f + "%</style>.";
+			}
+			if (Compat.EliteReworks.eliteVoidEnabled)
+			{
+				output += "\nAttacks <style=cIsUtility>nullify</style> on hit for 8 seconds.";
+				output += "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>";
+			}
+			else
+			{
+				if (EffectHooks.preventedDefaultVoidCollapse)
+				{
+					if (Configuration.AspectVoidBaseCollapseDamage.Value > 0f)
+					{
+						value = Configuration.AspectVoidBaseCollapseDamage.Value + Configuration.AspectVoidStackCollapseDamage.Value * (stacks - 1f);
+						output += "\nAttacks <style=cIsDamage>collapse</style> on hit for <style=cIsDamage>";
+						output += value * 100f + "%</style>";
+						output += Configuration.AspectVoidUseBase.Value ? " base" : " TOTAL";
+						output += " damage after ";
+						output += Language.SecondText(3f) + ".";
+					}
+				}
+				else
+				{
+					output += "<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.";
+				}
 			}
 
 			return output;
