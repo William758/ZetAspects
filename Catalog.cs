@@ -16,8 +16,11 @@ namespace TPDespair.ZetAspects
 
 
 
-		public static bool setupComplete = false;
 		public static bool menuVisited = false;
+		public static bool setupComplete = false;
+		public static bool setupIntermediate = false;
+		public static bool setupCompat = false;
+		public static bool setupInitialize = false;
 
 
 
@@ -49,6 +52,10 @@ namespace TPDespair.ZetAspects
 
 
 
+		public static bool dropWeightsAvailable = false;
+
+
+
 		public static class Sprites
 		{
 			public static Sprite OutlineRed;
@@ -64,6 +71,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixLunar;
 
 			public static Sprite AffixEarth;
+			public static Sprite AffixVoid;
 
 			public static Sprite AffixSanguine;
 
@@ -90,6 +98,7 @@ namespace TPDespair.ZetAspects
 				AffixLunar = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixLunar.png");
 
 				AffixEarth = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEarth.png");
+				AffixVoid = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVoid.png");
 				/*
 				if (Aetherium.Enabled)
 				{
@@ -101,6 +110,18 @@ namespace TPDespair.ZetAspects
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
 				ZetShredded = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffShredded.png");
 				ZetPoached = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffPoached.png");
+			}
+		}
+
+		public static class Prefabs
+		{
+			public static GameObject AffixVoid;
+
+
+
+			public static void Load()
+			{
+				AffixVoid = Assets.LoadAsset<GameObject>("Assets/Prefabs/prefabAffixVoid.prefab");
 			}
 		}
 
@@ -142,6 +163,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixLunar;
 
 			public static BuffDef AffixEarth;
+			public static BuffDef AffixVoid;
 
 			public static BuffDef AffixSanguine;
 		}
@@ -156,6 +178,7 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixLunar;
 
 			public static EquipmentDef AffixEarth;
+			public static EquipmentDef AffixVoid;
 
 			public static EquipmentDef AffixSanguine;
 		}
@@ -175,6 +198,7 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectLunar;
 
 			public static ItemDef ZetAspectEarth;
+			public static ItemDef ZetAspectVoid;
 
 			public static ItemDef ZetAspectSanguine;
 		}
@@ -287,7 +311,9 @@ namespace TPDespair.ZetAspects
 		internal static void OnAwake()
 		{
 			RoR2Application.isModded = true;
-			NetworkModCompatibilityHelper.networkModList = NetworkModCompatibilityHelper.networkModList.Append(ZetAspectsPlugin.ModGuid + ":" + ZetAspectsPlugin.ModVer);
+			string modString = ZetAspectsPlugin.ModGuid + ":" + ZetAspectsPlugin.ModVer;
+			NetworkModCompatibilityHelper.networkModList = NetworkModCompatibilityHelper.networkModList.Append(modString);
+			Logger.Info("Adding " + modString + " to the networkModList.");
 
 			ContentManager.collectContentPackProviders += AddContentPackProvider;
 
@@ -309,6 +335,7 @@ namespace TPDespair.ZetAspects
 			LoadAssets();
 			LoadResources();
 			Sprites.Load();
+			Prefabs.Load();
 
 			CreateBuffs();
 			CreateItems();
@@ -415,6 +442,10 @@ namespace TPDespair.ZetAspects
 			ItemDef ZetAspectEarth = Items.ZetAspectEarth.DefineItem();
 			Item.ZetAspectEarth = ZetAspectEarth;
 			ZetAspectsContent.itemDefs.Add(ZetAspectEarth);
+
+			ItemDef ZetAspectVoid = Items.ZetAspectVoid.DefineItem();
+			Item.ZetAspectVoid = ZetAspectVoid;
+			ZetAspectsContent.itemDefs.Add(ZetAspectVoid);
 			/*
 			if (Aetherium.Enabled)
 			{
@@ -562,18 +593,57 @@ namespace TPDespair.ZetAspects
 		{
 			if (setupComplete) return;
 
+			Logger.Info("Catalog Setup Initialized");
+
+			setupInitialize = true;
+
 			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
 			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
 			if (PluginLoaded("com.TransRights.RealisticTransgendence")) shieldJump = true;// Reflection Config
 			if (PluginLoaded("com.TheMysticSword.AspectAbilities")) aspectAbilities = true;
-			//if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
-			//if (Configuration.RecolorImmuneHealth.Value) immuneHealth = true;
+			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
 			/*
 			EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(RejectTextPrefab);
 			RejectTextDef = EffectCatalog.GetEffectDef(effectIndex);
 			*/
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
+
+			SetupCompat();
+
+			if (EffectHooks.preventedDefaultOverloadingBomb && !(Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBlueOnHit)) EffectHooks.useCustomOverloadBombs = true;
+			if (EffectHooks.preventedDefaultVoidCollapse && !Compat.EliteReworks.eliteVoidEnabled) EffectHooks.useCustomFracture = true;
+
+			SetupIntermediate();
+
+			Logger.Info("Catalog Setup Complete");
+
+			setupComplete = true;
+		}
+
+		private static void SetupCompat()
+		{
+			if (setupCompat)
+			{
+				Logger.Warn("Catalog SetupCompat Called Again!");
+				return;
+			}
+
+			if (PluginLoaded("com.Moffein.EliteReworks")) Compat.EliteReworks.LateSetup();
+
+			setupCompat = true;
+		}
+
+		private static void SetupIntermediate()
+		{
+			if (setupIntermediate)
+			{
+				Logger.Warn("Catalog SetupIntermediate Called Again!");
+				return;
+			}
+
+			DLC1Content.Buffs.BearVoidCooldown.canStack = true;
+			EffectHooks.ApplyVoidBearCooldownFix();
 
 			RiskOfRain.Init();
 			//Aetherium.Init();
@@ -582,9 +652,7 @@ namespace TPDespair.ZetAspects
 
 			RuleCatalogExcludeItemChoices();
 
-			Logger.Info("Catalog Setup Complete");
-
-			setupComplete = true;
+			setupIntermediate = true;
 		}
 
 		private static void RuleCatalogExcludeItemChoices()
@@ -732,6 +800,7 @@ namespace TPDespair.ZetAspects
 				Equip.AffixLunar = RoR2Content.Equipment.AffixLunar;
 
 				Equip.AffixEarth = EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EliteEarthEquipment"));
+				Equip.AffixVoid = EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EliteVoidEquipment"));
 
 				equipDefPopulated = true;
 			}
@@ -748,6 +817,7 @@ namespace TPDespair.ZetAspects
 				Buff.AffixLunar = RoR2Content.Buffs.AffixLunar;
 
 				Buff.AffixEarth = DLC1Content.Buffs.EliteEarth;
+				Buff.AffixVoid = DLC1Content.Buffs.EliteVoid;
 
 				buffDefPopulated = true;
 			}
@@ -764,6 +834,7 @@ namespace TPDespair.ZetAspects
 				Items.ZetAspectLunar.SetupTokens();
 
 				Items.ZetAspectEarth.SetupTokens();
+				Items.ZetAspectVoid.SetupTokens();
 			}
 
 			internal static void ItemEntries(bool shown)
@@ -776,6 +847,7 @@ namespace TPDespair.ZetAspects
 				SetItemState(Item.ZetAspectLunar, shown);
 
 				SetItemState(Item.ZetAspectEarth, shown);
+				SetItemState(Item.ZetAspectVoid, shown);
 			}
 
 			private static void CopyExpansionReq()
@@ -788,11 +860,13 @@ namespace TPDespair.ZetAspects
 				CopyExpansion(Item.ZetAspectLunar, Equip.AffixLunar);
 
 				CopyExpansion(Item.ZetAspectEarth, Equip.AffixEarth);
+				CopyExpansion(Item.ZetAspectVoid, Equip.AffixVoid);
 			}
 
 			private static void CopyModelPrefabs()
 			{
 				CopyEquipmentPrefab(Item.ZetAspectEarth, Equip.AffixEarth);
+				CopyItemPrefab(Item.ZetAspectVoid, Equip.AffixVoid);
 			}
 
 			private static void ApplyEquipmentIcons()
@@ -807,6 +881,7 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equip.AffixLunar, Sprites.AffixLunar, Sprites.OutlineBlue);
 
 				ReplaceEquipmentIcon(Equip.AffixEarth, Sprites.AffixEarth, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixVoid, Sprites.AffixVoid, Sprites.OutlineOrange);
 
 				iconsReplaced = true;
 			}
@@ -821,6 +896,7 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(Equip.AffixLunar, shown);
 
 				SetEquipmentState(Equip.AffixEarth, shown);
+				SetEquipmentState(Equip.AffixVoid, shown);
 			}
 
 			internal static void EquipmentColor()
@@ -833,6 +909,7 @@ namespace TPDespair.ZetAspects
 				ColorEquipmentDroplet(Equip.AffixLunar);
 
 				ColorEquipmentDroplet(Equip.AffixEarth);
+				ColorEquipmentDroplet(Equip.AffixVoid);
 			}
 
 			internal static void FillEqualities()
@@ -845,6 +922,7 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixLunar, Buff.AffixLunar, Item.ZetAspectLunar);
 
 				CreateEquality(Equip.AffixEarth, Buff.AffixEarth, Item.ZetAspectEarth);
+				CreateEquality(Equip.AffixVoid, Buff.AffixVoid, Item.ZetAspectVoid);
 			}
 		}
 		/*
@@ -1110,6 +1188,13 @@ namespace TPDespair.ZetAspects
 			itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
 			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
 			pickupDef.displayPrefab = equipDef.pickupModelPrefab;
+		}
+
+		public static void CopyItemPrefab(ItemDef itemDef, EquipmentDef equipDef)
+		{
+			equipDef.pickupModelPrefab = itemDef.pickupModelPrefab;
+			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
+			pickupDef.displayPrefab = itemDef.pickupModelPrefab;
 		}
 
 		public static void ReplaceEquipmentIcon(EquipmentDef equipDef, Sprite baseSprite, Sprite outlineSprite)
