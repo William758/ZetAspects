@@ -18,6 +18,7 @@ namespace TPDespair.ZetAspects
 		//public static List<string> dronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
 
 		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
+		internal static Dictionary<NetworkInstanceId, float> ShieldRegenAccumulator = new Dictionary<NetworkInstanceId, float>();
 
 		//private static FieldInfo DamageInfoRejectedField;
 
@@ -27,6 +28,10 @@ namespace TPDespair.ZetAspects
 		internal static bool preventedDefaultOverloadingBomb = false;
 		internal static bool preventedDefaultBlazeBurn = false;
 		internal static bool preventedDefaultLunarCripple = false;
+		internal static bool preventedDefaultVoidCollapse = false;
+
+		internal static bool useCustomOverloadBombs = false;
+		internal static bool useCustomFracture = false;
 
 
 
@@ -48,6 +53,10 @@ namespace TPDespair.ZetAspects
 						if (DisplayHooks.BodyEliteDisplay.ContainsKey(netId))
 						{
 							DisplayHooks.BodyEliteDisplay.Remove(netId);
+						}
+						if (ShieldRegenAccumulator.ContainsKey(netId))
+						{
+							ShieldRegenAccumulator.Remove(netId);
 						}
 					}
 				}
@@ -73,6 +82,7 @@ namespace TPDespair.ZetAspects
 			NullDurationHook();
 			LunarProjectileHook();
 			PreventAspectCrippleHook();
+			PreventAspectCollapseHook();
 			DamageTakenHook();
 			HeadHunterBuffHook();
 			//DotAmpHook();
@@ -81,6 +91,7 @@ namespace TPDespair.ZetAspects
 			FixTimedChillApplication();
 			ShieldRegenHook();
 
+			PreventVoidEquipmentRemovalHook();
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
@@ -90,10 +101,21 @@ namespace TPDespair.ZetAspects
 
 
 
+		internal static void ApplyVoidBearCooldownFix()
+		{
+			On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += VoidBearFix_AddTimedBuff;
+			On.RoR2.CharacterBody.RemoveBuff_BuffIndex += VoidBearFix_RemoveBuff;
+		}
+
+
+
 		private static void OnDestroyHook()
 		{
 			On.RoR2.CharacterBody.OnDestroy += (orig, self) =>
 			{
+				// Prevent AffixVoid Displays
+				DisplayHooks.OnBodyDeath(self);
+
 				DestroyedBodies.Add(self.netId, 3.5f);
 
 				orig(self);
@@ -563,6 +585,35 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void PreventAspectCollapseHook()
+		{
+			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(1),
+					x => x.MatchLdsfld(typeof(DLC1Content.Buffs).GetField("EliteVoid")),
+					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					// prevent default
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, 0);
+
+					preventedDefaultVoidCollapse = true;
+				}
+				else
+				{
+					Logger.Warn("PreventAspectCollapseHook Failed");
+				}
+			};
+		}
+
 
 
 		private static void DamageTakenHook()
@@ -787,7 +838,7 @@ namespace TPDespair.ZetAspects
 
 		private static void FireOverloadingBomb(CharacterBody self, DamageInfo damageInfo)
 		{
-			if (!preventedDefaultOverloadingBomb) return;
+			if (!useCustomOverloadBombs) return;
 
 			if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
 			if (Configuration.AspectBlueBaseDamage.Value <= 0f) return;
@@ -847,6 +898,7 @@ namespace TPDespair.ZetAspects
 					ApplyShredded(attacker, victim, damageInfo);
 					ApplyCripple(attacker, victim, damageInfo);
 					HandlePoach(attacker, victim, damageInfo);
+					ApplyCollapse(attacker, victim, damageInfo);
 					//ApplyBleed(attacker, victim, damageInfo);
 				}
 			}
@@ -984,10 +1036,10 @@ namespace TPDespair.ZetAspects
 		{
 			if (!self.HasBuff(RoR2Content.Buffs.AffixRed)) return;
 
-			if (Configuration.AspectRedBaseDamage.Value > 0f)
+			if (Configuration.AspectRedBaseBurnDamage.Value > 0f)
 			{
 				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixRed);
-				float damage = Configuration.AspectRedBaseDamage.Value + Configuration.AspectRedStackDamage.Value * (count - 1f);
+				float damage = Configuration.AspectRedBaseBurnDamage.Value + Configuration.AspectRedStackBurnDamage.Value * (count - 1f);
 				float duration = Configuration.AspectRedBurnDuration.Value;
 				DotController.DotIndex dotIndex = DotController.DotIndex.Burn;
 
@@ -1033,7 +1085,7 @@ namespace TPDespair.ZetAspects
 
 		private static void ApplyShredded(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
-			//if (EliteReworksCompat.affixHauntedEnabled) return;
+			if (Compat.EliteReworks.affixHauntedEnabled) return;
 
 			if (!self.HasBuff(RoR2Content.Buffs.AffixHaunted)) return;
 			if (Catalog.Buff.ZetShredded.buffIndex == BuffIndex.None) return;
@@ -1056,45 +1108,34 @@ namespace TPDespair.ZetAspects
 		{
 			if (self.HasBuff(Catalog.Buff.AffixEarth))
 			{
+				float amount = 0f;
+
 				float duration = Configuration.AspectEarthPoachedDuration.Value;
 				if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 				if (duration > 0.1f)
 				{
 					victim.AddTimedBuff(Catalog.Buff.ZetPoached, duration);
 
-					float amount = 0f;
-
-					if (Configuration.AspectEarthBaseLeech.Value > 0f)
-					{
-						float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEarth);
-						amount = Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (count - 1f);
-					}
 					if (Configuration.AspectEarthPoachedLeech.Value > 0f)
 					{
 						amount += Configuration.AspectEarthPoachedLeech.Value;
 					}
-
-					if (amount > 0)
-					{
-						amount *= damageInfo.damage;
-
-						if (self.teamComponent.teamIndex != TeamIndex.Player)
-						{
-							amount *= Configuration.AspectEarthMonsterLeechMult.Value;
-						}
-
-						//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
-
-						self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
-					}
 				}
-			}
-			else if (victim.HasBuff(Catalog.Buff.ZetPoached))
-			{
-				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+
+				if (Configuration.AspectEarthBaseLeech.Value > 0f)
 				{
-					float amount = Configuration.AspectEarthPoachedLeech.Value;
+					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEarth);
+					amount += Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (count - 1f);
+				}
+
+				if (amount > 0)
+				{
 					amount *= damageInfo.damage;
+
+					if (damageInfo.crit)
+					{
+						amount *= self.critMultiplier;
+					}
 
 					if (self.teamComponent.teamIndex != TeamIndex.Player)
 					{
@@ -1105,6 +1146,64 @@ namespace TPDespair.ZetAspects
 
 					self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
 				}
+			}
+			else if (victim.HasBuff(Catalog.Buff.ZetPoached))
+			{
+				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				{
+					float amount = Configuration.AspectEarthPoachedLeech.Value;
+					amount *= damageInfo.damage;
+
+					if (damageInfo.crit)
+					{
+						amount *= self.critMultiplier;
+					}
+
+					if (self.teamComponent.teamIndex != TeamIndex.Player)
+					{
+						amount *= Configuration.AspectEarthMonsterLeechMult.Value;
+					}
+
+					//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
+
+					self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
+				}
+			}
+		}
+
+		private static void ApplyCollapse(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			if (!useCustomFracture) return;
+
+			if (!self.HasBuff(Catalog.Buff.AffixVoid)) return;
+
+			if (Configuration.AspectVoidBaseCollapseDamage.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
+				float damage = Configuration.AspectVoidBaseCollapseDamage.Value + Configuration.AspectVoidStackCollapseDamage.Value * (count - 1f);
+
+				if (Configuration.AspectVoidUseBase.Value)
+				{
+					damage *= self.damage;
+				}
+				else
+				{
+					damage *= damageInfo.damage;
+
+					if (damageInfo.crit)
+					{
+						damage *= self.critMultiplier;
+					}
+				}
+
+				if (self.teamComponent.teamIndex != TeamIndex.Player)
+				{
+					damage *= Configuration.AspectVoidMonsterDamageMult.Value;
+				}
+
+				//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Fracture : " + damage);
+
+				InflictFracturePrecise(victim.gameObject, damageInfo.attacker, damage);
 			}
 		}
 
@@ -1182,72 +1281,121 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
+		internal static void InflictFracturePrecise(GameObject victim, GameObject attacker, float damage)
+		{
+			DotController.DotIndex dotIndex = DotController.DotIndex.Fracture;
+			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
+
+			CharacterBody atkBody = attacker.GetComponent<CharacterBody>();
+
+			float dotBaseDPS = atkBody.damage * (dotDef.damageCoefficient / dotDef.interval);
+			float targetDPS = damage / dotDef.interval;
+
+			float damageMult = targetDPS / dotBaseDPS;
+
+			DotController.InflictDot(victim, attacker, dotIndex, dotDef.interval, damageMult);
+		}
+
 
 
 		private static void ShieldRegenHook()
 		{
-			IL.RoR2.HealthComponent.ServerFixedUpdate += (il) =>
+			On.RoR2.HealthComponent.ServerFixedUpdate += (orig, self) =>
 			{
-				ILCursor c = new ILCursor(il);
+				HandleShieldRegen(self);
 
-				bool found = c.TryGotoNext(
-					x => x.MatchMul(),
-					x => x.MatchAdd(),
-					x => x.MatchStfld<HealthComponent>("regenAccumulator")
-				);
-
-				if (found)
-				{
-					c.Index += 2;
-
-					c.Emit(OpCodes.Ldarg, 0);
-					c.EmitDelegate<Func<float, HealthComponent, float>>((regenAccumulator, healthComponent) =>
-					{
-						float toShield = 0f;
-						Inventory inventory = healthComponent.body.inventory;
-
-						if (healthComponent.body.HasBuff(Catalog.Buff.AffixLunar)) toShield = Mathf.Max(toShield, Configuration.AspectLunarRegen.Value);
-						if (inventory && inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) toShield = Mathf.Max(toShield, Configuration.TranscendenceRegen.Value);
-
-						if (toShield <= 0f) return regenAccumulator;
-						if (healthComponent.shield >= healthComponent.fullShield) return regenAccumulator;
-
-						if (regenAccumulator > 1f)
-						{
-							float num = Mathf.Floor(regenAccumulator);
-							regenAccumulator -= num;
-							num *= toShield;
-							AddShieldToHealthComponent(healthComponent, num);
-						}
-
-						return regenAccumulator;
-					});
-				}
-				else
-				{
-					Logger.Warn("ShieldRegenHook Failed");
-				}
+				orig(self);
 			};
 		}
 
-		private static void AddShieldToHealthComponent(HealthComponent healthComponent, float value)
+		private static void HandleShieldRegen(HealthComponent self)
+		{
+			if (self.alive)
+			{
+				CharacterBody body = self.body;
+				bool canRegenShield = self.shield >= 1f || body.outOfDangerStopwatch > 2.5f;
+
+				if (self.shield < self.fullShield && body.regen > 0f && canRegenShield)
+				{
+					float shieldRegen = 0f;
+
+					if (body.HasBuff(Catalog.Buff.AffixLunar)) shieldRegen = Mathf.Max(shieldRegen, Configuration.AspectLunarRegen.Value);
+
+					Inventory inventory = body.inventory;
+					if (inventory)
+					{
+						if (inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) shieldRegen = Mathf.Max(shieldRegen, Configuration.TranscendenceRegen.Value);
+
+						//if (inventory.GetItemCount(RoR2Content.Items.PersonalShield) > 0) shieldRegen = Mathf.Max(shieldRegen, 10f);
+					}
+
+					if (shieldRegen > 0f)
+					{
+						if (!ShieldRegenAccumulator.ContainsKey(body.netId)) ShieldRegenAccumulator.Add(body.netId, 0f);
+
+						float accumulator = ShieldRegenAccumulator[body.netId];
+
+						shieldRegen *= body.regen;
+						accumulator += shieldRegen * Time.fixedDeltaTime;
+
+						if (accumulator > 1f)
+						{
+							float num = Mathf.Floor(accumulator);
+							accumulator -= num;
+							AddShieldToHealthComponent(self, num);
+						}
+
+						ShieldRegenAccumulator[body.netId] = accumulator;
+					}
+				}
+			}
+		}
+
+		private static void AddShieldToHealthComponent(HealthComponent self, float value)
 		{
 			if (!NetworkServer.active)
 			{
 				Logger.Warn("[Server] function 'System.Void ZetAspects::AddShieldToHealthComponent(ROR2.HealthComponent, System.Single)' called on client");
 				return;
 			}
-			if (!healthComponent.alive)
+			if (!self.alive)
 			{
 				return;
 			}
-			if (healthComponent.shield < healthComponent.fullShield)
+			if (self.shield < self.fullShield)
 			{
-				healthComponent.Networkshield = Mathf.Min(healthComponent.shield + value, healthComponent.fullShield);
+				self.Networkshield = Mathf.Min(self.shield + value, self.fullShield);
 			}
 		}
 
 
+
+		private static void PreventVoidEquipmentRemovalHook()
+		{
+			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(DLC1Content.Elites).GetField("Void")),
+					x => x.MatchLdfld<EliteDef>("eliteEquipmentDef"),
+					x => x.MatchCallvirt<EquipmentDef>("get_equipmentIndex"),
+					x => x.MatchBneUn(out _)
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, -2);
+				}
+				else
+				{
+					Logger.Warn("PreventVoidEquipmentRemovalHook Failed");
+				}
+			};
+		}
 
 		private static void EquipmentLostBuffHook()
 		{
@@ -1398,6 +1546,7 @@ namespace TPDespair.ZetAspects
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixLunar, Catalog.Item.ZetAspectLunar, Catalog.Equip.AffixLunar);
 
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEarth, Catalog.Item.ZetAspectEarth, Catalog.Equip.AffixEarth);
+			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixVoid, Catalog.Item.ZetAspectVoid, Catalog.Equip.AffixVoid);
 			/*
 			if (Catalog.Aetherium.populated)
 			{
@@ -1412,6 +1561,36 @@ namespace TPDespair.ZetAspects
 			{
 				if (Catalog.HasAspectItemOrEquipment(inventory, itemDef, equipDef)) body.AddTimedBuff(buffDef, BuffCycleDuration);
 			}
+		}
+
+
+
+		private static void VoidBearFix_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration)
+		{
+			if (NetworkServer.active)
+			{
+				BuffIndex buff = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
+
+				if (buffDef.buffIndex == buff && self.GetBuffCount(buff) < 1)
+				{
+					self.ClearTimedBuffs(buff);
+					self.SetBuffCount(buff, 0);
+				}
+			}
+
+			orig(self, buffDef, duration);
+		}
+
+		private static void VoidBearFix_RemoveBuff(On.RoR2.CharacterBody.orig_RemoveBuff_BuffIndex orig, CharacterBody self, BuffIndex buffType)
+		{
+			if (NetworkServer.active)
+			{
+				BuffIndex buff = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
+
+				if (buffType == buff && self.GetBuffCount(buff) < 1) return;
+			}
+
+			orig(self, buffType);
 		}
 	}
 }
