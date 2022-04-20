@@ -32,9 +32,9 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 75;
-				const int multValue = 76;
-				const int divValue = 77;
+				const int baseValue = 74;
+				const int multValue = 75;
+				const int divValue = 76;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -135,8 +135,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 79;
-				const int multValue = 80;
+				const int baseValue = 78;
+				const int multValue = 79;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -226,10 +226,12 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				const int shieldValue = 64;
+
 				bool found = c.TryGotoNext(
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(65)
+					x => x.MatchStloc(shieldValue)
 				);
 
 				if (found)
@@ -238,7 +240,7 @@ namespace TPDespair.ZetAspects
 
 					// add
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 65);
+					c.Emit(OpCodes.Ldloc, shieldValue);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, shield, health) =>
@@ -251,7 +253,7 @@ namespace TPDespair.ZetAspects
 
 						return shield;
 					});
-					c.Emit(OpCodes.Stloc, 65);
+					c.Emit(OpCodes.Stloc, shieldValue);
 				}
 				else
 				{
@@ -266,8 +268,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 63;
-				const int multValue = 64;
+				const int baseValue = 62;
+				const int multValue = 63;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -397,8 +399,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 83;
-				const int multValue = 84;
+				const int baseValue = 82;
+				const int multValue = 83;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -489,12 +491,13 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int knurlValue = 68;
-				const int crocoValue = 71;
+				const int knurlValue = 67;
+				const int crocoValue = 70;
+				const int multValue = 72;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
-					x => x.MatchStloc(73)
+					x => x.MatchStloc(multValue)
 				);
 
 				if (found)
@@ -536,7 +539,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Logger.Warn("ZetAspects - RegenHook Failed");
+					Logger.Warn("RegenHook Failed");
 				}
 			};
 		}
@@ -601,13 +604,15 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				const int shieldValue = 64;
+
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(0.25f),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(65)
+					x => x.MatchStloc(shieldValue)
 				);
 
 				if (found)
@@ -616,7 +621,7 @@ namespace TPDespair.ZetAspects
 
 					c.Emit(OpCodes.Pop);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 65);
+					c.Emit(OpCodes.Ldloc, shieldValue);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
 					c.Emit(OpCodes.Ldloc, 14);
