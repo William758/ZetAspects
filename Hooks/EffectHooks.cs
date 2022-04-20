@@ -91,7 +91,7 @@ namespace TPDespair.ZetAspects
 			FixTimedChillApplication();
 			ShieldRegenHook();
 
-			PreventVoidEquipmentRemovalHook();
+			//PreventVoidEquipmentRemovalHook();
 			EquipmentLostBuffHook();
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
@@ -686,11 +686,11 @@ namespace TPDespair.ZetAspects
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(3f),
 					x => x.MatchLdcR4(5f),
-					x => x.MatchLdloc(57),
+					x => x.MatchLdloc(69),
 					x => x.MatchConvR4(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(59)
+					x => x.MatchStloc(71)
 				);
 
 				if (found)
@@ -698,13 +698,13 @@ namespace TPDespair.ZetAspects
 					c.Index += 6;
 
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 57);
+					c.Emit(OpCodes.Ldloc, 69);
 					c.EmitDelegate<Func<int, float>>((count) =>
 					{
 						return Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
 					});
 					c.Emit(OpCodes.Dup);
-					c.Emit(OpCodes.Ldloc, 14);
+					c.Emit(OpCodes.Ldloc, 15);
 					c.EmitDelegate<Action<float, CharacterBody>>((duration, attacker) =>
 					{
 						if (Configuration.HeadHunterBuffEnable.Value) attacker.AddTimedBuff(Catalog.Buff.ZetHeadHunter, duration);
