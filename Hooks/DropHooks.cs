@@ -266,7 +266,7 @@ namespace TPDespair.ZetAspects
 					x => x.MatchLdfld<EquipmentDef>("dropOnDeathChance"),
 					x => x.MatchLdcR4(100f),
 					x => x.MatchMul(),
-					x => x.MatchLdloc(15),
+					x => x.MatchLdloc(16),
 					x => x.MatchCall("RoR2.Util", "CheckRoll")
 				);
 
@@ -274,12 +274,14 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 5;
 
-					c.Emit(OpCodes.Ldloc, 15);
-					c.Emit(OpCodes.Ldloc, 10);
-					c.EmitDelegate<Func<bool, CharacterMaster, EquipmentIndex, bool>>((result, master, index) =>
+					c.Emit(OpCodes.Ldloc, 16);
+					c.Emit(OpCodes.Ldloc, 12);
+					c.EmitDelegate<Func<bool, CharacterMaster, EquipmentDef, bool>>((result, master, equipDef) =>
 					{
+						EquipmentIndex index = equipDef.equipmentIndex;
+
 						if (index == EquipmentIndex.None) return false;
-						if (Catalog.GetEquipmentEliteDef(EquipmentCatalog.GetEquipmentDef(index)) == null) return result;
+						if (Catalog.GetEquipmentEliteDef(equipDef) == null) return result;
 						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return result;
 
 						if (disableDrops) return false;
