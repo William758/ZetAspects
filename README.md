@@ -38,6 +38,8 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.7.5 - Fixed for latest update.
+
 v2.7.4 - Added Voidtouched Elite Support. Renamed burn damage configs. Fixed voidbearcooldown buff and made it stack. Drop weight multiplier configs for each elite type.
 
 v2.7.3 - Re-enabled EliteReworks support and health bar color tweaks.
