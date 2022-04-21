@@ -24,7 +24,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixWhite, outlineSprite);
 
@@ -128,7 +128,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBlue, outlineSprite);
 
@@ -322,7 +322,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixRed");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixRed, outlineSprite);
 
@@ -441,7 +441,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixHaunted");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixHaunted, outlineSprite);
 
@@ -601,7 +601,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixPoison");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPoison, outlineSprite);
 
@@ -741,7 +741,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixLunar");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixLunar, outlineSprite);
 
@@ -870,7 +870,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixEarth, outlineSprite);
 
@@ -989,7 +989,7 @@ namespace TPDespair.ZetAspects.Items
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixVoid;
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixVoid, outlineSprite);
 
