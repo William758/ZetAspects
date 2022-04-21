@@ -36,6 +36,9 @@ namespace TPDespair.ZetAspects
 
 
 
+		internal static ItemTierDef BossItemTier;
+		internal static ItemTierDef RedItemTier;
+
 		internal static GameObject BossDropletPrefab;
 		internal static GameObject LightningStakePrefab;
 		internal static GameObject RejectTextPrefab;
@@ -351,6 +354,9 @@ namespace TPDespair.ZetAspects
 
 		private static void LoadResources()
 		{
+			BossItemTier = LegacyResourcesAPI.Load<ItemTierDef>("ItemTierDefs/BossTierDef");
+			RedItemTier = LegacyResourcesAPI.Load<ItemTierDef>("ItemTierDefs/Tier3Def");
+
 			BossDropletPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/ItemPickups/BossOrb");
 			LightningStakePrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 			RejectTextPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/DamageRejected");
@@ -399,7 +405,7 @@ namespace TPDespair.ZetAspects
 		{
 			ItemDef ZetAspectsDropCountTracker = ScriptableObject.CreateInstance<ItemDef>();
 			ZetAspectsDropCountTracker.name = "ZetAspectsDropCountTracker";
-			ZetAspectsDropCountTracker.tier = ItemTier.NoTier;
+			ZetAspectsDropCountTracker.deprecatedTier = ItemTier.NoTier;
 			ZetAspectsDropCountTracker.AutoPopulateTokens();
 			ZetAspectsDropCountTracker.hidden = true;
 			ZetAspectsDropCountTracker.canRemove = false;
@@ -408,7 +414,7 @@ namespace TPDespair.ZetAspects
 
 			ItemDef ZetAspectsUpdateInventory = ScriptableObject.CreateInstance<ItemDef>();
 			ZetAspectsUpdateInventory.name = "ZetAspectsUpdateInventory";
-			ZetAspectsUpdateInventory.tier = ItemTier.NoTier;
+			ZetAspectsUpdateInventory.deprecatedTier = ItemTier.NoTier;
 			ZetAspectsUpdateInventory.AutoPopulateTokens();
 			ZetAspectsUpdateInventory.hidden = true;
 			ZetAspectsUpdateInventory.canRemove = false;
@@ -1119,7 +1125,7 @@ namespace TPDespair.ZetAspects
 
 			Logger.Warn("Deactivating : " + itemDef.name);
 
-			if (itemDef.tier == ItemTier.Tier3)
+			if (itemDef._itemTierDef == BossItemTier)
 			{
 				if (ItemCatalog.tier3ItemList.Contains(itemDef.itemIndex))
 				{
@@ -1157,7 +1163,7 @@ namespace TPDespair.ZetAspects
 				if (!itemDef.hidden)
 				{
 					if (!shown) itemDef.tier = ItemTier.NoTier;
-					else itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.Tier3 : ItemTier.Boss;
+					else itemDef._itemTierDef = Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
 				}
 			}
 		}
