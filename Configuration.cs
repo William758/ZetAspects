@@ -27,6 +27,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightLunar { get; set; }
 		public static ConfigEntry<float> AspectDropWeightEarth { get; set; }
 		public static ConfigEntry<float> AspectDropWeightVoid { get; set; }
+		public static ConfigEntry<float> AspectDropWeightWarped { get; set; }
+		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -117,14 +119,12 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectVoidBaseCollapseDamage { get; set; }
 		public static ConfigEntry<float> AspectVoidStackCollapseDamage { get; set; }
 		public static ConfigEntry<float> AspectVoidMonsterDamageMult { get; set; }
-		/*
-		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
-		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
-		public static ConfigEntry<float> AspectSanguineBleedDuration { get; set; }
-		public static ConfigEntry<float> AspectSanguineBaseDamage { get; set; }
-		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
-		public static ConfigEntry<float> AspectSanguineMonsterDamageMult { get; set; }
-		*/
+
+		public static ConfigEntry<float> AspectPlatedBaseArmorGain { get; set; }
+		public static ConfigEntry<float> AspectPlatedStackArmorGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedStackCooldownGain { get; set; }
+
 
 
 		internal static void Init(ConfigFile Config)
@@ -230,6 +230,14 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightVoid", 1f,
 					"Drop chance multiplier for AffixVoid"
 				);
+				AspectDropWeightWarped = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightWarped", 1f,
+					"Drop chance multiplier for AffixWarped"
+				);
+				AspectDropWeightPlated = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightPlated", 1f,
+					"Drop chance multiplier for AffixPlated"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -322,16 +330,8 @@ namespace TPDespair.ZetAspects
 
 		private static void AspectConfigs(ConfigFile Config)
 		{
-			/*
-			AetheriumHooks = Config.Bind(
-				"20-ModCompatibility", "aetheriumHooks", true,
-				"Allows modification of functions and values within the Aetherium mod."
-			);
-			*/
-
-
 			RiskOfRainConfigs(Config);
-			//AetheriumConfigs(Config);
+			SpikeStripConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -591,34 +591,27 @@ namespace TPDespair.ZetAspects
 			);
 		}
 
-		private static void AetheriumConfigs(ConfigFile Config)
+		private static void SpikeStripConfigs(ConfigFile Config)
 		{
-			/*
-			AspectSanguineBaseDotAmp = Config.Bind(
-				"2ba-AspectSanguine", "sanguineBaseDotAmp", 0.20f,
-				"DOT damage multiplier gained. Set to 0 to disable."
+			AspectPlatedBaseArmorGain = Config.Bind(
+				"2ba-AspectPlated", "platedBaseArmor", 30f,
+				"Armor gained. Set to 0 to disable."
 			);
-			AspectSanguineStackDotAmp = Config.Bind(
-				"2ba-AspectSanguine", "sanguineAddedDotAmp", 0.10f,
-				"DOT damage multiplier gained per stack."
+			AspectPlatedStackArmorGain = Config.Bind(
+				"2ba-AspectPlated", "platedAddedArmor", 15f,
+				"Armor gained per stack."
 			);
-			AspectSanguineBleedDuration = Config.Bind(
-				"2ba-AspectSanguine", "sanguineBleedDuration", 4.0f,
-				"Set bleed duration in seconds."
+
+
+
+			AspectWarpedBaseCooldownGain = Config.Bind(
+				"2bb-AspectWarped", "warpedBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
 			);
-			AspectSanguineBaseDamage = Config.Bind(
-				"2ba-AspectSanguine", "sanguineBaseTotalDamage", 1.2f,
-				"Base total damage of bleed over duration. Set to 0 to disable."
+			AspectWarpedStackCooldownGain = Config.Bind(
+				"2bb-AspectWarped", "warpedAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
 			);
-			AspectSanguineStackDamage = Config.Bind(
-				"2ba-AspectSanguine", "sanguineAddedTotalDamage", 0.6f,
-				"Added total damage of bleed per stack."
-			);
-			AspectSanguineMonsterDamageMult = Config.Bind(
-				"2ba-AspectSanguine", "sanguineMonsterDamageMult", 1f,
-				"Multiply damage of aspect effects from monsters."
-			);
-			*/
 		}
 	}
 }
