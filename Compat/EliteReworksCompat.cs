@@ -15,6 +15,7 @@ namespace TPDespair.ZetAspects.Compat
 
 		private static Type PluginType;
 		private static Type TweakAffixBlueType;
+		private static Type ComponentPassiveAffixBlueType;
 		private static Type TweakEliteVoidType;
 
 		private static FieldInfo AffixBlueEnabledField;
@@ -22,6 +23,7 @@ namespace TPDespair.ZetAspects.Compat
 		private static FieldInfo AffixBluePassiveField;
 		private static FieldInfo AffixBlueOnHitReworkField;
 		private static FieldInfo AffixBlueDamageCoeffField;
+		private static FieldInfo AffixBlueScatterBombField;
 		private static FieldInfo AffixHauntedEnabledField;
 		private static FieldInfo AffixPoisonEnabledField;
 		private static FieldInfo EliteVoidEnabledField;
@@ -32,6 +34,7 @@ namespace TPDespair.ZetAspects.Compat
 		internal static bool affixBluePassive = false;
 		internal static bool affixBlueOnHit = false;
 		internal static float affixBlueDamage = 0f;
+		internal static bool affixBlueScatter = false;
 		internal static bool affixHauntedEnabled = false;
 		internal static bool affixPoisonEnabled = false;
 		internal static bool eliteVoidEnabled = false;
@@ -70,6 +73,8 @@ namespace TPDespair.ZetAspects.Compat
 			if (AffixBlueOnHitReworkField != null) affixBlueOnHit = (bool)AffixBlueOnHitReworkField.GetValue(TweakAffixBlueType);
 
 			if (AffixBlueDamageCoeffField != null) affixBlueDamage = (float)AffixBlueDamageCoeffField.GetValue(TweakAffixBlueType);
+
+			if (AffixBlueScatterBombField != null) affixBlueScatter = (bool)AffixBlueScatterBombField.GetValue(ComponentPassiveAffixBlueType);
 
 			if (EliteVoidDamageBonusField != null) eliteVoidDamage = (float)EliteVoidDamageBonusField.GetValue(TweakEliteVoidType);
 		}
@@ -122,6 +127,19 @@ namespace TPDespair.ZetAspects.Compat
 			else
 			{
 				Logger.Warn("[EliteReworksCompat] - Could Not Find Type : EliteReworks.Tweaks.T1.AffixBlue");
+			}
+
+			type = Type.GetType("EliteReworks.Tweaks.T1.Components.AffixBluePassiveLightning, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				ComponentPassiveAffixBlueType = type;
+
+				AffixBlueScatterBombField = type.GetField("scatterBombs", Flags);
+				if (AffixBlueScatterBombField == null) Logger.Warn("[EliteReworksCompat] - Could Not Find Field : AffixBluePassiveLightning.scatterBombs");
+			}
+			else
+			{
+				Logger.Warn("[EliteReworksCompat] - Could Not Find Type : EliteReworks.Tweaks.T1.Components.AffixBluePassiveLightning");
 			}
 
 			type = Type.GetType("EliteReworks.Tweaks.DLC1.EliteVoid, " + PluginAssembly.FullName, false);
