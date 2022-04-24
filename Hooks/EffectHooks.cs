@@ -1547,6 +1547,12 @@ namespace TPDespair.ZetAspects
 
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEarth, Catalog.Item.ZetAspectEarth, Catalog.Equip.AffixEarth);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixVoid, Catalog.Item.ZetAspectVoid, Catalog.Equip.AffixVoid);
+
+			if (Catalog.SpikeStrip.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWarped, Catalog.Item.ZetAspectWarped, Catalog.Equip.AffixWarped);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPlated, Catalog.Item.ZetAspectPlated, Catalog.Equip.AffixPlated);
+			}
 			/*
 			if (Catalog.Aetherium.populated)
 			{
