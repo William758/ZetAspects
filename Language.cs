@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,9 +6,10 @@ namespace TPDespair.ZetAspects
 {
 	public static class Language
 	{
-		public static Dictionary<string, Dictionary<string, string>> tokens = new Dictionary<string, Dictionary<string, string>>();
+		public static string targetFragmentLanguage = "default";
 
-		public static string helperTarget = "default";
+		public static Dictionary<string, Dictionary<string, string>> tokens = new Dictionary<string, Dictionary<string, string>>();
+		public static Dictionary<string, Dictionary<string, string>> fragments = new Dictionary<string, Dictionary<string, string>>();
 
 
 
@@ -20,37 +22,310 @@ namespace TPDespair.ZetAspects
 			if (!langDict.ContainsKey(token)) langDict.Add(token, text);
 			else langDict[token] = text;
 		}
-
-
-
-		public static string SecondText(float sec, string modifier = "")
+		
+		public static void RegisterFragment(string token, string text, string language = "default")
 		{
-			if (helperTarget == "tr")
+			if (!fragments.ContainsKey(language))
 			{
-				if (modifier == "for") return sec + " saniyeliğine";
-				if (modifier == "over") return sec + " saniyenin üzerinde";
-				if (modifier == "after") return sec + " saniye sonra";
-				return sec + " saniye";
+				//Logger.Info("Creating (" + language + ") fragment language.");
+				fragments.Add(language, new Dictionary<string, string>());
+			}
+
+			var langDict = fragments[language];
+
+			if (!langDict.ContainsKey(token))
+			{
+				//Logger.Info("Creating fragment (" + token + ") in (" + language + ") fragment language.");
+				langDict.Add(token, text);
 			}
 			else
 			{
-				if (sec == 1.0f) return "1 second";
-				return sec + " seconds";
+				Logger.Info("Replacing fragment (" + token + ") in (" + language + ") fragment language.");
+				langDict[token] = text;
 			}
 		}
+		
 
-		public static string StackText(float value, string prefix = "", string suffix = "")
+		
+		internal static void SetupFragments()
 		{
-			string sign = value >= 0f ? "+" : "-";
+			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n\nCounts as {0} stacks");
+			RegisterFragment("HOW_TO_CONVERT", "\nClick bottom-right equipment icon to convert");
 
-			if (helperTarget == "tr")
+			RegisterFragment("BASE_STACK_FORMAT", "{0} {1}");
+
+			RegisterFragment("FLAT_VALUE", "{0}");
+			RegisterFragment("PERCENT_VALUE", "{0}%");
+			RegisterFragment("FLATREGEN_VALUE", "{0} hp/s");
+			RegisterFragment("PERCENTREGEN_VALUE", "{0}% hp/s");
+			RegisterFragment("DURATION_VALUE", "{0}s");
+			RegisterFragment("METER_VALUE", "{0}m");
+
+			RegisterFragment("FLAT_STACK_INC", "<style=cStack>(+{0} per stack)</style>");
+			RegisterFragment("PERCENT_STACK_INC", "<style=cStack>(+{0}% per stack)</style>");
+			RegisterFragment("FLATREGEN_STACK_INC", "<style=cStack>(+{0} hp/s per stack)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_INC", "<style=cStack>(+{0}% hp/s per stack)</style>");
+			RegisterFragment("DURATION_STACK_INC", "<style=cStack>(+{0}s per stack)</style>");
+			RegisterFragment("METER_STACK_INC", "<style=cStack>(+{0}m per stack)</style>");
+			RegisterFragment("FLAT_STACK_DEC", "<style=cStack>(-{0} per stack)</style>");
+			RegisterFragment("PERCENT_STACK_DEC", "<style=cStack>(-{0}% per stack)</style>");
+			RegisterFragment("FLATREGEN_STACK_DEC", "<style=cStack>(-{0} hp/s per stack)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_DEC", "<style=cStack>(-{0}% hp/s per stack)</style>");
+			RegisterFragment("DURATION_STACK_DEC", "<style=cStack>(-{0}s per stack)</style>");
+			RegisterFragment("METER_STACK_DEC", "<style=cStack>(-{0}m per stack)</style>");
+
+			RegisterFragment("BASE_DAMAGE", "base");
+			RegisterFragment("TOTAL_DAMAGE", "TOTAL");
+
+			RegisterFragment("FOR_SECOND", "for {0} second");
+			RegisterFragment("FOR_SECONDS", "for {0} seconds");
+			RegisterFragment("OVER_SECOND", "over {0} second");
+			RegisterFragment("OVER_SECONDS", "over {0} seconds");
+			RegisterFragment("AFTER_SECOND", "after {0} second");
+			RegisterFragment("AFTER_SECONDS", "after {0} seconds");
+			RegisterFragment("SECOND", "{0} second");
+			RegisterFragment("SECONDS", "{0} seconds");
+
+
+
+			RegisterFragment("AFFIX_WHITE_NAME", "Her Biting Embrace");
+			RegisterFragment("AFFIX_WHITE_PICKUP", "Become an aspect of ice.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "Deploy a health-reducing ice crystal on use.");
+			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Aspect of Ice</style> :");
+			RegisterFragment("CHILL_ON_HIT", "\nAttacks <style=cIsUtility>chill</style> on hit {0}, reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.");
+			RegisterFragment("CHANCE_TO_FREEZE", "\nAttacks have a {0} chance to <style=cIsUtility>freeze</style> {1}.");
+			RegisterFragment("FROST_BLADE", "\nAttacks fire a <style=cIsDamage>blade</style> that deals {0} TOTAL damage.");
+
+			RegisterFragment("AFFIX_BLUE_NAME", "Silence Between Two Strikes");
+			RegisterFragment("AFFIX_BLUE_PICKUP", "Become an aspect of lightning.");
+			RegisterFragment("AFFIX_BLUE_ACTIVE", "Teleport on use.");
+			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>Aspect of Lightning</style> :");
+			RegisterFragment("PASSIVE_SCATTER_BOMB", "\nOccasionally drop scatter bombs around you.");
+			RegisterFragment("SAP_ON_HIT", "\nAttacks <style=cIsUtility>sap</style> on hit {0}, reducing <style=cIsUtility>damage</style> by {1}.");
+			RegisterFragment("SCATTER_BOMB", "\nAttacks drop scatter bombs that explodes for {0} TOTAL damage.");
+			RegisterFragment("LIGHTNING_BOMB", "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for {0} TOTAL damage {1}.");
+
+			RegisterFragment("AFFIX_RED_NAME", "Ifrit's Distinction");
+			RegisterFragment("AFFIX_RED_PICKUP", "Become an aspect of fire.");
+			RegisterFragment("AFFIX_RED_ACTIVE", "Release a barrage of seeking flame missiles on use.");
+			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>Aspect of Fire</style> :");
+			RegisterFragment("PASSIVE_FIRE_TRAIL", "\nLeave behind a fiery trail that damages enemies on contact.");
+			RegisterFragment("BURN_DOT", "\nAttacks <style=cIsDamage>burn</style> on hit for {0} {1} damage {2}.");
+
+			RegisterFragment("AFFIX_HAUNTED_NAME", "Spectral Circlet");
+			RegisterFragment("AFFIX_HAUNTED_PICKUP", "Become an aspect of incorporeality.");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "Heal all allies inside the invisibility aura on use.");
+			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>Aspect of Incorporeality</style> :");
+			RegisterFragment("PASSIVE_GHOST_AURA", "\nEmit an aura that cloaks nearby allies.");
+			RegisterFragment("PASSIVE_POSSESS", "\nAttach to some nearby allies, possessing them.");
+			RegisterFragment("SHRED_ON_HIT", "\nAttacks <style=cIsDamage>shred</style> on hit {0}, reducing <style=cIsDamage>armor</style> by {1}.");
+			RegisterFragment("GHOST_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
+
+			RegisterFragment("AFFIX_POISON_NAME", "N'kuhana's Retort");
+			RegisterFragment("AFFIX_POISON_PICKUP", "Become an aspect of corruption.");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "Summon an ally Malachite Urchin that inherits your items on use.");
+			RegisterFragment("ASPECT_OF_CORRUPTION", "<style=cDeath>Aspect of Corruption</style> :");
+			RegisterFragment("PASSIVE_SPIKEBALL", "\nPeriodically releases spiked balls that sprout spike pits from where they land.");
+			RegisterFragment("PASSIVE_RUIN_AURA", "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.");
+			RegisterFragment("RUIN_ON_HIT_BASIC", "\nAttacks <style=cIsDamage>ruin</style> on hit {0}, preventing health recovery.");
+			RegisterFragment("RUIN_ON_HIT", "\nAttacks <style=cIsDamage>ruin</style> on hit {0}, increasing <style=cIsDamage>damage taken</style> by {1}.");
+			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(Ruin prevents health recovery)</style>");
+			RegisterFragment("WEAKEN_ON_HIT", "\nAttacks <style=cIsDamage>weaken</style> on hit {0}, reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>, <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>, and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.");
+
+			RegisterFragment("AFFIX_LUNAR_NAME", "Shared Design");
+			RegisterFragment("AFFIX_LUNAR_PICKUP", "Become an aspect of perfection.");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "Gain temporary defense from powerful attacks on use.");
+			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cDeath>Aspect of Perfection</style> :");
+			RegisterFragment("PASSIVE_LUNAR_PROJ", "\nPeriodically fire projectiles while in combat.");
+			RegisterFragment("CRIPPLE_ON_HIT", "\nAttacks <style=cIsDamage>cripple</style> on hit {0}, reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.");
+
+			RegisterFragment("AFFIX_EARTH_NAME", "His Reassurance");
+			RegisterFragment("AFFIX_EARTH_PICKUP", "Become an aspect of earth.");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "???");
+			RegisterFragment("ASPECT_OF_EARTH", "<style=cDeath>Aspect of Earth</style> :");
+			RegisterFragment("PASSIVE_HEAL_ALLY", "\nHeal nearby allies.");
+			RegisterFragment("POACH_ON_HIT_BASIC", "\nAttacks <style=cIsUtility>poach</style> on hit {0}, causing hits against them to <style=cIsHealing>heal</style> for {1} of <style=cIsDamage>damage</style> dealt.");
+			RegisterFragment("POACH_ON_HIT", "\nAttacks <style=cIsUtility>poach</style> on hit {0}, reducing <style=cIsUtility>attack speed</style> by {1}.");
+			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(Hits against poached enemies heal for {0} of damage dealt)</style>");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>Heal</style> for {0} of the <style=cIsDamage>damage</style> you deal.");
+
+			RegisterFragment("AFFIX_VOID_NAME", "Entropic Fracture");
+			RegisterFragment("AFFIX_VOID_PICKUP", "Become an aspect of void.");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "???");
+			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>Aspect of Void</style> :");
+			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay.");
+			RegisterFragment("NULLIFY_ON_HIT", "\nAttacks <style=cIsUtility>nullify</style> on hit {0}");
+			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>");
+			RegisterFragment("COLLAPSE_DOT", "\nAttacks <style=cIsDamage>collapse</style> on hit for {0} {1} damage {2}.");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.");
+
+			RegisterFragment("AFFIX_PLATED_NAME", "Alloy of Subservience");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "Become an aspect of endurance.");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "???");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>Aspect of Endurance</style> :");
+			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\nGain defensive plating that mitigates heavy damage.");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\nAttacks <style=cIsUtility>stifle</style> on hit {0}, reducing damage dealt.");
+
+			RegisterFragment("AFFIX_WARPED_NAME", "Misplaced Faith");
+			RegisterFragment("AFFIX_WARPED_PICKUP", "Become an aspect of gravity.");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "???");
+			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>Aspect of Gravity</style> :");
+			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\nOccasionally deflect nearby projectiles.");
+			RegisterFragment("LEVITATE_ON_HIT", "\nAttacks <style=cIsUtility>levitate</style> on hit {0}.");
+
+
+
+			RegisterFragment("CONVERT_SHIELD", "\nConvert {0} of health into <style=cIsHealing>regenerating shield</style>.");
+			RegisterFragment("EXTRA_SHIELD_CONVERT", "\nGain {0} extra <style=cIsHealing>shield</style> from conversion.");
+			RegisterFragment("CONVERT_SHIELD_REGEN", "\nAt least {0} of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shield</style>.");
+
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\nGain {0} of health as extra <style=cIsHealing>shield</style>.");
+			RegisterFragment("STAT_EXTRA_JUMP", "\nGain <style=cIsUtility>+1</style> maximum <style=cIsUtility>jump count</style>.");
+			RegisterFragment("STAT_MOVESPEED", "\nIncreases <style=cIsUtility>movement speed</style> by {0}.");
+			RegisterFragment("STAT_ARMOR", "\nIncreases <style=cIsHealing>armor</style> by {0}.");
+			RegisterFragment("STAT_HEALTH", "\nIncreases <style=cIsHealing>maximum health</style> by {0}.");
+			RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health regeneration</style> by {0}.");
+			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
+			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
+
+
+
+			RegisterFragment("HEADHUNTER", "Gain the <style=cIsDamage>power</style> of any killed elite monster for {0}.");
+		}
+
+
+
+		public static string TextFragment(string key, bool trim = false)
+		{
+			if (fragments.ContainsKey(targetFragmentLanguage))
 			{
-				return "<style=cStack>(birikim başına " + sign + prefix + Mathf.Abs(value) + suffix + ")</style>";
+				if (fragments[targetFragmentLanguage].ContainsKey(key))
+				{
+					//Logger.Info("Found fragment (" + key + ") in (" + targetFragmentLanguage + ") fragment language.");
+					string output = fragments[targetFragmentLanguage][key];
+					if (trim) output = output.Trim('\n');
+					return output;
+				}
+			}
+			if (fragments.ContainsKey("default"))
+			{
+				if (fragments["default"].ContainsKey(key))
+				{
+					//Logger.Info("Found fragment (" + key + ") in (default) fragment language.");
+					string output = fragments["default"][key];
+					if (trim) output = output.Trim('\n');
+					return output;
+				}
+			}
+
+			Logger.Info("Failed to find fragment (" + key + ") in any fragment language.");
+			return "[" + key + "]";
+		}
+
+
+
+		public static string ScalingText(float baseValue, float stackValue, string modifier = "", string style = "", bool combine = false)
+		{
+			string output = "";
+
+			if (combine || stackValue == 0f)
+			{
+				float stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+				float value = baseValue + stackValue * (stacks - 1f);
+
+				if (modifier == "percent" || modifier == "percentregen") value *= 100f;
+
+				string baseString;
+				if (modifier == "percent") baseString = TextFragment("PERCENT_VALUE");
+				else if (modifier == "flatregen") baseString = TextFragment("FLATREGEN_VALUE");
+				else if (modifier == "percentregen") baseString = TextFragment("PERCENTREGEN_VALUE");
+				else if (modifier == "duration") baseString = TextFragment("DURATION_VALUE");
+				else if (modifier == "meter") baseString = TextFragment("METER_VALUE");
+				else baseString = TextFragment("FLAT_VALUE");
+
+				output = String.Format(baseString, value);
+
+				if (style != "") output = "<style=" + style + ">" + output + "</style>";
 			}
 			else
 			{
-				return "<style=cStack>(" + sign + prefix + Mathf.Abs(value) + suffix + " per stack)</style>";
+				float mult = (modifier == "percent" || modifier == "percentregen") ? 100f : 1f;
+				string sign = stackValue > 0f ? "INC" : "DEC";
+
+				string baseString, stackString;
+				if (modifier == "percent")
+				{
+					baseString = TextFragment("PERCENT_VALUE");
+					stackString = TextFragment("PERCENT_STACK_" + sign);
+				}
+				else if (modifier == "flatregen")
+				{
+					baseString = TextFragment("FLATREGEN_VALUE");
+					stackString = TextFragment("FLATREGEN_STACK_" + sign);
+				}
+				else if (modifier == "percentregen")
+				{
+					baseString = TextFragment("PERCENTREGEN_VALUE");
+					stackString = TextFragment("PERCENTREGEN_STACK_" + sign);
+				}
+				else if (modifier == "duration")
+				{
+					baseString = TextFragment("DURATION_VALUE");
+					stackString = TextFragment("DURATION_STACK_" + sign);
+				}
+				else if (modifier == "meter")
+				{
+					baseString = TextFragment("METER_VALUE");
+					stackString = TextFragment("METER_STACK_" + sign);
+				}
+				else
+				{
+					baseString = TextFragment("FLAT_VALUE");
+					stackString = TextFragment("FLAT_STACK_" + sign);
+				}
+
+				string formatString = TextFragment("BASE_STACK_FORMAT");
+
+				baseString = String.Format(baseString, baseValue * mult);
+				stackString = String.Format(stackString, stackValue * mult);
+
+				if (style != "") baseString = "<style=" + style + ">" + baseString + "</style>";
+
+				output = String.Format(formatString, baseString, stackString);
 			}
+
+			return output;
+		}
+		
+		public static string SecondText(float sec, string modifier = "")
+		{
+			string targetString;
+			if (modifier == "for") targetString = "FOR_SECOND";
+			else if (modifier == "over") targetString = "OVER_SECOND";
+			else if (modifier == "after") targetString = "AFTER_SECOND";
+			else targetString = "SECOND";
+
+			if (sec != 1f) targetString += "S";
+
+			return String.Format(TextFragment(targetString), sec);
+		}
+
+		public static string PercentText(float value, string style = "")
+		{
+			string output = String.Format(TextFragment("PERCENT_VALUE"), value * 100f);
+
+			if (style != "") output = "<style=" + style + ">" + output + "</style>";
+
+			return output;
+		}
+
+		public static string FlatText(float value, string style = "")
+		{
+			string output = String.Format(TextFragment("FLAT_VALUE"), value);
+
+			if (style != "") output = "<style=" + style + ">" + output + "</style>";
+
+			return output;
 		}
 
 		public static string EquipmentStackText(float stack)
@@ -60,19 +335,7 @@ namespace TPDespair.ZetAspects
 			if (!DropHooks.CanObtainItem()) return "";
 			if (stack == 1f) return "";
 
-			if (helperTarget == "tr")
-			{
-				return "\n\n" + stack + " birikim olarak sayılır";
-			}
-			else
-			{
-				return "\n\nCounts as " + stack + " stacks";
-			}
-		}
-
-		public static string EquipmentConvertText()
-		{
-			return "\nClick bottom-right equipment icon to convert";
+			return String.Format(TextFragment("EQUIPMENT_STACK_EFFECT"), stack);
 		}
 
 		public static string EquipmentDescription(string baseDesc, string activeEffect, bool activeAlwaysAvailable = false)
@@ -81,7 +344,7 @@ namespace TPDespair.ZetAspects
 			if (Catalog.aspectAbilities || activeAlwaysAvailable) output += activeEffect + "\n\n";
 			output += baseDesc;
 			output += EquipmentStackText(Configuration.AspectEquipmentEffect.Value);
-			if (Configuration.AspectEquipmentConversion.Value) output += EquipmentConvertText();
+			if (Configuration.AspectEquipmentConversion.Value) output += TextFragment("HOW_TO_CONVERT");
 
 			return output;
 		}
@@ -90,6 +353,8 @@ namespace TPDespair.ZetAspects
 
 		internal static void Init()
 		{
+			SetupFragments();
+
 			RegisteredHook();
 			StringHook();
 		}
@@ -143,17 +408,36 @@ namespace TPDespair.ZetAspects
 		internal static void ChangeText()
 		{
 			string text;
-			RegisterToken("ITEM_HEADHUNTER_DESC", "Gain the <style=cIsDamage>power</style> of any killed elite monster for <style=cIsDamage>" + Configuration.HeadHunterBaseDuration.Value + "s</style> <style=cStack>(+" + Configuration.HeadHunterStackDuration.Value + "s per stack)</style>.");
-			text = "Convert <style=cIsHealing>100%</style> of health into <style=cIsHealing>regenerating shields</style>.\nGain <style=cIsHealing>50%</style> <style=cStack>(+25% per stack)</style> extra <style=cIsHealing>shield</style> from conversion.";
+			targetFragmentLanguage = "default";
+
+
+
+			text = String.Format(
+				TextFragment("HEADHUNTER"),
+				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
+			);
+			RegisterToken("ITEM_HEADHUNTER_DESC", text);
+
+
+
+			text = String.Format(
+				TextFragment("CONVERT_SHIELD", true),
+				PercentText(1f, "cIsHealing")
+			);
+			text += String.Format(
+				TextFragment("EXTRA_SHIELD_CONVERT"),
+				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
+			);
 			if (Configuration.TranscendenceRegen.Value > 0f)
 			{
-				text += "\nAt least <style=cIsHealing>";
-				text += Configuration.TranscendenceRegen.Value * 100f + "%</style>";
-				text += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
+				text += String.Format(
+					TextFragment("CONVERT_SHIELD_REGEN"),
+					PercentText(Configuration.TranscendenceRegen.Value, "cIsHealing")
+				);
 			}
 			if (Catalog.shieldJump)
 			{
-				text += "\nGain <style=cIsUtility>+1</style> maximum <style=cIsUtility>jump count</style>.";
+				text += TextFragment("STAT_EXTRA_JUMP");
 			}
 			RegisterToken("ITEM_SHIELDONLY_DESC", text);
 		}
