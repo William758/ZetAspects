@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using RoR2;
 
+using static TPDespair.ZetAspects.Configuration;
+using static TPDespair.ZetAspects.Language;
+
 namespace TPDespair.ZetAspects.Items
 {
 	public static class ZetAspectWhite
@@ -11,20 +14,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixWhite, outlineSprite);
 
@@ -37,69 +40,38 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Her Biting Embrace");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of ice.");
-
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", Language.EquipmentDescription(desc, "Deploy a health-reducing ice crystal on use."));
-
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_WHITE_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_WHITE_PICKUP"));
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", EquipmentDescription(desc, TextFragment("AFFIX_WHITE_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Acıtan Kucaklaması", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Buzun bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
-			output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
-			if (Configuration.AspectWhiteBaseFreezeChance.Value > 0f)
+			string output = TextFragment("ASPECT_OF_ICE");
+			output += String.Format(TextFragment("CHILL_ON_HIT"), SecondText(AspectWhiteSlowDuration.Value, "for"));
+			if (AspectWhiteBaseFreezeChance.Value > 0f)
 			{
-				output += "\nAttacks have a <style=cIsUtility>" + Configuration.AspectWhiteBaseFreezeChance.Value + "%</style>";
-				if (Configuration.AspectWhiteStackFreezeChance.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectWhiteStackFreezeChance.Value, "", "%");
-				}
-				output += " chance to <style=cIsUtility>freeze</style> for ";
-				output += Language.SecondText(Configuration.AspectWhiteFreezeDuration.Value) + ".";
+				output += String.Format(
+					TextFragment("CHANCE_TO_FREEZE"),
+					ScalingText(AspectWhiteBaseFreezeChance.Value * 0.01f, AspectWhiteStackFreezeChance.Value * 0.01f, "percent", "cIsUtility", combine),
+					SecondText(AspectWhiteFreezeDuration.Value, "for")
+				);
 			}
-			if (Configuration.AspectWhiteBaseDamage.Value > 0f)
+			if (AspectWhiteBaseDamage.Value > 0f)
 			{
-				output += "\nAttacks fire a <style=cIsDamage>blade</style> that deals <style=cIsDamage>";
-				output += Configuration.AspectWhiteBaseDamage.Value * 100f + "%</style>";
-				if (Configuration.AspectWhiteStackDamage.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectWhiteStackDamage.Value * 100f, "", "%");
-				}
-				output += " TOTAL damage.";
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Ice</style> :\nAttacks <style=cIsUtility>chill</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
-			output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
-			if (Configuration.AspectWhiteBaseFreezeChance.Value > 0f)
-			{
-				value = Configuration.AspectWhiteBaseFreezeChance.Value + Configuration.AspectWhiteStackFreezeChance.Value * (stacks - 1f);
-				output += "\nAttacks have a <style=cIsUtility>" + value + "%</style>";
-				output += " chance to <style=cIsUtility>freeze</style> for ";
-				output += Language.SecondText(Configuration.AspectWhiteFreezeDuration.Value) + ".";
-			}
-			if (Configuration.AspectWhiteBaseDamage.Value > 0f)
-			{
-				value = Configuration.AspectWhiteBaseDamage.Value + Configuration.AspectWhiteStackDamage.Value * (stacks - 1f);
-				output += "\nAttacks fire a <style=cIsDamage>blade</style> that deals <style=cIsDamage>";
-				output += value * 100f + "%</style>";
-				output += " TOTAL damage.";
+				output += String.Format(
+					TextFragment("FROST_BLADE"),
+					ScalingText(AspectWhiteBaseDamage.Value, AspectWhiteStackDamage.Value, "percent", "cIsDamage", combine)
+				);
 			}
 
 			return output;
@@ -115,20 +87,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixBlue");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBlue, outlineSprite);
 
@@ -141,158 +113,91 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Silence Between Two Strikes");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of lightning.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_BLUE_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_BLUE_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXBLUE_DESC", Language.EquipmentDescription(desc, "Teleport on use."));
-
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXBLUE_DESC", EquipmentDescription(desc, TextFragment("AFFIX_BLUE_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "İki Darbe Arası Sessizlik", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Yıldırımın bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			bool defaultBombDisabled = false;
-
-			string output = "<style=cDeath>Aspect of Lightning</style> :";
-			if (Compat.EliteReworks.affixBlueEnabled)
+			string output = TextFragment("ASPECT_OF_LIGHTNING");
+			if (Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBluePassive)
 			{
-				if (Compat.EliteReworks.affixBluePassive)
-				{
-					output += "\nOccasionally Drop scatter bombs around you.";
-				}
+				output += TextFragment("PASSIVE_SCATTER_BOMB");
 			}
-			if (Configuration.AspectBlueSappedDuration.Value > 0f)
+			if (AspectBlueSappedDuration.Value > 0f)
 			{
-				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectBlueSappedDuration.Value);
-				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
-				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
+				output += String.Format(
+					TextFragment("SAP_ON_HIT"),
+					SecondText(AspectBlueSappedDuration.Value, "for"),
+					PercentText(Mathf.Abs(AspectBlueSappedDamage.Value), "cIsUtility")
+				);
 			}
 			if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
 			{
-				if (Configuration.AspectBlueHealthConverted.Value > 0f)
+				if (AspectBlueHealthConverted.Value > 0f)
 				{
-					output += "\nConvert <style=cIsHealing>";
-					output += Configuration.AspectBlueHealthConverted.Value * 100f;
-					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
+					output += String.Format(
+						TextFragment("CONVERT_SHIELD"),
+						PercentText(AspectBlueHealthConverted.Value, "cIsHealing")
+					);
 				}
 			}
-			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
+			if (AspectBlueBaseShieldGain.Value > 0f)
 			{
-				output += "\nGain <style=cIsHealing>";
-				output += Configuration.AspectBlueBaseShieldGain.Value * 100f + "%</style>";
-				if (Configuration.AspectBlueStackShieldGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectBlueStackShieldGain.Value * 100f, "", "%");
-				}
-				output += " of health as extra <style=cIsHealing>shield</style>.";
+				output += String.Format(
+					TextFragment("STAT_HEALTH_EXTRA_SHIELD"),
+					ScalingText(AspectBlueBaseShieldGain.Value, AspectBlueStackShieldGain.Value, "percent", "cIsHealing", combine)
+				);
 			}
-			if (Compat.EliteReworks.affixBlueEnabled)
+			if (Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBlueOnHit)
 			{
-				if (Compat.EliteReworks.affixBlueOnHit)
+				if (Compat.EliteReworks.affixBlueScatter)
 				{
-					defaultBombDisabled = true;
-
-					output += "\nAttacks drop scatter bombs that explodes for <style=cIsDamage>";
-					output += Compat.EliteReworks.affixBlueDamage * 100f + "%</style>";
-					output += " TOTAL damage.";
+					output += String.Format(
+						TextFragment("SCATTER_BOMB"),
+						PercentText(Compat.EliteReworks.affixBlueDamage, "cIsDamage")
+					);
+				}
+				else
+				{
+					output += String.Format(
+						TextFragment("LIGHTNING_BOMB"),
+						PercentText(Compat.EliteReworks.affixBlueDamage, "cIsDamage"),
+						SecondText(1.5f, "after")
+					);
 				}
 			}
-			if (!defaultBombDisabled)
+			else
 			{
 				if (EffectHooks.preventedDefaultOverloadingBomb)
 				{
-					if (Configuration.AspectBlueBaseDamage.Value > 0f)
+					if (AspectBlueBaseDamage.Value > 0f)
 					{
-						output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-						output += Configuration.AspectBlueBaseDamage.Value * 100f + "%</style>";
-						if (Configuration.AspectBlueStackDamage.Value != 0f)
-						{
-							output += " " + Language.StackText(Configuration.AspectBlueStackDamage.Value * 100f, "", "%");
-						}
-						output += " TOTAL damage after ";
-						output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
+						output += String.Format(
+							TextFragment("LIGHTNING_BOMB"),
+							ScalingText(AspectBlueBaseDamage.Value, AspectBlueStackDamage.Value, "percent", "cIsDamage", combine),
+							SecondText(AspectBlueBombDuration.Value, "after")
+						);
 					}
 				}
 				else
 				{
-					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
-				}
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			bool defaultBombDisabled = false;
-
-			string output = "<style=cDeath>Aspect of Lightning</style> :";
-			if (Compat.EliteReworks.affixBlueEnabled)
-			{
-				if (Compat.EliteReworks.affixBluePassive)
-				{
-					output += "\nOccasionally Drop scatter bombs around you.";
-				}
-			}
-			if (Configuration.AspectBlueSappedDuration.Value > 0f)
-			{
-				output += "\nAttacks <style=cIsUtility>sap</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectBlueSappedDuration.Value);
-				output += ", reducing <style=cIsUtility>damage</style> by <style=cIsUtility>";
-				output += Mathf.Abs(Configuration.AspectBlueSappedDamage.Value) * 100f + "%</style>.";
-			}
-			if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
-			{
-				if (Configuration.AspectBlueHealthConverted.Value > 0f)
-				{
-					output += "\nConvert <style=cIsHealing>";
-					output += Configuration.AspectBlueHealthConverted.Value * 100f;
-					output += "%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-				}
-			}
-			if (Configuration.AspectBlueBaseShieldGain.Value > 0f)
-			{
-				value = Configuration.AspectBlueBaseShieldGain.Value + Configuration.AspectBlueStackShieldGain.Value * (stacks - 1f);
-				output += "\nGain <style=cIsHealing>";
-				output += value * 100f + "%</style>";
-				output += " of health as extra <style=cIsHealing>shield</style>.";
-			}
-			if (Compat.EliteReworks.affixBlueEnabled)
-			{
-				if (Compat.EliteReworks.affixBlueOnHit)
-				{
-					defaultBombDisabled = true;
-
-					output += "\nAttacks drop scatter bombs that explodes for <style=cIsDamage>";
-					output += Compat.EliteReworks.affixBlueDamage * 100f + "%</style>";
-					output += " TOTAL damage.";
-				}
-			}
-			if (!defaultBombDisabled)
-			{
-				if (EffectHooks.preventedDefaultOverloadingBomb)
-				{
-					if (Configuration.AspectBlueBaseDamage.Value > 0f)
-					{
-						value = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stacks - 1f);
-						output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>";
-						output += value * 100f + "%</style>";
-						output += " TOTAL damage after ";
-						output += Language.SecondText(Configuration.AspectBlueBombDuration.Value) + ".";
-					}
-				}
-				else
-				{
-					output += "\nAttacks attach a <style=cIsDamage>bomb</style> that explodes for <style=cIsDamage>50%</style> TOTAL damage after 1.5 seconds.";
+					output += String.Format(
+						TextFragment("LIGHTNING_BOMB"),
+						PercentText(0.5f, "cIsDamage"),
+						SecondText(1.5f, "after")
+					);
 				}
 			}
 
@@ -309,20 +214,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixRed");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixRed, outlineSprite);
 
@@ -335,84 +240,47 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Ifrit's Distinction");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of fire.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_RED_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_RED_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXRED_DESC", Language.EquipmentDescription(desc, "Release a barrage of seeking flame missiles on use."));
-
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXRED_DESC", EquipmentDescription(desc, TextFragment("AFFIX_RED_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "İfritin Farkı", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Ateşin bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Fire</style> :";
-			if (Configuration.AspectRedTrail.Value)
+			string output = TextFragment("ASPECT_OF_FIRE");
+			if (AspectRedTrail.Value)
 			{
-				output += "\nLeave behind a fiery trail that damages enemies on contact.";
+				output += TextFragment("PASSIVE_FIRE_TRAIL");
 			}
-			if (Configuration.AspectRedExtraJump.Value)
+			if (AspectRedExtraJump.Value)
 			{
-				output += "\nGain <style=cIsUtility>+1</style> maximum <style=cIsUtility>jump count</style>.";
+				output += TextFragment("STAT_EXTRA_JUMP");
 			}
-			if (Configuration.AspectRedBaseMovementGain.Value > 0f)
+			if (AspectRedBaseMovementGain.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
-				output += Configuration.AspectRedBaseMovementGain.Value * 100f + "%</style>";
-				if (Configuration.AspectRedStackMovementGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectRedStackMovementGain.Value * 100f, "", "%");
-				}
-				output += ".";
+				output += String.Format(
+					TextFragment("STAT_MOVESPEED"),
+					ScalingText(AspectRedBaseMovementGain.Value, AspectRedStackMovementGain.Value, "percent", "cIsUtility", combine)
+				);
 			}
-			if (Configuration.AspectRedBaseBurnDamage.Value > 0f)
+			if (AspectRedBaseBurnDamage.Value > 0f)
 			{
-				output += "\nAttacks <style=cIsDamage>burn</style> on hit for <style=cIsDamage>";
-				output += Configuration.AspectRedBaseBurnDamage.Value * 100f + "%</style>";
-				if (Configuration.AspectRedStackBurnDamage.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectRedStackBurnDamage.Value * 100f, "", "%");
-				}
-				output += Configuration.AspectRedUseBase.Value ? " base" : " TOTAL";
-				output += " damage over ";
-				output += Language.SecondText(Configuration.AspectRedBurnDuration.Value) + ".";
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Fire</style> :";
-			if (Configuration.AspectRedTrail.Value)
-			{
-				output += "\nLeave behind a fiery trail that damages enemies on contact.";
-			}
-			if (Configuration.AspectRedExtraJump.Value)
-			{
-				output += "\nGain <style=cIsUtility>+1</style> maximum <style=cIsUtility>jump count</style>.";
-			}
-			if (Configuration.AspectRedBaseMovementGain.Value > 0f)
-			{
-				value = Configuration.AspectRedBaseMovementGain.Value + Configuration.AspectRedStackMovementGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
-				output += value * 100f + "%</style>.";
-			}
-			if (Configuration.AspectRedBaseBurnDamage.Value > 0f)
-			{
-				value = Configuration.AspectRedBaseBurnDamage.Value + Configuration.AspectRedStackBurnDamage.Value * (stacks - 1f);
-				output += "\nAttacks <style=cIsDamage>burn</style> on hit for <style=cIsDamage>";
-				output += value * 100f + "%</style>";
-				output += Configuration.AspectRedUseBase.Value ? " base" : " TOTAL";
-				output += " damage over ";
-				output += Language.SecondText(Configuration.AspectRedBurnDuration.Value) + ".";
+				output += String.Format(
+					TextFragment("BURN_DOT"),
+					ScalingText(AspectRedBaseBurnDamage.Value, AspectRedStackBurnDamage.Value, "percent", "cIsDamage", combine),
+					AspectRedUseBase.Value ? TextFragment("BASE_DAMAGE") : TextFragment("TOTAL_DAMAGE"),
+					SecondText(AspectRedBurnDuration.Value, "over")
+				);
 			}
 
 			return output;
@@ -428,20 +296,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixHaunted");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixHaunted, outlineSprite);
 
@@ -454,125 +322,68 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Spectral Circlet");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of incorporeality.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_HAUNTED_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_HAUNTED_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXHAUNTED_DESC", Language.EquipmentDescription(desc, "Heal all allies inside the invisibility aura on use."));
-
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXHAUNTED_DESC", EquipmentDescription(desc, TextFragment("AFFIX_HAUNTED_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Hayali Taç", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Soyutluğun bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
+			string output = TextFragment("ASPECT_OF_INCORPOREALITY");
 			if (!Compat.EliteReworks.affixHauntedEnabled)
 			{
-				output += "\nEmit an aura that cloaks nearby allies.";
+				output += TextFragment("PASSIVE_GHOST_AURA");
 			}
 			else
 			{
-				output += "\nAttach to some nearby allies, possessing them.";
+				output += TextFragment("PASSIVE_POSSESS");
 			}
-			if (Configuration.AspectHauntedSlowEffect.Value)
+			if (AspectHauntedSlowEffect.Value)
 			{
-				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
-				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
+				output += String.Format(TextFragment("CHILL_ON_HIT"), SecondText(AspectWhiteSlowDuration.Value, "for"));
 			}
 			if (!Compat.EliteReworks.affixHauntedEnabled)
 			{
-				if (Configuration.AspectHauntedShredDuration.Value > 0f)
+				if (AspectHauntedShredDuration.Value > 0f)
 				{
-					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-					output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
-					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
-				}
-			}
-			else
-			{
-				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(3f);
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += 20f + "</style>.";
-			}
-			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
-			{
-				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
-				output += Configuration.AspectHauntedBaseArmorGain.Value + "</style>";
-				if (Configuration.AspectHauntedStackArmorGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectHauntedStackArmorGain.Value);
-				}
-				output += ".";
-			}
-			if (!Compat.EliteReworks.affixHauntedEnabled)
-			{
-				if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
-				{
-					output += "\nGrants nearby allies <style=cIsHealing>";
-					output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
-				}
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Incorporeality</style> :";
-			if (!Compat.EliteReworks.affixHauntedEnabled)
-			{
-				output += "\nEmit an aura that cloaks nearby allies.";
-			}
-			else
-			{
-				output += "\nAttach to some nearby allies, possessing them.";
-			}
-			if (Configuration.AspectHauntedSlowEffect.Value)
-			{
-				output += "\nAttacks <style=cIsUtility>chill</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectWhiteSlowDuration.Value);
-				output += ", reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.";
-			}
-			if (!Compat.EliteReworks.affixHauntedEnabled)
-			{
-				if (Configuration.AspectHauntedShredDuration.Value > 0f)
-				{
-					output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-					output += Language.SecondText(Configuration.AspectHauntedShredDuration.Value);
-					output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value) + "</style>.";
+					output += String.Format(
+						TextFragment("SHRED_ON_HIT"),
+						SecondText(AspectHauntedShredDuration.Value, "for"),
+						FlatText(Mathf.Abs(AspectHauntedShredArmor.Value), "cIsDamage")
+					);
 				}
 			}
 			else
 			{
-				output += "\nAttacks <style=cIsDamage>shred</style> on hit for ";
-				output += Language.SecondText(3f);
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>";
-				output += 20f + "</style>.";
+				output += String.Format(
+					TextFragment("SHRED_ON_HIT"),
+					SecondText(3f, "for"),
+					FlatText(20f, "cIsDamage")
+				);
 			}
-			if (Configuration.AspectHauntedBaseArmorGain.Value > 0f)
+			if (AspectHauntedBaseArmorGain.Value > 0f)
 			{
-				value = Configuration.AspectHauntedBaseArmorGain.Value + Configuration.AspectHauntedStackArmorGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsHealing>armor</style> by <style=cIsHealing>";
-				output += value + "</style>.";
+				output += String.Format(
+					TextFragment("STAT_ARMOR"),
+					ScalingText(AspectHauntedBaseArmorGain.Value, AspectHauntedStackArmorGain.Value, "flat", "cIsHealing", combine)
+				);
 			}
-			if (!Compat.EliteReworks.affixHauntedEnabled)
+			if (!Compat.EliteReworks.affixHauntedEnabled && AspectHauntedAllyArmorGain.Value > 0f)
 			{
-				if (Configuration.AspectHauntedAllyArmorGain.Value > 0f)
-				{
-					output += "\nGrants nearby allies <style=cIsHealing>";
-					output += Configuration.AspectHauntedAllyArmorGain.Value + " armor</style>.";
-				}
+				output += String.Format(
+					TextFragment("GHOST_ARMOR"),
+					FlatText(AspectHauntedAllyArmorGain.Value, "cIsHealing")
+				);
 			}
 
 			return output;
@@ -588,20 +399,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixPoison");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPoison, outlineSprite);
 
@@ -614,105 +425,67 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "N'kuhana's Retort");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of corruption.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_POISON_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_POISON_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXPOISON_DESC", Language.EquipmentDescription(desc, "Summon an ally Malachite Urchin that inherits your items on use."));
-
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXPOISON_DESC", EquipmentDescription(desc, TextFragment("AFFIX_POISON_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "N'kuhana'nın Cevabı", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Yozlaşmanın bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			float ruinDuration = Configuration.AspectPoisonNullDuration.Value;
-			string output = "<style=cDeath>Aspect of Corruption</style> :";
-			if (Configuration.AspectPoisonFireSpikes.Value)
+			float ruinDuration = AspectPoisonNullDuration.Value;
+
+			string output = TextFragment("ASPECT_OF_CORRUPTION");
+			if (AspectPoisonFireSpikes.Value)
 			{
-				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
+				output += TextFragment("PASSIVE_SPIKEBALL");
 			}
 			if (Compat.EliteReworks.affixPoisonEnabled)
 			{
-				output += "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.";
+				output += TextFragment("PASSIVE_RUIN_AURA");
 				ruinDuration = 8f;
 			}
 			if (ruinDuration > 0f)
 			{
-				output += "\nAttacks <style=cIsDamage>ruin</style> on hit for ";
-				output += Language.SecondText(ruinDuration);
-				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+				if (AspectPoisonNullDamageTaken.Value != 0f)
 				{
-					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
+					output += String.Format(
+						TextFragment("RUIN_ON_HIT"),
+						SecondText(ruinDuration, "for"),
+						PercentText(Mathf.Abs(AspectPoisonNullDamageTaken.Value), "cIsDamage")
+					);
+					output += TextFragment("RUIN_DETAIL");
 				}
-				output += ".";
-				output += "\n<style=cStack>(Ruin prevents health recovery)</style>";
+				else
+				{
+					output += String.Format(
+						TextFragment("RUIN_ON_HIT_BASIC"),
+						SecondText(ruinDuration, "for")
+					);
+				}
 			}
 			if (Compat.EliteReworks.affixPoisonEnabled)
 			{
-				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
-				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>";
-				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
+				output += String.Format(
+					TextFragment("WEAKEN_ON_HIT"),
+					SecondText(ruinDuration, "for")
+				);
 			}
-			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
+			if (AspectPoisonBaseHealthGain.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
-				output += Configuration.AspectPoisonBaseHealthGain.Value + "</style>";
-				if (Configuration.AspectPoisonStackHealthGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectPoisonStackHealthGain.Value);
-				}
-				output += ".";
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			float ruinDuration = Configuration.AspectPoisonNullDuration.Value;
-			string output = "<style=cDeath>Aspect of Corruption</style> :";
-			if (Configuration.AspectPoisonFireSpikes.Value)
-			{
-				output += "\nPeriodically releases spiked balls that sprout spike pits from where they land.";
-			}
-			if (Compat.EliteReworks.affixPoisonEnabled)
-			{
-				output += "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.";
-				ruinDuration = 8f;
-			}
-			if (ruinDuration > 0f)
-			{
-				output += "\nAttacks <style=cIsDamage>ruin</style> on hit for ";
-				output += Language.SecondText(ruinDuration);
-				if (Configuration.AspectPoisonNullDamageTaken.Value != 0f)
-				{
-					output += ", increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>";
-					output += Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value) * 100f + "%</style>";
-				}
-				output += ".";
-				output += "\n<style=cStack>(Ruin prevents health recovery)</style>";
-			}
-			if (Compat.EliteReworks.affixPoisonEnabled)
-			{
-				output += "\nAttacks <style=cIsDamage>weaken</style> on hit for 8 seconds";
-				output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>30</style>";
-				output += ", <style=cIsUtility>movement speed</style> by <style=cIsUtility>40%</style>";
-				output += ", and <style=cIsDamage>damage</style> by <style=cIsDamage>40%</style>.";
-			}
-			if (Configuration.AspectPoisonBaseHealthGain.Value > 0f)
-			{
-				value = Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
-				output += value + "</style>.";
+				output += String.Format(
+					TextFragment("STAT_HEALTH"),
+					ScalingText(AspectPoisonBaseHealthGain.Value, AspectPoisonStackHealthGain.Value, "flat", "cIsHealing", combine)
+				);
 			}
 
 			return output;
@@ -728,20 +501,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixLunar");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixLunar, outlineSprite);
 
@@ -754,94 +527,53 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Shared Design");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of perfection.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_LUNAR_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_LUNAR_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXLUNAR_DESC", Language.EquipmentDescription(desc, "Gain temporary defense from powerful attacks on use."));
-
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXLUNAR_DESC", EquipmentDescription(desc, TextFragment("AFFIX_LUNAR_ACTIVE")));
+			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Paylaşımlı Tasarım", "tr");
 			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Kusursuzluğun bir yüzü ol.", "tr");
+			*/
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Perfection</style> :";
-			if (Configuration.AspectLunarProjectiles.Value)
+			string output = TextFragment("ASPECT_OF_PERFECTION");
+			if (AspectLunarProjectiles.Value)
 			{
-				output += "\nPeriodically fire projectiles while in combat.";
+				output += TextFragment("PASSIVE_LUNAR_PROJ");
 			}
-			output += "\nAttacks <style=cIsDamage>cripple</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectLunarCrippleDuration.Value);
-			output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and";
-			output += " <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.";
-			if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
+			output += String.Format(TextFragment("CRIPPLE_ON_HIT"), SecondText(AspectLunarCrippleDuration.Value, "for"));
+			if (AspectLunarBaseMovementGain.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
-				output += Configuration.AspectLunarBaseMovementGain.Value * 100f + "%</style>";
-				if (Configuration.AspectLunarStackMovementGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectLunarStackMovementGain.Value * 100f, "", "%");
-				}
-				output += ".";
+				output += String.Format(
+					TextFragment("STAT_MOVESPEED"),
+					ScalingText(AspectLunarBaseMovementGain.Value, AspectLunarStackMovementGain.Value, "percent", "cIsUtility", combine)
+				);
 			}
-			output += "\nConvert <style=cIsHealing>100%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-			if (Configuration.AspectLunarBaseShieldGain.Value > 0f)
+			output += String.Format(
+				TextFragment("CONVERT_SHIELD"),
+				PercentText(1f, "cIsHealing")
+			);
+			if (AspectLunarBaseShieldGain.Value > 0f)
 			{
-				output += "\nGain <style=cIsHealing>";
-				output += Configuration.AspectLunarBaseShieldGain.Value * 100f + "%</style>";
-				if (Configuration.AspectLunarStackShieldGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectLunarStackShieldGain.Value * 100f, "", "%");
-				}
-				output += " extra <style=cIsHealing>shield</style> from conversion.";
+				output += String.Format(
+					TextFragment("EXTRA_SHIELD_CONVERT"),
+					ScalingText(AspectLunarBaseShieldGain.Value, AspectLunarStackShieldGain.Value, "percent", "cIsHealing", combine)
+				);
 			}
-			if (Configuration.AspectLunarRegen.Value > 0f)
+			if (AspectLunarRegen.Value > 0f)
 			{
-				output += "\nAt least <style=cIsHealing>";
-				output += Configuration.AspectLunarRegen.Value * 100f + "%</style>";
-				output += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Perfection</style> :";
-			if (Configuration.AspectLunarProjectiles.Value)
-			{
-				output += "\nPeriodically fire projectiles while in combat.";
-			}
-			output += "\nAttacks <style=cIsDamage>cripple</style> on hit for ";
-			output += Language.SecondText(Configuration.AspectLunarCrippleDuration.Value);
-			output += ", reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and";
-			output += " <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.";
-			if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
-			{
-				value = Configuration.AspectLunarBaseMovementGain.Value + Configuration.AspectLunarStackMovementGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>";
-				output += value * 100f + "%</style>.";
-			}
-			output += "\nConvert <style=cIsHealing>100%</style> of health into <style=cIsHealing>regenerating shields</style>.";
-			if (Configuration.AspectLunarBaseShieldGain.Value > 0f)
-			{
-				value = Configuration.AspectLunarBaseShieldGain.Value + Configuration.AspectLunarStackShieldGain.Value * (stacks - 1f);
-				output += "\nGain <style=cIsHealing>";
-				output += value * 100f + "%</style>";
-				output += " extra <style=cIsHealing>shield</style> from conversion.";
-			}
-			if (Configuration.AspectLunarRegen.Value > 0f)
-			{
-				output += "\nAt least <style=cIsHealing>";
-				output += Configuration.AspectLunarRegen.Value * 100f + "%</style>";
-				output += " of <style=cIsHealing>health regeneration</style> applies to <style=cIsHealing>shields</style>.";
+				output += String.Format(
+					TextFragment("CONVERT_SHIELD_REGEN"),
+					PercentText(AspectLunarRegen.Value, "cIsHealing")
+				);
 			}
 
 			return output;
@@ -857,20 +589,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixEarth, outlineSprite);
 
@@ -883,84 +615,62 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "His Reassurance");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of earth.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_EARTH_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_EARTH_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXEARTH_DESC", Language.EquipmentDescription(desc, ""));
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXEARTH_DESC", EquipmentDescription(desc, TextFragment("AFFIX_EARTH_ACTIVE")));
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Earth</style> :";
-			output += "\nHeal nearby allies.";
-			if (Configuration.AspectEarthRegeneration.Value > 0)
+			string output = TextFragment("ASPECT_OF_EARTH");
+			output += TextFragment("PASSIVE_HEAL_ALLY");
+			if (AspectEarthRegeneration.Value > 0)
 			{
-				output += "\nIncreases <style=cIsHealing>health regeneration</style> by <style=cIsHealing>" + Configuration.AspectEarthRegeneration.Value * 100f + "% hp/s</style>.";
+				output += String.Format(
+					TextFragment("STAT_REGENERATION"),
+					ScalingText(AspectEarthRegeneration.Value, 0f, "percentregen", "cIsHealing", combine)
+				);
 			}
-			if (Configuration.AspectEarthPoachedDuration.Value > 0f)
+			if (AspectEarthPoachedDuration.Value > 0f)
 			{
-				output += "\nAttacks <style=cIsUtility>poach</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectEarthPoachedDuration.Value);
-				if (Configuration.AspectEarthPoachedAttackSpeed.Value != 0f)
-				{
-					output += ", reducing <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
-					output += Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value) * 100f + "%</style>";
-				}
-				output += ".";
-				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
-				{
-					output += "\n<style=cStack>(Hits against poached enemies heal for "+ Configuration.AspectEarthPoachedLeech.Value * 100f + "% of damage dealt)</style>";
-				}
-			}
-			if (Configuration.AspectEarthBaseLeech.Value > 0)
-			{
-				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
-				output += Configuration.AspectEarthBaseLeech.Value * 100f + "%</style>";
-				if (Configuration.AspectEarthStackLeech.Value != 0)
-				{
-					output += " " + Language.StackText(Configuration.AspectEarthStackLeech.Value * 100f, "", "%");
-				}
-				output += " of the <style=cIsDamage>damage</style> you deal.";
-			}
+				float atkSpd = Mathf.Abs(AspectEarthPoachedAttackSpeed.Value);
+				float poachLeech = AspectEarthPoachedLeech.Value;
 
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Earth</style> :";
-			output += "\nHeal nearby allies.";
-			if (Configuration.AspectEarthRegeneration.Value > 0)
-			{
-				output += "\nIncreases <style=cIsHealing>health regeneration</style> by <style=cIsHealing>" + Configuration.AspectEarthRegeneration.Value * 100f + "% hp/s</style>.";
-			}
-			if (Configuration.AspectEarthPoachedDuration.Value > 0f)
-			{
-				output += "\nAttacks <style=cIsUtility>poach</style> on hit for ";
-				output += Language.SecondText(Configuration.AspectEarthPoachedDuration.Value);
-				if (Configuration.AspectEarthPoachedAttackSpeed.Value != 0f)
+				if (atkSpd != 0f)
 				{
-					output += ", reducing <style=cIsUtility>attack speed</style> by <style=cIsUtility>";
-					output += Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value) * 100f + "%</style>";
+					output += String.Format(
+						TextFragment("POACH_ON_HIT"),
+						SecondText(AspectEarthPoachedDuration.Value, "for"),
+						PercentText(atkSpd, "cIsUtility")
+					);
+					if (poachLeech > 0f)
+					{
+						output += String.Format(
+							TextFragment("POACH_DETAIL"),
+							PercentText(poachLeech)
+						);
+					}
 				}
-				output += ".";
-				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				else
 				{
-					output += "\n<style=cStack>(Hits against poached enemies heal for " + Configuration.AspectEarthPoachedLeech.Value * 100f + "% of damage dealt)</style>";
+					output += String.Format(
+						TextFragment("POACH_ON_HIT_BASIC"),
+						SecondText(AspectEarthPoachedDuration.Value, "for"),
+						PercentText(poachLeech, "cIsHealing")
+					);
 				}
 			}
-			if (Configuration.AspectEarthBaseLeech.Value > 0)
+			if (AspectEarthBaseLeech.Value > 0)
 			{
-				value = Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (stacks - 1f);
-				output += "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>";
-				output += value * 100f + "%</style>";
-				output += " of the <style=cIsDamage>damage</style> you deal.";
+				output += String.Format(
+					TextFragment("HEAL_PERCENT_ON_HIT"),
+					ScalingText(AspectEarthBaseLeech.Value, AspectEarthStackLeech.Value, "percent", "cIsHealing", combine)
+				);
 			}
 
 			return output;
@@ -976,20 +686,20 @@ namespace TPDespair.ZetAspects.Items
 		internal static ItemDef DefineItem()
 		{
 			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-			if (Configuration.AspectWorldUnique.Value)
+			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
 				tags[2] = ItemTag.WorldUnique;
 			}
 
 			Sprite outlineSprite;
-			if (Configuration.AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
 			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixVoid;
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixVoid, outlineSprite);
 
@@ -1002,115 +712,61 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			Language.helperTarget = "default";
-			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Entropic Fracture");
-			Language.RegisterToken("ITEM_" + locToken + "_PICKUP", "Become an aspect of void.");
+			targetFragmentLanguage = "default";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VOID_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VOID_PICKUP"));
 
-			string desc = BuildDescription();
-			Language.RegisterToken("ITEM_" + locToken + "_DESC", BuildDescription());
-			if (!DropHooks.CanObtainItem()) desc = BuildEquipmentDescription();
-			Language.RegisterToken("EQUIPMENT_AFFIXVOID_NAME", "Entropic Fracture");
-			Language.RegisterToken("EQUIPMENT_AFFIXVOID_PICKUP", "Become an aspect of void.");
-			Language.RegisterToken("EQUIPMENT_AFFIXVOID_DESC", Language.EquipmentDescription(desc, ""));
+			string desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXVOID_NAME", TextFragment("AFFIX_VOID_NAME"));
+			RegisterToken("EQUIPMENT_AFFIXVOID_PICKUP", TextFragment("AFFIX_VOID_PICKUP"));
+			RegisterToken("EQUIPMENT_AFFIXVOID_DESC", EquipmentDescription(desc, TextFragment("AFFIX_VOID_ACTIVE")));
 		}
 
-		public static string BuildDescription()
+		public static string BuildDescription(bool combine)
 		{
-			string output = "<style=cDeath>Aspect of Void</style> :";
-
-			output += "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay";
-			if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
+			string output = TextFragment("ASPECT_OF_VOID");
+			output += TextFragment("PASSIVE_BLOCK");
+			if (AspectVoidBaseHealthGain.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
-				output += Configuration.AspectVoidBaseHealthGain.Value * 100f + "%</style>";
-				if (Configuration.AspectVoidStackHealthGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectVoidStackHealthGain.Value * 100f, "", "%");
-				}
-				output += ".";
+				output += String.Format(
+					TextFragment("STAT_HEALTH"),
+					ScalingText(AspectVoidBaseHealthGain.Value, AspectVoidStackHealthGain.Value, "percent", "cIsHealing", combine)
+				);
 			}
-			if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
+			if (AspectVoidBaseDamageGain.Value > 0f)
 			{
-				output += "\nIncreases <style=cIsDamage>damage</style> by <style=cIsDamage>";
-				output += Configuration.AspectVoidBaseDamageGain.Value * 100f + "%</style>";
-				if (Configuration.AspectVoidStackDamageGain.Value != 0f)
-				{
-					output += " " + Language.StackText(Configuration.AspectVoidStackDamageGain.Value * 100f, "", "%");
-				}
-				output += ".";
+				output += String.Format(
+					TextFragment("STAT_DAMAGE"),
+					ScalingText(AspectVoidBaseDamageGain.Value, AspectVoidStackDamageGain.Value, "percent", "cIsDamage", combine)
+				);
 			}
 			if (Compat.EliteReworks.eliteVoidEnabled)
 			{
-				output += "\nAttacks <style=cIsUtility>nullify</style> on hit for 8 seconds.";
-				output += "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>";
+				output += String.Format(
+					TextFragment("NULLIFY_ON_HIT"),
+					SecondText(8f, "for")
+				);
+				output += TextFragment("NULLIFY_DETAIL");
 			}
 			else
 			{
 				if (EffectHooks.preventedDefaultVoidCollapse)
 				{
-					if (Configuration.AspectVoidBaseCollapseDamage.Value > 0f)
+					if (AspectVoidBaseCollapseDamage.Value > 0f)
 					{
-						output += "\nAttacks <style=cIsDamage>collapse</style> on hit for <style=cIsDamage>";
-						output += Configuration.AspectVoidBaseCollapseDamage.Value * 100f + "%</style>";
-						if (Configuration.AspectVoidStackCollapseDamage.Value != 0f)
-						{
-							output += " " + Language.StackText(Configuration.AspectVoidStackCollapseDamage.Value * 100f, "", "%");
-						}
-						output += Configuration.AspectVoidUseBase.Value ? " base" : " TOTAL";
-						output += " damage after ";
-						output += Language.SecondText(3f) + ".";
+						output += String.Format(
+							TextFragment("COLLAPSE_DOT"),
+							ScalingText(AspectVoidBaseCollapseDamage.Value, AspectVoidStackCollapseDamage.Value, "percent", "cIsDamage", combine),
+							AspectVoidUseBase.Value ? TextFragment("BASE_DAMAGE") : TextFragment("TOTAL_DAMAGE"),
+							SecondText(3f, "after")
+						);
 					}
 				}
 				else
 				{
-					output += "<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.";
-				}
-			}
-
-			return output;
-		}
-
-		public static string BuildEquipmentDescription()
-		{
-			float value, stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-
-			string output = "<style=cDeath>Aspect of Void</style> :";
-
-			output += "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay";
-			if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
-			{
-				value = Configuration.AspectVoidBaseHealthGain.Value + Configuration.AspectVoidStackHealthGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsHealing>maximum health</style> by <style=cIsHealing>";
-				output += value * 100f + "%</style>.";
-			}
-			if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
-			{
-				value = Configuration.AspectVoidBaseDamageGain.Value + Configuration.AspectVoidStackDamageGain.Value * (stacks - 1f);
-				output += "\nIncreases <style=cIsDamage>damage</style> by <style=cIsDamage>";
-				output += value * 100f + "%</style>.";
-			}
-			if (Compat.EliteReworks.eliteVoidEnabled)
-			{
-				output += "\nAttacks <style=cIsUtility>nullify</style> on hit for 8 seconds.";
-				output += "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>";
-			}
-			else
-			{
-				if (EffectHooks.preventedDefaultVoidCollapse)
-				{
-					if (Configuration.AspectVoidBaseCollapseDamage.Value > 0f)
-					{
-						value = Configuration.AspectVoidBaseCollapseDamage.Value + Configuration.AspectVoidStackCollapseDamage.Value * (stacks - 1f);
-						output += "\nAttacks <style=cIsDamage>collapse</style> on hit for <style=cIsDamage>";
-						output += value * 100f + "%</style>";
-						output += Configuration.AspectVoidUseBase.Value ? " base" : " TOTAL";
-						output += " damage after ";
-						output += Language.SecondText(3f) + ".";
-					}
-				}
-				else
-				{
-					output += "<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.";
+					output += TextFragment("COLLAPSE_DEFAULT");
 				}
 			}
 
