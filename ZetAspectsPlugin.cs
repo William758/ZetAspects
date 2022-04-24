@@ -13,11 +13,12 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
+	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.5";
+		public const string ModVer = "2.7.7";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -72,6 +73,8 @@ namespace TPDespair.ZetAspects
 
 				CreateDroplet(Catalog.Equip.AffixEarth, transform.position + new Vector3(-5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 5f, 7.5f));
+				CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(-5f, 5f, -5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))
