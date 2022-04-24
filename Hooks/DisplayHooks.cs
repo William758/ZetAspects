@@ -153,6 +153,19 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 			*/
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixWarped;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectWarped) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixPlated;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectPlated) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixEarth;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectEarth) > 0) return targetEquipDef;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -209,6 +222,17 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 			*/
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixWarped;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixPlated;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixEarth;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -253,6 +277,15 @@ namespace TPDespair.ZetAspects
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
 			}
 			*/
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixWarped;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectWarped) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixPlated;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectPlated) > 0) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixEarth;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectEarth) > 0) return targetEquipDef;
 
@@ -352,6 +385,12 @@ namespace TPDespair.ZetAspects
 
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixEarth, Catalog.Item.ZetAspectEarth);
 			HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixVoid, Catalog.Item.ZetAspectVoid);
+
+			if (Catalog.SpikeStrip.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWarped, Catalog.Item.ZetAspectWarped);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixPlated, Catalog.Item.ZetAspectPlated);
+			}
 			/*
 			if (Catalog.Aetherium.Enabled)
 			{
