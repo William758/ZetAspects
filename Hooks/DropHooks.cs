@@ -117,8 +117,15 @@ namespace TPDespair.ZetAspects
 			SetDropWeight(Catalog.Equip.AffixHaunted, Configuration.AspectDropWeightHaunted.Value);
 			SetDropWeight(Catalog.Equip.AffixPoison, Configuration.AspectDropWeightPoison.Value);
 			SetDropWeight(Catalog.Equip.AffixLunar, Configuration.AspectDropWeightLunar.Value);
+
 			SetDropWeight(Catalog.Equip.AffixEarth, Configuration.AspectDropWeightEarth.Value);
 			SetDropWeight(Catalog.Equip.AffixVoid, Configuration.AspectDropWeightVoid.Value);
+
+			if (Catalog.SpikeStrip.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixWarped, Configuration.AspectDropWeightWarped.Value);
+				SetDropWeight(Catalog.Equip.AffixPlated, Configuration.AspectDropWeightPlated.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)
