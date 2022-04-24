@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.AddressableAssets;
 using RoR2;
 using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
@@ -76,6 +75,9 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixEarth;
 			public static Sprite AffixVoid;
 
+			public static Sprite AffixPlated;
+			public static Sprite AffixWarped;
+
 			public static Sprite AffixSanguine;
 
 			public static Sprite HauntCloak;
@@ -102,6 +104,12 @@ namespace TPDespair.ZetAspects
 
 				AffixEarth = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEarth.png");
 				AffixVoid = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVoid.png");
+
+				if (SpikeStrip.Enabled)
+				{
+					AffixPlated = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPlated.png");
+					AffixWarped = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWarped.png");
+				}
 				/*
 				if (Aetherium.Enabled)
 				{
@@ -168,6 +176,9 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixEarth;
 			public static BuffDef AffixVoid;
 
+			public static BuffDef AffixPlated;
+			public static BuffDef AffixWarped;
+
 			public static BuffDef AffixSanguine;
 		}
 
@@ -182,6 +193,9 @@ namespace TPDespair.ZetAspects
 
 			public static EquipmentDef AffixEarth;
 			public static EquipmentDef AffixVoid;
+
+			public static EquipmentDef AffixPlated;
+			public static EquipmentDef AffixWarped;
 
 			public static EquipmentDef AffixSanguine;
 		}
@@ -202,6 +216,9 @@ namespace TPDespair.ZetAspects
 
 			public static ItemDef ZetAspectEarth;
 			public static ItemDef ZetAspectVoid;
+
+			public static ItemDef ZetAspectPlated;
+			public static ItemDef ZetAspectWarped;
 
 			public static ItemDef ZetAspectSanguine;
 		}
@@ -452,6 +469,17 @@ namespace TPDespair.ZetAspects
 			ItemDef ZetAspectVoid = Items.ZetAspectVoid.DefineItem();
 			Item.ZetAspectVoid = ZetAspectVoid;
 			ZetAspectsContent.itemDefs.Add(ZetAspectVoid);
+
+			if (SpikeStrip.Enabled)
+			{
+				ItemDef ZetAspectPlated = Items.ZetAspectPlated.DefineItem();
+				Item.ZetAspectPlated = ZetAspectPlated;
+				ZetAspectsContent.itemDefs.Add(ZetAspectPlated);
+
+				ItemDef ZetAspectWarped = Items.ZetAspectWarped.DefineItem();
+				Item.ZetAspectWarped = ZetAspectWarped;
+				ZetAspectsContent.itemDefs.Add(ZetAspectWarped);
+			}
 			/*
 			if (Aetherium.Enabled)
 			{
@@ -592,6 +620,7 @@ namespace TPDespair.ZetAspects
 		private static void PreInitValidation()
 		{
 			RiskOfRain.PreInit();
+			SpikeStrip.PreInit();
 			//Aetherium.PreInit();
 		}
 
@@ -617,8 +646,20 @@ namespace TPDespair.ZetAspects
 
 			SetupCompat();
 
-			if (EffectHooks.preventedDefaultOverloadingBomb && !(Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBlueOnHit)) EffectHooks.useCustomOverloadBombs = true;
-			if (EffectHooks.preventedDefaultVoidCollapse && !Compat.EliteReworks.eliteVoidEnabled) EffectHooks.useCustomFracture = true;
+			if (EffectHooks.preventedDefaultOverloadingBomb)
+			{
+				if (!(Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBlueOnHit))
+				{
+					EffectHooks.useCustomOverloadBombs = true;
+				}
+			}
+			if (EffectHooks.preventedDefaultVoidCollapse)
+			{
+				if (!Compat.EliteReworks.eliteVoidEnabled)
+				{
+					EffectHooks.useCustomFracture = true;
+				}
+			}
 
 			SetupIntermediate();
 
@@ -652,6 +693,7 @@ namespace TPDespair.ZetAspects
 			EffectHooks.ApplyVoidBearCooldownFix();
 
 			RiskOfRain.Init();
+			SpikeStrip.Init();
 			//Aetherium.Init();
 
 			Language.ChangeText();
@@ -739,6 +781,12 @@ namespace TPDespair.ZetAspects
 		{
 			RiskOfRain.ItemEntries(true);
 			RiskOfRain.EquipmentEntries(false);
+
+			if (SpikeStrip.populated)
+			{
+				SpikeStrip.ItemEntries(true);
+				SpikeStrip.EquipmentEntries(false);
+			}
 			/*
 			if (Aetherium.populated)
 			{
@@ -931,6 +979,167 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixVoid, Buff.AffixVoid, Item.ZetAspectVoid);
 			}
 		}
+
+		public static class SpikeStrip
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.groovesalad.GrooveSaladSpikestripContent")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("EQUIPMENT_AFFIXPLATED");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixPlated = EquipmentCatalog.GetEquipmentDef(index);
+					//Logger.Warn(Equip.AffixPlated.passiveBuffDef.name);
+				}
+				index = EquipmentCatalog.FindEquipmentIndex("EQUIPMENT_AFFIXWARPED");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixWarped = EquipmentCatalog.GetEquipmentDef(index);
+					//Logger.Warn(Equip.AffixWarped.passiveBuffDef.name);
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixPlated)
+				{
+					Buff.AffixPlated = Equip.AffixPlated.passiveBuffDef;
+				}
+				if (Equip.AffixWarped)
+				{
+					Buff.AffixWarped = Equip.AffixWarped.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectPlated, ref Equip.AffixPlated, ref Buff.AffixPlated, state);
+				DisableInactiveItem(Item.ZetAspectWarped, ref Equip.AffixWarped, ref Buff.AffixWarped, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectPlated.SetupTokens();
+				Items.ZetAspectWarped.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectPlated, shown);
+				SetItemState(Item.ZetAspectWarped, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectPlated, Equip.AffixPlated);
+				CopyExpansion(Item.ZetAspectWarped, Equip.AffixWarped);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectPlated, Equip.AffixPlated);
+				CopyEquipmentPrefab(Item.ZetAspectWarped, Equip.AffixWarped);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixPlated, Sprites.AffixPlated, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixWarped, Sprites.AffixWarped, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixPlated, shown);
+				SetEquipmentState(Equip.AffixWarped, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixPlated);
+				ColorEquipmentDroplet(Equip.AffixWarped);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixPlated, Buff.AffixPlated, Item.ZetAspectPlated);
+				CreateEquality(Equip.AffixWarped, Buff.AffixWarped, Item.ZetAspectWarped);
+			}
+		}
 		/*
 		public static class Aetherium
 		{
@@ -976,7 +1185,8 @@ namespace TPDespair.ZetAspects
 					DisableInactiveItems();
 					SetupText();
 					ItemEntries(DropHooks.CanObtainItem());
-
+					
+					CopyExpansionReq();
 					CopyModelPrefabs();
 
 					ApplyEquipmentIcons();
@@ -1032,6 +1242,11 @@ namespace TPDespair.ZetAspects
 			internal static void ItemEntries(bool shown)
 			{
 				SetItemState(Item.ZetAspectSanguine, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectSanguine, Equip.AffixSanguine);
 			}
 
 			private static void CopyModelPrefabs()
