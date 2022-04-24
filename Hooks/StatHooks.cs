@@ -15,10 +15,10 @@ namespace TPDespair.ZetAspects
 			DamageHook();
 			ShieldHook();
 			HealthHook();
-			ArmorHook();
 			AttackSpeedHook();
-			CritHook();
 			RegenHook();
+
+			DirectStatHook();
 
 			OverloadingShieldConversionHook();
 			FullShieldConversionHook();
@@ -353,46 +353,6 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void ArmorHook()
-		{
-			On.RoR2.CharacterBody.RecalculateStats += (orig, self) =>
-			{
-				orig(self);
-
-				self.armor += GetArmorDelta(self);
-			};
-		}
-
-		private static float GetArmorDelta(CharacterBody self)
-		{
-			float addedArmor = 0f;
-			float lostArmor = 0f;
-			float count;
-
-			if (self.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseArmorGain.Value > 0f)
-			{
-				count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixHaunted);
-				addedArmor += Configuration.AspectHauntedBaseArmorGain.Value + Configuration.AspectHauntedStackArmorGain.Value * (count - 1f);
-			}
-			else if (self.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyArmorGain.Value > 0f)
-			{
-				addedArmor += Configuration.AspectHauntedAllyArmorGain.Value;
-			}
-
-			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
-			{
-				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
-			}
-
-			if (self.HasBuff(Catalog.Buff.ZetShredded))
-			{
-				lostArmor += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
-			}
-			//if (self.teamComponent.teamIndex == TeamIndex.Player) lostArmor *= Configuration.AspectEffectPlayerDebuffMult.Value;
-
-			return addedArmor - lostArmor;
-		}
-
 		private static void AttackSpeedHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
@@ -447,42 +407,6 @@ namespace TPDespair.ZetAspects
 					Logger.Warn("AttackSpeedHook Failed");
 				}
 			};
-		}
-
-		private static void CritHook()
-		{
-			On.RoR2.CharacterBody.RecalculateStats += (orig, self) =>
-			{
-				orig(self);
-
-				CritDelta(self);
-			};
-		}
-
-		private static void CritDelta(CharacterBody self)
-		{
-			float addedCrit = 0f;
-
-			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
-			{
-				addedCrit += Configuration.HeadHunterBuffCritChance.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
-			}
-
-			if (addedCrit > 0f)
-			{
-				Inventory inventory = self.inventory;
-				if (inventory)
-				{
-					if (inventory.GetItemCount(DLC1Content.Items.ConvertCritChanceToCritDamage) == 0)
-					{
-						self.crit += addedCrit;
-					}
-					else
-					{
-						self.critMultiplier += addedCrit * 0.01f;
-					}
-				}
-			}
 		}
 		
 		private static void RegenHook()
@@ -561,6 +485,125 @@ namespace TPDespair.ZetAspects
 
 			return false;
 		}
+
+
+
+		private static void DirectStatHook()
+		{
+			On.RoR2.CharacterBody.RecalculateStats += (orig, self) =>
+			{
+				orig(self);
+
+				if (self)
+				{
+					self.armor += GetArmorDelta(self);
+
+					ModifyCrit(self);
+
+					float mult = GetCooldownMultiplier(self);
+					if (mult != 1f)
+					{
+						SkillLocator skillLocator = self.skillLocator;
+
+						if (skillLocator.primary)
+						{
+							skillLocator.primary.cooldownScale *= mult;
+						}
+						if (skillLocator.secondary)
+						{
+							skillLocator.secondary.cooldownScale *= mult;
+						}
+						if (skillLocator.utility)
+						{
+							skillLocator.utility.cooldownScale *= mult;
+						}
+						if (skillLocator.special)
+						{
+							skillLocator.special.cooldownScale *= mult;
+						}
+					}
+				}
+			};
+		}
+
+		private static float GetArmorDelta(CharacterBody self)
+		{
+			float addedArmor = 0f;
+			float lostArmor = 0f;
+			float count;
+
+			if (self.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseArmorGain.Value > 0f)
+			{
+				count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixHaunted);
+				addedArmor += Configuration.AspectHauntedBaseArmorGain.Value + Configuration.AspectHauntedStackArmorGain.Value * (count - 1f);
+			}
+			else if (self.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyArmorGain.Value > 0f)
+			{
+				addedArmor += Configuration.AspectHauntedAllyArmorGain.Value;
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBaseArmorGain.Value > 0f)
+			{
+				count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPlated);
+				addedArmor += Configuration.AspectPlatedBaseArmorGain.Value + Configuration.AspectPlatedStackArmorGain.Value * (count - 1f);
+			}
+
+			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+			{
+				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+			}
+
+			if (self.HasBuff(Catalog.Buff.ZetShredded))
+			{
+				lostArmor += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
+			}
+			//if (self.teamComponent.teamIndex == TeamIndex.Player) lostArmor *= Configuration.AspectEffectPlayerDebuffMult.Value;
+
+			return addedArmor - lostArmor;
+		}
+
+		private static void ModifyCrit(CharacterBody self)
+		{
+			float addedCrit = 0f;
+
+			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+			{
+				addedCrit += Configuration.HeadHunterBuffCritChance.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+			}
+
+			if (addedCrit > 0f)
+			{
+				Inventory inventory = self.inventory;
+				if (inventory)
+				{
+					if (inventory.GetItemCount(DLC1Content.Items.ConvertCritChanceToCritDamage) == 0)
+					{
+						self.crit += addedCrit;
+					}
+					else
+					{
+						self.critMultiplier += addedCrit * 0.01f;
+					}
+				}
+			}
+		}
+
+		private static float GetCooldownMultiplier(CharacterBody self)
+		{
+			float mult = 1f;
+
+			if (self.HasBuff(Catalog.Buff.AffixWarped) && Configuration.AspectWarpedBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWarped);
+				float effect = Configuration.AspectWarpedBaseCooldownGain.Value + Configuration.AspectWarpedStackCooldownGain.Value * (count - 1f);
+
+				mult *= 1f - (Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f) / 100f);
+			}
+
+			return mult;
+		}
+
+
 
 		private static void OverloadingShieldConversionHook()
 		{
