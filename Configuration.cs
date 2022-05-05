@@ -1,4 +1,4 @@
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 
 namespace TPDespair.ZetAspects
 {
@@ -29,6 +29,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightVoid { get; set; }
 		public static ConfigEntry<float> AspectDropWeightWarped { get; set; }
 		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
+		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -70,6 +71,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBlueBombDuration { get; set; }
 		public static ConfigEntry<float> AspectBlueBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectBlueStackDamage { get; set; }
+		public static ConfigEntry<bool> AspectBlueEliteReworksDamage { get; set; }
 		public static ConfigEntry<float> AspectBlueMonsterDamageMult { get; set; }
 
 		public static ConfigEntry<bool> AspectRedTrail { get; set; }
@@ -106,11 +108,16 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectEarthRegeneration { get; set; }
 		public static ConfigEntry<float> AspectEarthPoachedDuration { get; set; }
 		public static ConfigEntry<float> AspectEarthPoachedAttackSpeed { get; set; }
+		public static ConfigEntry<int> AspectEarthLeechModifier { get; set; }
+		public static ConfigEntry<float> AspectEarthLeechModMult { get; set; }
+		public static ConfigEntry<float> AspectEarthLeechParameter { get; set; }
+		public static ConfigEntry<float> AspectEarthLeechPostModMult { get; set; }
 		public static ConfigEntry<float> AspectEarthPoachedLeech { get; set; }
 		public static ConfigEntry<float> AspectEarthBaseLeech { get; set; }
 		public static ConfigEntry<float> AspectEarthStackLeech { get; set; }
 		public static ConfigEntry<float> AspectEarthMonsterLeechMult { get; set; }
 
+		public static ConfigEntry<bool> AspectVoidContagiousItem { get; set; }
 		public static ConfigEntry<float> AspectVoidBaseHealthGain { get; set; }
 		public static ConfigEntry<float> AspectVoidStackHealthGain { get; set; }
 		public static ConfigEntry<float> AspectVoidBaseDamageGain { get; set; }
@@ -122,8 +129,16 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectPlatedBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedStackArmorGain { get; set; }
+
 		public static ConfigEntry<float> AspectWarpedBaseCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectWarpedStackCooldownGain { get; set; }
+
+		public static ConfigEntry<float> AspectGoldBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldStackRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldItemScoreFactor { get; set; }
+		public static ConfigEntry<float> AspectGoldItemScoreExponent { get; set; }
+		public static ConfigEntry<float> AspectGoldBaseScoredRegenGain { get; set; }
+		public static ConfigEntry<float> AspectGoldStackScoredRegenGain { get; set; }
 
 
 
@@ -238,6 +253,10 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightPlated", 1f,
 					"Drop chance multiplier for AffixPlated"
 				);
+				AspectDropWeightGold = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightGold", 1f,
+					"Drop chance multiplier for AffixGold"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -332,6 +351,7 @@ namespace TPDespair.ZetAspects
 		{
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
+			GoldenCoastPlusConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -398,6 +418,10 @@ namespace TPDespair.ZetAspects
 			AspectBlueStackDamage = Config.Bind(
 				"2ab-AspectBlue", "blueAddedTotalDamage", 0.10f,
 				"Added total damage of bombs per stack."
+			);
+			AspectBlueEliteReworksDamage = Config.Bind(
+				"2ab-AspectBlue", "blueEliteReworksDamage", true,
+				"Override damage multiplier value in EliteReworks Overloading OnHit effects."
 			);
 			AspectBlueMonsterDamageMult = Config.Bind(
 				"2ab-AspectBlue", "blueMonsterDamageMult", 1f,
@@ -538,6 +562,22 @@ namespace TPDespair.ZetAspects
 				"2ag-AspectEarth", "earthPoachedAttackSpeed", 0.10f,
 				"Attack speed reduction of poached. Set to 0 to disable."
 			);
+			AspectEarthLeechModifier = Config.Bind(
+				"2ag-AspectEarth", "earthLeechModifier", 1,
+				"Leech modifier. 0 = None, 1 = POW, 2 = LOG."
+			);
+			AspectEarthLeechModMult = Config.Bind(
+				"2ag-AspectEarth", "earthLeechModMult", 1f,
+				"Multiply leech value before modifier applied. Only applied when a modifier is enabled."
+			);
+			AspectEarthLeechParameter = Config.Bind(
+				"2ag-AspectEarth", "earthLeechModParameter", 0.65f,
+				"Leech modifier parameter."
+			);
+			AspectEarthLeechPostModMult = Config.Bind(
+				"2ag-AspectEarth", "earthLeechPostModMult", 2f,
+				"Multiply leech value after modifier applied. Only applied when a modifier is enabled."
+			);
 			AspectEarthPoachedLeech = Config.Bind(
 				"2ag-AspectEarth", "earthPoachedLeech", 0.10f,
 				"Percent damage leech amount from poached. Additive with aspect leech. Set to 0 to disable."
@@ -552,11 +592,15 @@ namespace TPDespair.ZetAspects
 			);
 			AspectEarthMonsterLeechMult = Config.Bind(
 				"2ag-AspectEarth", "earthMonsterLeechMult", 5f,
-				"Monster leech multiplier."
+				"Monster leech multiplier. Unaffected by Leech Modifier."
 			);
 
 
 
+			AspectVoidContagiousItem = Config.Bind(
+				"2ah-AspectVoid", "voidContagiousItem", false,
+				"Corrupt other aspect items into itself. Sets item ItemTier to respective void ItemTier."
+			);
 			AspectVoidBaseHealthGain = Config.Bind(
 				"2ah-AspectVoid", "voidBaseHealthGained", 0.20f,
 				"Health gained. Set to 0 to disable."
@@ -611,6 +655,34 @@ namespace TPDespair.ZetAspects
 			AspectWarpedStackCooldownGain = Config.Bind(
 				"2bb-AspectWarped", "warpedAddedCooldown", 0.1f,
 				"Cooldown reduction gained per stack."
+			);
+		}
+
+		private static void GoldenCoastPlusConfigs(ConfigFile Config)
+		{
+			AspectGoldBaseRegenGain = Config.Bind(
+				"2ca-Gold Aspect", "goldBaseRegen", 12f,
+				"Health regen gained. Set to 0 to disable."
+			);
+			AspectGoldStackRegenGain = Config.Bind(
+				"2ca-Gold Aspect", "goldAddedRegen", 6f,
+				"Health regen gained per stack."
+			);
+			AspectGoldItemScoreFactor = Config.Bind(
+				"2ca-Gold Aspect", "goldItemScoreFactor", 2.0f,
+				"Multiply itemscore by value. Applies before itemscore exponent. white = 1x, green = 3x, other = 9x."
+			);
+			AspectGoldItemScoreExponent = Config.Bind(
+				"2ca-Gold Aspect", "goldItemScoreExponent", 0.65f,
+				"Itemscore exponent. Raise itemscore to the power of value."
+			);
+			AspectGoldBaseScoredRegenGain = Config.Bind(
+				"2ca-Gold Aspect", "goldBaseScoredRegen", 1.0f,
+				"ScoredRegen multiplier gained. Applies after itemscore exponent. Set to 0 to disable itemscore regen."
+			);
+			AspectGoldStackScoredRegenGain = Config.Bind(
+				"2ca-Gold Aspect", "goldAddedScoredRegen", 0.5f,
+				"ScoredRegen multiplier gained per stack."
 			);
 		}
 	}

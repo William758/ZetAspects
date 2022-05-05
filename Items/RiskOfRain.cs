@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using RoR2;
 
@@ -62,7 +62,7 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += String.Format(
 					TextFragment("CHANCE_TO_FREEZE"),
-					ScalingText(AspectWhiteBaseFreezeChance.Value * 0.01f, AspectWhiteStackFreezeChance.Value * 0.01f, "percent", "cIsUtility", combine),
+					ScalingText(AspectWhiteBaseFreezeChance.Value, AspectWhiteStackFreezeChance.Value, "chance", "cIsUtility", combine),
 					SecondText(AspectWhiteFreezeDuration.Value, "for")
 				);
 			}
@@ -140,7 +140,7 @@ namespace TPDespair.ZetAspects.Items
 				output += String.Format(
 					TextFragment("SAP_ON_HIT"),
 					SecondText(AspectBlueSappedDuration.Value, "for"),
-					PercentText(Mathf.Abs(AspectBlueSappedDamage.Value), "cIsUtility")
+					ScalingText(Mathf.Abs(AspectBlueSappedDamage.Value), "percent", "cIsUtility")
 				);
 			}
 			if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
@@ -149,7 +149,7 @@ namespace TPDespair.ZetAspects.Items
 				{
 					output += String.Format(
 						TextFragment("CONVERT_SHIELD"),
-						PercentText(AspectBlueHealthConverted.Value, "cIsHealing")
+						ScalingText(AspectBlueHealthConverted.Value, "percent", "cIsHealing")
 					);
 				}
 			}
@@ -162,18 +162,29 @@ namespace TPDespair.ZetAspects.Items
 			}
 			if (Compat.EliteReworks.affixBlueEnabled && Compat.EliteReworks.affixBlueOnHit)
 			{
+				string damageEffectText;
+
+				if (Compat.EliteReworks.overrideAffixBlue)
+				{
+					damageEffectText = ScalingText(AspectBlueBaseDamage.Value, AspectBlueStackDamage.Value, "percent", "cIsDamage", combine);
+				}
+				else
+				{
+					damageEffectText = ScalingText(Compat.EliteReworks.affixBlueDamage, "percent", "cIsDamage");
+				}
+
 				if (Compat.EliteReworks.affixBlueScatter)
 				{
 					output += String.Format(
 						TextFragment("SCATTER_BOMB"),
-						PercentText(Compat.EliteReworks.affixBlueDamage, "cIsDamage")
+						damageEffectText
 					);
 				}
 				else
 				{
 					output += String.Format(
 						TextFragment("LIGHTNING_BOMB"),
-						PercentText(Compat.EliteReworks.affixBlueDamage, "cIsDamage"),
+						damageEffectText,
 						SecondText(1.5f, "after")
 					);
 				}
@@ -195,7 +206,7 @@ namespace TPDespair.ZetAspects.Items
 				{
 					output += String.Format(
 						TextFragment("LIGHTNING_BOMB"),
-						PercentText(0.5f, "cIsDamage"),
+						ScalingText(0.5f, "percent", "cIsDamage"),
 						SecondText(1.5f, "after")
 					);
 				}
@@ -359,7 +370,7 @@ namespace TPDespair.ZetAspects.Items
 					output += String.Format(
 						TextFragment("SHRED_ON_HIT"),
 						SecondText(AspectHauntedShredDuration.Value, "for"),
-						FlatText(Mathf.Abs(AspectHauntedShredArmor.Value), "cIsDamage")
+						ScalingText(Mathf.Abs(AspectHauntedShredArmor.Value), "flat", "cIsDamage")
 					);
 				}
 			}
@@ -368,7 +379,7 @@ namespace TPDespair.ZetAspects.Items
 				output += String.Format(
 					TextFragment("SHRED_ON_HIT"),
 					SecondText(3f, "for"),
-					FlatText(20f, "cIsDamage")
+					ScalingText(20f, "flat", "cIsDamage")
 				);
 			}
 			if (AspectHauntedBaseArmorGain.Value > 0f)
@@ -382,7 +393,7 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += String.Format(
 					TextFragment("GHOST_ARMOR"),
-					FlatText(AspectHauntedAllyArmorGain.Value, "cIsHealing")
+					ScalingText(AspectHauntedAllyArmorGain.Value, "flat", "cIsHealing")
 				);
 			}
 
@@ -461,7 +472,7 @@ namespace TPDespair.ZetAspects.Items
 					output += String.Format(
 						TextFragment("RUIN_ON_HIT"),
 						SecondText(ruinDuration, "for"),
-						PercentText(Mathf.Abs(AspectPoisonNullDamageTaken.Value), "cIsDamage")
+						ScalingText(Mathf.Abs(AspectPoisonNullDamageTaken.Value), "percent", "cIsDamage")
 					);
 					output += TextFragment("RUIN_DETAIL");
 				}
@@ -559,7 +570,7 @@ namespace TPDespair.ZetAspects.Items
 			}
 			output += String.Format(
 				TextFragment("CONVERT_SHIELD"),
-				PercentText(1f, "cIsHealing")
+				ScalingText(1f, "percent", "cIsHealing")
 			);
 			if (AspectLunarBaseShieldGain.Value > 0f)
 			{
@@ -572,7 +583,7 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += String.Format(
 					TextFragment("CONVERT_SHIELD_REGEN"),
-					PercentText(AspectLunarRegen.Value, "cIsHealing")
+					ScalingText(AspectLunarRegen.Value, "percent", "cIsHealing")
 				);
 			}
 
@@ -627,6 +638,8 @@ namespace TPDespair.ZetAspects.Items
 
 		public static string BuildDescription(bool combine)
 		{
+			bool leechEffect = false;
+
 			string output = TextFragment("ASPECT_OF_EARTH");
 			output += TextFragment("PASSIVE_HEAL_ALLY");
 			if (AspectEarthRegeneration.Value > 0)
@@ -646,31 +659,54 @@ namespace TPDespair.ZetAspects.Items
 					output += String.Format(
 						TextFragment("POACH_ON_HIT"),
 						SecondText(AspectEarthPoachedDuration.Value, "for"),
-						PercentText(atkSpd, "cIsUtility")
+						ScalingText(atkSpd, "percent", "cIsUtility")
 					);
 					if (poachLeech > 0f)
 					{
+						leechEffect = true;
+
 						output += String.Format(
 							TextFragment("POACH_DETAIL"),
-							PercentText(poachLeech)
+							ScalingText(poachLeech, "percent")
 						);
 					}
 				}
 				else
 				{
+					leechEffect = true;
+
 					output += String.Format(
 						TextFragment("POACH_ON_HIT_BASIC"),
 						SecondText(AspectEarthPoachedDuration.Value, "for"),
-						PercentText(poachLeech, "cIsHealing")
+						ScalingText(poachLeech, "percent", "cIsHealing")
 					);
 				}
 			}
 			if (AspectEarthBaseLeech.Value > 0)
 			{
+				leechEffect = true;
+
 				output += String.Format(
 					TextFragment("HEAL_PERCENT_ON_HIT"),
 					ScalingText(AspectEarthBaseLeech.Value, AspectEarthStackLeech.Value, "percent", "cIsHealing", combine)
 				);
+			}
+			if (leechEffect)
+			{
+				int leechMod = AspectEarthLeechModifier.Value;
+				if (leechMod > 0 && leechMod < 3)
+				{
+					float modMult = AspectEarthLeechModMult.Value;
+					float postModMult = AspectEarthLeechPostModMult.Value;
+
+					output += "\n" + String.Format(
+						TextFragment("LEECH_MODIFIER_FORMULA"),
+						leechMod == 1 ? "POW" : "LOG",
+						modMult == 1f ? "" : (" * " + modMult),
+						AspectEarthLeechParameter.Value,
+						postModMult == 1f ? "" : (" * " + postModMult)
+					);
+				}
 			}
 
 			return output;
@@ -693,13 +729,27 @@ namespace TPDespair.ZetAspects.Items
 			}
 
 			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
+			if (AspectVoidContagiousItem.Value)
+			{
+				outlineSprite = Catalog.Sprites.OutlineVoid;
+			}
+			else
+			{
+				if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+				else outlineSprite = Catalog.Sprites.OutlineYellow;
+			}
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			if (AspectVoidContagiousItem.Value)
+			{
+				Catalog.AssignDepricatedTier(itemDef, AspectRedTier.Value ? ItemTier.VoidTier3 : ItemTier.VoidBoss);
+			}
+			else
+			{
+				itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
+			}
 			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixVoid;
 			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixVoid, outlineSprite);
 
@@ -713,11 +763,13 @@ namespace TPDespair.ZetAspects.Items
 			string locToken = identifier.ToUpperInvariant();
 
 			targetFragmentLanguage = "default";
+			string corruptText = AspectVoidContagiousItem.Value ? TextFragment("CORRUPT_ASPECT_ITEM", true) : "";
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VOID_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VOID_PICKUP"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VOID_PICKUP") + " " + corruptText);
 
 			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			corruptText = AspectVoidContagiousItem.Value ? TextFragment("CORRUPT_ASPECT_ITEM") : "";
+			RegisterToken("ITEM_" + locToken + "_DESC", desc + corruptText);
 			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 			RegisterToken("EQUIPMENT_AFFIXVOID_NAME", TextFragment("AFFIX_VOID_NAME"));
 			RegisterToken("EQUIPMENT_AFFIXVOID_PICKUP", TextFragment("AFFIX_VOID_PICKUP"));

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -125,6 +125,11 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixWarped, Configuration.AspectDropWeightWarped.Value);
 				SetDropWeight(Catalog.Equip.AffixPlated, Configuration.AspectDropWeightPlated.Value);
+			}
+
+			if (Catalog.GoldenCoastPlus.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixGold, Configuration.AspectDropWeightGold.Value);
 			}
 		}
 

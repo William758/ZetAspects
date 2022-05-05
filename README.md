@@ -34,6 +34,10 @@ Monster leech multiplier : x5
 
 ![effects](https://i.imgur.com/QIFzOAF.png)
 
+## GoldenCoastPlus:
+
+![effects](https://i.imgur.com/HFBYaVV.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -41,6 +45,10 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.7.9 - GoldenCoastPlus support. Reduced leech effectiveness from AffixEarth. Config to turn AffixVoid into a void item that converts other aspects.
+
+v2.7.8 - Override AffixBlue damage in EliteReworks. Prevent HealOrb from gaining AffixEarth.
 
 v2.7.7 - Overhaul internal description builder. Adjust description for latest EliteReworks. Basic SpikeStrip support.
 

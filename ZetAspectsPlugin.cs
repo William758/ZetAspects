@@ -1,4 +1,4 @@
-using BepInEx;
+﻿using BepInEx;
 using RoR2;
 using UnityEngine;
 
@@ -14,11 +14,12 @@ namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
 	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.7";
+		public const string ModVer = "2.7.9";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -75,6 +76,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 5f, 7.5f));
 				CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(-5f, 5f, -5f));
+				CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(0f, 5f, -7.5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))
@@ -91,6 +93,8 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(RoR2Content.Items.ExtraLife, transform.position + new Vector3(-10f, 10f, 10f));
 				CreateDroplet(RoR2Content.Equipment.Cleanse, transform.position + new Vector3(0f, 10f, 15f));
 				CreateDroplet(RoR2Content.Items.Infusion, transform.position + new Vector3(10f, 10f, 10f));
+				CreateDroplet(DLC1Content.Items.ExtraLifeVoid, transform.position + new Vector3(-10f, 10f, -10f));
+				CreateDroplet(DLC1Content.Items.VoidMegaCrabItem, transform.position + new Vector3(0f, 10f, -15f));
 			}
 		}
 

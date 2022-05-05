@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 //using System.Reflection;
 using UnityEngine;
@@ -1137,6 +1137,30 @@ namespace TPDespair.ZetAspects
 						amount *= self.critMultiplier;
 					}
 
+					if (amount >= 1.25f)
+					{
+						int leechMod = Configuration.AspectEarthLeechModifier.Value;
+						if (leechMod > 0)
+						{
+							float modMult = Configuration.AspectEarthLeechModMult.Value;
+							float modParameter = Configuration.AspectEarthLeechParameter.Value;
+							float postModMult = Configuration.AspectEarthLeechPostModMult.Value;
+
+							if (leechMod == 1)
+							{
+								amount = Mathf.Max(1.25f, amount * modMult);
+								amount = Mathf.Pow(amount, modParameter) * postModMult;
+							}
+							if (leechMod == 2)
+							{
+								amount = Mathf.Max(1.25f, amount * modMult);
+								amount = Mathf.Log(amount, modParameter) * postModMult;
+							}
+
+							amount = Mathf.Max(1.25f, amount);
+						}
+					}
+
 					if (self.teamComponent.teamIndex != TeamIndex.Player)
 					{
 						amount *= Configuration.AspectEarthMonsterLeechMult.Value;
@@ -1369,7 +1393,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
-
+		/*
 		private static void PreventVoidEquipmentRemovalHook()
 		{
 			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
@@ -1396,7 +1420,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-
+		*/
 		private static void EquipmentLostBuffHook()
 		{
 			IL.RoR2.CharacterBody.OnEquipmentLost += (il) =>
@@ -1454,7 +1478,10 @@ namespace TPDespair.ZetAspects
 						{
 							if (self && !DestroyedBodies.ContainsKey(self.netId))
 							{
-								self.AddTimedBuff(buffDef, BuffCycleDuration);
+								if (BodyAllowedAffix(self.bodyIndex, buffDef))
+								{
+									self.AddTimedBuff(buffDef, 0.25f);
+								}
 							}
 
 							return null;
@@ -1516,7 +1543,7 @@ namespace TPDespair.ZetAspects
 
 						if (inventory)
 						{
-							if (Catalog.HasAspectItemOrEquipment(inventory, buffDef))
+							if (BodyAllowedAffix(self.bodyIndex, buffDef) && Catalog.HasAspectItemOrEquipment(inventory, buffDef))
 							{
 								self.AddTimedBuff(buffDef, BuffCycleDuration);
 							}
@@ -1544,14 +1571,21 @@ namespace TPDespair.ZetAspects
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixHaunted, Catalog.Item.ZetAspectHaunted, Catalog.Equip.AffixHaunted);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPoison, Catalog.Item.ZetAspectPoison, Catalog.Equip.AffixPoison);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixLunar, Catalog.Item.ZetAspectLunar, Catalog.Equip.AffixLunar);
-
-			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEarth, Catalog.Item.ZetAspectEarth, Catalog.Equip.AffixEarth);
+			if (self.bodyIndex != Catalog.healOrbBodyIndex)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEarth, Catalog.Item.ZetAspectEarth, Catalog.Equip.AffixEarth);
+			}
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixVoid, Catalog.Item.ZetAspectVoid, Catalog.Equip.AffixVoid);
 
 			if (Catalog.SpikeStrip.populated)
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWarped, Catalog.Item.ZetAspectWarped, Catalog.Equip.AffixWarped);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPlated, Catalog.Item.ZetAspectPlated, Catalog.Equip.AffixPlated);
+			}
+
+			if (Catalog.GoldenCoastPlus.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixGold, Catalog.Item.ZetAspectGold, Catalog.Equip.AffixGold);
 			}
 			/*
 			if (Catalog.Aetherium.populated)
@@ -1567,6 +1601,13 @@ namespace TPDespair.ZetAspects
 			{
 				if (Catalog.HasAspectItemOrEquipment(inventory, itemDef, equipDef)) body.AddTimedBuff(buffDef, BuffCycleDuration);
 			}
+		}
+
+		private static bool BodyAllowedAffix(BodyIndex bodyIndex, BuffDef buffDef)
+		{
+			if (bodyIndex == Catalog.healOrbBodyIndex && buffDef == Catalog.Buff.AffixEarth) return false;
+
+			return true;
 		}
 
 

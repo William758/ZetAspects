@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -186,6 +186,14 @@ namespace TPDespair.ZetAspects
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+			if (Catalog.GoldenCoastPlus.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixGold;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectGold) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			return null;
 		}
 
@@ -249,6 +257,13 @@ namespace TPDespair.ZetAspects
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+			if (Catalog.GoldenCoastPlus.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixGold;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			return null;
 		}
 
@@ -297,6 +312,12 @@ namespace TPDespair.ZetAspects
 
 			targetEquipDef = Catalog.Equip.AffixWhite;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
+
+			if (Catalog.GoldenCoastPlus.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixGold;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectGold) > 0) return targetEquipDef;
+			}
 
 			return null;
 		}
@@ -390,6 +411,11 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWarped, Catalog.Item.ZetAspectWarped);
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixPlated, Catalog.Item.ZetAspectPlated);
+			}
+
+			if (Catalog.GoldenCoastPlus.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixGold, Catalog.Item.ZetAspectGold);
 			}
 			/*
 			if (Catalog.Aetherium.Enabled)

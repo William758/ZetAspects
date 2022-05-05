@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -148,6 +148,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("POACH_ON_HIT", "\nAttacks <style=cIsUtility>poach</style> on hit {0}, reducing <style=cIsUtility>attack speed</style> by {1}.");
 			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(Hits against poached enemies heal for {0} of damage dealt)</style>");
 			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>Heal</style> for {0} of the <style=cIsDamage>damage</style> you deal.");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>Leech Modifier => {0}( [a]{1} , {2} ){3}</style>");
 
 			RegisterFragment("AFFIX_VOID_NAME", "Entropic Fracture");
 			RegisterFragment("AFFIX_VOID_PICKUP", "Become an aspect of void.");
@@ -158,6 +159,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(Enemies with 3 nullify stacks are rooted for 3 seconds)</style>");
 			RegisterFragment("COLLAPSE_DOT", "\nAttacks <style=cIsDamage>collapse</style> on hit for {0} {1} damage {2}.");
 			RegisterFragment("COLLAPSE_DEFAULT", "\n<style=cIsDamage>100%</style> chance to <style=cIsDamage>collapse</style> an enemy for <style=cIsDamage>400%</style> base damage.");
+			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>Corrupts all Itemized Aspects</style>.");
 
 			RegisterFragment("AFFIX_PLATED_NAME", "Alloy of Subservience");
 			RegisterFragment("AFFIX_PLATED_PICKUP", "Become an aspect of endurance.");
@@ -172,6 +174,14 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>Aspect of Gravity</style> :");
 			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\nOccasionally deflect nearby projectiles.");
 			RegisterFragment("LEVITATE_ON_HIT", "\nAttacks <style=cIsUtility>levitate</style> on hit {0}.");
+
+			RegisterFragment("AFFIX_GOLD_NAME", "Coven of Gold");
+			RegisterFragment("AFFIX_GOLD_PICKUP", "Become an aspect of fortune.");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "???");
+			RegisterFragment("ASPECT_OF_FORTUNE", "<style=cDeath>Aspect of Fortune</style> :");
+			RegisterFragment("GOLD_ON_HIT", "\nAttacks grant gold on hit.");
+			RegisterFragment("ITEMSCORE_REGEN", "\nBonus <style=cIsHealing>health regeneration</style> based on quantity and tier of items owned.");
+			RegisterFragment("ITEMSCORE_REGEN_MULT", "\nItem score regen multiplier of {0}.");
 
 
 
@@ -226,73 +236,81 @@ namespace TPDespair.ZetAspects
 
 		public static string ScalingText(float baseValue, float stackValue, string modifier = "", string style = "", bool combine = false)
 		{
-			string output = "";
+			if (stackValue == 0f)
+			{
+				return ScalingText(baseValue, modifier, style);
+			}
 
-			if (combine || stackValue == 0f)
+			if (combine)
 			{
 				float stacks = Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 				float value = baseValue + stackValue * (stacks - 1f);
 
-				if (modifier == "percent" || modifier == "percentregen") value *= 100f;
+				return ScalingText(value, modifier, style);
+			}
 
-				string baseString;
-				if (modifier == "percent") baseString = TextFragment("PERCENT_VALUE");
-				else if (modifier == "flatregen") baseString = TextFragment("FLATREGEN_VALUE");
-				else if (modifier == "percentregen") baseString = TextFragment("PERCENTREGEN_VALUE");
-				else if (modifier == "duration") baseString = TextFragment("DURATION_VALUE");
-				else if (modifier == "meter") baseString = TextFragment("METER_VALUE");
-				else baseString = TextFragment("FLAT_VALUE");
+			float mult = (modifier == "percent" || modifier == "percentregen") ? 100f : 1f;
+			string sign = stackValue > 0f ? "INC" : "DEC";
 
-				output = String.Format(baseString, value);
-
-				if (style != "") output = "<style=" + style + ">" + output + "</style>";
+			string baseString, stackString;
+			if (modifier == "percent" || modifier == "chance")
+			{
+				baseString = TextFragment("PERCENT_VALUE");
+				stackString = TextFragment("PERCENT_STACK_" + sign);
+			}
+			else if (modifier == "flatregen")
+			{
+				baseString = TextFragment("FLATREGEN_VALUE");
+				stackString = TextFragment("FLATREGEN_STACK_" + sign);
+			}
+			else if (modifier == "percentregen")
+			{
+				baseString = TextFragment("PERCENTREGEN_VALUE");
+				stackString = TextFragment("PERCENTREGEN_STACK_" + sign);
+			}
+			else if (modifier == "duration")
+			{
+				baseString = TextFragment("DURATION_VALUE");
+				stackString = TextFragment("DURATION_STACK_" + sign);
+			}
+			else if (modifier == "meter")
+			{
+				baseString = TextFragment("METER_VALUE");
+				stackString = TextFragment("METER_STACK_" + sign);
 			}
 			else
 			{
-				float mult = (modifier == "percent" || modifier == "percentregen") ? 100f : 1f;
-				string sign = stackValue > 0f ? "INC" : "DEC";
-
-				string baseString, stackString;
-				if (modifier == "percent")
-				{
-					baseString = TextFragment("PERCENT_VALUE");
-					stackString = TextFragment("PERCENT_STACK_" + sign);
-				}
-				else if (modifier == "flatregen")
-				{
-					baseString = TextFragment("FLATREGEN_VALUE");
-					stackString = TextFragment("FLATREGEN_STACK_" + sign);
-				}
-				else if (modifier == "percentregen")
-				{
-					baseString = TextFragment("PERCENTREGEN_VALUE");
-					stackString = TextFragment("PERCENTREGEN_STACK_" + sign);
-				}
-				else if (modifier == "duration")
-				{
-					baseString = TextFragment("DURATION_VALUE");
-					stackString = TextFragment("DURATION_STACK_" + sign);
-				}
-				else if (modifier == "meter")
-				{
-					baseString = TextFragment("METER_VALUE");
-					stackString = TextFragment("METER_STACK_" + sign);
-				}
-				else
-				{
-					baseString = TextFragment("FLAT_VALUE");
-					stackString = TextFragment("FLAT_STACK_" + sign);
-				}
-
-				string formatString = TextFragment("BASE_STACK_FORMAT");
-
-				baseString = String.Format(baseString, baseValue * mult);
-				stackString = String.Format(stackString, stackValue * mult);
-
-				if (style != "") baseString = "<style=" + style + ">" + baseString + "</style>";
-
-				output = String.Format(formatString, baseString, stackString);
+				baseString = TextFragment("FLAT_VALUE");
+				stackString = TextFragment("FLAT_STACK_" + sign);
 			}
+
+			string formatString = TextFragment("BASE_STACK_FORMAT");
+
+			baseString = String.Format(baseString, baseValue * mult);
+			stackString = String.Format(stackString, Mathf.Abs(stackValue * mult));
+
+			if (style != "") baseString = "<style=" + style + ">" + baseString + "</style>";
+
+			string output = String.Format(formatString, baseString, stackString);
+
+			return output;
+		}
+
+		public static string ScalingText(float value, string modifier = "", string style = "")
+		{
+			if (modifier == "percent" || modifier == "percentregen") value *= 100f;
+
+			string baseString;
+			if (modifier == "percent" || modifier == "chance") baseString = TextFragment("PERCENT_VALUE");
+			else if (modifier == "flatregen") baseString = TextFragment("FLATREGEN_VALUE");
+			else if (modifier == "percentregen") baseString = TextFragment("PERCENTREGEN_VALUE");
+			else if (modifier == "duration") baseString = TextFragment("DURATION_VALUE");
+			else if (modifier == "meter") baseString = TextFragment("METER_VALUE");
+			else baseString = TextFragment("FLAT_VALUE");
+
+			string output = String.Format(baseString, value);
+
+			if (style != "") output = "<style=" + style + ">" + output + "</style>";
 
 			return output;
 		}
@@ -308,24 +326,6 @@ namespace TPDespair.ZetAspects
 			if (sec != 1f) targetString += "S";
 
 			return String.Format(TextFragment(targetString), sec);
-		}
-
-		public static string PercentText(float value, string style = "")
-		{
-			string output = String.Format(TextFragment("PERCENT_VALUE"), value * 100f);
-
-			if (style != "") output = "<style=" + style + ">" + output + "</style>";
-
-			return output;
-		}
-
-		public static string FlatText(float value, string style = "")
-		{
-			string output = String.Format(TextFragment("FLAT_VALUE"), value);
-
-			if (style != "") output = "<style=" + style + ">" + output + "</style>";
-
-			return output;
 		}
 
 		public static string EquipmentStackText(float stack)
@@ -422,7 +422,7 @@ namespace TPDespair.ZetAspects
 
 			text = String.Format(
 				TextFragment("CONVERT_SHIELD", true),
-				PercentText(1f, "cIsHealing")
+				ScalingText(1f, "percent", "cIsHealing")
 			);
 			text += String.Format(
 				TextFragment("EXTRA_SHIELD_CONVERT"),
@@ -432,7 +432,7 @@ namespace TPDespair.ZetAspects
 			{
 				text += String.Format(
 					TextFragment("CONVERT_SHIELD_REGEN"),
-					PercentText(Configuration.TranscendenceRegen.Value, "cIsHealing")
+					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
 				);
 			}
 			if (Catalog.shieldJump)

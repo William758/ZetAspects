@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -33,6 +33,8 @@ namespace TPDespair.ZetAspects
 		public static List<ItemIndex> aspectItemIndexes = new List<ItemIndex>();
 		public static List<EquipmentIndex> aspectEquipIndexes = new List<EquipmentIndex>();
 
+		public static List<ItemDef> transformableAspectItemDefs = new List<ItemDef>();
+
 
 
 		internal static ItemTierDef BossItemTier;
@@ -64,6 +66,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite OutlineOrange;
 			public static Sprite OutlineYellow;
 			public static Sprite OutlineBlue;
+			public static Sprite OutlineVoid;
 
 			public static Sprite AffixWhite;
 			public static Sprite AffixBlue;
@@ -77,6 +80,8 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixPlated;
 			public static Sprite AffixWarped;
+
+			public static Sprite AffixGold;
 
 			public static Sprite AffixSanguine;
 
@@ -94,6 +99,7 @@ namespace TPDespair.ZetAspects
 				OutlineOrange = Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineOrange.png");
 				OutlineYellow = Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineYellow.png");
 				OutlineBlue = Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineBlue.png");
+				OutlineVoid = Assets.LoadAsset<Sprite>("Assets/Icons/texOutlineVoid.png");
 
 				AffixWhite = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWhite.png");
 				AffixBlue = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlue.png");
@@ -109,6 +115,11 @@ namespace TPDespair.ZetAspects
 				{
 					AffixPlated = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPlated.png");
 					AffixWarped = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWarped.png");
+				}
+
+				if (GoldenCoastPlus.Enabled)
+				{
+					AffixGold = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillaging.png");
 				}
 				/*
 				if (Aetherium.Enabled)
@@ -179,6 +190,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixPlated;
 			public static BuffDef AffixWarped;
 
+			public static BuffDef AffixGold;
+
 			public static BuffDef AffixSanguine;
 		}
 
@@ -196,6 +209,8 @@ namespace TPDespair.ZetAspects
 
 			public static EquipmentDef AffixPlated;
 			public static EquipmentDef AffixWarped;
+
+			public static EquipmentDef AffixGold;
 
 			public static EquipmentDef AffixSanguine;
 		}
@@ -220,6 +235,8 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectPlated;
 			public static ItemDef ZetAspectWarped;
 
+			public static ItemDef ZetAspectGold;
+
 			public static ItemDef ZetAspectSanguine;
 		}
 
@@ -227,6 +244,7 @@ namespace TPDespair.ZetAspects
 
 		public static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
 		public static BodyIndex mithrixBodyIndex = BodyIndex.None;
+		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
 
 
@@ -337,6 +355,7 @@ namespace TPDespair.ZetAspects
 
 			ContentManager.collectContentPackProviders += AddContentPackProvider;
 
+			if (Configuration.AspectVoidContagiousItem.Value) SetupItemTransformations();
 			SetupListeners();
 
 			ItemEntrySelectableHook();
@@ -422,7 +441,7 @@ namespace TPDespair.ZetAspects
 		{
 			ItemDef ZetAspectsDropCountTracker = ScriptableObject.CreateInstance<ItemDef>();
 			ZetAspectsDropCountTracker.name = "ZetAspectsDropCountTracker";
-			ZetAspectsDropCountTracker.deprecatedTier = ItemTier.NoTier;
+			AssignDepricatedTier(ZetAspectsDropCountTracker, ItemTier.NoTier);
 			ZetAspectsDropCountTracker.AutoPopulateTokens();
 			ZetAspectsDropCountTracker.hidden = true;
 			ZetAspectsDropCountTracker.canRemove = false;
@@ -431,7 +450,7 @@ namespace TPDespair.ZetAspects
 
 			ItemDef ZetAspectsUpdateInventory = ScriptableObject.CreateInstance<ItemDef>();
 			ZetAspectsUpdateInventory.name = "ZetAspectsUpdateInventory";
-			ZetAspectsUpdateInventory.deprecatedTier = ItemTier.NoTier;
+			AssignDepricatedTier(ZetAspectsUpdateInventory, ItemTier.NoTier);
 			ZetAspectsUpdateInventory.AutoPopulateTokens();
 			ZetAspectsUpdateInventory.hidden = true;
 			ZetAspectsUpdateInventory.canRemove = false;
@@ -441,30 +460,37 @@ namespace TPDespair.ZetAspects
 			ItemDef ZetAspectWhite = Items.ZetAspectWhite.DefineItem();
 			Item.ZetAspectWhite = ZetAspectWhite;
 			ZetAspectsContent.itemDefs.Add(ZetAspectWhite);
+			transformableAspectItemDefs.Add(ZetAspectWhite);
 
 			ItemDef ZetAspectBlue = Items.ZetAspectBlue.DefineItem();
 			Item.ZetAspectBlue = ZetAspectBlue;
 			ZetAspectsContent.itemDefs.Add(ZetAspectBlue);
+			transformableAspectItemDefs.Add(ZetAspectBlue);
 
 			ItemDef ZetAspectRed = Items.ZetAspectRed.DefineItem();
 			Item.ZetAspectRed = ZetAspectRed;
 			ZetAspectsContent.itemDefs.Add(ZetAspectRed);
+			transformableAspectItemDefs.Add(ZetAspectRed);
 
 			ItemDef ZetAspectHaunted = Items.ZetAspectHaunted.DefineItem();
 			Item.ZetAspectHaunted = ZetAspectHaunted;
 			ZetAspectsContent.itemDefs.Add(ZetAspectHaunted);
+			transformableAspectItemDefs.Add(ZetAspectHaunted);
 
 			ItemDef ZetAspectPoison = Items.ZetAspectPoison.DefineItem();
 			Item.ZetAspectPoison = ZetAspectPoison;
 			ZetAspectsContent.itemDefs.Add(ZetAspectPoison);
+			transformableAspectItemDefs.Add(ZetAspectPoison);
 
 			ItemDef ZetAspectLunar = Items.ZetAspectLunar.DefineItem();
 			Item.ZetAspectLunar = ZetAspectLunar;
 			ZetAspectsContent.itemDefs.Add(ZetAspectLunar);
+			transformableAspectItemDefs.Add(ZetAspectLunar);
 
 			ItemDef ZetAspectEarth = Items.ZetAspectEarth.DefineItem();
 			Item.ZetAspectEarth = ZetAspectEarth;
 			ZetAspectsContent.itemDefs.Add(ZetAspectEarth);
+			transformableAspectItemDefs.Add(ZetAspectEarth);
 
 			ItemDef ZetAspectVoid = Items.ZetAspectVoid.DefineItem();
 			Item.ZetAspectVoid = ZetAspectVoid;
@@ -475,10 +501,20 @@ namespace TPDespair.ZetAspects
 				ItemDef ZetAspectPlated = Items.ZetAspectPlated.DefineItem();
 				Item.ZetAspectPlated = ZetAspectPlated;
 				ZetAspectsContent.itemDefs.Add(ZetAspectPlated);
+				transformableAspectItemDefs.Add(ZetAspectPlated);
 
 				ItemDef ZetAspectWarped = Items.ZetAspectWarped.DefineItem();
 				Item.ZetAspectWarped = ZetAspectWarped;
 				ZetAspectsContent.itemDefs.Add(ZetAspectWarped);
+				transformableAspectItemDefs.Add(ZetAspectWarped);
+			}
+
+			if (GoldenCoastPlus.Enabled)
+			{
+				ItemDef ZetAspectGold = Items.ZetAspectGold.DefineItem();
+				Item.ZetAspectGold = ZetAspectGold;
+				ZetAspectsContent.itemDefs.Add(ZetAspectGold);
+				transformableAspectItemDefs.Add(ZetAspectGold);
 			}
 			/*
 			if (Aetherium.Enabled)
@@ -486,8 +522,36 @@ namespace TPDespair.ZetAspects
 				ItemDef ZetAspectSanguine = Items.ZetAspectSanguine.DefineItem();
 				Item.ZetAspectSanguine = ZetAspectSanguine;
 				ZetAspectsContent.itemDefs.Add(ZetAspectSanguine);
+				transformableAspectItemDefs.Add(ZetAspectSanguine);
 			}
 			*/
+		}
+
+		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
+		{
+			#pragma warning disable CS0618 // Type or member is obsolete
+            itemDef.deprecatedTier = itemTier;
+			#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+
+
+		private static void SetupItemTransformations()
+		{
+			On.RoR2.Items.ContagiousItemManager.Init += (orig) =>
+			{
+				List<ItemDef.Pair> transformationTable = ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem].ToList();
+
+				foreach (ItemDef itemDef in transformableAspectItemDefs)
+				{
+					transformationTable.Add(new ItemDef.Pair() { itemDef1 = itemDef, itemDef2 = Item.ZetAspectVoid });
+					Logger.Info("Successfully added aspect transformation for " + itemDef.name);
+				}
+
+				ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem] = transformationTable.ToArray();
+
+				orig();
+			};
 		}
 
 
@@ -621,6 +685,7 @@ namespace TPDespair.ZetAspects
 		{
 			RiskOfRain.PreInit();
 			SpikeStrip.PreInit();
+			GoldenCoastPlus.PreInit();
 			//Aetherium.PreInit();
 		}
 
@@ -694,6 +759,7 @@ namespace TPDespair.ZetAspects
 
 			RiskOfRain.Init();
 			SpikeStrip.Init();
+			GoldenCoastPlus.Init();
 			//Aetherium.Init();
 
 			Language.ChangeText();
@@ -787,6 +853,12 @@ namespace TPDespair.ZetAspects
 				SpikeStrip.ItemEntries(true);
 				SpikeStrip.EquipmentEntries(false);
 			}
+
+			if (GoldenCoastPlus.populated)
+			{
+				GoldenCoastPlus.ItemEntries(true);
+				GoldenCoastPlus.EquipmentEntries(false);
+			}
 			/*
 			if (Aetherium.populated)
 			{
@@ -817,6 +889,7 @@ namespace TPDespair.ZetAspects
 			internal static void Init()
 			{
 				mithrixBodyIndex = BodyCatalog.FindBodyIndex("BrotherBody");
+				healOrbBodyIndex = BodyCatalog.FindBodyIndex("AffixEarthHealerBody");
 
 				PopulateEquipment();
 				PopulateBuffs();
@@ -1140,6 +1213,148 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixWarped, Buff.AffixWarped, Item.ZetAspectWarped);
 			}
 		}
+
+		public static class GoldenCoastPlus
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.Skell.GoldenCoastPlus")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteGoldEquipment");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixGold = EquipmentCatalog.GetEquipmentDef(index);
+					//Logger.Warn(Equip.AffixGold.passiveBuffDef.name);
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixGold)
+				{
+					Buff.AffixGold = Equip.AffixGold.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectGold, ref Equip.AffixGold, ref Buff.AffixGold, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectGold.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectGold, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectGold, Equip.AffixGold);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectGold, Equip.AffixGold);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixGold, Sprites.AffixGold, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixGold, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixGold);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixGold, Buff.AffixGold, Item.ZetAspectGold);
+			}
+		}
 		/*
 		public static class Aetherium
 		{
@@ -1377,8 +1592,16 @@ namespace TPDespair.ZetAspects
 
 				if (!itemDef.hidden)
 				{
-					if (!shown) itemDef.tier = ItemTier.NoTier;
-					else itemDef._itemTierDef = Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
+					if (itemDef == Item.ZetAspectVoid && Configuration.AspectVoidContagiousItem.Value)
+					{
+						if (!shown) itemDef.tier = ItemTier.NoTier;
+						else itemDef.tier = Configuration.AspectRedTier.Value ? ItemTier.VoidTier3 : ItemTier.VoidBoss;
+					}
+					else
+					{
+						if (!shown) itemDef.tier = ItemTier.NoTier;
+						else itemDef._itemTierDef = Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
+					}
 				}
 			}
 		}

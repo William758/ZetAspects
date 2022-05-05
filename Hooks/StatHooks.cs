@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -434,6 +434,44 @@ namespace TPDespair.ZetAspects
 						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
 						{
 							value += 1.6f;
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixGold))
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixGold);
+
+							if (Configuration.AspectGoldBaseRegenGain.Value > 0f)
+							{
+								value += Configuration.AspectGoldBaseRegenGain.Value + Configuration.AspectGoldStackRegenGain.Value * (count - 1f);
+							}
+
+							if (Configuration.AspectGoldBaseScoredRegenGain.Value > 0f)
+							{
+								Inventory inventory = self.inventory;
+								if (inventory)
+								{
+									float itemScore = 0f;
+
+									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
+									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.VoidTier1);
+									itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
+									itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier2);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier3);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
+									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+
+									float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+									if (Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+									if (Catalog.ItemizeEliteEquipment(inventory.alternateEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+
+									itemScore *= Configuration.AspectGoldItemScoreFactor.Value;
+									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldItemScoreExponent.Value);
+
+									value += itemScore * (Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f));
+								}
+							}
 						}
 
 						return value;
