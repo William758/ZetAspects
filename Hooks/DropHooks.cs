@@ -38,6 +38,8 @@ namespace TPDespair.ZetAspects
 			SceneDirector.onPostPopulateSceneServer += OnScenePopulated;
 			SceneExitController.onBeginExit += OnSceneExit;
 
+			On.RoR2.Artifacts.CommandArtifactManager.OnDropletHitGroundServer += CommandGroupInterceptHook;
+
 			ResetRunDropCountHook();
 			DropChanceHook();
 			InterceptAspectDropHook();
@@ -153,6 +155,90 @@ namespace TPDespair.ZetAspects
 				disableDrops = true;
 				Logger.Info("SceneExit : Drops Disabled");
 			}
+		}
+
+
+
+		private static void CommandGroupInterceptHook(On.RoR2.Artifacts.CommandArtifactManager.orig_OnDropletHitGroundServer orig, ref GenericPickupController.CreatePickupInfo createPickupInfo, ref bool shouldSpawn)
+		{
+			if (!shouldSpawn) return;
+
+			PickupIndex pickupIndex = createPickupInfo.pickupIndex;
+			if (pickupIndex != PickupIndex.none)
+			{
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
+				if (pickupDef != null)
+				{
+					if (pickupDef.itemIndex != ItemIndex.None && Catalog.aspectItemIndexes.Contains(pickupDef.itemIndex))
+					{
+						if (Configuration.AspectWorldUnique.Value && Configuration.AspectCommandGroupItems.Value)
+						{
+							AspectCommandDroplet(pickupDef, createPickupInfo.position, createPickupInfo.rotation, ref shouldSpawn);
+						}
+					}
+
+					if (pickupDef.equipmentIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(pickupDef.equipmentIndex))
+					{
+						if (Configuration.AspectCommandGroupEquip.Value)
+						{
+							AspectCommandDroplet(pickupDef, createPickupInfo.position, createPickupInfo.rotation, ref shouldSpawn);
+						}
+					}
+				}
+			}
+
+			if (!shouldSpawn) return;
+
+			orig(ref createPickupInfo, ref shouldSpawn);
+		}
+
+		private static void AspectCommandDroplet(PickupDef pickupDef, Vector3 position, Quaternion rotation, ref bool shouldSpawn)
+		{
+			GameObject gameObject = UnityEngine.Object.Instantiate(Catalog.CommandCubePrefab, position, rotation);
+			gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupDef.pickupIndex;
+			SetPickupPickerControllerAspectOptions(gameObject.GetComponent<PickupPickerController>(), pickupDef);
+			NetworkServer.Spawn(gameObject);
+
+			shouldSpawn = false;
+		}
+
+		private static void SetPickupPickerControllerAspectOptions(PickupPickerController controller, PickupDef pickupDef)
+		{
+			List<PickupPickerController.Option> options = new List<PickupPickerController.Option>();
+
+			if (pickupDef.itemIndex != ItemIndex.None)
+			{
+				foreach (ItemIndex itemIndex in Catalog.aspectItemIndexes)
+				{
+					bool valid = !Catalog.disabledItemIndexes.Contains(itemIndex);
+					bool available = !Run.instance.IsItemExpansionLocked(itemIndex);
+
+					if (valid && available)
+					{
+						PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(itemIndex);
+						options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupIndex });
+					}
+				}
+			}
+			else if (pickupDef.equipmentIndex != EquipmentIndex.None)
+			{
+				foreach (EquipmentIndex equipIndex in Catalog.aspectEquipIndexes)
+				{
+					bool available = !Run.instance.IsEquipmentExpansionLocked(equipIndex);
+
+					if (available)
+					{
+						PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(equipIndex);
+						options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupIndex });
+					}
+				}
+			}
+			else
+			{
+				options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupDef.pickupIndex });
+			}
+
+			controller.SetOptionsServer(options.ToArray());
 		}
 
 

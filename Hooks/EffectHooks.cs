@@ -1616,12 +1616,26 @@ namespace TPDespair.ZetAspects
 		{
 			if (NetworkServer.active)
 			{
-				BuffIndex buff = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
-
-				if (buffDef.buffIndex == buff && self.GetBuffCount(buff) < 1)
+				BuffIndex buffIndex = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
+				if (buffDef.buffIndex == buffIndex)
 				{
-					self.ClearTimedBuffs(buff);
-					self.SetBuffCount(buff, 0);
+					if (self.GetBuffCount(buffIndex) < 1)
+					{
+						self.ClearTimedBuffs(buffIndex);
+						self.SetBuffCount(buffIndex, 0);
+					}
+
+					if (duration > 0f)
+					{
+						float remainingDuration = duration;
+						while (remainingDuration > 0f)
+						{
+							orig(self, buffDef, remainingDuration);
+							remainingDuration -= 1f;
+						}
+					}
+
+					return;
 				}
 			}
 
@@ -1632,9 +1646,9 @@ namespace TPDespair.ZetAspects
 		{
 			if (NetworkServer.active)
 			{
-				BuffIndex buff = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
+				BuffIndex buffIndex = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
 
-				if (buffType == buff && self.GetBuffCount(buff) < 1) return;
+				if (buffType == buffIndex && self.GetBuffCount(buffIndex) < 1) return;
 			}
 
 			orig(self, buffType);

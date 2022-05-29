@@ -43,6 +43,7 @@ namespace TPDespair.ZetAspects
 		internal static GameObject BossDropletPrefab;
 		internal static GameObject LightningStakePrefab;
 		internal static GameObject RejectTextPrefab;
+		internal static GameObject CommandCubePrefab;
 
 
 
@@ -396,6 +397,7 @@ namespace TPDespair.ZetAspects
 			BossDropletPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/ItemPickups/BossOrb");
 			LightningStakePrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 			RejectTextPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/DamageRejected");
+			CommandCubePrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/CommandCube");
 		}
 
 		private static void CreateBuffs()
@@ -530,9 +532,9 @@ namespace TPDespair.ZetAspects
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
 		{
 			#pragma warning disable CS0618 // Type or member is obsolete
-            itemDef.deprecatedTier = itemTier;
+			itemDef.deprecatedTier = itemTier;
 			#pragma warning restore CS0618 // Type or member is obsolete
-        }
+		}
 
 
 

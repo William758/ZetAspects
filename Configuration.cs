@@ -6,6 +6,8 @@ namespace TPDespair.ZetAspects
 	{
 		public static ConfigEntry<bool> AspectRedTier { get; set; }
 		public static ConfigEntry<bool> AspectWorldUnique { get; set; }
+		public static ConfigEntry<bool> AspectCommandGroupItems { get; set; }
+		public static ConfigEntry<bool> AspectCommandGroupEquip { get; set; }
 		public static ConfigEntry<bool> AspectShowDropText { get; set; }
 		public static ConfigEntry<string> AspectDropText { get; set; }
 		public static ConfigEntry<bool> AspectSkinItemApply { get; set; }
@@ -158,6 +160,14 @@ namespace TPDespair.ZetAspects
 			AspectWorldUnique = Config.Bind(
 				"0a-General", "aspectWorldUnique", true,
 				"Make aspects only drop from their respective elites and no where else. Set to false to add them to the drop pool."
+			);
+			AspectCommandGroupItems = Config.Bind(
+				"0a-General", "aspectCommandGroupItems", true,
+				"If world unique is enabled, be able to choose any other itemized aspect in command."
+			);
+			AspectCommandGroupEquip = Config.Bind(
+				"0a-General", "aspectCommandGroupEquip", true,
+				"Be able to choose any other equipment aspect in command."
 			);
 			AspectShowDropText = Config.Bind(
 				"0a-General", "aspectEnableDropText", true,

@@ -1,4 +1,4 @@
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 
 namespace TPDespair.ZetAspects
 {
