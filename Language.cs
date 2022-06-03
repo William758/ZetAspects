@@ -90,7 +90,7 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_WHITE_NAME", "Her Biting Embrace");
 			RegisterFragment("AFFIX_WHITE_PICKUP", "Become an aspect of ice.");
-			RegisterFragment("AFFIX_WHITE_ACTIVE", "Deploy a health-reducing ice crystal on use.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "Deploy an ice crystal that disables skills.");
 			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Aspect of Ice</style> :");
 			RegisterFragment("CHILL_ON_HIT", "\nAttacks <style=cIsUtility>chill</style> on hit {0}, reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.");
 			RegisterFragment("CHANCE_TO_FREEZE", "\nAttacks have a {0} chance to <style=cIsUtility>freeze</style> {1}.");
@@ -107,14 +107,14 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_RED_NAME", "Ifrit's Distinction");
 			RegisterFragment("AFFIX_RED_PICKUP", "Become an aspect of fire.");
-			RegisterFragment("AFFIX_RED_ACTIVE", "Release a barrage of seeking flame missiles on use.");
+			RegisterFragment("AFFIX_RED_ACTIVE", "Launch a seeking flame missile.");
 			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>Aspect of Fire</style> :");
 			RegisterFragment("PASSIVE_FIRE_TRAIL", "\nLeave behind a fiery trail that damages enemies on contact.");
 			RegisterFragment("BURN_DOT", "\nAttacks <style=cIsDamage>burn</style> on hit for {0} {1} damage {2}.");
 
 			RegisterFragment("AFFIX_HAUNTED_NAME", "Spectral Circlet");
 			RegisterFragment("AFFIX_HAUNTED_PICKUP", "Become an aspect of incorporeality.");
-			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "Heal all allies inside the invisibility aura on use.");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "Temporarily grants nearby allies a chance to dodge hits.");
 			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>Aspect of Incorporeality</style> :");
 			RegisterFragment("PASSIVE_GHOST_AURA", "\nEmit an aura that cloaks nearby allies.");
 			RegisterFragment("PASSIVE_POSSESS", "\nAttach to some nearby allies, possessing them.");
@@ -123,7 +123,7 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_POISON_NAME", "N'kuhana's Retort");
 			RegisterFragment("AFFIX_POISON_PICKUP", "Become an aspect of corruption.");
-			RegisterFragment("AFFIX_POISON_ACTIVE", "Summon an ally Malachite Urchin that inherits your items on use.");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "Summon an ally Malachite Urchin that inherits your items.");
 			RegisterFragment("ASPECT_OF_CORRUPTION", "<style=cDeath>Aspect of Corruption</style> :");
 			RegisterFragment("PASSIVE_SPIKEBALL", "\nPeriodically releases spiked balls that sprout spike pits from where they land.");
 			RegisterFragment("PASSIVE_RUIN_AURA", "\nEmit an aura that applies <style=cIsDamage>ruin</style> to nearby enemies.");
@@ -134,14 +134,14 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_LUNAR_NAME", "Shared Design");
 			RegisterFragment("AFFIX_LUNAR_PICKUP", "Become an aspect of perfection.");
-			RegisterFragment("AFFIX_LUNAR_ACTIVE", "Gain temporary defense from powerful attacks on use.");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "Gain temporary protection against powerful hits.");
 			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cDeath>Aspect of Perfection</style> :");
 			RegisterFragment("PASSIVE_LUNAR_PROJ", "\nPeriodically fire projectiles while in combat.");
 			RegisterFragment("CRIPPLE_ON_HIT", "\nAttacks <style=cIsDamage>cripple</style> on hit {0}, reducing <style=cIsDamage>armor</style> by <style=cIsDamage>20</style> and <style=cIsUtility>movement speed</style> by <style=cIsUtility>50%</style>.");
 
 			RegisterFragment("AFFIX_EARTH_NAME", "His Reassurance");
 			RegisterFragment("AFFIX_EARTH_PICKUP", "Become an aspect of earth.");
-			RegisterFragment("AFFIX_EARTH_ACTIVE", "???");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "Grants a short burst of health regeneration.");
 			RegisterFragment("ASPECT_OF_EARTH", "<style=cDeath>Aspect of Earth</style> :");
 			RegisterFragment("PASSIVE_HEAL_ALLY", "\nHeal nearby allies.");
 			RegisterFragment("POACH_ON_HIT_BASIC", "\nAttacks <style=cIsUtility>poach</style> on hit {0}, causing hits against them to <style=cIsHealing>heal</style> for {1} of <style=cIsDamage>damage</style> dealt.");
@@ -152,7 +152,7 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_VOID_NAME", "Entropic Fracture");
 			RegisterFragment("AFFIX_VOID_PICKUP", "Become an aspect of void.");
-			RegisterFragment("AFFIX_VOID_ACTIVE", "???");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "Resets all of your cooldowns.");
 			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>Aspect of Void</style> :");
 			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>Blocks</style> incoming damage once. Recharges after a delay.");
 			RegisterFragment("NULLIFY_ON_HIT", "\nAttacks <style=cIsUtility>nullify</style> on hit {0}");
@@ -163,27 +163,32 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("AFFIX_PLATED_NAME", "Alloy of Subservience");
 			RegisterFragment("AFFIX_PLATED_PICKUP", "Become an aspect of endurance.");
-			RegisterFragment("AFFIX_PLATED_ACTIVE", "???");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>Aspect of Endurance</style> :");
 			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\nGain defensive plating that mitigates heavy damage.");
 			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\nAttacks <style=cIsUtility>stifle</style> on hit {0}, reducing damage dealt.");
 
 			RegisterFragment("AFFIX_WARPED_NAME", "Misplaced Faith");
 			RegisterFragment("AFFIX_WARPED_PICKUP", "Become an aspect of gravity.");
-			RegisterFragment("AFFIX_WARPED_ACTIVE", "???");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>Aspect of Gravity</style> :");
 			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\nOccasionally deflect nearby projectiles.");
 			RegisterFragment("LEVITATE_ON_HIT", "\nAttacks <style=cIsUtility>levitate</style> on hit {0}.");
 
 			RegisterFragment("AFFIX_GOLD_NAME", "Coven of Gold");
 			RegisterFragment("AFFIX_GOLD_PICKUP", "Become an aspect of fortune.");
-			RegisterFragment("AFFIX_GOLD_ACTIVE", "???");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_FORTUNE", "<style=cDeath>Aspect of Fortune</style> :");
 			RegisterFragment("GOLD_ON_HIT", "\nAttacks grant gold on hit.");
 			RegisterFragment("ITEMSCORE_REGEN", "\nBonus <style=cIsHealing>health regeneration</style> based on quantity and tier of items owned.");
 			RegisterFragment("ITEMSCORE_REGEN_MULT", "\nItem score regen multiplier of {0}.");
 
-
+			RegisterFragment("AFFIX_SANGUINE_NAME", "Bloody Fealty");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "Become an aspect of the red plane.");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "Teleport dash and gain brief invulnurability.");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>Aspect of the Red Plane</style> :");
+			RegisterFragment("BLEED_DOT", "\nAttacks <style=cIsDamage>bleed</style> on hit for {0} base damage {1}.");
+			RegisterFragment("DOT_AMP", "\nIncreases <style=cIsDamage>damage over time multiplier</style> by {0}.");
 
 			RegisterFragment("CONVERT_SHIELD", "\nConvert {0} of health into <style=cIsHealing>regenerating shield</style>.");
 			RegisterFragment("EXTRA_SHIELD_CONVERT", "\nGain {0} extra <style=cIsHealing>shield</style> from conversion.");

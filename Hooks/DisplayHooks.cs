@@ -144,7 +144,7 @@ namespace TPDespair.ZetAspects
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectHaunted) > 0) return targetEquipDef;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-			/*
+			
 			if (Catalog.Aetherium.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSanguine;
@@ -152,7 +152,7 @@ namespace TPDespair.ZetAspects
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
-			*/
+			
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixWarped;
@@ -222,14 +222,14 @@ namespace TPDespair.ZetAspects
 			targetEquipDef = Catalog.Equip.AffixHaunted;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-			/*
+			
 			if (Catalog.Aetherium.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSanguine;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
-			*/
+			
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixWarped;
@@ -285,13 +285,13 @@ namespace TPDespair.ZetAspects
 
 			targetEquipDef = Catalog.Equip.AffixHaunted;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectHaunted) > 0) return targetEquipDef;
-			/*
+			
 			if (Catalog.Aetherium.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSanguine;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
 			}
-			*/
+			
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixWarped;
@@ -417,12 +417,11 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixGold, Catalog.Item.ZetAspectGold);
 			}
-			/*
+			
 			if (Catalog.Aetherium.Enabled)
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixSanguine, Catalog.Item.ZetAspectSanguine);
 			}
-			*/
 		}
 
 		private static void HandleAspectDisplay(CharacterModel model, EquipmentDef display, EquipmentDef target, ItemDef item)

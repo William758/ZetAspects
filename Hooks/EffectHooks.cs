@@ -85,7 +85,7 @@ namespace TPDespair.ZetAspects
 			PreventAspectCollapseHook();
 			DamageTakenHook();
 			HeadHunterBuffHook();
-			//DotAmpHook();
+			DotAmpHook();
 			OnHitAllHook();
 			OnHitEnemyHook();
 			FixTimedChillApplication();
@@ -795,13 +795,11 @@ namespace TPDespair.ZetAspects
 						mult += Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
 					}
 					*/
-					/*
 					if (atkBody.HasBuff(Catalog.Buff.AffixSanguine) && Configuration.AspectSanguineBaseDotAmp.Value > 0f)
 					{
 						float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixSanguine);
 						mult += Configuration.AspectSanguineBaseDotAmp.Value + Configuration.AspectSanguineStackDotAmp.Value * (count - 1f);
 					}
-					*/
 
 					inflictDotInfo.damageMultiplier *= mult;
 				}
@@ -899,7 +897,7 @@ namespace TPDespair.ZetAspects
 					ApplyCripple(attacker, victim, damageInfo);
 					HandlePoach(attacker, victim, damageInfo);
 					ApplyCollapse(attacker, victim, damageInfo);
-					//ApplyBleed(attacker, victim, damageInfo);
+					ApplyBleed(attacker, victim, damageInfo);
 				}
 			}
 		}
@@ -1233,7 +1231,6 @@ namespace TPDespair.ZetAspects
 
 		private static void ApplyBleed(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
-			/*
 			if (!Compat.Aetherium.bleedHook) return;
 
 			BuffDef buffDef = Catalog.Buff.AffixSanguine;
@@ -1249,7 +1246,6 @@ namespace TPDespair.ZetAspects
 
 				InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
 			}
-			*/
 		}
 		
 
@@ -1587,12 +1583,11 @@ namespace TPDespair.ZetAspects
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixGold, Catalog.Item.ZetAspectGold, Catalog.Equip.AffixGold);
 			}
-			/*
+			
 			if (Catalog.Aetherium.populated)
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixSanguine, Catalog.Item.ZetAspectSanguine, Catalog.Equip.AffixSanguine);
 			}
-			*/
 		}
 
 		private static void ApplyAspectBuff(CharacterBody body, Inventory inventory, BuffDef buffDef, ItemDef itemDef, EquipmentDef equipDef)

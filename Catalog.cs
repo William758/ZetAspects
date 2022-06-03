@@ -122,12 +122,12 @@ namespace TPDespair.ZetAspects
 				{
 					AffixGold = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillaging.png");
 				}
-				/*
+				
 				if (Aetherium.Enabled)
 				{
 					AffixSanguine = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSanguine.png");
 				}
-				*/
+				
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -518,7 +518,7 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectGold);
 				transformableAspectItemDefs.Add(ZetAspectGold);
 			}
-			/*
+			
 			if (Aetherium.Enabled)
 			{
 				ItemDef ZetAspectSanguine = Items.ZetAspectSanguine.DefineItem();
@@ -526,7 +526,6 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectSanguine);
 				transformableAspectItemDefs.Add(ZetAspectSanguine);
 			}
-			*/
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -688,7 +687,7 @@ namespace TPDespair.ZetAspects
 			RiskOfRain.PreInit();
 			SpikeStrip.PreInit();
 			GoldenCoastPlus.PreInit();
-			//Aetherium.PreInit();
+			Aetherium.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -702,7 +701,7 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
 			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
 			if (PluginLoaded("com.TransRights.RealisticTransgendence")) shieldJump = true;// Reflection Config
-			if (PluginLoaded("com.TheMysticSword.AspectAbilities")) aspectAbilities = true;
+			if (PluginLoaded("com.themysticsword.aspectabilities")) aspectAbilities = true;
 			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
 			/*
 			EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(RejectTextPrefab);
@@ -762,7 +761,7 @@ namespace TPDespair.ZetAspects
 			RiskOfRain.Init();
 			SpikeStrip.Init();
 			GoldenCoastPlus.Init();
-			//Aetherium.Init();
+			Aetherium.Init();
 
 			Language.ChangeText();
 
@@ -861,13 +860,12 @@ namespace TPDespair.ZetAspects
 				GoldenCoastPlus.ItemEntries(true);
 				GoldenCoastPlus.EquipmentEntries(false);
 			}
-			/*
+			
 			if (Aetherium.populated)
 			{
 				Aetherium.ItemEntries(true);
 				Aetherium.EquipmentEntries(false);
 			}
-			*/
 		}
 
 
@@ -1357,7 +1355,7 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixGold, Buff.AffixGold, Item.ZetAspectGold);
 			}
 		}
-		/*
+		
 		public static class Aetherium
 		{
 			private static bool equipDefPopulated = false;
@@ -1495,7 +1493,7 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixSanguine, Buff.AffixSanguine, Item.ZetAspectSanguine);
 			}
 		}
-		*/
+		
 
 
 		private static int GetPopulatedState(bool equip, bool buff)

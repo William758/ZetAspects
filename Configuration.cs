@@ -32,6 +32,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightWarped { get; set; }
 		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
 		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
+		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -55,7 +56,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> HeadHunterBuffAttackSpeed { get; set; }
 		public static ConfigEntry<float> HeadHunterBuffCritChance { get; set; }
 
-		//public static ConfigEntry<bool> AetheriumHooks { get; set; }
+		public static ConfigEntry<bool> AetheriumHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -141,6 +142,13 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectGoldItemScoreExponent { get; set; }
 		public static ConfigEntry<float> AspectGoldBaseScoredRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldStackScoredRegenGain { get; set; }
+
+		public static ConfigEntry<float> AspectSanguineBaseDotAmp { get; set; }
+		public static ConfigEntry<float> AspectSanguineStackDotAmp { get; set; }
+		public static ConfigEntry<float> AspectSanguineBleedDuration { get; set; }
+		public static ConfigEntry<float> AspectSanguineBaseDamage { get; set; }
+		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
+		public static ConfigEntry<float> AspectSanguineMonsterDamageMult { get; set; }
 
 
 
@@ -267,6 +275,10 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightGold", 1f,
 					"Drop chance multiplier for AffixGold"
 				);
+				AspectDropWeightSanguine = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightSanguine", 1f,
+					"Drop chance multiplier for AffixSanguine"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -359,9 +371,15 @@ namespace TPDespair.ZetAspects
 
 		private static void AspectConfigs(ConfigFile Config)
 		{
+			AetheriumHooks = Config.Bind(
+				"21-Mod Compatibility", "aetheriumHooks", true,
+				"Allows modification of functions and values within the Aetherium mod."
+			);
+
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
 			GoldenCoastPlusConfigs(Config);
+			AetheriumConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -693,6 +711,34 @@ namespace TPDespair.ZetAspects
 			AspectGoldStackScoredRegenGain = Config.Bind(
 				"2ca-Gold Aspect", "goldAddedScoredRegen", 0.5f,
 				"ScoredRegen multiplier gained per stack."
+			);
+		}
+
+		private static void AetheriumConfigs(ConfigFile Config)
+		{
+			AspectSanguineBaseDotAmp = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBaseDotAmp", 0.20f,
+				"DOT damage multiplier gained. Set to 0 to disable."
+			);
+			AspectSanguineStackDotAmp = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineAddedDotAmp", 0.10f,
+				"DOT damage multiplier gained per stack."
+			);
+			AspectSanguineBleedDuration = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBleedDuration", 4.0f,
+				"Set bleed duration in seconds."
+			);
+			AspectSanguineBaseDamage = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineBaseTotalDamage", 1.2f,
+				"Base total damage of bleed over duration. Set to 0 to disable."
+			);
+			AspectSanguineStackDamage = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineAddedTotalDamage", 0.6f,
+				"Added total damage of bleed per stack."
+			);
+			AspectSanguineMonsterDamageMult = Config.Bind(
+				"2da-Sanguine Aspect", "sanguineMonsterDamageMult", 1f,
+				"Monster bleed damage multiplier."
 			);
 		}
 	}

@@ -133,6 +133,11 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixGold, Configuration.AspectDropWeightGold.Value);
 			}
+
+			if (Catalog.Aetherium.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixSanguine, Configuration.AspectDropWeightSanguine.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)
@@ -287,6 +292,7 @@ namespace TPDespair.ZetAspects
 			float chance = Configuration.AspectDropChance.Value;
 
 			// can only be set to true after a Catalog.dropWeightsAvailable check
+			// set on scene populated : checks stage limit
 			if (applyDropWeight)
 			{
 				if (DropWeight.ContainsKey(index)) chance *= DropWeight[index];
