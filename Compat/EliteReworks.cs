@@ -22,6 +22,7 @@ namespace TPDespair.ZetAspects.Compat
 		private static Type TweakAffixBlueType;
 		private static Type ComponentPassiveAffixBlueType;
 		private static Type TweakEliteVoidType;
+		private static Type TweakAffixHauntedType;
 
 		private static FieldInfo AffixBlueEnabledField;
 		private static FieldInfo AffixBlueRemoveShieldField;
@@ -33,6 +34,7 @@ namespace TPDespair.ZetAspects.Compat
 		private static FieldInfo AffixPoisonEnabledField;
 		private static FieldInfo EliteVoidEnabledField;
 		private static FieldInfo EliteVoidDamageBonusField;
+		private static FieldInfo AffixHauntedReplaceOnHitField;
 
 		private static MethodInfo OnHitAllMethod;
 
@@ -46,6 +48,7 @@ namespace TPDespair.ZetAspects.Compat
 		internal static bool affixPoisonEnabled = false;
 		internal static bool eliteVoidEnabled = false;
 		internal static float eliteVoidDamage = 0f;
+		internal static bool affixHauntedOnHit = false;
 
 		internal static int affixBlueDamageHook = 0;
 		internal static bool overrideAffixBlue = false;
@@ -148,6 +151,19 @@ namespace TPDespair.ZetAspects.Compat
 				Logger.Warn("[EliteReworksCompat] - Could Not Find Type : EliteReworks.Tweaks.DLC1.EliteVoid");
 			}
 
+			type = Type.GetType("EliteReworks.Tweaks.T2.AffixHaunted, " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				TweakAffixHauntedType = type;
+
+				AffixHauntedReplaceOnHitField = type.GetField("replaceOnHitEffect", Flags);
+				if (AffixHauntedReplaceOnHitField == null) Logger.Warn("[EliteReworksCompat] - Could Not Find Field : AffixHaunted.replaceOnHitEffect");
+			}
+			else
+			{
+				Logger.Warn("[EliteReworksCompat] - Could Not Find Type : EliteReworks.Tweaks.T2.AffixHaunted");
+			}
+
 			type = Type.GetType("EliteReworks.SharedHooks.OnHitAll, " + PluginAssembly.FullName, false);
 			if (type != null)
 			{
@@ -181,6 +197,8 @@ namespace TPDespair.ZetAspects.Compat
 			if (AffixBlueScatterBombField != null) affixBlueScatter = (bool)AffixBlueScatterBombField.GetValue(ComponentPassiveAffixBlueType);
 
 			if (EliteVoidDamageBonusField != null) eliteVoidDamage = (float)EliteVoidDamageBonusField.GetValue(TweakEliteVoidType);
+
+			if (AffixHauntedReplaceOnHitField != null) affixHauntedOnHit = (bool)AffixHauntedReplaceOnHitField.GetValue(TweakAffixHauntedType);
 		}
 
 		private static void HookMethods()

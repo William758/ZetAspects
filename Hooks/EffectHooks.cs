@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Reflection;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
 using Mono.Cecil.Cil;
@@ -8,8 +8,8 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
-//using RoR2.UI;
-//using TMPro;
+using RoR2.UI;
+using TMPro;
 
 namespace TPDespair.ZetAspects
 {
@@ -20,7 +20,7 @@ namespace TPDespair.ZetAspects
 		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
 		internal static Dictionary<NetworkInstanceId, float> ShieldRegenAccumulator = new Dictionary<NetworkInstanceId, float>();
 
-		//private static FieldInfo DamageInfoRejectedField;
+		private static FieldInfo DamageInfoRejectedField;
 
 		internal const float BuffCycleDuration = 5f;
 		private static float FixedUpdateStopwatch = 0f;
@@ -71,7 +71,9 @@ namespace TPDespair.ZetAspects
 		{
 			OnDestroyHook();
 
-			//DamageInfoRejectedField = typeof(DamageInfo).GetField("rejected");
+			DamageInfoRejectedField = typeof(DamageInfo).GetField("rejected");
+			EffectManagerHook();
+			DodgeHook();
 
 			FreezeHook();
 			PreventAspectChillHook();
@@ -123,7 +125,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
-		/*
+		
 		private static void EffectManagerHook()
 		{
 			On.RoR2.EffectManager.SpawnEffect_EffectIndex_EffectData_bool += (orig, index, data, transmit) =>
@@ -136,7 +138,7 @@ namespace TPDespair.ZetAspects
 					}
 					else
 					{
-						Debug.LogWarning("ZetAspects - Unknown SpawnEffect : " + data.genericUInt);
+						Logger.Warn("Unknown SpawnEffect : " + data.genericUInt);
 					}
 
 					return;
@@ -195,7 +197,7 @@ namespace TPDespair.ZetAspects
 					x => x.MatchBrtrue(out _),
 					x => x.MatchLdarg(0),
 					x => x.MatchLdfld<HealthComponent>("body"),
-					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("BodyArmor"))
+					x => x.MatchLdsfld(typeof(JunkContent.Buffs).GetField("BodyArmor"))
 				);
 
 				if (found)
@@ -204,73 +206,34 @@ namespace TPDespair.ZetAspects
 
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<HealthComponent, DamageInfo, bool>>((hc, damageInfo) =>
+					c.EmitDelegate<Func<HealthComponent, DamageInfo, bool>>((healthComponent, damageInfo) =>
 					{
 						if (damageInfo.rejected) return true;
 
-						float effect = 0f;
-						float rangeMult = 1f;
-						bool attackerBlind = false;
-
-						if (damageInfo.attacker)
+						CharacterBody body = healthComponent.body;
+						if (body)
 						{
-							CharacterBody attackBody = damageInfo.attacker.GetComponent<CharacterBody>();
-							if (attackBody)
+							float avoidChance = 0f;
+
+							if (body.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseDodgeGain.Value > 0f)
 							{
-								// attacker is player at close range
-								if (Configuration.AspectCycloneDodgeNegate.Value && attackBody.teamComponent.teamIndex == TeamIndex.Player)
-								{
-									rangeMult = (attackBody.corePosition - damageInfo.position).sqrMagnitude;
-
-									if (rangeMult < 400f) return false;
-
-									if (rangeMult < 900f) rangeMult = 0.5f;
-									else rangeMult = 1f;
-								}
-
-								if (attackBody.HasBuff(Catalog.EliteVariety.blindBuffIndex))
-								{
-									attackerBlind = true;
-
-									if (Configuration.AspectCycloneBlindDodgeEffect.Value > 0f) effect += Configuration.AspectCycloneBlindDodgeEffect.Value;
-								}
+								float count = Catalog.GetStackMagnitude(body, RoR2Content.Buffs.AffixHaunted);
+								avoidChance += Configuration.AspectHauntedBaseDodgeGain.Value + Configuration.AspectHauntedStackDodgeGain.Value * (count - 1f);
 							}
-						}
-
-						CharacterBody body = hc.body;
-
-						if (Configuration.AspectCycloneBaseDodgeGain.Value > 0f)
-						{
-							if (!Configuration.AspectCycloneDodgeBlindOnly.Value || attackerBlind)
+							else if (body.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyDodgeGain.Value > 0f)
 							{
-								if (body && body.HasBuff(Catalog.EliteVariety.Buffs.AffixSandstorm))
-								{
-									float count = ZetAspectsPlugin.GetStackMagnitude(body, Catalog.EliteVariety.Buffs.AffixSandstorm);
-									effect += Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (count - 1f);
-								}
-							}
-						}
-
-						if (effect > 0f)
-						{
-							effect = Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f);
-							effect *= rangeMult;
-
-							if (body)
-							{
-								if (body.bodyIndex == Catalog.RiskOfRain.mithrixBodyIndex) effect *= 0.5f;
-
-								if (body.teamComponent.teamIndex == TeamIndex.Player)
-								{
-									if (Catalog.diluvianArtifactIndex != ArtifactIndex.None)
-									{
-										RunArtifactManager artifactManager = RunArtifactManager.instance;
-										if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) effect *= 0.5f;
-									}
-								}
+								avoidChance += Configuration.AspectHauntedAllyDodgeGain.Value;
 							}
 
-							if (Util.CheckRoll(effect, 0f, null))
+							avoidChance = Util.ConvertAmplificationPercentageIntoReductionPercentage(avoidChance);
+
+							if (Catalog.diluvianArtifactIndex != ArtifactIndex.None && body.teamComponent.teamIndex == TeamIndex.Player)
+							{
+								RunArtifactManager artifactManager = RunArtifactManager.instance;
+								if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) avoidChance *= 0.5f;
+							}
+
+							if (Util.CheckRoll(avoidChance, 0f, null))
 							{
 								EffectManager.SpawnEffect((EffectIndex)1758001, new EffectData { genericUInt = 1u, origin = damageInfo.position }, true);
 
@@ -286,11 +249,11 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Debug.LogWarning("ZetAspects : DodgeHook Failed");
+					Logger.Warn("DodgeHook Failed");
 				}
 			};
 		}
-		*/
+		
 
 
 		private static void FreezeHook()
@@ -1083,14 +1046,15 @@ namespace TPDespair.ZetAspects
 
 		private static void ApplyShredded(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
-			if (Compat.EliteReworks.affixHauntedEnabled) return;
+			if (!Compat.EliteReworks.affixHauntedEnabled || !Compat.EliteReworks.affixHauntedOnHit)
+			{
+				if (!self.HasBuff(RoR2Content.Buffs.AffixHaunted)) return;
+				if (Catalog.Buff.ZetShredded.buffIndex == BuffIndex.None) return;
 
-			if (!self.HasBuff(RoR2Content.Buffs.AffixHaunted)) return;
-			if (Catalog.Buff.ZetShredded.buffIndex == BuffIndex.None) return;
-
-			float duration = Configuration.AspectHauntedShredDuration.Value;
-			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
-			if (duration > 0.1f) victim.AddTimedBuff(Catalog.Buff.ZetShredded, duration);
+				float duration = Configuration.AspectHauntedShredDuration.Value;
+				if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+				if (duration > 0.1f) victim.AddTimedBuff(Catalog.Buff.ZetShredded, duration);
+			}
 		}
 
 		private static void ApplyCripple(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)

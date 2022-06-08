@@ -359,11 +359,12 @@ namespace TPDespair.ZetAspects.Items
 			{
 				output += TextFragment("PASSIVE_POSSESS");
 			}
-			if (AspectHauntedSlowEffect.Value)
+			bool slowIsDisabled = !AspectHauntedSlowEffect.Value || (Compat.EliteReworks.affixHauntedEnabled && Compat.EliteReworks.affixHauntedOnHit);
+			if (!slowIsDisabled)
 			{
 				output += String.Format(TextFragment("CHILL_ON_HIT"), SecondText(AspectWhiteSlowDuration.Value, "for"));
 			}
-			if (!Compat.EliteReworks.affixHauntedEnabled)
+			if (!Compat.EliteReworks.affixHauntedEnabled || !Compat.EliteReworks.affixHauntedOnHit)
 			{
 				if (AspectHauntedShredDuration.Value > 0f)
 				{
@@ -395,6 +396,30 @@ namespace TPDespair.ZetAspects.Items
 					TextFragment("GHOST_ARMOR"),
 					ScalingText(AspectHauntedAllyArmorGain.Value, "flat", "cIsHealing")
 				);
+			}
+			bool dodgeEnabled = false;
+			if (AspectHauntedBaseDodgeGain.Value > 0f)
+			{
+				dodgeEnabled = true;
+
+				output += String.Format(
+					TextFragment("DODGE_CHANCE"),
+					ScalingText(AspectHauntedBaseDodgeGain.Value, AspectHauntedStackDodgeGain.Value, "chance", "cIsHealing", combine)
+				);
+			}
+			if (!Compat.EliteReworks.affixHauntedEnabled && AspectHauntedAllyDodgeGain.Value > 0f)
+			{
+				dodgeEnabled = true;
+
+				output += String.Format(
+					TextFragment("GHOST_DODGE"),
+					ScalingText(AspectHauntedAllyDodgeGain.Value, "chance", "cIsHealing")
+				);
+			}
+
+			if (dodgeEnabled)
+			{
+				output += TextFragment("DODGE_DETAIL");
 			}
 
 			return output;

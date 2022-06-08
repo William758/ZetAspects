@@ -415,6 +415,7 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				const int lvlScaling = 66;
 				const int knurlValue = 67;
 				const int crocoValue = 70;
 				const int multValue = 72;
@@ -429,11 +430,14 @@ namespace TPDespair.ZetAspects
 					// add (affected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, knurlValue);
-					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
+					c.Emit(OpCodes.Ldloc, lvlScaling);
+					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, value, scaling) =>
 					{
+						float amount = 0f;
+
 						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
 						{
-							value += 1.6f;
+							amount += 1.6f;
 						}
 
 						if (self.HasBuff(Catalog.Buff.AffixGold))
@@ -442,7 +446,7 @@ namespace TPDespair.ZetAspects
 
 							if (Configuration.AspectGoldBaseRegenGain.Value > 0f)
 							{
-								value += Configuration.AspectGoldBaseRegenGain.Value + Configuration.AspectGoldStackRegenGain.Value * (count - 1f);
+								amount += Configuration.AspectGoldBaseRegenGain.Value + Configuration.AspectGoldStackRegenGain.Value * (count - 1f);
 							}
 
 							if (Configuration.AspectGoldBaseScoredRegenGain.Value > 0f)
@@ -468,10 +472,16 @@ namespace TPDespair.ZetAspects
 
 									itemScore *= Configuration.AspectGoldItemScoreFactor.Value;
 									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldItemScoreExponent.Value);
+									itemScore *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
 
-									value += itemScore * (Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f));
+									value += itemScore * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
 								}
 							}
+						}
+
+						if (amount != 0f)
+						{
+							value += amount * scaling;
 						}
 
 						return value;

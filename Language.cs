@@ -120,6 +120,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_POSSESS", "\nAttach to some nearby allies, possessing them.");
 			RegisterFragment("SHRED_ON_HIT", "\nAttacks <style=cIsDamage>shred</style> on hit {0}, reducing <style=cIsDamage>armor</style> by {1}.");
 			RegisterFragment("GHOST_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
+			RegisterFragment("GHOST_DODGE", "\nGrants nearby allies {0} chance to <style=cIsHealing>dodge</style>.");
 
 			RegisterFragment("AFFIX_POISON_NAME", "N'kuhana's Retort");
 			RegisterFragment("AFFIX_POISON_PICKUP", "Become an aspect of corruption.");
@@ -202,6 +203,9 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health regeneration</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
+
+			RegisterFragment("DODGE_CHANCE", "\n{0} chance to <style=cIsHealing>dodge</style> incoming damage.");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(Dodge chance is uneffected by luck)</style>");
 
 
 

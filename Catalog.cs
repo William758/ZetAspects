@@ -703,10 +703,10 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.TransRights.RealisticTransgendence")) shieldJump = true;// Reflection Config
 			if (PluginLoaded("com.themysticsword.aspectabilities")) aspectAbilities = true;
 			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
-			/*
+			
 			EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(RejectTextPrefab);
 			RejectTextDef = EffectCatalog.GetEffectDef(effectIndex);
-			*/
+			
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
 

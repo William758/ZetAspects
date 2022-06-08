@@ -91,8 +91,11 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectHauntedShredDuration { get; set; }
 		public static ConfigEntry<float> AspectHauntedShredArmor { get; set; }
 		public static ConfigEntry<float> AspectHauntedAllyArmorGain { get; set; }
+		public static ConfigEntry<float> AspectHauntedAllyDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectHauntedBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectHauntedStackArmorGain { get; set; }
+		public static ConfigEntry<float> AspectHauntedBaseDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectHauntedStackDodgeGain { get; set; }
 
 		public static ConfigEntry<bool> AspectPoisonFireSpikes { get; set; }
 		public static ConfigEntry<float> AspectPoisonNullDuration { get; set; }
@@ -140,6 +143,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectGoldStackRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldItemScoreFactor { get; set; }
 		public static ConfigEntry<float> AspectGoldItemScoreExponent { get; set; }
+		public static ConfigEntry<float> AspectGoldItemScoreLevelScaling { get; set; }
 		public static ConfigEntry<float> AspectGoldBaseScoredRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldStackScoredRegenGain { get; set; }
 
@@ -513,6 +517,10 @@ namespace TPDespair.ZetAspects
 				"2ad-AspectHaunted", "hauntedAllyArmor", 20f,
 				"Armor granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
 			);
+			AspectHauntedAllyDodgeGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedAllyDodgeChance", 0f,
+				"Dodge chance granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
 			AspectHauntedBaseArmorGain = Config.Bind(
 				"2ad-AspectHaunted", "hauntedBaseArmor", 60f,
 				"Armor gained. Set to 0 to disable."
@@ -520,6 +528,14 @@ namespace TPDespair.ZetAspects
 			AspectHauntedStackArmorGain = Config.Bind(
 				"2ad-AspectHaunted", "hauntedAddedArmor", 30f,
 				"Armor gained per stack."
+			);
+			AspectHauntedBaseDodgeGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedBaseDodgeChance", 0f,
+				"Dodge chance gained. Set to 0 to disable."
+			);
+			AspectHauntedStackDodgeGain = Config.Bind(
+				"2ad-AspectHaunted", "hauntedAddedDodgeChance", 0f,
+				"Dodge chance gained per stack."
 			);
 
 
@@ -703,6 +719,10 @@ namespace TPDespair.ZetAspects
 			AspectGoldItemScoreExponent = Config.Bind(
 				"2ca-Gold Aspect", "goldItemScoreExponent", 0.65f,
 				"Itemscore exponent. Raise itemscore to the power of value."
+			);
+			AspectGoldItemScoreLevelScaling = Config.Bind(
+				"2ca-Gold Aspect", "goldItemScoreLevelScaling", 0.1f,
+				"Itemscore regen level scaling. Vanilla regen scaling is 0.2 = +100% every 5 levels."
 			);
 			AspectGoldBaseScoredRegenGain = Config.Bind(
 				"2ca-Gold Aspect", "goldBaseScoredRegen", 1.0f,
