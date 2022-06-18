@@ -41,7 +41,8 @@ namespace TPDespair.ZetAspects
 			On.RoR2.Artifacts.CommandArtifactManager.OnDropletHitGroundServer += CommandGroupInterceptHook;
 
 			ResetRunDropCountHook();
-			DropChanceHook();
+			EarlyDropChanceHook();
+			DisableDropChanceHook();
 			InterceptAspectDropHook();
 			EquipmentAbsorbHook();
 			DiscoverAspectHook();
@@ -137,6 +138,11 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Aetherium.Enabled)
 			{
 				SetDropWeight(Catalog.Equip.AffixSanguine, Configuration.AspectDropWeightSanguine.Value);
+			}
+
+			if (Catalog.Bubbet.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixSepia, Configuration.AspectDropWeightSepia.Value);
 			}
 		}
 
@@ -344,23 +350,113 @@ namespace TPDespair.ZetAspects
 
 		private static bool CheckDropRoll(float chance, CharacterMaster master)
 		{
-			if (chance <= 0f) return false;
+			bool detailedLogging = Configuration.AspectDropVerboseLogging.Value;
 
 			float luck = master ? master.luck : 0f;
 
 			int count = Mathf.CeilToInt(Mathf.Abs(luck));
+			if (detailedLogging)
+			{
+				string text = "--Roll count based on luck : " + (count + 1);
+				if (count > 0) text += (luck > 0f) ? " (favorable)" : " unfavorable";
+				Logger.Info(text);
+			}
 			float roll = UnityEngine.Random.Range(0f, 100f);
+			if (detailedLogging) Logger.Info("----Roll : " + roll);
 
 			for (int i = 0; i < count; i++)
 			{
 				float r = UnityEngine.Random.Range(0f, 100f);
+				if (detailedLogging) Logger.Info("----Roll : " + r);
 				roll = (luck > 0f) ? Mathf.Min(roll, r) : Mathf.Max(roll, r);
 			}
 
-			return roll <= chance;
+			bool drop = roll <= chance;
+			if (detailedLogging) Logger.Info("--Result : " + roll + " <= " + chance + " ? " + drop);
+			return drop;
 		}
 
-		private static void DropChanceHook()
+		private static void EarlyDropChanceHook()
+		{
+			On.RoR2.GlobalEventManager.OnCharacterDeath += (orig, self, damageReport) =>
+			{
+				if (NetworkServer.active && damageReport != null)
+				{
+					CharacterMaster atkMaster = damageReport.attackerMaster;
+					CharacterBody vicBody = damageReport.victimBody;
+					EquipmentDef equipDef = null;
+
+					if (vicBody)
+					{
+						if (vicBody.equipmentSlot)
+						{
+							// some bodies return null equipDef even though they have an elite aspect
+							equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+						}
+
+						if (!equipDef && vicBody.isElite)
+						{
+							if (Configuration.AspectDropVerboseLogging.Value)
+							{
+								Logger.Warn("EarlyDropChanceHook - Victim is elite but equipment from slot is null, checking inventory!");
+							}
+
+							Inventory inventory = vicBody.inventory;
+							if (inventory)
+							{
+								equipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
+							}
+						}
+					}
+
+					//Logger.Info("EarlyDropChanceHook - Victim : " + vicBody.name + "[" + vicBody.netId + "] Equipment : " + (equipDef ? equipDef.name : "None"));
+
+					if (equipDef && atkMaster && vicBody)
+					{
+						AttemptDrop(atkMaster, equipDef, vicBody);
+					}
+				}
+
+				orig(self, damageReport);
+			};
+		}
+
+		private static void AttemptDrop(CharacterMaster atkMaster, EquipmentDef equipDef, CharacterBody vicBody)
+		{
+			EquipmentIndex index = equipDef.equipmentIndex;
+
+			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return;
+			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return;
+
+			if (disableDrops) return;
+
+			float chance = GetDropChance(index);
+			if (Configuration.AspectDropVerboseLogging.Value)
+			{
+				Logger.Info("Elite Killed - Rolling aspect drop chance!");
+				Logger.Info("--Victim : " + vicBody.name + "[" + vicBody.netId + "] Equipment : " + equipDef.name);
+				Logger.Info("--Aspect drop chance : " + chance);
+			}
+			if (chance <= 0f) return;
+
+			if (CheckDropRoll(chance, atkMaster))
+			{
+				runDropCount++;
+				UpdateZetDropTracker();
+				Logger.Info("RunDropCount : " + runDropCount);
+				LogDropChance();
+
+				if (Configuration.AspectShowDropText.Value)
+				{
+					Chat.SendBroadcastChat(new Chat.SimpleChatMessage
+					{
+						baseToken = "<color=#DDDDA0><size=120%>" + Configuration.AspectDropText.Value + "</color></size>"
+					});
+				}
+			}
+		}
+
+		private static void DisableDropChanceHook()
 		{
 			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
 			{
@@ -378,45 +474,21 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 5;
 
-					c.Emit(OpCodes.Ldloc, 16);
-					c.Emit(OpCodes.Ldloc, 12);
-					c.EmitDelegate<Func<bool, CharacterMaster, EquipmentDef, bool>>((result, master, equipDef) =>
+					c.Emit(OpCodes.Ldloc, 12);// equipmentDef
+					c.EmitDelegate<Func<bool, EquipmentDef, bool>>((result, equipDef) =>
 					{
 						EquipmentIndex index = equipDef.equipmentIndex;
 
-						if (index == EquipmentIndex.None) return false;
-						if (Catalog.GetEquipmentEliteDef(equipDef) == null) return result;
-						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return result;
+						//if (index == EquipmentIndex.None) return false;
+						//if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
+						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
 
-						if (disableDrops) return false;
-
-						float chance = GetDropChance(index);
-						if (chance <= 0f) return false;
-
-						if (CheckDropRoll(chance, master))
-						{
-							runDropCount++;
-							UpdateZetDropTracker();
-							Logger.Info("RunDropCount : " + runDropCount);
-							LogDropChance();
-
-							if (Configuration.AspectShowDropText.Value)
-							{
-								Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-								{
-									baseToken = "<color=#DDDDA0><size=120%>" + Configuration.AspectDropText.Value + "</color></size>"
-								});
-							}
-
-							return true;
-						}
-
-						return false;
+						return result;
 					});
 				}
 				else
 				{
-					Logger.Warn("DropChanceHook Failed");
+					Logger.Warn("DisableDropChanceHook Failed");
 				}
 			};
 		}

@@ -86,11 +86,15 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixSanguine;
 
+			public static Sprite AffixSepia;
+			public static Sprite SepiaEliteIcon;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
 			public static Sprite ZetShredded;
 			public static Sprite ZetPoached;
+			public static Sprite ZetSepiaBlind;
 
 
 
@@ -127,7 +131,14 @@ namespace TPDespair.ZetAspects
 				{
 					AffixSanguine = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSanguine.png");
 				}
-				
+
+				if (Bubbet.Enabled)
+				{
+					AffixSepia = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSepia.png");
+					SepiaEliteIcon = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffAffixSepia.png");
+					ZetSepiaBlind = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSepiaBlind.png");
+				}
+
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -139,12 +150,18 @@ namespace TPDespair.ZetAspects
 		public static class Prefabs
 		{
 			public static GameObject AffixVoid;
+			public static GameObject AffixSepia;
 
 
 
 			public static void Load()
 			{
 				AffixVoid = Assets.LoadAsset<GameObject>("Assets/Prefabs/prefabAffixVoid.prefab");
+
+				if (Bubbet.Enabled)
+				{
+					AffixSepia = Assets.LoadAsset<GameObject>("Assets/Prefabs/prefabAffixSepia.prefab");
+				}
 			}
 		}
 
@@ -175,6 +192,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetSapped;
 			public static BuffDef ZetShredded;
 			public static BuffDef ZetPoached;
+			public static BuffDef ZetSepiaBlind;
 
 
 
@@ -194,6 +212,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixGold;
 
 			public static BuffDef AffixSanguine;
+
+			public static BuffDef AffixSepia;
 		}
 
 		public static class Equip
@@ -214,6 +234,8 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixGold;
 
 			public static EquipmentDef AffixSanguine;
+
+			public static EquipmentDef AffixSepia;
 		}
 
 		public static class Item
@@ -239,12 +261,15 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectGold;
 
 			public static ItemDef ZetAspectSanguine;
+
+			public static ItemDef ZetAspectSepia;
 		}
 
 		public static EffectDef RejectTextDef;
 
 		public static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
 		public static BodyIndex mithrixBodyIndex = BodyIndex.None;
+		public static BodyIndex voidlingBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
 
@@ -437,6 +462,18 @@ namespace TPDespair.ZetAspects
 			ZetPoached.iconSprite = Sprites.ZetPoached;
 			Buff.ZetPoached = ZetPoached;
 			ZetAspectsContent.buffDefs.Add(ZetPoached);
+
+			if (Bubbet.Enabled)
+			{
+				BuffDef ZetSepiaBlind = ScriptableObject.CreateInstance<BuffDef>();
+				ZetSepiaBlind.name = "ZetSepiaBlind";
+				ZetSepiaBlind.buffColor = Color.white;
+				ZetSepiaBlind.canStack = false;
+				ZetSepiaBlind.isDebuff = true;
+				ZetSepiaBlind.iconSprite = Sprites.ZetSepiaBlind;
+				Buff.ZetSepiaBlind = ZetSepiaBlind;
+				ZetAspectsContent.buffDefs.Add(ZetSepiaBlind);
+			}
 		}
 
 		private static void CreateItems()
@@ -525,6 +562,14 @@ namespace TPDespair.ZetAspects
 				Item.ZetAspectSanguine = ZetAspectSanguine;
 				ZetAspectsContent.itemDefs.Add(ZetAspectSanguine);
 				transformableAspectItemDefs.Add(ZetAspectSanguine);
+			}
+
+			if (Bubbet.Enabled)
+			{
+				ItemDef ZetAspectSepia = Items.ZetAspectSepia.DefineItem();
+				Item.ZetAspectSepia = ZetAspectSepia;
+				ZetAspectsContent.itemDefs.Add(ZetAspectSepia);
+				transformableAspectItemDefs.Add(ZetAspectSepia);
 			}
 		}
 
@@ -688,6 +733,7 @@ namespace TPDespair.ZetAspects
 			SpikeStrip.PreInit();
 			GoldenCoastPlus.PreInit();
 			Aetherium.PreInit();
+			Bubbet.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -762,6 +808,7 @@ namespace TPDespair.ZetAspects
 			SpikeStrip.Init();
 			GoldenCoastPlus.Init();
 			Aetherium.Init();
+			Bubbet.Init();
 
 			Language.ChangeText();
 
@@ -866,6 +913,12 @@ namespace TPDespair.ZetAspects
 				Aetherium.ItemEntries(true);
 				Aetherium.EquipmentEntries(false);
 			}
+
+			if (Bubbet.populated)
+			{
+				Bubbet.ItemEntries(true);
+				Bubbet.EquipmentEntries(false);
+			}
 		}
 
 
@@ -889,6 +942,7 @@ namespace TPDespair.ZetAspects
 			internal static void Init()
 			{
 				mithrixBodyIndex = BodyCatalog.FindBodyIndex("BrotherBody");
+				voidlingBodyIndex = BodyCatalog.FindBodyIndex("VoidRaidCrabBody");
 				healOrbBodyIndex = BodyCatalog.FindBodyIndex("AffixEarthHealerBody");
 
 				PopulateEquipment();
@@ -1355,7 +1409,7 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixGold, Buff.AffixGold, Item.ZetAspectGold);
 			}
 		}
-		
+
 		public static class Aetherium
 		{
 			private static bool equipDefPopulated = false;
@@ -1400,7 +1454,7 @@ namespace TPDespair.ZetAspects
 					DisableInactiveItems();
 					SetupText();
 					ItemEntries(DropHooks.CanObtainItem());
-					
+
 					CopyExpansionReq();
 					CopyModelPrefabs();
 
@@ -1493,7 +1547,149 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixSanguine, Buff.AffixSanguine, Item.ZetAspectSanguine);
 			}
 		}
-		
+
+		public static class Bubbet
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("bubbet.bubbetsitems")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					BuffDef buffDef = Buff.AffixSepia;
+					buffDef.buffColor = Color.white;
+					buffDef.iconSprite = Sprites.SepiaEliteIcon;
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite");
+				if (index != EquipmentIndex.None) Equip.AffixSepia = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				BuffIndex index;
+
+				index = BuffCatalog.FindBuffIndex("BuffDefSepia");
+				if (index != BuffIndex.None) Buff.AffixSepia = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectSepia, ref Equip.AffixSepia, ref Buff.AffixSepia, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectSepia.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectSepia, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectSepia, Equip.AffixSepia);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyItemPrefab(Item.ZetAspectSepia, Equip.AffixSepia);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixSepia, Sprites.AffixSepia, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixSepia, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixSepia);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixSepia, Buff.AffixSepia, Item.ZetAspectSepia);
+			}
+		}
+
 
 
 		private static int GetPopulatedState(bool equip, bool buff)

@@ -479,6 +479,12 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSepia);
+							amount += Configuration.AspectSepiaBaseRegenGain.Value + Configuration.AspectSepiaStackRegenGain.Value * (count - 1f);
+						}
+
 						if (amount != 0f)
 						{
 							value += amount * scaling;
@@ -639,13 +645,23 @@ namespace TPDespair.ZetAspects
 		private static float GetCooldownMultiplier(CharacterBody self)
 		{
 			float mult = 1f;
+			float additiveReduction = 0f;
 
 			if (self.HasBuff(Catalog.Buff.AffixWarped) && Configuration.AspectWarpedBaseCooldownGain.Value > 0f)
 			{
 				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWarped);
-				float effect = Configuration.AspectWarpedBaseCooldownGain.Value + Configuration.AspectWarpedStackCooldownGain.Value * (count - 1f);
+				additiveReduction += Configuration.AspectWarpedBaseCooldownGain.Value + Configuration.AspectWarpedStackCooldownGain.Value * (count - 1f);
+			}
 
-				mult *= 1f - (Util.ConvertAmplificationPercentageIntoReductionPercentage(effect * 100f) / 100f);
+			if (self.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSepia);
+				additiveReduction += Configuration.AspectSepiaBaseCooldownGain.Value + Configuration.AspectSepiaStackCooldownGain.Value * (count - 1f);
+			}
+
+			if (additiveReduction > 0f)
+			{
+				mult *= 1f - (Util.ConvertAmplificationPercentageIntoReductionPercentage(additiveReduction * 100f) / 100f);
 			}
 
 			return mult;

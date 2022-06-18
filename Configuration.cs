@@ -13,6 +13,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectSkinItemApply { get; set; }
 		public static ConfigEntry<bool> AspectSkinEquipmentPriority { get; set; }
 
+		public static ConfigEntry<bool> AspectDropVerboseLogging { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
 		public static ConfigEntry<float> AspectDropChanceMultiplayerFactor { get; set; }
 		public static ConfigEntry<float> AspectDropChanceMultiplayerExponent { get; set; }
@@ -33,6 +34,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
 		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
+		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -41,6 +43,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
 
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
+		public static ConfigEntry<float> ShieldRegenBreakDelay { get; set; }
+		public static ConfigEntry<float> NearbyPlayerDodgeBypass { get; set; }
 		public static ConfigEntry<bool> RecolorHpBar { get; set; }
 		public static ConfigEntry<bool> RecolorImmuneBar { get; set; }
 		public static ConfigEntry<bool> RecolorShieldConvertBar { get; set; }
@@ -154,6 +158,15 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectSanguineStackDamage { get; set; }
 		public static ConfigEntry<float> AspectSanguineMonsterDamageMult { get; set; }
 
+		public static ConfigEntry<float> AspectSepiaBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaStackRegenGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaBaseDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaStackDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectSepiaBlindDuration { get; set; }
+		public static ConfigEntry<float> AspectSepiaBlindDodgeEffect { get; set; }
+
 
 
 		internal static void Init(ConfigFile Config)
@@ -200,6 +213,10 @@ namespace TPDespair.ZetAspects
 
 
 
+			AspectDropVerboseLogging = Config.Bind(
+				"0b-DropChance", "aspectDropVerboseLogging", false,
+				"Log the results of aspect drop chance for each elite killed."
+			);
 			AspectDropChance = Config.Bind(
 				"0b-DropChance", "aspectDropChance", 0.2f,
 				"Percent chance that an elite drops its aspect. 0.2 is 0.2%"
@@ -283,6 +300,10 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightSanguine", 1f,
 					"Drop chance multiplier for AffixSanguine"
 				);
+				AspectDropWeightSepia = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightSepia", 1f,
+					"Drop chance multiplier for AffixSepia"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -314,7 +335,15 @@ namespace TPDespair.ZetAspects
 
 			TranscendenceRegen = Config.Bind(
 				"0d-Tweaks", "transcendenceShieldRegen", 0.50f,
-				"Health regen gained as shield regen. Set to 0 to disable."
+				"Health regeneration gained as shield regeneration. Set to 0 to disable."
+			);
+			ShieldRegenBreakDelay = Config.Bind(
+				"0d-Tweaks", "shieldRegenBreakDelay", 3f,
+				"Shield regeneration gained from health regeneration is disabled while shields are below 1. Set the time since last hit for shield regeneration to reactivate. Set to 0 so that shield regeneration is always active."
+			);
+			NearbyPlayerDodgeBypass = Config.Bind(
+				"0d-Tweaks", "playerBypassDodge", 20f,
+				"Monster dodge chance is ignored if player is near target. Value is distance to trigger. 0 to disable."
 			);
 			RecolorHpBar = Config.Bind(
 				"0d-Tweaks", "recolorHpBar", true,
@@ -384,6 +413,7 @@ namespace TPDespair.ZetAspects
 			SpikeStripConfigs(Config);
 			GoldenCoastPlusConfigs(Config);
 			AetheriumConfigs(Config);
+			BubbetConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -573,7 +603,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectLunarRegen = Config.Bind(
 				"2af-AspectLunar", "lunarShieldRegen", 1.00f,
-				"Health regen gained as shield regen. Set to 0 to disable."
+				"Health regeneration gained as shield regeneration. Set to 0 to disable."
 			);
 			AspectLunarBaseMovementGain = Config.Bind(
 				"2af-AspectLunar", "lunarBaseMovementGained", 0.20f,
@@ -596,7 +626,7 @@ namespace TPDespair.ZetAspects
 
 			AspectEarthRegeneration = Config.Bind(
 				"2ag-AspectEarth", "earthPercentRegeneration", 0.01f,
-				"Percent health regen gained. Monsters need to be outOfCombat. Set to 0 to disable."
+				"Percent health regeneration gained. Monsters need to be outOfCombat. Set to 0 to disable."
 			);
 			AspectEarthPoachedDuration = Config.Bind(
 				"2ag-AspectEarth", "earthPoachedDuration", 4.0f,
@@ -706,11 +736,11 @@ namespace TPDespair.ZetAspects
 		{
 			AspectGoldBaseRegenGain = Config.Bind(
 				"2ca-Gold Aspect", "goldBaseRegen", 12f,
-				"Health regen gained. Set to 0 to disable."
+				"Health regeneration gained. Set to 0 to disable."
 			);
 			AspectGoldStackRegenGain = Config.Bind(
 				"2ca-Gold Aspect", "goldAddedRegen", 6f,
-				"Health regen gained per stack."
+				"Health regeneration gained per stack."
 			);
 			AspectGoldItemScoreFactor = Config.Bind(
 				"2ca-Gold Aspect", "goldItemScoreFactor", 2.0f,
@@ -722,7 +752,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectGoldItemScoreLevelScaling = Config.Bind(
 				"2ca-Gold Aspect", "goldItemScoreLevelScaling", 0.1f,
-				"Itemscore regen level scaling. Vanilla regen scaling is 0.2 = +100% every 5 levels."
+				"Itemscore regeneration level scaling. Vanilla regeneration scaling is 0.2 = +100% every 5 levels."
 			);
 			AspectGoldBaseScoredRegenGain = Config.Bind(
 				"2ca-Gold Aspect", "goldBaseScoredRegen", 1.0f,
@@ -759,6 +789,42 @@ namespace TPDespair.ZetAspects
 			AspectSanguineMonsterDamageMult = Config.Bind(
 				"2da-Sanguine Aspect", "sanguineMonsterDamageMult", 1f,
 				"Monster bleed damage multiplier."
+			);
+		}
+
+		private static void BubbetConfigs(ConfigFile Config)
+		{
+			AspectSepiaBaseCooldownGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectSepiaStackCooldownGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectSepiaBaseRegenGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaBaseRegen", 12f,
+				"Health regeneration gained. Set to 0 to disable."
+			);
+			AspectSepiaStackRegenGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaAddedRegen", 6f,
+				"Health regeneration gained per stack."
+			);
+			AspectSepiaBaseDodgeGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaBaseDodgeChance", 35f,
+				"Dodge chance gained. Set to 0 to disable."
+			);
+			AspectSepiaStackDodgeGain = Config.Bind(
+				"2ea-AspectSepia", "sepiaAddedDodgeChance", 15f,
+				"Dodge chance gained per stack."
+			);
+			AspectSepiaBlindDuration = Config.Bind(
+				"2ea-AspectSepia", "sepiaBlindDuration", 4.0f,
+				"Set blind duration in seconds. Set to 0 to disable."
+			);
+			AspectSepiaBlindDodgeEffect = Config.Bind(
+				"2ea-AspectSepia", "sepiaBlindDodgeEffect", 25f,
+				"Dodge chance effect from blind. Set to 0 to disable."
 			);
 		}
 	}

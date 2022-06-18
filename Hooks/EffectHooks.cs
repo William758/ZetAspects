@@ -210,28 +210,70 @@ namespace TPDespair.ZetAspects
 					{
 						if (damageInfo.rejected) return true;
 
-						CharacterBody body = healthComponent.body;
-						if (body)
-						{
-							float avoidChance = 0f;
+						float avoidChance = 0f;
+						float dodgeMultiplier = 1f;
 
-							if (body.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseDodgeGain.Value > 0f)
+						if (damageInfo.attacker)
+						{
+							CharacterBody atkBody = damageInfo.attacker.GetComponent<CharacterBody>();
+							if (atkBody)
 							{
-								float count = Catalog.GetStackMagnitude(body, RoR2Content.Buffs.AffixHaunted);
+								// attacker is player at close range
+								float dodgeRange = Configuration.NearbyPlayerDodgeBypass.Value;
+								if (dodgeRange > 1f && atkBody.teamComponent.teamIndex == TeamIndex.Player)
+								{
+									float distMag = (atkBody.corePosition - damageInfo.position).sqrMagnitude;
+
+									float falloffMag = dodgeRange * dodgeRange;
+									if (distMag < falloffMag) return false;
+
+									float halveMag = dodgeRange * 1.5f;
+									halveMag *= halveMag;
+									if (distMag < halveMag) dodgeMultiplier *= 0.5f;
+								}
+
+								if (atkBody.HasBuff(Catalog.Buff.ZetSepiaBlind))
+								{
+									if (Configuration.AspectSepiaBlindDodgeEffect.Value > 0f)
+									{
+										avoidChance += Configuration.AspectSepiaBlindDodgeEffect.Value;
+									}
+								}
+							}
+						}
+
+						CharacterBody vicBody = healthComponent.body;
+						if (vicBody)
+						{
+							if (vicBody.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseDodgeGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(vicBody, RoR2Content.Buffs.AffixHaunted);
 								avoidChance += Configuration.AspectHauntedBaseDodgeGain.Value + Configuration.AspectHauntedStackDodgeGain.Value * (count - 1f);
 							}
-							else if (body.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyDodgeGain.Value > 0f)
+							else if (vicBody.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyDodgeGain.Value > 0f)
 							{
 								avoidChance += Configuration.AspectHauntedAllyDodgeGain.Value;
 							}
 
-							avoidChance = Util.ConvertAmplificationPercentageIntoReductionPercentage(avoidChance);
+							if (vicBody.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseDodgeGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixSepia);
+								avoidChance += Configuration.AspectSepiaBaseDodgeGain.Value + Configuration.AspectSepiaStackDodgeGain.Value * (count - 1f);
+							}
 
-							if (Catalog.diluvianArtifactIndex != ArtifactIndex.None && body.teamComponent.teamIndex == TeamIndex.Player)
+							if (vicBody.bodyIndex == Catalog.mithrixBodyIndex || vicBody.bodyIndex == Catalog.voidlingBodyIndex) dodgeMultiplier *= 0.65f;
+
+							if (Catalog.diluvianArtifactIndex != ArtifactIndex.None && vicBody.teamComponent.teamIndex == TeamIndex.Player)
 							{
 								RunArtifactManager artifactManager = RunArtifactManager.instance;
-								if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) avoidChance *= 0.5f;
+								if (artifactManager && artifactManager.IsArtifactEnabled(Catalog.diluvianArtifactIndex)) dodgeMultiplier *= 0.5f;
 							}
+						}
+
+						if (avoidChance > 0f)
+						{
+							avoidChance = Util.ConvertAmplificationPercentageIntoReductionPercentage(avoidChance);
+							avoidChance *= dodgeMultiplier;
 
 							if (Util.CheckRoll(avoidChance, 0f, null))
 							{
@@ -253,7 +295,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		
+
 
 
 		private static void FreezeHook()
@@ -861,6 +903,7 @@ namespace TPDespair.ZetAspects
 					HandlePoach(attacker, victim, damageInfo);
 					ApplyCollapse(attacker, victim, damageInfo);
 					ApplyBleed(attacker, victim, damageInfo);
+					ApplySepiaBlind(attacker, victim, damageInfo);
 				}
 			}
 		}
@@ -986,7 +1029,7 @@ namespace TPDespair.ZetAspects
 		private static void ApplySapped(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
 			if (!self.HasBuff(RoR2Content.Buffs.AffixBlue)) return;
-			if (Catalog.Buff.ZetSapped.buffIndex == BuffIndex.None) return;
+			if (!Catalog.Buff.ZetSapped) return;
 
 			float duration = Configuration.AspectBlueSappedDuration.Value;
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
@@ -1211,7 +1254,19 @@ namespace TPDespair.ZetAspects
 				InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
 			}
 		}
-		
+
+		private static void ApplySepiaBlind(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			BuffDef buffDef = Catalog.Buff.AffixSepia;
+
+			if (!buffDef || !self.HasBuff(buffDef)) return;
+			if (!Catalog.Buff.ZetSepiaBlind) return;
+
+			float duration = Configuration.AspectSepiaBlindDuration.Value;
+			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
+			if (duration > 0.1f) victim.AddTimedBuff(Catalog.Buff.ZetSepiaBlind, duration);
+		}
+
 
 
 		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, DotController.DotIndex dotIndex, float duration, float damage)
@@ -1297,7 +1352,7 @@ namespace TPDespair.ZetAspects
 			if (self.alive)
 			{
 				CharacterBody body = self.body;
-				bool canRegenShield = self.shield >= 1f || body.outOfDangerStopwatch > 2.5f;
+				bool canRegenShield = self.shield >= 1f || body.outOfDangerStopwatch > Configuration.ShieldRegenBreakDelay.Value;
 
 				if (self.shield < self.fullShield && body.regen > 0f && canRegenShield)
 				{
@@ -1551,6 +1606,11 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Aetherium.populated)
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixSanguine, Catalog.Item.ZetAspectSanguine, Catalog.Equip.AffixSanguine);
+			}
+
+			if (Catalog.Bubbet.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixSepia, Catalog.Item.ZetAspectSepia, Catalog.Equip.AffixSepia);
 			}
 		}
 

@@ -42,6 +42,10 @@ Monster leech multiplier : x5
 
 ![effects](https://i.imgur.com/fOvxEoc.png)
 
+## BubbetsItems:
+
+![effects](https://i.imgur.com/k0z5dLx.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -50,9 +54,11 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.7.14 - Fixed drop chance not rolling on some bodies. Added support for AffixSepia from BubbetsItems.
+
 v2.7.13 - Fixed flat health regeneration level scaling. Dodge chance configs for AffixHaunted. Use Shred when EliteReworks armor reduction is disabled.
 
-v2.7.12 - Re-enabled Aetherium support.
+v2.7.12 - Re-enabled Aetherium AffixSanguine support.
 
 v2.7.11 - Fixed AspectAbilities compatibility and updated equipment effect descriptions.
 

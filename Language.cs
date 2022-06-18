@@ -83,6 +83,8 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("OVER_SECONDS", "over {0} seconds");
 			RegisterFragment("AFTER_SECOND", "after {0} second");
 			RegisterFragment("AFTER_SECONDS", "after {0} seconds");
+			RegisterFragment("EVERY_SECOND", "every second");
+			RegisterFragment("EVERY_SECONDS", "every {0} seconds");
 			RegisterFragment("SECOND", "{0} second");
 			RegisterFragment("SECONDS", "{0} seconds");
 
@@ -184,6 +186,12 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ITEMSCORE_REGEN", "\nBonus <style=cIsHealing>health regeneration</style> based on quantity and tier of items owned.");
 			RegisterFragment("ITEMSCORE_REGEN_MULT", "\nItem score regen multiplier of {0}.");
 
+			RegisterFragment("AFFIX_SEPIA_NAME", "Fading Reflection");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "Become an aspect of illusion.");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>Aspect of Illusion</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\nAttacks apply <style=cIsUtility>distorted vision</style> on hit {0}, reducing hit chance by {1}.");
+
 			RegisterFragment("AFFIX_SANGUINE_NAME", "Bloody Fealty");
 			RegisterFragment("AFFIX_SANGUINE_PICKUP", "Become an aspect of the red plane.");
 			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "Teleport dash and gain brief invulnurability.");
@@ -205,7 +213,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
 
 			RegisterFragment("DODGE_CHANCE", "\n{0} chance to <style=cIsHealing>dodge</style> incoming damage.");
-			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(Dodge chance is uneffected by luck)</style>");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(Dodge chance is unaffected by luck)</style>");
 
 
 

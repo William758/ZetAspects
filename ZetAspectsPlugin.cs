@@ -16,10 +16,11 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.13";
+		public const string ModVer = "2.7.14";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -81,6 +82,18 @@ namespace TPDespair.ZetAspects
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
+				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(-5f, 5f, 5f));
+				//CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 5f, 7.5f));
+				//CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(5f, 5f, 5f));
+				//CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(-5f, 5f, -5f));
+				//CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(0f, 5f, -7.5f));
+				//CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(5f, 5f, -5f));
+			}
+
+			if (Input.GetKeyDown(KeyCode.F5))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 

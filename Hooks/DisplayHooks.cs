@@ -186,6 +186,14 @@ namespace TPDespair.ZetAspects
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+			if (Catalog.Bubbet.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSepia;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectSepia) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.GoldenCoastPlus.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixGold;
@@ -257,6 +265,13 @@ namespace TPDespair.ZetAspects
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+			if (Catalog.Bubbet.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSepia;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.GoldenCoastPlus.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixGold;
@@ -312,6 +327,12 @@ namespace TPDespair.ZetAspects
 
 			targetEquipDef = Catalog.Equip.AffixWhite;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
+
+			if (Catalog.Bubbet.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixSepia;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectSepia) > 0) return targetEquipDef;
+			}
 
 			if (Catalog.GoldenCoastPlus.populated)
 			{
@@ -421,6 +442,11 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Aetherium.Enabled)
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixSanguine, Catalog.Item.ZetAspectSanguine);
+			}
+
+			if (Catalog.Bubbet.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixSepia, Catalog.Item.ZetAspectSepia);
 			}
 		}
 
