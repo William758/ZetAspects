@@ -465,6 +465,11 @@ namespace TPDespair.ZetAspects
 									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
 									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
 									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+									ItemTier lunarVoidTier = Catalog.lunarVoidTier;
+									if (lunarVoidTier != ItemTier.AssignedAtRuntime)
+									{
+										itemScore += 9f * inventory.GetTotalItemCountOfTier(lunarVoidTier);
+									}
 
 									float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 									if (Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
@@ -474,6 +479,7 @@ namespace TPDespair.ZetAspects
 									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldItemScoreExponent.Value);
 									itemScore *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
 
+									// itemscore regen does not benefit from lvl scaling
 									value += itemScore * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
 								}
 							}
@@ -487,6 +493,17 @@ namespace TPDespair.ZetAspects
 
 						if (amount != 0f)
 						{
+							if (!self.isPlayerControlled)
+							{
+								float bonusLevelValue = self.level - 1f;
+								if (bonusLevelValue > 0f)
+								{
+									float increasedRegenPerLevel = (scaling - 1f) / bonusLevelValue;
+
+									scaling = 1f + Mathf.Pow(bonusLevelValue, Configuration.MonsterRegenExponent.Value) * increasedRegenPerLevel;
+								}
+							}
+
 							value += amount * scaling;
 						}
 

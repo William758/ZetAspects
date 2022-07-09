@@ -1111,93 +1111,105 @@ namespace TPDespair.ZetAspects
 
 		private static void HandlePoach(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
-			if (self.HasBuff(Catalog.Buff.AffixEarth))
-			{
-				float amount = 0f;
+			bool atkMending = self.HasBuff(Catalog.Buff.AffixEarth);
+			bool vicPoached = victim.HasBuff(Catalog.Buff.ZetPoached);
 
+			if (!(atkMending || vicPoached)) return;
+
+			//Logger.Warn("--------");
+
+			float healAmount = 0f;
+			float damage = damageInfo.damage;
+			// LifeStealBuff does not account for any damage boosts
+			//if (damageInfo.crit) damage *= self.critMultiplier;
+
+			if (atkMending)
+			{
 				float duration = Configuration.AspectEarthPoachedDuration.Value;
 				if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 				if (duration > 0.1f)
 				{
 					victim.AddTimedBuff(Catalog.Buff.ZetPoached, duration);
 
-					if (Configuration.AspectEarthPoachedLeech.Value > 0f)
-					{
-						amount += Configuration.AspectEarthPoachedLeech.Value;
-					}
+					vicPoached = true;
 				}
 
-				if (Configuration.AspectEarthBaseLeech.Value > 0f)
+				float leechFraction = Configuration.AspectEarthBaseLeech.Value;
+				if (leechFraction > 0f)
 				{
-					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEarth);
-					amount += Configuration.AspectEarthBaseLeech.Value + Configuration.AspectEarthStackLeech.Value * (count - 1f);
-				}
+					//Logger.Warn("--Apply BaseLeech");
+					healAmount += GetModifiedHealAmountFromDamage(damage, leechFraction);
+					//Logger.Warn("--HealPool : " + healAmount);
 
-				if (amount > 0)
-				{
-					amount *= damageInfo.damage;
-
-					if (damageInfo.crit)
+					float stackFraction = Configuration.AspectEarthStackLeech.Value;
+					if (stackFraction > 0f)
 					{
-						amount *= self.critMultiplier;
+						float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEarth);
+						healAmount *= (leechFraction + stackFraction * (count - 1f)) / leechFraction;
+
+						//Logger.Warn("--Apply EffectiveLeechMultiplier");
+						//Logger.Warn("--HealPool : " + healAmount);
 					}
-
-					if (amount >= 1.25f)
-					{
-						int leechMod = Configuration.AspectEarthLeechModifier.Value;
-						if (leechMod > 0)
-						{
-							float modMult = Configuration.AspectEarthLeechModMult.Value;
-							float modParameter = Configuration.AspectEarthLeechParameter.Value;
-							float postModMult = Configuration.AspectEarthLeechPostModMult.Value;
-
-							if (leechMod == 1)
-							{
-								amount = Mathf.Max(1.25f, amount * modMult);
-								amount = Mathf.Pow(amount, modParameter) * postModMult;
-							}
-							if (leechMod == 2)
-							{
-								amount = Mathf.Max(1.25f, amount * modMult);
-								amount = Mathf.Log(amount, modParameter) * postModMult;
-							}
-
-							amount = Mathf.Max(1.25f, amount);
-						}
-					}
-
-					if (self.teamComponent.teamIndex != TeamIndex.Player)
-					{
-						amount *= Configuration.AspectEarthMonsterLeechMult.Value;
-					}
-
-					//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
-
-					self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
 				}
 			}
-			else if (victim.HasBuff(Catalog.Buff.ZetPoached))
+
+			if (vicPoached)
 			{
-				if (Configuration.AspectEarthPoachedLeech.Value > 0f)
+				float poachFraction = Configuration.AspectEarthPoachedLeech.Value;
+				if (poachFraction > 0f)
 				{
-					float amount = Configuration.AspectEarthPoachedLeech.Value;
-					amount *= damageInfo.damage;
-
-					if (damageInfo.crit)
-					{
-						amount *= self.critMultiplier;
-					}
-
-					if (self.teamComponent.teamIndex != TeamIndex.Player)
-					{
-						amount *= Configuration.AspectEarthMonsterLeechMult.Value;
-					}
-
-					//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Healing : " + amount);
-
-					self.healthComponent.Heal(amount, damageInfo.procChainMask, true);
+					//Logger.Warn("--Apply PoachLeech");
+					healAmount += GetModifiedHealAmountFromDamage(damage, poachFraction);
+					//Logger.Warn("--HealPool : " + healAmount);
 				}
 			}
+
+			if (healAmount > 0f)
+			{
+				if (self.teamComponent.teamIndex != TeamIndex.Player)
+				{
+					healAmount *= Configuration.AspectEarthMonsterLeechMult.Value;
+				}
+
+				self.healthComponent.Heal(healAmount, damageInfo.procChainMask, true);
+			}
+		}
+
+		private static float GetModifiedHealAmountFromDamage(float damage, float baseFraction)
+		{
+			float amount = damage * baseFraction;
+
+			//Logger.Warn("--GettingModifiedHealFromDamage");
+			//Logger.Warn("----Amount : " + damage + " * " + baseFraction + " = " + amount);
+
+			if (amount >= 1.25f)
+			{
+				int leechMod = Configuration.AspectEarthLeechModifier.Value;
+				if (leechMod > 0)
+				{
+					float modMult = Configuration.AspectEarthLeechModMult.Value;
+					float modParameter = Configuration.AspectEarthLeechParameter.Value;
+					float postModMult = Configuration.AspectEarthLeechPostModMult.Value;
+
+					if (leechMod == 1)
+					{
+						amount = Mathf.Max(1.25f, amount * modMult);
+						amount = Mathf.Pow(amount, modParameter) * postModMult;
+					}
+					if (leechMod == 2)
+					{
+						amount = Mathf.Max(1.25f, amount * modMult);
+						amount = Mathf.Log(amount, modParameter) * postModMult;
+					}
+
+					amount = Mathf.Max(1.25f, amount);
+				}
+			}
+
+			//Logger.Warn("--ApplyModifiedHealFormula");
+			//Logger.Warn("----Amount : " + amount);
+
+			return amount;
 		}
 
 		private static void ApplyCollapse(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)

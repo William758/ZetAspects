@@ -52,6 +52,7 @@ namespace TPDespair.ZetAspects
 		public static bool shieldJump = false;
 		public static bool aspectAbilities = false;
 		public static bool immuneHealth = false;
+		public static bool altIceActive = false;
 
 		public static bool ChillCanStack => RoR2Content.Buffs.Slow80.canStack;
 
@@ -272,6 +273,7 @@ namespace TPDespair.ZetAspects
 		public static BodyIndex voidlingBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
+		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
 
 
 
@@ -302,7 +304,7 @@ namespace TPDespair.ZetAspects
 
 			float aspect = CountAspectEquipment(inventory, buffDef);
 
-			if (aspect > 0f && self.teamComponent.teamIndex == TeamIndex.Player)
+			if (aspect > 0f && self.isPlayerControlled)
 			{
 				aspect *= Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 			}
@@ -749,12 +751,19 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.TransRights.RealisticTransgendence")) shieldJump = true;// Reflection Config
 			if (PluginLoaded("com.themysticsword.aspectabilities")) aspectAbilities = true;
 			if (PluginLoaded("com.DestroyedClone.HealthbarImmune")) immuneHealth = true;
-			
+			if (PluginLoaded("com.TPDespair.AlternateIceAbility")) altIceActive = true;
+
 			EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(RejectTextPrefab);
 			RejectTextDef = EffectCatalog.GetEffectDef(effectIndex);
 			
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
+
+			ItemTierDef itemTierDef = ItemTierCatalog.FindTierDef("VoidLunarTierDef");
+			if (itemTierDef)
+			{
+				lunarVoidTier = itemTierDef.tier;
+			}
 
 			SetupCompat();
 

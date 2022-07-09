@@ -54,6 +54,10 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
 
+v2.7.16 - Rewrite leech formula again, heal amount should scale more linearly with stacks. Reduce monster level flat health regeneration scaling from aspect effects.
+
+v2.7.15 - Droplet machine broke. (it's fixed now)
+
 v2.7.14 - Fixed drop chance not rolling on some bodies. Added support for AffixSepia from BubbetsItems.
 
 v2.7.13 - Fixed flat health regeneration level scaling. Dodge chance configs for AffixHaunted. Use Shred when EliteReworks armor reduction is disabled.

@@ -413,7 +413,26 @@ namespace TPDespair.ZetAspects
 
 					if (equipDef && atkMaster && vicBody)
 					{
-						AttemptDrop(atkMaster, equipDef, vicBody);
+						if (AttemptDrop(atkMaster, equipDef, vicBody))
+						{
+							GameObject vicObject = null;
+							if (damageReport.victim) vicObject = damageReport.victim.gameObject;
+
+							Vector3 position = Vector3.zero;
+							Quaternion rotation = Quaternion.identity;
+							Transform transform = vicObject.transform;
+							if (transform)
+							{
+								position = transform.position;
+								rotation = transform.rotation;
+							}
+
+							InputBankTest inputBankTest = null;
+							if (vicBody) inputBankTest = vicBody.inputBank;
+							Ray aimRay = inputBankTest ? inputBankTest.GetAimRay() : new Ray(position, rotation * Vector3.forward);
+
+							PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex), position + Vector3.up * 1.5f, Vector3.up * 20f + aimRay.direction * 2f);
+						}
 					}
 				}
 
@@ -421,14 +440,14 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
-		private static void AttemptDrop(CharacterMaster atkMaster, EquipmentDef equipDef, CharacterBody vicBody)
+		private static bool AttemptDrop(CharacterMaster atkMaster, EquipmentDef equipDef, CharacterBody vicBody)
 		{
 			EquipmentIndex index = equipDef.equipmentIndex;
 
-			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return;
-			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return;
+			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
+			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
 
-			if (disableDrops) return;
+			if (disableDrops) return false;
 
 			float chance = GetDropChance(index);
 			if (Configuration.AspectDropVerboseLogging.Value)
@@ -437,7 +456,7 @@ namespace TPDespair.ZetAspects
 				Logger.Info("--Victim : " + vicBody.name + "[" + vicBody.netId + "] Equipment : " + equipDef.name);
 				Logger.Info("--Aspect drop chance : " + chance);
 			}
-			if (chance <= 0f) return;
+			if (chance <= 0f) return false;
 
 			if (CheckDropRoll(chance, atkMaster))
 			{
@@ -453,7 +472,11 @@ namespace TPDespair.ZetAspects
 						baseToken = "<color=#DDDDA0><size=120%>" + Configuration.AspectDropText.Value + "</color></size>"
 					});
 				}
+
+				return true;
 			}
+
+			return false;
 		}
 
 		private static void DisableDropChanceHook()

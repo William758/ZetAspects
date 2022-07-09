@@ -93,6 +93,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_WHITE_NAME", "Her Biting Embrace");
 			RegisterFragment("AFFIX_WHITE_PICKUP", "Become an aspect of ice.");
 			RegisterFragment("AFFIX_WHITE_ACTIVE", "Deploy an ice crystal that disables skills.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "Deploy an ice crystal that drains health.");
 			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Aspect of Ice</style> :");
 			RegisterFragment("CHILL_ON_HIT", "\nAttacks <style=cIsUtility>chill</style> on hit {0}, reducing <style=cIsUtility>movement speed</style> by <style=cIsUtility>80%</style>.");
 			RegisterFragment("CHANCE_TO_FREEZE", "\nAttacks have a {0} chance to <style=cIsUtility>freeze</style> {1}.");
@@ -151,7 +152,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("POACH_ON_HIT", "\nAttacks <style=cIsUtility>poach</style> on hit {0}, reducing <style=cIsUtility>attack speed</style> by {1}.");
 			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(Hits against poached enemies heal for {0} of damage dealt)</style>");
 			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>Heal</style> for {0} of the <style=cIsDamage>damage</style> you deal.");
-			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>Leech Modifier => {0}( [a]{1} , {2} ){3}</style>");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>Leech Modifier =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
 
 			RegisterFragment("AFFIX_VOID_NAME", "Entropic Fracture");
 			RegisterFragment("AFFIX_VOID_PICKUP", "Become an aspect of void.");

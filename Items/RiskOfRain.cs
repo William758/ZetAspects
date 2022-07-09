@@ -46,7 +46,8 @@ namespace TPDespair.ZetAspects.Items
 			string desc = BuildDescription(false);
 			RegisterToken("ITEM_" + locToken + "_DESC", desc);
 			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", EquipmentDescription(desc, TextFragment("AFFIX_WHITE_ACTIVE")));
+			string equipActiveFragment = Catalog.altIceActive ? "AFFIX_WHITE_ACTIVE_ALT" : "AFFIX_WHITE_ACTIVE";
+			RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", EquipmentDescription(desc, TextFragment(equipActiveFragment)));
 			/*
 			Language.helperTarget = "tr";
 			Language.RegisterToken("ITEM_" + locToken + "_NAME", "Acıtan Kucaklaması", "tr");
@@ -664,6 +665,7 @@ namespace TPDespair.ZetAspects.Items
 		public static string BuildDescription(bool combine)
 		{
 			bool leechEffect = false;
+			bool advLeechDesc = false;
 
 			string output = TextFragment("ASPECT_OF_EARTH");
 			output += TextFragment("PASSIVE_HEAL_ALLY");
@@ -715,6 +717,11 @@ namespace TPDespair.ZetAspects.Items
 					TextFragment("HEAL_PERCENT_ON_HIT"),
 					ScalingText(AspectEarthBaseLeech.Value, AspectEarthStackLeech.Value, "percent", "cIsHealing", combine)
 				);
+
+				if (AspectEarthStackLeech.Value > 0f)
+				{
+					advLeechDesc = true;
+				}
 			}
 			if (leechEffect)
 			{
@@ -726,6 +733,7 @@ namespace TPDespair.ZetAspects.Items
 
 					output += "\n" + String.Format(
 						TextFragment("LEECH_MODIFIER_FORMULA"),
+						advLeechDesc ? "(tl / bl) * " : "",
 						leechMod == 1 ? "POW" : "LOG",
 						modMult == 1f ? "" : (" * " + modMult),
 						AspectEarthLeechParameter.Value,

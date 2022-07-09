@@ -42,6 +42,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectEquipmentAbsorb { get; set; }
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
 
+		public static ConfigEntry<float> MonsterRegenExponent { get; set; }
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
 		public static ConfigEntry<float> ShieldRegenBreakDelay { get; set; }
 		public static ConfigEntry<float> NearbyPlayerDodgeBypass { get; set; }
@@ -333,6 +334,10 @@ namespace TPDespair.ZetAspects
 
 
 
+			MonsterRegenExponent = Config.Bind(
+				"0d-Tweaks", "monsterRegenExponent", 0.75f,
+				"Health regeneration scaling exponent on monsters. Value is an exponent on monster level used to apply level regeneration scaling. Applies to flat health regeneration only."
+			);
 			TranscendenceRegen = Config.Bind(
 				"0d-Tweaks", "transcendenceShieldRegen", 0.50f,
 				"Health regeneration gained as shield regeneration. Set to 0 to disable."
