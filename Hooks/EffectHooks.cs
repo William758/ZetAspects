@@ -75,6 +75,10 @@ namespace TPDespair.ZetAspects
 			EffectManagerHook();
 			DodgeHook();
 
+			PlatingHook();
+			FallDamageHook();
+			KnockBackHook();
+
 			FreezeHook();
 			PreventAspectChillHook();
 			PreventOverloadingBombHook();
@@ -261,6 +265,12 @@ namespace TPDespair.ZetAspects
 								avoidChance += Configuration.AspectSepiaBaseDodgeGain.Value + Configuration.AspectSepiaStackDodgeGain.Value * (count - 1f);
 							}
 
+							if (vicBody.HasBuff(Catalog.Buff.AffixVeiled) && vicBody.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveDodgeGain.Value > 0f)
+							{
+								float count = Mathf.Max(5f, vicBody.GetBuffCount(Catalog.Buff.ZetElusive));
+								avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / 20f);
+							}
+
 							if (vicBody.bodyIndex == Catalog.mithrixBodyIndex || vicBody.bodyIndex == Catalog.voidlingBodyIndex) dodgeMultiplier *= 0.65f;
 
 							if (Catalog.diluvianArtifactIndex != ArtifactIndex.None && vicBody.teamComponent.teamIndex == TeamIndex.Player)
@@ -293,6 +303,128 @@ namespace TPDespair.ZetAspects
 				{
 					Logger.Warn("DodgeHook Failed");
 				}
+			};
+		}
+
+
+
+		private static void PlatingHook()
+		{
+			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdcR4(1f),
+					x => x.MatchLdloc(6),
+					x => x.MatchLdloc(35),
+					x => x.MatchMul(),
+					x => x.MatchCall<Mathf>("Max"),
+					x => x.MatchStloc(6)
+				);
+
+				if (found)
+				{
+					c.Index += 6;
+
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, 6);
+					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, damage) =>
+					{
+						float plating = 0f;
+
+						CharacterBody vicBody = healthComponent.body;
+						if (vicBody)
+						{
+							if (vicBody.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBasePlatingGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixPlated);
+								float effectValue = Configuration.AspectPlatedBasePlatingGain.Value + Configuration.AspectPlatedStackPlatingGain.Value * (count - 1f);
+								if (vicBody.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectPlatedMonsterPlatingMult.Value;
+								plating += effectValue;
+							}
+						}
+
+						if (plating > 0f)
+						{
+							damage = Mathf.Max(1f, damage - plating);
+						}
+
+						return damage;
+					});
+					c.Emit(OpCodes.Stloc, 6);
+				}
+				else
+				{
+					Logger.Warn("PlatingHook Failed");
+				}
+			};
+		}
+
+		private static void FallDamageHook()
+		{
+			IL.RoR2.GlobalEventManager.OnCharacterHitGroundServer += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(7)
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldloc, 7);
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<float, CharacterBody, float>>((damage, body) =>
+					{
+						if (body.HasBuff(Catalog.Buff.AffixWarped) && Configuration.AspectWarpedBaseFallReductionGain.Value > 0f)
+						{
+							float effect = Catalog.GetStackMagnitude(body, Catalog.Buff.AffixWarped);
+							effect = Configuration.AspectWarpedBaseFallReductionGain.Value + Configuration.AspectWarpedStackFallReductionGain.Value * (effect - 1f);
+							effect = 1f - (0.01f * Util.ConvertAmplificationPercentageIntoReductionPercentage(100f * effect));
+							if (effect <= 0.001f) effect /= body.maxHealth;
+
+							damage *= effect;
+						}
+
+						return damage;
+					});
+					c.Emit(OpCodes.Stloc, 7);
+				}
+				else
+				{
+					Logger.Warn("FallDamageHook Failed");
+				}
+			};
+		}
+
+		private static void KnockBackHook()
+		{
+			On.RoR2.HealthComponent.TakeDamage += (orig, self, damageInfo) =>
+			{
+				if (self)
+				{
+					if (damageInfo.canRejectForce)
+					{
+						CharacterBody body = self.body;
+						if (body)
+						{
+							if (body.HasBuff(Catalog.Buff.AffixWarped) && Configuration.AspectWarpedBaseForceResistGain.Value > 0f)
+							{
+								float effect = Catalog.GetStackMagnitude(body, Catalog.Buff.AffixWarped);
+								effect = Configuration.AspectWarpedBaseForceResistGain.Value + Configuration.AspectWarpedStackForceResistGain.Value * (effect - 1f);
+								effect = 1f - (0.01f * Util.ConvertAmplificationPercentageIntoReductionPercentage(100f * effect));
+								if (effect <= 0.001f) effect = 0f;
+
+								damageInfo.force *= effect;
+							}
+						}
+					}
+				}
+
+				orig(self, damageInfo);
 			};
 		}
 
@@ -640,17 +772,17 @@ namespace TPDespair.ZetAspects
 
 					c.Emit(OpCodes.Ldloc, 6);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.EmitDelegate<Func<float, HealthComponent, float>>((damage, healthComponent) =>
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<float, HealthComponent, DamageInfo, float>>((damage, healthComponent, damageInfo) =>
 					{
-						CharacterBody self = healthComponent.body;
-
-						if (!self) return damage;
-
-						if (self.HasBuff(RoR2Content.Buffs.HealingDisabled) && Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+						CharacterBody vicBody = healthComponent.body;
+						if (vicBody)
 						{
-							float extraDamage = Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value);
-							//if (self.teamComponent.teamIndex == TeamIndex.Player) extraDamage *= Configuration.AspectEffectPlayerDebuffMult.Value;
-							damage *= 1f + extraDamage;
+							if (vicBody.HasBuff(RoR2Content.Buffs.HealingDisabled) && Configuration.AspectPoisonNullDamageTaken.Value != 0f)
+							{
+								float extraDamage = Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value);
+								damage *= 1f + extraDamage;
+							}
 						}
 
 						return damage;
@@ -904,6 +1036,7 @@ namespace TPDespair.ZetAspects
 					ApplyCollapse(attacker, victim, damageInfo);
 					ApplyBleed(attacker, victim, damageInfo);
 					ApplySepiaBlind(attacker, victim, damageInfo);
+					ApplyElusive(attacker, damageInfo);
 				}
 			}
 		}
@@ -1270,13 +1403,101 @@ namespace TPDespair.ZetAspects
 		private static void ApplySepiaBlind(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
 			BuffDef buffDef = Catalog.Buff.AffixSepia;
-
 			if (!buffDef || !self.HasBuff(buffDef)) return;
-			if (!Catalog.Buff.ZetSepiaBlind) return;
+
+			BuffDef appliedBuff = Catalog.Buff.ZetSepiaBlind;
+			if (!appliedBuff) return;
 
 			float duration = Configuration.AspectSepiaBlindDuration.Value;
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
-			if (duration > 0.1f) victim.AddTimedBuff(Catalog.Buff.ZetSepiaBlind, duration);
+			if (duration > 0.1f) victim.AddTimedBuff(appliedBuff, duration);
+		}
+
+		private static void ApplyElusive(CharacterBody self, DamageInfo damageInfo)
+		{
+			if (!Compat.PlasmaSpikeStrip.cloakHook) return;
+
+			if (damageInfo.procCoefficient < 0.245f) return;
+
+			BuffDef eliteBuff = Catalog.Buff.AffixVeiled;
+			if (!eliteBuff || !self.HasBuff(eliteBuff)) return;
+
+			float duration = Configuration.AspectVeiledElusiveDuration.Value;
+			bool refresh = Configuration.AspectVeiledElusiveRefresh.Value;
+			if (Configuration.AspectVeiledCloakOnly.Value)
+			{
+				if (duration > 0.1f && (refresh || !self.HasBuff(RoR2Content.Buffs.Cloak)))
+				{
+					ApplyCloak(self, damageInfo, duration);
+				}
+
+				return;
+			}
+
+			if (!Configuration.ValidElusiveModifier) return;
+
+			BuffDef elusiveBuff = Catalog.Buff.ZetElusive;
+			if (!elusiveBuff) return;
+
+			if (!refresh && self.HasBuff(elusiveBuff)) return;
+
+			if (duration > 0.1f)
+			{
+				float effect = Catalog.GetStackMagnitude(self, eliteBuff);
+				effect = 1f + Configuration.AspectVeiledElusiveStackEffect.Value * (effect - 1f);
+				int count = Mathf.RoundToInt(effect * 20f);
+
+				bool effectDecay = Configuration.AspectVeiledElusiveDecay.Value;
+				float decayInterval = duration / 20f;
+
+				float buffDuration = effectDecay ? (decayInterval * count) : duration;
+				if (buffDuration - GetFirstBuffTimer(self, elusiveBuff) >= 0.5f)
+				{
+					self.ClearTimedBuffs(elusiveBuff.buffIndex);
+					self.SetBuffCount(elusiveBuff.buffIndex, 0);
+
+					for (int i = 0; i < count; i++)
+					{
+						buffDuration = effectDecay ? (decayInterval * (count - i)) : duration;
+
+						self.AddTimedBuff(elusiveBuff.buffIndex, buffDuration);
+					}
+
+					float cloakDuration = effectDecay ? (decayInterval * count) : duration;
+
+					ApplyCloak(self, damageInfo, cloakDuration);
+				}
+			}
+		}
+
+		private static float GetFirstBuffTimer(CharacterBody body, BuffDef buffDef)
+		{
+			for (int i = 0; i < body.timedBuffs.Count; i++)
+			{
+				CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
+				if (timedBuff.buffIndex == buffDef.buffIndex)
+				{
+					return timedBuff.timer;
+				}
+			}
+
+			return 0f;
+		}
+
+		private static void ApplyCloak(CharacterBody self, DamageInfo damageInfo, float duration)
+		{
+			BuffDef cloakBuff = RoR2Content.Buffs.Cloak;
+			if (!self.HasBuff(cloakBuff))
+			{
+				EffectManager.SpawnEffect(Catalog.SmokeBombMiniPrefab, new EffectData
+				{
+					origin = damageInfo.attacker.transform.position,
+					rotation = damageInfo.attacker.transform.rotation,
+					scale = self.bestFitRadius * 0.2f
+				}, true);
+			}
+
+			self.AddTimedBuff(cloakBuff.buffIndex, duration);
 		}
 
 
@@ -1606,6 +1827,8 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.populated)
 			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixAragonite, Catalog.Item.ZetAspectAragonite, Catalog.Equip.AffixAragonite);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixVeiled, Catalog.Item.ZetAspectVeiled, Catalog.Equip.AffixVeiled);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWarped, Catalog.Item.ZetAspectWarped, Catalog.Equip.AffixWarped);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPlated, Catalog.Item.ZetAspectPlated, Catalog.Equip.AffixPlated);
 			}

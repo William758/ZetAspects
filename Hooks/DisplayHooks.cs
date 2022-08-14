@@ -10,6 +10,13 @@ using RoR2.UI;
 
 namespace TPDespair.ZetAspects
 {
+	internal class ZetAspectsBuffIconMarker : MonoBehaviour
+	{
+		
+	}
+
+
+
 	internal static class DisplayHooks
 	{
 		public static Color32 shieldVoidColor = new Color32(255, 75, 210, 255);
@@ -38,6 +45,8 @@ namespace TPDespair.ZetAspects
 			FixItemCountStatHook();
 
 			if (Configuration.RecolorHpBar.Value) HPBarColorHook();
+
+			BuffIconDisplayHook();
 		}
 
 
@@ -155,6 +164,16 @@ namespace TPDespair.ZetAspects
 			
 			if (Catalog.SpikeStrip.populated)
 			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixVeiled;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectVeiled) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 				targetEquipDef = Catalog.Equip.AffixWarped;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectWarped) > 0) return targetEquipDef;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -240,6 +259,14 @@ namespace TPDespair.ZetAspects
 			
 			if (Catalog.SpikeStrip.populated)
 			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixVeiled;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 				targetEquipDef = Catalog.Equip.AffixWarped;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -309,6 +336,12 @@ namespace TPDespair.ZetAspects
 			
 			if (Catalog.SpikeStrip.populated)
 			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixVeiled;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectVeiled) > 0) return targetEquipDef;
+
 				targetEquipDef = Catalog.Equip.AffixWarped;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectWarped) > 0) return targetEquipDef;
 
@@ -430,6 +463,8 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.Enabled)
 			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixAragonite, Catalog.Item.ZetAspectAragonite);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixVeiled, Catalog.Item.ZetAspectVeiled);
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWarped, Catalog.Item.ZetAspectWarped);
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixPlated, Catalog.Item.ZetAspectPlated);
 			}
@@ -623,6 +658,33 @@ namespace TPDespair.ZetAspects
 		private static void SetHealthColor(HealthBar hpBar, Color32 color)
 		{
 			hpBar.barInfoCollection.trailingOverHealthbarInfo.color = color;
+		}
+
+
+
+		private static void BuffIconDisplayHook()
+		{
+			On.RoR2.UI.BuffIcon.UpdateIcon += (orig, self) =>
+			{
+				orig(self);
+
+				BuffDef elusiveBuff = Catalog.Buff.ZetElusive;
+				if (self.buffDef && elusiveBuff != null && self.buffDef == elusiveBuff)
+				{
+					BuffIcon.sharedStringBuilder.Clear();
+					BuffIcon.sharedStringBuilder.AppendInt(Mathf.Max(self.buffCount * 5, 25), 1U, uint.MaxValue);
+					BuffIcon.sharedStringBuilder.Append("%");
+
+					ZetAspectsBuffIconMarker marker = self.stackCount.GetComponent<ZetAspectsBuffIconMarker>();
+					if (!marker)
+					{
+						self.stackCount.gameObject.AddComponent<ZetAspectsBuffIconMarker>();
+						self.stackCount.fontSize *= 0.8f;
+					}
+
+					self.stackCount.SetText(BuffIcon.sharedStringBuilder);
+				}
+			};
 		}
 	}
 }

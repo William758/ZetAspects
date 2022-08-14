@@ -126,6 +126,8 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.Enabled)
 			{
+				SetDropWeight(Catalog.Equip.AffixAragonite, Configuration.AspectDropWeightAragonite.Value);
+				SetDropWeight(Catalog.Equip.AffixVeiled, Configuration.AspectDropWeightVeiled.Value);
 				SetDropWeight(Catalog.Equip.AffixWarped, Configuration.AspectDropWeightWarped.Value);
 				SetDropWeight(Catalog.Equip.AffixPlated, Configuration.AspectDropWeightPlated.Value);
 			}

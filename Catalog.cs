@@ -44,6 +44,7 @@ namespace TPDespair.ZetAspects
 		internal static GameObject LightningStakePrefab;
 		internal static GameObject RejectTextPrefab;
 		internal static GameObject CommandCubePrefab;
+		internal static GameObject SmokeBombMiniPrefab;
 
 
 
@@ -82,6 +83,8 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixPlated;
 			public static Sprite AffixWarped;
+			public static Sprite AffixVeiled;
+			public static Sprite AffixAragonite;
 
 			public static Sprite AffixGold;
 
@@ -96,6 +99,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite ZetShredded;
 			public static Sprite ZetPoached;
 			public static Sprite ZetSepiaBlind;
+			public static Sprite ZetElusive;
 
 
 
@@ -121,6 +125,9 @@ namespace TPDespair.ZetAspects
 				{
 					AffixPlated = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPlated.png");
 					AffixWarped = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWarped.png");
+					AffixVeiled = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVeiled.png");
+					AffixAragonite = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixAragonite.png");
+					ZetElusive = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffElusive.png");
 				}
 
 				if (GoldenCoastPlus.Enabled)
@@ -194,6 +201,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetShredded;
 			public static BuffDef ZetPoached;
 			public static BuffDef ZetSepiaBlind;
+			public static BuffDef ZetElusive;
 
 
 
@@ -209,6 +217,8 @@ namespace TPDespair.ZetAspects
 
 			public static BuffDef AffixPlated;
 			public static BuffDef AffixWarped;
+			public static BuffDef AffixVeiled;
+			public static BuffDef AffixAragonite;
 
 			public static BuffDef AffixGold;
 
@@ -231,6 +241,8 @@ namespace TPDespair.ZetAspects
 
 			public static EquipmentDef AffixPlated;
 			public static EquipmentDef AffixWarped;
+			public static EquipmentDef AffixVeiled;
+			public static EquipmentDef AffixAragonite;
 
 			public static EquipmentDef AffixGold;
 
@@ -258,6 +270,8 @@ namespace TPDespair.ZetAspects
 
 			public static ItemDef ZetAspectPlated;
 			public static ItemDef ZetAspectWarped;
+			public static ItemDef ZetAspectVeiled;
+			public static ItemDef ZetAspectAragonite;
 
 			public static ItemDef ZetAspectGold;
 
@@ -273,6 +287,7 @@ namespace TPDespair.ZetAspects
 		public static BodyIndex voidlingBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
+		public static BuffIndex rageAura = BuffIndex.None;
 		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
 
 
@@ -425,6 +440,7 @@ namespace TPDespair.ZetAspects
 			LightningStakePrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake");
 			RejectTextPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/DamageRejected");
 			CommandCubePrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/CommandCube");
+			SmokeBombMiniPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/Bandit2SmokeBombMini");
 		}
 
 		private static void CreateBuffs()
@@ -469,12 +485,24 @@ namespace TPDespair.ZetAspects
 			{
 				BuffDef ZetSepiaBlind = ScriptableObject.CreateInstance<BuffDef>();
 				ZetSepiaBlind.name = "ZetSepiaBlind";
-				ZetSepiaBlind.buffColor = Color.white;
+				ZetShredded.buffColor = Color.white;
 				ZetSepiaBlind.canStack = false;
 				ZetSepiaBlind.isDebuff = true;
 				ZetSepiaBlind.iconSprite = Sprites.ZetSepiaBlind;
 				Buff.ZetSepiaBlind = ZetSepiaBlind;
 				ZetAspectsContent.buffDefs.Add(ZetSepiaBlind);
+			}
+
+			if (SpikeStrip.Enabled)
+			{
+				BuffDef ZetElusive = ScriptableObject.CreateInstance<BuffDef>();
+				ZetElusive.name = "ZetElusive";
+				ZetElusive.buffColor = new Color(0.185f, 0.465f, 0.75f);
+				ZetElusive.canStack = true;
+				ZetElusive.isDebuff = false;
+				ZetElusive.iconSprite = Sprites.ZetElusive;
+				Buff.ZetElusive = ZetElusive;
+				ZetAspectsContent.buffDefs.Add(ZetElusive);
 			}
 		}
 
@@ -548,6 +576,16 @@ namespace TPDespair.ZetAspects
 				Item.ZetAspectWarped = ZetAspectWarped;
 				ZetAspectsContent.itemDefs.Add(ZetAspectWarped);
 				transformableAspectItemDefs.Add(ZetAspectWarped);
+
+				ItemDef ZetAspectVeiled = Items.ZetAspectVeiled.DefineItem();
+				Item.ZetAspectVeiled = ZetAspectVeiled;
+				ZetAspectsContent.itemDefs.Add(ZetAspectVeiled);
+				transformableAspectItemDefs.Add(ZetAspectVeiled);
+
+				ItemDef ZetAspectAragonite = Items.ZetAspectAragonite.DefineItem();
+				Item.ZetAspectAragonite = ZetAspectAragonite;
+				ZetAspectsContent.itemDefs.Add(ZetAspectAragonite);
+				transformableAspectItemDefs.Add(ZetAspectAragonite);
 			}
 
 			if (GoldenCoastPlus.Enabled)
@@ -759,6 +797,11 @@ namespace TPDespair.ZetAspects
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
 
+			if (PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent"))
+			{
+				rageAura = Compat.PlasmaSpikeStrip.GetRageBuffWardBuffIndex();
+			}
+
 			ItemTierDef itemTierDef = ItemTierCatalog.FindTierDef("VoidLunarTierDef");
 			if (itemTierDef)
 			{
@@ -797,7 +840,7 @@ namespace TPDespair.ZetAspects
 				return;
 			}
 
-			if (PluginLoaded("com.Moffein.EliteReworks")) Compat.EliteReworks.LateSetup();
+			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
 
 			setupCompat = true;
 		}
@@ -1194,6 +1237,18 @@ namespace TPDespair.ZetAspects
 					Equip.AffixWarped = EquipmentCatalog.GetEquipmentDef(index);
 					//Logger.Warn(Equip.AffixWarped.passiveBuffDef.name);
 				}
+				index = EquipmentCatalog.FindEquipmentIndex("EQUIPMENT_AFFIXVEILED");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixVeiled = EquipmentCatalog.GetEquipmentDef(index);
+					//Logger.Warn(Equip.AffixVeiled.passiveBuffDef.name);
+				}
+				index = EquipmentCatalog.FindEquipmentIndex("EQUIPMENT_AFFIXARAGONITE");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixAragonite = EquipmentCatalog.GetEquipmentDef(index);
+					//Logger.Warn(Equip.AffixAragonite.passiveBuffDef.name);
+				}
 
 				equipDefPopulated = true;
 			}
@@ -1210,6 +1265,14 @@ namespace TPDespair.ZetAspects
 				{
 					Buff.AffixWarped = Equip.AffixWarped.passiveBuffDef;
 				}
+				if (Equip.AffixVeiled)
+				{
+					Buff.AffixVeiled = Equip.AffixVeiled.passiveBuffDef;
+				}
+				if (Equip.AffixAragonite)
+				{
+					Buff.AffixAragonite = Equip.AffixAragonite.passiveBuffDef;
+				}
 
 				buffDefPopulated = true;
 			}
@@ -1222,30 +1285,40 @@ namespace TPDespair.ZetAspects
 
 				DisableInactiveItem(Item.ZetAspectPlated, ref Equip.AffixPlated, ref Buff.AffixPlated, state);
 				DisableInactiveItem(Item.ZetAspectWarped, ref Equip.AffixWarped, ref Buff.AffixWarped, state);
+				DisableInactiveItem(Item.ZetAspectVeiled, ref Equip.AffixVeiled, ref Buff.AffixVeiled, state);
+				DisableInactiveItem(Item.ZetAspectAragonite, ref Equip.AffixAragonite, ref Buff.AffixAragonite, state);
 			}
 
 			private static void SetupText()
 			{
 				Items.ZetAspectPlated.SetupTokens();
 				Items.ZetAspectWarped.SetupTokens();
+				Items.ZetAspectVeiled.SetupTokens();
+				Items.ZetAspectAragonite.SetupTokens();
 			}
 
 			internal static void ItemEntries(bool shown)
 			{
 				SetItemState(Item.ZetAspectPlated, shown);
 				SetItemState(Item.ZetAspectWarped, shown);
+				SetItemState(Item.ZetAspectVeiled, shown);
+				SetItemState(Item.ZetAspectAragonite, shown);
 			}
 
 			private static void CopyExpansionReq()
 			{
 				CopyExpansion(Item.ZetAspectPlated, Equip.AffixPlated);
 				CopyExpansion(Item.ZetAspectWarped, Equip.AffixWarped);
+				CopyExpansion(Item.ZetAspectVeiled, Equip.AffixVeiled);
+				CopyExpansion(Item.ZetAspectAragonite, Equip.AffixAragonite);
 			}
 
 			private static void CopyModelPrefabs()
 			{
 				CopyEquipmentPrefab(Item.ZetAspectPlated, Equip.AffixPlated);
 				CopyEquipmentPrefab(Item.ZetAspectWarped, Equip.AffixWarped);
+				CopyEquipmentPrefab(Item.ZetAspectVeiled, Equip.AffixVeiled);
+				CopyEquipmentPrefab(Item.ZetAspectAragonite, Equip.AffixAragonite);
 			}
 
 			private static void ApplyEquipmentIcons()
@@ -1254,6 +1327,8 @@ namespace TPDespair.ZetAspects
 
 				ReplaceEquipmentIcon(Equip.AffixPlated, Sprites.AffixPlated, Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equip.AffixWarped, Sprites.AffixWarped, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixVeiled, Sprites.AffixVeiled, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixAragonite, Sprites.AffixAragonite, Sprites.OutlineOrange);
 
 				iconsReplaced = true;
 			}
@@ -1262,18 +1337,24 @@ namespace TPDespair.ZetAspects
 			{
 				SetEquipmentState(Equip.AffixPlated, shown);
 				SetEquipmentState(Equip.AffixWarped, shown);
+				SetEquipmentState(Equip.AffixVeiled, shown);
+				SetEquipmentState(Equip.AffixAragonite, shown);
 			}
 
 			internal static void EquipmentColor()
 			{
 				ColorEquipmentDroplet(Equip.AffixPlated);
 				ColorEquipmentDroplet(Equip.AffixWarped);
+				ColorEquipmentDroplet(Equip.AffixVeiled);
+				ColorEquipmentDroplet(Equip.AffixAragonite);
 			}
 
 			internal static void FillEqualities()
 			{
 				CreateEquality(Equip.AffixPlated, Buff.AffixPlated, Item.ZetAspectPlated);
 				CreateEquality(Equip.AffixWarped, Buff.AffixWarped, Item.ZetAspectWarped);
+				CreateEquality(Equip.AffixVeiled, Buff.AffixVeiled, Item.ZetAspectVeiled);
+				CreateEquality(Equip.AffixAragonite, Buff.AffixAragonite, Item.ZetAspectAragonite);
 			}
 		}
 

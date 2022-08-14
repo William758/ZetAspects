@@ -14,13 +14,14 @@ namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
 	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.16";
+		public const string ModVer = "2.7.17";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -37,7 +38,9 @@ namespace TPDespair.ZetAspects
 			DropHooks.Init();
 			DisplayHooks.Init();
 
-			if (Catalog.Aetherium.Enabled) Compat.Aetherium.Init();
+			if (Catalog.Aetherium.Enabled && Configuration.AetheriumHooks.Value) Compat.Aetherium.Init();
+
+			if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent") && Configuration.SpikeStripHooks.Value) Compat.PlasmaSpikeStrip.Init();
 
 			Language.Init();
 		}
@@ -67,30 +70,28 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixHaunted, transform.position + new Vector3(-5f, 5f, -5f));
 				CreateDroplet(Catalog.Equip.AffixPoison, transform.position + new Vector3(0f, 5f, -7.5f));
 				CreateDroplet(Catalog.Equip.AffixLunar, transform.position + new Vector3(5f, 5f, -5f));
+
+				CreateDroplet(Catalog.Equip.AffixEarth, transform.position + new Vector3(-10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 10f, 15f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F3))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
-				CreateDroplet(Catalog.Equip.AffixEarth, transform.position + new Vector3(-5f, 5f, 5f));
-				CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 5f, 7.5f));
-				CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(5f, 5f, 5f));
-				CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(-5f, 5f, -5f));
-				CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(0f, 5f, -7.5f));
-				CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(5f, 5f, -5f));
+				CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(-5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(0f, 5f, 7.5f));
+				CreateDroplet(Catalog.Equip.AffixVeiled, transform.position + new Vector3(5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixAragonite, transform.position + new Vector3(-5f, 5f, -5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
-				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(-5f, 5f, 5f));
-				//CreateDroplet(Catalog.Equip.AffixVoid, transform.position + new Vector3(0f, 5f, 7.5f));
-				//CreateDroplet(Catalog.Equip.AffixPlated, transform.position + new Vector3(5f, 5f, 5f));
-				//CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(-5f, 5f, -5f));
-				//CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(0f, 5f, -7.5f));
-				//CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(5f, 5f, -5f));
+				CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(-5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(0f, 5f, 7.5f));
+				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(5f, 5f, 5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

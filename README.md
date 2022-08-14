@@ -32,7 +32,11 @@ Monster leech multiplier : x5
 
 ## SpikeStrip:
 
-![effects](https://i.imgur.com/QIFzOAF.png)
+![effects](https://i.imgur.com/nNRcfB3.png)
+
+Monster fury movement speed multiplier : x2
+
+Monster endurance damage reduction multiplier : x0.5
 
 ## GoldenCoastPlus:
 
@@ -53,6 +57,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.7.17 - Updated SpikeStrip support.
 
 v2.7.16 - Rewrite leech formula again, heal amount should scale more linearly with stacks. Reduce monster level flat health regeneration scaling from aspect effects.
 

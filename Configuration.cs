@@ -32,6 +32,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightVoid { get; set; }
 		public static ConfigEntry<float> AspectDropWeightWarped { get; set; }
 		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
+		public static ConfigEntry<float> AspectDropWeightVeiled { get; set; }
+		public static ConfigEntry<float> AspectDropWeightAragonite { get; set; }
 		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
@@ -62,6 +64,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> HeadHunterBuffCritChance { get; set; }
 
 		public static ConfigEntry<bool> AetheriumHooks { get; set; }
+		public static ConfigEntry<bool> EliteReworksHooks { get; set; }
+		public static ConfigEntry<bool> SpikeStripHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -140,9 +144,37 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectPlatedBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedStackArmorGain { get; set; }
+		public static ConfigEntry<float> AspectPlatedBasePlatingGain { get; set; }
+		public static ConfigEntry<float> AspectPlatedStackPlatingGain { get; set; }
+		public static ConfigEntry<float> AspectPlatedMonsterPlatingMult { get; set; }
 
 		public static ConfigEntry<float> AspectWarpedBaseCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectWarpedStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedBaseFallReductionGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedStackFallReductionGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedBaseForceResistGain { get; set; }
+		public static ConfigEntry<float> AspectWarpedStackForceResistGain { get; set; }
+
+		public static ConfigEntry<bool> AspectVeiledCloakOnly { get; set; }
+		public static ConfigEntry<float> AspectVeiledElusiveDuration { get; set; }
+		public static ConfigEntry<bool> AspectVeiledElusiveDecay { get; set; }
+		public static ConfigEntry<bool> AspectVeiledElusiveRefresh { get; set; }
+		public static ConfigEntry<float> AspectVeiledElusiveMovementGain { get; set; }
+		public static ConfigEntry<float> AspectVeiledElusiveDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectVeiledElusiveStackEffect { get; set; }
+
+		public static ConfigEntry<float> AspectAragoniteBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteStackMovementGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteAllyMovementGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteMonsterMovementMult { get; set; }
+		public static ConfigEntry<float> AspectAragoniteBaseAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteStackAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteAllyAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteMonsterAtkSpdMult { get; set; }
+		public static ConfigEntry<float> AspectAragoniteBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteAllyCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectAragoniteMonsterCooldownMult { get; set; }
 
 		public static ConfigEntry<float> AspectGoldBaseRegenGain { get; set; }
 		public static ConfigEntry<float> AspectGoldStackRegenGain { get; set; }
@@ -167,6 +199,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectSepiaStackDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectSepiaBlindDuration { get; set; }
 		public static ConfigEntry<float> AspectSepiaBlindDodgeEffect { get; set; }
+
+
+
+		public static bool ValidElusiveModifier = false;
 
 
 
@@ -293,6 +329,14 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightPlated", 1f,
 					"Drop chance multiplier for AffixPlated"
 				);
+				AspectDropWeightVeiled = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightVeiled", 1f,
+					"Drop chance multiplier for AffixVeiled"
+				);
+				AspectDropWeightAragonite = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightAragonite", 1f,
+					"Drop chance multiplier for AffixAragonite"
+				);
 				AspectDropWeightGold = Config.Bind(
 					"0b-DropWeight", "aspectDropWeightGold", 1f,
 					"Drop chance multiplier for AffixGold"
@@ -412,6 +456,14 @@ namespace TPDespair.ZetAspects
 			AetheriumHooks = Config.Bind(
 				"21-Mod Compatibility", "aetheriumHooks", true,
 				"Allows modification of functions and values within the Aetherium mod."
+			);
+			EliteReworksHooks = Config.Bind(
+				"21-Mod Compatibility", "eliteReworksHooks", true,
+				"Allows modification of functions and values within the EliteReworks mod."
+			);
+			SpikeStripHooks = Config.Bind(
+				"21-Mod Compatibility", "spikeStripHooks", true,
+				"Allows modification of functions and values within the SpikeStrip mod."
 			);
 
 			RiskOfRainConfigs(Config);
@@ -724,6 +776,18 @@ namespace TPDespair.ZetAspects
 				"2ba-AspectPlated", "platedAddedArmor", 15f,
 				"Armor gained per stack."
 			);
+			AspectPlatedBasePlatingGain = Config.Bind(
+				"2ba-AspectPlated", "platedBasePlating", 20f,
+				"Incoming damage reduction gained. Set to 0 to disable."
+			);
+			AspectPlatedStackPlatingGain = Config.Bind(
+				"2ba-AspectPlated", "platedAddedPlating", 10f,
+				"Incoming damage reduction gained per stack."
+			);
+			AspectPlatedMonsterPlatingMult = Config.Bind(
+				"2ba-AspectPlated", "platedMonsterPlatingMult", 0.5f,
+				"Monster incoming damage reduction multiplier."
+			);
 
 
 
@@ -734,6 +798,108 @@ namespace TPDespair.ZetAspects
 			AspectWarpedStackCooldownGain = Config.Bind(
 				"2bb-AspectWarped", "warpedAddedCooldown", 0.1f,
 				"Cooldown reduction gained per stack."
+			);
+			AspectWarpedBaseFallReductionGain = Config.Bind(
+				"2bb-AspectWarped", "warpedBaseFallReduction", 0.5f,
+				"Fall damage reduction gained. Set to 0 to disable. Set to 1000 to become immune."
+			);
+			AspectWarpedStackFallReductionGain = Config.Bind(
+				"2bb-AspectWarped", "warpedAddedFallReduction", 0.25f,
+				"Fall damage reduction gained per stack."
+			);
+			AspectWarpedBaseForceResistGain = Config.Bind(
+				"2bb-AspectWarped", "warpedBaseForceResist", 0.5f,
+				"Knockback resistance gained. Set to 0 to disable. Set to 1000 to become immune."
+			);
+			AspectWarpedStackForceResistGain = Config.Bind(
+				"2bb-AspectWarped", "warpedAddedForceResist", 0.25f,
+				"Knockback resistance gained per stack."
+			);
+
+
+
+			AspectVeiledCloakOnly = Config.Bind(
+				"2bc-AspectVeiled", "veiledCloakOnly", false,
+				"Dont apply elusive and only cloak. Affected by duration and refresh configs."
+			);
+			AspectVeiledElusiveDuration = Config.Bind(
+				"2bc-AspectVeiled", "veiledElusiveDuration", 4f,
+				"Base duration of elusive. Increased elusive effect also applies to buff duration if effect decays. Set to 0 to disable."
+			);
+			AspectVeiledElusiveDecay = Config.Bind(
+				"2bc-AspectVeiled", "veiledElusiveDecay", true,
+				"Whether elusive effect decays over its duration."
+			);
+			AspectVeiledElusiveRefresh = Config.Bind(
+				"2bc-AspectVeiled", "veiledElusiveRefresh", true,
+				"Whether elusive can be refreshed while you are already elusive."
+			);
+			AspectVeiledElusiveMovementGain = Config.Bind(
+				"2bc-AspectVeiled", "veiledElusiveMovementGained", 0.40f,
+				"Movement speed gained from 100% elusive effect. Set to 0 to disable."
+			);
+			AspectVeiledElusiveMovementGain.SettingChanged += ValidateElusiveModifier;
+			AspectVeiledElusiveDodgeGain = Config.Bind(
+				"2bc-AspectVeiled", "vailedElusiveDodgeGained", 60f,
+				"Dodge chance gained from 100% elusive effect. Set to 0 to disable."
+			);
+			AspectVeiledElusiveStackEffect = Config.Bind(
+				"2bc-AspectVeiled", "vailedElusiveStackEffect", 0.25f,
+				"Elusive effect gained per stack. Elusive effect is rounded into 5% intervals."
+			);
+			AspectVeiledElusiveMovementGain.SettingChanged += ValidateElusiveModifier;
+
+			ValidateElusiveModifier();
+
+
+
+			AspectAragoniteBaseMovementGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteBaseMovementGained", 0.30f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectAragoniteStackMovementGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAddedMovementGained", 0.15f,
+				"Movement speed gained per stack."
+			);
+			AspectAragoniteAllyMovementGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAllyMovementGained", 0.20f,
+				"Movement speed granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
+			AspectAragoniteMonsterMovementMult = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteMonsterMovementMult", 2f,
+				"Monster movement speed gain multiplier."
+			);
+			AspectAragoniteBaseAtkSpdGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteBaseAtkSpdGained", 0.30f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectAragoniteStackAtkSpdGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAddedAtkSpdGained", 0.15f,
+				"Attack speed gained per stack."
+			);
+			AspectAragoniteAllyAtkSpdGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAllyAtkSpdGained", 0.20f,
+				"Attack speed granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
+			AspectAragoniteMonsterAtkSpdMult = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteMonsterAtkSpdMult", 1f,
+				"Monster attack speed gain multiplier."
+			);
+			AspectAragoniteBaseCooldownGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteBaseCooldown", 0.30f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectAragoniteStackCooldownGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAddedCooldown", 0.15f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectAragoniteAllyCooldownGain = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteAllyCooldown", 0.20f,
+				"Cooldown reduction granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
+			AspectAragoniteMonsterCooldownMult = Config.Bind(
+				"2bd-AspectAragonite", "aragoniteMonsterCooldownMult", 1f,
+				"Monster cooldown reduction gain multiplier."
 			);
 		}
 
@@ -831,6 +997,18 @@ namespace TPDespair.ZetAspects
 				"2ea-AspectSepia", "sepiaBlindDodgeEffect", 25f,
 				"Dodge chance effect from blind. Set to 0 to disable."
 			);
+		}
+
+
+
+		private static void ValidateElusiveModifier(object sender, System.EventArgs e)
+		{
+			ValidateElusiveModifier();
+		}
+
+		private static void ValidateElusiveModifier()
+		{
+			ValidElusiveModifier = AspectVeiledElusiveMovementGain.Value > 0f || AspectVeiledElusiveDodgeGain.Value > 0f;
 		}
 	}
 }

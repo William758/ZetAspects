@@ -80,6 +80,29 @@ namespace TPDespair.ZetAspects
 							value += Configuration.HeadHunterBuffMovementSpeed.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixVeiled) && self.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
+						{
+							count = Mathf.Max(5f, self.GetBuffCount(Catalog.Buff.ZetElusive));
+							value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / 20f);
+						}
+
+						if (Compat.PlasmaSpikeStrip.rageStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseMovementGain.Value > 0f)
+							{
+								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+								float effectValue = Configuration.AspectAragoniteBaseMovementGain.Value + Configuration.AspectAragoniteStackMovementGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterMovementMult.Value;
+								value += effectValue;
+							}
+							else if (Catalog.rageAura != BuffIndex.None && self.HasBuff(Catalog.rageAura) && Configuration.AspectAragoniteAllyMovementGain.Value > 0f)
+							{
+								float effectValue = Configuration.AspectAragoniteAllyMovementGain.Value;
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterMovementMult.Value;
+								value += effectValue;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -381,6 +404,23 @@ namespace TPDespair.ZetAspects
 							value += Configuration.HeadHunterBuffAttackSpeed.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
 						}
 
+						if (Compat.PlasmaSpikeStrip.rageStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseAtkSpdGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+								float effectValue = Configuration.AspectAragoniteBaseAtkSpdGain.Value + Configuration.AspectAragoniteStackAtkSpdGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterAtkSpdMult.Value;
+								value += effectValue;
+							}
+							else if (Catalog.rageAura != BuffIndex.None && self.HasBuff(Catalog.rageAura) && Configuration.AspectAragoniteAllyAtkSpdGain.Value > 0f)
+							{
+								float effectValue = Configuration.AspectAragoniteAllyAtkSpdGain.Value;
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterAtkSpdMult.Value;
+								value += effectValue;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -674,6 +714,23 @@ namespace TPDespair.ZetAspects
 			{
 				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSepia);
 				additiveReduction += Configuration.AspectSepiaBaseCooldownGain.Value + Configuration.AspectSepiaStackCooldownGain.Value * (count - 1f);
+			}
+
+			if (Compat.PlasmaSpikeStrip.rageStatHook)
+			{
+				if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseCooldownGain.Value > 0f)
+				{
+					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+					float effectValue = Configuration.AspectAragoniteBaseCooldownGain.Value + Configuration.AspectAragoniteStackCooldownGain.Value * (count - 1f);
+					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterCooldownMult.Value;
+					additiveReduction += effectValue;
+				}
+				else if (Catalog.rageAura != BuffIndex.None && self.HasBuff(Catalog.rageAura) && Configuration.AspectAragoniteAllyCooldownGain.Value > 0f)
+				{
+					float effectValue = Configuration.AspectAragoniteAllyCooldownGain.Value;
+					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterCooldownMult.Value;
+					additiveReduction += effectValue;
+				}
 			}
 
 			if (additiveReduction > 0f)
