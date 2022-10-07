@@ -31,6 +31,7 @@ namespace TPDespair.ZetAspects
 		public static List<ItemIndex> disabledItemIndexes = new List<ItemIndex>();
 
 		public static List<ItemIndex> aspectItemIndexes = new List<ItemIndex>();
+		public static List<BuffIndex> aspectBuffIndexes = new List<BuffIndex>();
 		public static List<EquipmentIndex> aspectEquipIndexes = new List<EquipmentIndex>();
 
 		public static List<ItemDef> transformableAspectItemDefs = new List<ItemDef>();
@@ -71,6 +72,10 @@ namespace TPDespair.ZetAspects
 			public static Sprite OutlineBlue;
 			public static Sprite OutlineVoid;
 
+			public static Sprite NullOutlineRed;
+			public static Sprite NullOutlineOrange;
+			public static Sprite NullOutlineYellow;
+
 			public static Sprite AffixWhite;
 			public static Sprite AffixBlue;
 			public static Sprite AffixRed;
@@ -92,6 +97,8 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixSepia;
 			public static Sprite SepiaEliteIcon;
+
+			public static Sprite AffixNullifier;
 
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
@@ -145,6 +152,15 @@ namespace TPDespair.ZetAspects
 					AffixSepia = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSepia.png");
 					SepiaEliteIcon = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffAffixSepia.png");
 					ZetSepiaBlind = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSepiaBlind.png");
+				}
+
+				if (WarWisp.Enabled)
+				{
+					NullOutlineRed = Assets.LoadAsset<Sprite>("Assets/Icons/texNullOutlineRed.png");
+					NullOutlineOrange = Assets.LoadAsset<Sprite>("Assets/Icons/texNullOutlineOrange.png");
+					NullOutlineYellow = Assets.LoadAsset<Sprite>("Assets/Icons/texNullOutlineYellow.png");
+
+					AffixNullifier = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixNullifier.png");
 				}
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
@@ -225,6 +241,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixSanguine;
 
 			public static BuffDef AffixSepia;
+
+			public static BuffDef AffixNullifier;
 		}
 
 		public static class Equip
@@ -249,6 +267,8 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixSanguine;
 
 			public static EquipmentDef AffixSepia;
+
+			public static EquipmentDef AffixNullifier;
 		}
 
 		public static class Item
@@ -278,6 +298,8 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectSanguine;
 
 			public static ItemDef ZetAspectSepia;
+
+			public static ItemDef ZetAspectNullifier;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -285,9 +307,12 @@ namespace TPDespair.ZetAspects
 		public static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
 		public static BodyIndex mithrixBodyIndex = BodyIndex.None;
 		public static BodyIndex voidlingBodyIndex = BodyIndex.None;
+		public static BodyIndex urchinTurretBodyIndex = BodyIndex.None;
+		public static BodyIndex urchinOrbitalBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
 		public static BuffIndex rageAura = BuffIndex.None;
+		public static BuffIndex nullifierRecipient = BuffIndex.None;
 		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
 
 
@@ -339,6 +364,14 @@ namespace TPDespair.ZetAspects
 			return false;
 		}
 
+		public static bool HasAspectItemOrEquipment(Inventory inventory, BuffIndex buffIndex)
+		{
+			if (CountAspectEquipment(inventory, buffIndex) > 0) return true;
+			if (HasAspectItem(inventory, buffIndex)) return true;
+
+			return false;
+		}
+
 		public static bool HasAspectItemOrEquipment(Inventory inventory, ItemDef itemDef, EquipmentDef equipDef)
 		{
 			if (itemDef && inventory.GetItemCount(itemDef) > 0) return true;
@@ -356,7 +389,12 @@ namespace TPDespair.ZetAspects
 
 		public static int CountAspectEquipment(Inventory inventory, BuffDef buffDef)
 		{
-			EquipmentIndex equipIndex = GetAspectEquipIndex(buffDef.buffIndex);
+			return CountAspectEquipment(inventory, buffDef.buffIndex);
+		}
+
+		public static int CountAspectEquipment(Inventory inventory, BuffIndex buffIndex)
+		{
+			EquipmentIndex equipIndex = GetAspectEquipIndex(buffIndex);
 
 			if (equipIndex == EquipmentIndex.None) return 0;
 
@@ -370,7 +408,12 @@ namespace TPDespair.ZetAspects
 
 		public static bool HasAspectItem(Inventory inventory, BuffDef buffDef)
 		{
-			ItemIndex itemIndex = GetAspectItemIndex(buffDef.buffIndex);
+			return HasAspectItem(inventory, buffDef.buffIndex);
+		}
+
+		public static bool HasAspectItem(Inventory inventory, BuffIndex buffIndex)
+		{
+			ItemIndex itemIndex = GetAspectItemIndex(buffIndex);
 
 			if (itemIndex == ItemIndex.None) return false;
 
@@ -485,7 +528,7 @@ namespace TPDespair.ZetAspects
 			{
 				BuffDef ZetSepiaBlind = ScriptableObject.CreateInstance<BuffDef>();
 				ZetSepiaBlind.name = "ZetSepiaBlind";
-				ZetShredded.buffColor = Color.white;
+				ZetSepiaBlind.buffColor = Color.white;
 				ZetSepiaBlind.canStack = false;
 				ZetSepiaBlind.isDebuff = true;
 				ZetSepiaBlind.iconSprite = Sprites.ZetSepiaBlind;
@@ -610,6 +653,14 @@ namespace TPDespair.ZetAspects
 				Item.ZetAspectSepia = ZetAspectSepia;
 				ZetAspectsContent.itemDefs.Add(ZetAspectSepia);
 				transformableAspectItemDefs.Add(ZetAspectSepia);
+			}
+
+			if (WarWisp.Enabled)
+			{
+				ItemDef ZetAspectNullifier = Items.ZetAspectNullifier.DefineItem();
+				Item.ZetAspectNullifier = ZetAspectNullifier;
+				ZetAspectsContent.itemDefs.Add(ZetAspectNullifier);
+				transformableAspectItemDefs.Add(ZetAspectNullifier);
 			}
 		}
 
@@ -774,6 +825,7 @@ namespace TPDespair.ZetAspects
 			GoldenCoastPlus.PreInit();
 			Aetherium.PreInit();
 			Bubbet.PreInit();
+			WarWisp.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -800,6 +852,16 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent"))
 			{
 				rageAura = Compat.PlasmaSpikeStrip.GetRageBuffWardBuffIndex();
+			}
+
+			if (PluginLoaded("com.PopcornFactory.WispMod"))
+			{
+				nullifierRecipient = BuffCatalog.FindBuffIndex("Nullifier Armour Buff");
+			}
+
+			if (aspectAbilities)
+			{
+				urchinOrbitalBodyIndex = BodyCatalog.FindBodyIndex("AspectAbilitiesMalachiteUrchinOrbitalBody");
 			}
 
 			ItemTierDef itemTierDef = ItemTierCatalog.FindTierDef("VoidLunarTierDef");
@@ -861,6 +923,7 @@ namespace TPDespair.ZetAspects
 			GoldenCoastPlus.Init();
 			Aetherium.Init();
 			Bubbet.Init();
+			WarWisp.Init();
 
 			Language.ChangeText();
 
@@ -971,6 +1034,12 @@ namespace TPDespair.ZetAspects
 				Bubbet.ItemEntries(true);
 				Bubbet.EquipmentEntries(false);
 			}
+
+			if (WarWisp.populated)
+			{
+				WarWisp.ItemEntries(true);
+				WarWisp.EquipmentEntries(false);
+			}
 		}
 
 
@@ -995,6 +1064,7 @@ namespace TPDespair.ZetAspects
 			{
 				mithrixBodyIndex = BodyCatalog.FindBodyIndex("BrotherBody");
 				voidlingBodyIndex = BodyCatalog.FindBodyIndex("VoidRaidCrabBody");
+				urchinTurretBodyIndex = BodyCatalog.FindBodyIndex("UrchinTurretBody");
 				healOrbBodyIndex = BodyCatalog.FindBodyIndex("AffixEarthHealerBody");
 
 				PopulateEquipment();
@@ -1782,6 +1852,146 @@ namespace TPDespair.ZetAspects
 
 
 
+		public static class WarWisp
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.PopcornFactory.WispMod")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("WARFRAMEWISP_ELITE_EQUIPMENT_AFFIX_NULLIFIER");
+				if (index != EquipmentIndex.None) Equip.AffixNullifier = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				BuffIndex index;
+
+				index = BuffCatalog.FindBuffIndex("AFFIX_NULLIFIER");
+				if (index != BuffIndex.None) Buff.AffixNullifier = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectNullifier, ref Equip.AffixNullifier, ref Buff.AffixNullifier, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectNullifier.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectNullifier, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectNullifier, Equip.AffixNullifier);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectNullifier, Equip.AffixNullifier);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixNullifier, Sprites.AffixNullifier, Sprites.NullOutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixNullifier, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixNullifier);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixNullifier, Buff.AffixNullifier, Item.ZetAspectNullifier);
+			}
+		}
+
+
+
 		private static int GetPopulatedState(bool equip, bool buff)
 		{
 			int value = 0;
@@ -1975,6 +2185,13 @@ namespace TPDespair.ZetAspects
 		{
 			if (equipDef && buffDef)
 			{
+				if (!aspectBuffIndexes.Contains(buffDef.buffIndex))
+				{
+					aspectBuffIndexes.Add(buffDef.buffIndex);
+				}
+
+
+
 				if (!buffToItem.ContainsKey(buffDef.buffIndex))
 				{
 					buffToItem.Add(buffDef.buffIndex, itemDef.itemIndex);

@@ -37,6 +37,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
+		public static ConfigEntry<float> AspectDropWeightNullifier { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -66,6 +67,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AetheriumHooks { get; set; }
 		public static ConfigEntry<bool> EliteReworksHooks { get; set; }
 		public static ConfigEntry<bool> SpikeStripHooks { get; set; }
+		public static ConfigEntry<bool> WarWispHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -155,6 +157,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectWarpedBaseForceResistGain { get; set; }
 		public static ConfigEntry<float> AspectWarpedStackForceResistGain { get; set; }
 
+		public static ConfigEntry<float> AspectVeiledBaseDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectVeiledStackDodgeGain { get; set; }
+		public static ConfigEntry<float> AspectVeiledBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectVeiledStackMovementGain { get; set; }
 		public static ConfigEntry<bool> AspectVeiledCloakOnly { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveDuration { get; set; }
 		public static ConfigEntry<bool> AspectVeiledElusiveDecay { get; set; }
@@ -199,6 +205,17 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectSepiaStackDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectSepiaBlindDuration { get; set; }
 		public static ConfigEntry<float> AspectSepiaBlindDodgeEffect { get; set; }
+
+		public static ConfigEntry<bool> AspectNullifierOverrideShield { get; set; }
+		public static ConfigEntry<bool> AspectNullifierShieldRecharge { get; set; }
+		public static ConfigEntry<float> AspectNullifierHealthConverted { get; set; }
+		public static ConfigEntry<float> AspectNullifierRegen { get; set; }
+		public static ConfigEntry<float> AspectNullifierBaseShieldGain { get; set; }
+		public static ConfigEntry<float> AspectNullifierStackShieldGain { get; set; }
+		public static ConfigEntry<bool> AspectNullifierOverrideAllyArmor { get; set; }
+		public static ConfigEntry<float> AspectNullifierAllyArmorGain { get; set; }
+		public static ConfigEntry<float> AspectNullifierBaseArmorGain { get; set; }
+		public static ConfigEntry<float> AspectNullifierStackArmorGain { get; set; }
 
 
 
@@ -349,6 +366,10 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightSepia", 1f,
 					"Drop chance multiplier for AffixSepia"
 				);
+				AspectDropWeightNullifier = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightNullifier", 1f,
+					"Drop chance multiplier for AffixNullifier"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -455,15 +476,19 @@ namespace TPDespair.ZetAspects
 		{
 			AetheriumHooks = Config.Bind(
 				"21-Mod Compatibility", "aetheriumHooks", true,
-				"Allows modification of functions and values within the Aetherium mod."
+				"Allows for the reading and modification of functions and values within the Aetherium mod."
 			);
 			EliteReworksHooks = Config.Bind(
 				"21-Mod Compatibility", "eliteReworksHooks", true,
-				"Allows modification of functions and values within the EliteReworks mod."
+				"Allows for the reading and modification of functions and values within the EliteReworks mod."
 			);
 			SpikeStripHooks = Config.Bind(
 				"21-Mod Compatibility", "spikeStripHooks", true,
-				"Allows modification of functions and values within the SpikeStrip mod."
+				"Allows for the reading and modification of functions and values within the SpikeStrip mod."
+			);
+			WarWispHooks = Config.Bind(
+				"21-Mod Compatibility", "warWispHooks", true,
+				"Allows for the reading and modification of functions and values within the WispWarframe mod. Must be enabled to allow itemized aspect to function."
 			);
 
 			RiskOfRainConfigs(Config);
@@ -471,6 +496,7 @@ namespace TPDespair.ZetAspects
 			GoldenCoastPlusConfigs(Config);
 			AetheriumConfigs(Config);
 			BubbetConfigs(Config);
+			WarWispConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -818,6 +844,22 @@ namespace TPDespair.ZetAspects
 
 
 
+			AspectVeiledBaseDodgeGain = Config.Bind(
+				"2bc-AspectVeiled", "veiledBaseDodgeChance", 25f,
+				"Dodge chance gained. Set to 0 to disable."
+			);
+			AspectVeiledStackDodgeGain = Config.Bind(
+				"2bc-AspectVeiled", "veiledAddedDodgeChance", 0f,
+				"Dodge chance gained per stack."
+			);
+			AspectVeiledBaseMovementGain = Config.Bind(
+				"2bc-AspectVeiled", "veiledBaseMovementGained", 0.20f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectVeiledStackMovementGain = Config.Bind(
+				"2bc-AspectVeiled", "veiledAddedMovementGained", 0f,
+				"Movement speed gained per stack."
+			);
 			AspectVeiledCloakOnly = Config.Bind(
 				"2bc-AspectVeiled", "veiledCloakOnly", false,
 				"Dont apply elusive and only cloak. Affected by duration and refresh configs."
@@ -840,7 +882,7 @@ namespace TPDespair.ZetAspects
 			);
 			AspectVeiledElusiveMovementGain.SettingChanged += ValidateElusiveModifier;
 			AspectVeiledElusiveDodgeGain = Config.Bind(
-				"2bc-AspectVeiled", "vailedElusiveDodgeGained", 60f,
+				"2bc-AspectVeiled", "vailedElusiveDodgeGained", 50f,
 				"Dodge chance gained from 100% elusive effect. Set to 0 to disable."
 			);
 			AspectVeiledElusiveStackEffect = Config.Bind(
@@ -996,6 +1038,50 @@ namespace TPDespair.ZetAspects
 			AspectSepiaBlindDodgeEffect = Config.Bind(
 				"2ea-AspectSepia", "sepiaBlindDodgeEffect", 25f,
 				"Dodge chance effect from blind. Set to 0 to disable."
+			);
+		}
+
+		private static void WarWispConfigs(ConfigFile Config)
+		{
+			AspectNullifierOverrideShield = Config.Bind(
+				"2fa-AspectNullifier", "nullifierOverrideShield", true,
+				"Override shield gained from affix, using these configs with recalcstats instead of the methods used in the WispWarframe mod."
+			);
+			AspectNullifierShieldRecharge = Config.Bind(
+				"2fa-AspectNullifier", "nullifierShieldRecharge", true,
+				"Override outOfCombatStopwatch method in WispWarframe mod. Re-enables shield recharge while out of danger."
+			);
+			AspectNullifierHealthConverted = Config.Bind(
+				"2fa-AspectNullifier", "nullifierHealthConverted", 0.25f,
+				"Health converted into shield. Set to 0 to disable."
+			);
+			AspectNullifierRegen = Config.Bind(
+				"2fa-AspectNullifier", "nullifierShieldRegen", 0.50f,
+				"Health regeneration gained as shield regeneration. This setting does not effect shield regeneration from the WispWarframe mod. Set to 0 to disable."
+			);
+			AspectNullifierBaseShieldGain = Config.Bind(
+				"2fa-AspectNullifier", "nullifierBaseShieldGained", 0.20f,
+				"Shield gained from health. Set to 0 to disable."
+			);
+			AspectNullifierStackShieldGain = Config.Bind(
+				"2fa-AspectNullifier", "nullifierAddedShieldGained", 0.10f,
+				"Shield gained from health per stack."
+			);
+			AspectNullifierOverrideAllyArmor = Config.Bind(
+				"2fa-AspectNullifier", "nullifierOverrideAllyArmor", true,
+				"Override armor granted to allies, Ally armor value from WispWarframe mod will be disabled."
+			);
+			AspectNullifierAllyArmorGain = Config.Bind(
+				"2fa-AspectNullifier", "nullifierAllyArmor", 30f,
+				"Armor granted to nearby allies. Must enable nullifierOverrideAllyArmor. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
+			AspectNullifierBaseArmorGain = Config.Bind(
+				"2fa-AspectNullifier", "nullifierBaseArmor", 30f,
+				"Armor gained. Set to 0 to disable."
+			);
+			AspectNullifierStackArmorGain = Config.Bind(
+				"2fa-AspectNullifier", "nullifierAddedArmor", 15f,
+				"Armor gained per stack."
 			);
 		}
 

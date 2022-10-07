@@ -18,10 +18,11 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.17";
+		public const string ModVer = "2.7.18";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -41,6 +42,8 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Aetherium.Enabled && Configuration.AetheriumHooks.Value) Compat.Aetherium.Init();
 
 			if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent") && Configuration.SpikeStripHooks.Value) Compat.PlasmaSpikeStrip.Init();
+
+			if (Catalog.WarWisp.Enabled && Configuration.WarWispHooks.Value) Compat.WarWisp.Init();
 
 			Language.Init();
 		}
@@ -92,6 +95,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(-5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(0f, 5f, 7.5f));
 				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixNullifier, transform.position + new Vector3(-5f, 5f, -5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

@@ -32,7 +32,7 @@ Monster leech multiplier : x5
 
 ## SpikeStrip:
 
-![effects](https://i.imgur.com/nNRcfB3.png)
+![effects](https://i.imgur.com/c35yqIh.png)
 
 Monster fury movement speed multiplier : x2
 
@@ -50,6 +50,10 @@ Monster endurance damage reduction multiplier : x0.5
 
 ![effects](https://i.imgur.com/k0z5dLx.png)
 
+## WarframeWisp:
+
+![effects](https://i.imgur.com/uao6nvi.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -57,6 +61,8 @@ Requires Bepinex and HookGenPatcher.
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 ## Changelog:
+
+v2.7.18 - WarframeWispMod Nullifier support. Updated SpikeStrip descriptions. BuffCycle tweaks and some bug fixes.
 
 v2.7.17 - Updated SpikeStrip support.
 

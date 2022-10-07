@@ -102,7 +102,9 @@ namespace TPDespair.ZetAspects
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
 			UpdateOnBuffLostHook();
-			RefreshAspectBuffsHook();
+
+			//RefreshAspectBuffsHook();
+			CharacterBody.onBodyInventoryChangedGlobal += HandleEliteBuffManager;
 		}
 
 
@@ -265,10 +267,19 @@ namespace TPDespair.ZetAspects
 								avoidChance += Configuration.AspectSepiaBaseDodgeGain.Value + Configuration.AspectSepiaStackDodgeGain.Value * (count - 1f);
 							}
 
-							if (vicBody.HasBuff(Catalog.Buff.AffixVeiled) && vicBody.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveDodgeGain.Value > 0f)
+							if (vicBody.HasBuff(Catalog.Buff.AffixVeiled))
 							{
-								float count = Mathf.Max(5f, vicBody.GetBuffCount(Catalog.Buff.ZetElusive));
-								avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / 20f);
+								if (Configuration.AspectVeiledBaseDodgeGain.Value > 0f)
+								{
+									float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixVeiled);
+									avoidChance += Configuration.AspectVeiledBaseDodgeGain.Value + Configuration.AspectVeiledStackDodgeGain.Value * (count - 1f);
+								}
+
+								if (vicBody.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveDodgeGain.Value > 0f)
+								{
+									float count = Mathf.Max(5f, vicBody.GetBuffCount(Catalog.Buff.ZetElusive));
+									avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / 20f);
+								}
 							}
 
 							if (vicBody.bodyIndex == Catalog.mithrixBodyIndex || vicBody.bodyIndex == Catalog.voidlingBodyIndex) dodgeMultiplier *= 0.65f;
@@ -1591,6 +1602,7 @@ namespace TPDespair.ZetAspects
 				{
 					float shieldRegen = 0f;
 
+					if (body.HasBuff(Catalog.Buff.AffixNullifier)) shieldRegen = Mathf.Max(shieldRegen, Configuration.AspectNullifierRegen.Value);
 					if (body.HasBuff(Catalog.Buff.AffixLunar)) shieldRegen = Mathf.Max(shieldRegen, Configuration.AspectLunarRegen.Value);
 
 					Inventory inventory = body.inventory;
@@ -1641,6 +1653,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
+
 		/*
 		private static void PreventVoidEquipmentRemovalHook()
 		{
@@ -1669,6 +1682,7 @@ namespace TPDespair.ZetAspects
 			};
 		}
 		*/
+
 		private static void EquipmentLostBuffHook()
 		{
 			IL.RoR2.CharacterBody.OnEquipmentLost += (il) =>
@@ -1728,7 +1742,7 @@ namespace TPDespair.ZetAspects
 							{
 								if (BodyAllowedAffix(self.bodyIndex, buffDef))
 								{
-									self.AddTimedBuff(buffDef, 0.25f);
+									self.AddTimedBuff(buffDef, 1.25f);
 								}
 							}
 
@@ -1753,6 +1767,12 @@ namespace TPDespair.ZetAspects
 				{
 					if (!DestroyedBodies.ContainsKey(self.netId))
 					{
+						EliteBuffManager manager = self.GetComponent<EliteBuffManager>();
+						if (manager)
+						{
+							manager.RefreshEliteBuffs();
+						}
+
 						ApplyAspectBuffs(self);
 					}
 				}
@@ -1761,6 +1781,17 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void HandleEliteBuffManager(CharacterBody body)
+		{
+			if (NetworkServer.active)
+			{
+				int count = DestroyedBodies.ContainsKey(body.netId) ? 0 : body.eliteBuffCount;
+
+				body.AddItemBehavior<EliteBuffManager>(count);
+			}
+		}
+
+		/*
 		private static void RefreshAspectBuffsHook()
 		{
 			On.RoR2.CharacterBody.UpdateBuffs += (orig, self, deltaTime) =>
@@ -1776,6 +1807,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
+		*/
 
 		private static void UpdateOnBuffLostHook()
 		{
@@ -1817,7 +1849,10 @@ namespace TPDespair.ZetAspects
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBlue, Catalog.Item.ZetAspectBlue, Catalog.Equip.AffixBlue);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixRed, Catalog.Item.ZetAspectRed, Catalog.Equip.AffixRed);
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixHaunted, Catalog.Item.ZetAspectHaunted, Catalog.Equip.AffixHaunted);
-			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPoison, Catalog.Item.ZetAspectPoison, Catalog.Equip.AffixPoison);
+			if (self.bodyIndex != Catalog.urchinTurretBodyIndex && self.bodyIndex != Catalog.urchinOrbitalBodyIndex)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPoison, Catalog.Item.ZetAspectPoison, Catalog.Equip.AffixPoison);
+			}
 			ApplyAspectBuff(self, inventory, Catalog.Buff.AffixLunar, Catalog.Item.ZetAspectLunar, Catalog.Equip.AffixLunar);
 			if (self.bodyIndex != Catalog.healOrbBodyIndex)
 			{
@@ -1847,6 +1882,11 @@ namespace TPDespair.ZetAspects
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixSepia, Catalog.Item.ZetAspectSepia, Catalog.Equip.AffixSepia);
 			}
+
+			if (Catalog.WarWisp.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixNullifier, Catalog.Item.ZetAspectNullifier, Catalog.Equip.AffixNullifier);
+			}
 		}
 
 		private static void ApplyAspectBuff(CharacterBody body, Inventory inventory, BuffDef buffDef, ItemDef itemDef, EquipmentDef equipDef)
@@ -1859,6 +1899,7 @@ namespace TPDespair.ZetAspects
 
 		private static bool BodyAllowedAffix(BodyIndex bodyIndex, BuffDef buffDef)
 		{
+			if ((bodyIndex == Catalog.urchinTurretBodyIndex || bodyIndex == Catalog.urchinOrbitalBodyIndex) && buffDef == Catalog.Buff.AffixPoison) return false;
 			if (bodyIndex == Catalog.healOrbBodyIndex && buffDef == Catalog.Buff.AffixEarth) return false;
 
 			return true;

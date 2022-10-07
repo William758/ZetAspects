@@ -10,6 +10,7 @@ using RoR2.UI;
 
 namespace TPDespair.ZetAspects
 {
+	// this is attached to a buff display so that our changes only happens once
 	internal class ZetAspectsBuffIconMarker : MonoBehaviour
 	{
 		
@@ -43,6 +44,7 @@ namespace TPDespair.ZetAspects
 			DisableItemDisplayHook();
 
 			FixItemCountStatHook();
+			FixDamageDealtStatHook();
 
 			if (Configuration.RecolorHpBar.Value) HPBarColorHook();
 
@@ -161,7 +163,15 @@ namespace TPDespair.ZetAspects
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
-			
+
+			if (Catalog.WarWisp.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixNullifier;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectNullifier) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixAragonite;
@@ -256,7 +266,14 @@ namespace TPDespair.ZetAspects
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
-			
+
+			if (Catalog.WarWisp.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixNullifier;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixAragonite;
@@ -333,7 +350,13 @@ namespace TPDespair.ZetAspects
 				targetEquipDef = Catalog.Equip.AffixSanguine;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectSanguine) > 0) return targetEquipDef;
 			}
-			
+
+			if (Catalog.WarWisp.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixNullifier;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectNullifier) > 0) return targetEquipDef;
+			}
+
 			if (Catalog.SpikeStrip.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixAragonite;
@@ -483,6 +506,11 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixSepia, Catalog.Item.ZetAspectSepia);
 			}
+
+			if (Catalog.WarWisp.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixNullifier, Catalog.Item.ZetAspectNullifier);
+			}
 		}
 
 		private static void HandleAspectDisplay(CharacterModel model, EquipmentDef display, EquipmentDef target, ItemDef item)
@@ -583,6 +611,51 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		private static void FixDamageDealtStatHook()
+		{
+			IL.RoR2.Stats.StatManager.ProcessDamageEvents += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(1)
+				);
+
+				if (found)
+				{
+					c.Emit(OpCodes.Ldloc, 0);
+					c.EmitDelegate<Func<ulong, StatManager.DamageEvent, ulong>>((value, damageEvent) =>
+					{
+						ulong damageLimit = 10000000u;
+
+						CharacterMaster atkMaster = damageEvent.attackerMaster;
+						if (atkMaster)
+						{
+							CharacterBody atkBody = atkMaster.GetBody();
+							if (atkBody)
+							{
+								// ignore damage values over 10 million times higher than body basedamage
+								damageLimit = (ulong)(1e7 * (double)atkBody.damage);
+							}
+						}
+
+						if (value > damageLimit)
+						{
+							return 0u;
+						}
+						else
+						{
+							return value;
+						}
+					});
+				}
+				else
+				{
+					Logger.Warn("FixDamageDealtStatHook Failed");
+				}
+			};
+		}
+
 
 
 		private static void HPBarColorHook()
@@ -615,6 +688,8 @@ namespace TPDespair.ZetAspects
 					if (body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) || body.HasBuff(RoR2Content.Buffs.Immune)) immune = true;
 
 					if (body.HasBuff(RoR2Content.Buffs.AffixLunar)) convertShield = true;
+
+					if (body.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierRegen.Value > 0.001f) convertShield = true;
 
 					Inventory inventory = body.inventory;
 					if (inventory)

@@ -146,6 +146,11 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixSepia, Configuration.AspectDropWeightSepia.Value);
 			}
+
+			if (Catalog.WarWisp.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixNullifier, Configuration.AspectDropWeightNullifier.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

@@ -21,6 +21,7 @@ namespace TPDespair.ZetAspects
 			DirectStatHook();
 
 			OverloadingShieldConversionHook();
+			OtherShieldConversionHook();
 			FullShieldConversionHook();
 		}
 
@@ -80,10 +81,19 @@ namespace TPDespair.ZetAspects
 							value += Configuration.HeadHunterBuffMovementSpeed.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixVeiled) && self.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
+						if (self.HasBuff(Catalog.Buff.AffixVeiled))
 						{
-							count = Mathf.Max(5f, self.GetBuffCount(Catalog.Buff.ZetElusive));
-							value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / 20f);
+							if (Configuration.AspectVeiledBaseMovementGain.Value > 0f)
+							{
+								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVeiled);
+								value += Configuration.AspectVeiledBaseMovementGain.Value + Configuration.AspectVeiledStackMovementGain.Value * (count - 1f);
+							}
+
+							if (self.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
+							{
+								count = Mathf.Max(5f, self.GetBuffCount(Catalog.Buff.ZetElusive));
+								value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / 20f);
+							}
 						}
 
 						if (Compat.PlasmaSpikeStrip.rageStatHook)
@@ -272,6 +282,15 @@ namespace TPDespair.ZetAspects
 						{
 							float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
 							shield += health * (Configuration.AspectBlueBaseShieldGain.Value + Configuration.AspectBlueStackShieldGain.Value * (count - 1f));
+						}
+
+						if (Compat.WarWisp.shieldOverrideHook)
+						{
+							if (self.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierBaseShieldGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNullifier);
+								shield += health * (Configuration.AspectNullifierBaseShieldGain.Value + Configuration.AspectNullifierStackShieldGain.Value * (count - 1f));
+							}
 						}
 
 						return shield;
@@ -640,7 +659,6 @@ namespace TPDespair.ZetAspects
 		private static float GetArmorDelta(CharacterBody self)
 		{
 			float addedArmor = 0f;
-			float lostArmor = 0f;
 			float count;
 
 			if (self.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseArmorGain.Value > 0f)
@@ -659,6 +677,23 @@ namespace TPDespair.ZetAspects
 				addedArmor += Configuration.AspectPlatedBaseArmorGain.Value + Configuration.AspectPlatedStackArmorGain.Value * (count - 1f);
 			}
 
+			if (self.HasBuff(Catalog.Buff.AffixNullifier))
+			{
+				if (Configuration.AspectNullifierBaseArmorGain.Value > 0f)
+				{
+					count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNullifier);
+					addedArmor += Configuration.AspectNullifierBaseArmorGain.Value + Configuration.AspectNullifierStackArmorGain.Value * (count - 1f);
+				}
+			}
+			else if (self.HasBuff(Catalog.nullifierRecipient))
+			{
+				if (Configuration.AspectNullifierOverrideAllyArmor.Value && Compat.WarWisp.cachedAllyArmorValue != -1000000f)
+				{
+					addedArmor -= Compat.WarWisp.cachedAllyArmorValue;
+					addedArmor += Configuration.AspectNullifierAllyArmorGain.Value;
+				}
+			}
+
 			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
 			{
 				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
@@ -666,11 +701,10 @@ namespace TPDespair.ZetAspects
 
 			if (self.HasBuff(Catalog.Buff.ZetShredded))
 			{
-				lostArmor += Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
+				addedArmor -= Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
 			}
-			//if (self.teamComponent.teamIndex == TeamIndex.Player) lostArmor *= Configuration.AspectEffectPlayerDebuffMult.Value;
 
-			return addedArmor - lostArmor;
+			return addedArmor;
 		}
 
 		private static void ModifyCrit(CharacterBody self)
@@ -775,6 +809,48 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Logger.Warn("OverloadingShieldConversionHook Failed");
+				}
+			};
+		}
+
+		private static void OtherShieldConversionHook()
+		{
+			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(66)
+				);
+
+				if (found)
+				{
+					found = c.TryGotoPrev(MoveType.After,
+						x => x.MatchCallOrCallvirt<CharacterBody>("set_maxShield")
+					);
+
+					if (found)
+					{
+						c.Emit(OpCodes.Ldarg, 0);
+						c.EmitDelegate<Action<CharacterBody>>((body) =>
+						{
+							if (Compat.WarWisp.shieldOverrideHook && body.HasBuff(Catalog.Buff.AffixNullifier))
+							{
+								float converted = body.maxHealth * Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 0.9f);
+
+								body.maxHealth -= converted;
+								body.maxShield += converted;
+							}
+						});
+					}
+					else
+					{
+						Logger.Warn("OtherShieldConversionHook:FindSetShield Failed");
+					}
+				}
+				else
+				{
+					Logger.Warn("OtherShieldConversionHook:FindRegenScaleVar Failed");
 				}
 			};
 		}

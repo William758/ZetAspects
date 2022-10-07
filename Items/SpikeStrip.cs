@@ -218,6 +218,24 @@ namespace TPDespair.ZetAspects.Items
 
 			string output = TextFragment("ASPECT_OF_OBFUSCATION");
 
+			if (AspectVeiledBaseDodgeGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("DODGE_CHANCE"),
+					ScalingText(AspectVeiledBaseDodgeGain.Value, AspectVeiledStackDodgeGain.Value, "chance", "cIsHealing", combine)
+				);
+
+				output += TextFragment("DODGE_DETAIL");
+			}
+
+			if (AspectVeiledBaseMovementGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_MOVESPEED"),
+					ScalingText(AspectVeiledBaseMovementGain.Value, AspectVeiledStackMovementGain.Value, "percent", "cIsUtility", combine)
+				);
+			}
+
 			if (!Compat.PlasmaSpikeStrip.cloakHook && attemptDisableCloak) 
 			{
 				output += TextFragment("CLOAK_ON_HIT");
@@ -231,7 +249,7 @@ namespace TPDespair.ZetAspects.Items
 					if (duration > 0.1f)
 					{
 						output += String.Format(
-							TextFragment("CLOAK_ON_HIT_TIMER"),
+							TextFragment("CLOAK_ON_HIT_TIMED"),
 							SecondText(4f, "for")
 						);
 					}
@@ -336,8 +354,8 @@ namespace TPDespair.ZetAspects.Items
 
 		public static string BuildDescription(bool combine)
 		{
-			// aura buff not enabled ???
-			bool auraEnabled = false;
+			// aura buff not enabled , maybe it just doenst work on player team for some reason ???
+			bool auraEnabled = true;
 
 			string output = TextFragment("ASPECT_OF_FURY");
 
