@@ -40,13 +40,31 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			targetFragmentLanguage = "default";
+			targetLanguage = "default";
+
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
 			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
 			string desc = BuildDescription(false);
 			RegisterToken("ITEM_" + locToken + "_DESC", desc);
 			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_SANGUINE_ACTIVE"), true));
+
+
+
+			targetLanguage = "pt-BR";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
+			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
+			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_SANGUINE_ACTIVE"), true));
+
+
+
+			targetLanguage = "";
 		}
 
 		public static string BuildDescription(bool combine)

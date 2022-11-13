@@ -60,7 +60,13 @@ Requires Bepinex and HookGenPatcher.
 
 Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
+## Credits:
+
+Brazilian Portuguese translation by SpookyGabe#9476.
+
 ## Changelog:
+
+v2.7.19 - Added Brazilian Portuguese translation by SpookyGabe#9476.
 
 v2.7.18 - WarframeWispMod Nullifier support. Updated SpikeStrip descriptions. BuffCycle tweaks and some bug fixes.
 

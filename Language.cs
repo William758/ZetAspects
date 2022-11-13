@@ -6,7 +6,7 @@ namespace TPDespair.ZetAspects
 {
 	public static class Language
 	{
-		public static string targetFragmentLanguage = "default";
+		public static string targetLanguage = "default";
 
 		public static Dictionary<string, Dictionary<string, string>> tokens = new Dictionary<string, Dictionary<string, string>>();
 		public static Dictionary<string, Dictionary<string, string>> fragments = new Dictionary<string, Dictionary<string, string>>();
@@ -15,6 +15,8 @@ namespace TPDespair.ZetAspects
 
 		public static void RegisterToken(string token, string text, string language = "default")
 		{
+			if (targetLanguage != "" || targetLanguage != "default") language = targetLanguage;
+
 			if (!tokens.ContainsKey(language)) tokens.Add(language, new Dictionary<string, string>());
 
 			var langDict = tokens[language];
@@ -25,6 +27,8 @@ namespace TPDespair.ZetAspects
 		
 		public static void RegisterFragment(string token, string text, string language = "default")
 		{
+			if (targetLanguage != "" || targetLanguage != "default") language = targetLanguage;
+
 			if (!fragments.ContainsKey(language))
 			{
 				//Logger.Info("Creating (" + language + ") fragment language.");
@@ -49,6 +53,8 @@ namespace TPDespair.ZetAspects
 		
 		internal static void SetupFragments()
 		{
+			targetLanguage = "default";
+
 			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n\nCounts as {0} stacks");
 			RegisterFragment("HOW_TO_CONVERT", "\nClick bottom-right equipment icon to convert");
 
@@ -275,22 +281,261 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_UNKNOWN_AURA", "\nEmit an aura that <style=cStack>(???)</style>");
 
 			RegisterFragment("HEADHUNTER", "Gain the <style=cIsDamage>power</style> of any killed elite monster for {0}.");
+
+
+
+
+
+			targetLanguage = "pt-BR";
+
+			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n\nConta como {0} acúmulos");
+			RegisterFragment("HOW_TO_CONVERT", "\nClique no icone de equipamento no canto inferior direito para converter");
+
+			RegisterFragment("BASE_STACK_FORMAT", "{0} {1}");
+
+			RegisterFragment("FLAT_VALUE", "{0}");
+			RegisterFragment("PERCENT_VALUE", "{0}%");
+			RegisterFragment("FLATREGEN_VALUE", "{0} PV/s");
+			RegisterFragment("PERCENTREGEN_VALUE", "{0}% PV/s");
+			RegisterFragment("DURATION_VALUE", "{0} s");
+			RegisterFragment("METER_VALUE", "{0} m");
+
+			RegisterFragment("FLAT_STACK_INC", "<style=cStack>(+{0} por acúmulo)</style>");
+			RegisterFragment("PERCENT_STACK_INC", "<style=cStack>(+{0}% por acúmulo)</style>");
+			RegisterFragment("FLATREGEN_STACK_INC", "<style=cStack>(+{0} PV/s por acúmulo)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_INC", "<style=cStack>(+{0}% PV/s por acúmulo)</style>");
+			RegisterFragment("DURATION_STACK_INC", "<style=cStack>(+{0} s por acúmulo)</style>");
+			RegisterFragment("METER_STACK_INC", "<style=cStack>(+{0} m por acúmulo)</style>");
+			RegisterFragment("FLAT_STACK_DEC", "<style=cStack>(-{0} por acúmulo)</style>");
+			RegisterFragment("PERCENT_STACK_DEC", "<style=cStack>(-{0}% por acúmulo)</style>");
+			RegisterFragment("FLATREGEN_STACK_DEC", "<style=cStack>(-{0} PV/s por acúmulo)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_DEC", "<style=cStack>(-{0}% PV/s por acúmulo)</style>");
+			RegisterFragment("DURATION_STACK_DEC", "<style=cStack>(-{0} s por acúmulo)</style>");
+			RegisterFragment("METER_STACK_DEC", "<style=cStack>(-{0} m por acúmulo)</style>");
+
+			RegisterFragment("BASE_DAMAGE", "base");
+			RegisterFragment("TOTAL_DAMAGE", "TOTAL");
+
+			RegisterFragment("FOR_SECOND", "por {0} segundo");
+			RegisterFragment("FOR_SECONDS", "por {0} segundos");
+			RegisterFragment("OVER_SECOND", "ao longo de {0} segundo");
+			RegisterFragment("OVER_SECONDS", "ao longo de {0} segundos");
+			RegisterFragment("AFTER_SECOND", "após {0} segundo");
+			RegisterFragment("AFTER_SECONDS", "após {0} segundos");
+			RegisterFragment("EVERY_SECOND", "a cada segundo");
+			RegisterFragment("EVERY_SECONDS", "a cada {0} segundos");
+			RegisterFragment("SECOND", "{0} segundo");
+			RegisterFragment("SECONDS", "{0} segundos");
+
+
+
+			RegisterFragment("AFFIX_WHITE_NAME", "Abraço Congelante");
+			RegisterFragment("AFFIX_WHITE_PICKUP", "Torne-se um elemento do gelo.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "Libere um cristal de gelo que desativa habilidades.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "Libere um cristal de gelo que drena saúde.");
+			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Elemento do Gelo</style> :");
+			RegisterFragment("CHILL_ON_HIT", "\nAtaques <style=cIsUtility>arrepiam</style> ao golpear {0}, reduzindo a <style=cIsUtility>velocidade de movimento</style> em <style=cIsUtility>80%</style>.");
+			RegisterFragment("CHANCE_TO_FREEZE", "\nAtaques tem {0} de chance de <style=cIsUtility>congelarem</style> {1}.");
+			RegisterFragment("FROST_BLADE", "\nAtaques disparam uma <style=cIsDamage>lâmina</style> que causa {0} de dano TOTAL.");
+
+			RegisterFragment("AFFIX_BLUE_NAME", "Silêncio Entre Golpes");
+			RegisterFragment("AFFIX_BLUE_PICKUP", "Torne-se um elemento do relâmpago.");
+			RegisterFragment("AFFIX_BLUE_ACTIVE", "Teletransporta ao usar.");
+			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>Elemento do Relâmpago</style> :");
+			RegisterFragment("PASSIVE_SCATTER_BOMB", "\nSolte bombas de dispersão periodicamente ao seu redor.");
+			RegisterFragment("SAP_ON_HIT", "\nAtaques <style=cIsUtility>exauriam</style> ao golpear {0}, reduzindo o <style=cIsUtility>dano</style> em {1}.");
+			RegisterFragment("SCATTER_BOMB", "\nAtaques soltam bombas de dispersão que explodem causando {0} de dano TOTAL.");
+			RegisterFragment("LIGHTNING_BOMB", "\nAtaques grudam uma <style=cIsDamage>bomba</style> que explode causando {0} de dano TOTAL {1}.");
+
+			RegisterFragment("AFFIX_RED_NAME", "Nobreza de Ifrit");
+			RegisterFragment("AFFIX_RED_PICKUP", "Torne-se um elemento de fogo.");
+			RegisterFragment("AFFIX_RED_ACTIVE", "Lança um míssil flamejante teleguiado.");
+			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>Elemento de Fogo</style> :");
+			RegisterFragment("PASSIVE_FIRE_TRAIL", "\nDeixe para trás um rastro de fogo que causa dano a inimigos em contato.");
+			RegisterFragment("BURN_DOT", "\nAtaques <style=cIsDamage>queimam</style> ao golpear causando {0} {1} de dano {2}.");
+
+			RegisterFragment("AFFIX_HAUNTED_NAME", "Tiara Espectral");
+			RegisterFragment("AFFIX_HAUNTED_PICKUP", "Torne-se um elemento incorpóreo.");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "Concede temporariamente aos aliados próximos uma chance de desviar de golpes.");
+			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>Elemento Incorpóreo</style> :");
+			RegisterFragment("PASSIVE_GHOST_AURA", "\nEmite uma aura que encobre aliados próximos.");
+			RegisterFragment("PASSIVE_POSSESS", "\nGrude em alguns aliados próximos, possuindo-os.");
+			RegisterFragment("SHRED_ON_HIT", "\nAtaques <style=cIsDamage>fragmentam</style> ao golpear {0}, reduzindo a <style=cIsDamage>armadura</style> em {1}.");
+			RegisterFragment("GHOST_ARMOR", "\nConcede aos aliados próximos {0} de <style=cIsHealing>armadura</style> adicional.");
+			RegisterFragment("GHOST_DODGE", "\nConcede aos aliados próximos {0} de chance de <style=cIsHealing>desviar</style>.");
+
+			RegisterFragment("AFFIX_POISON_NAME", "Retaliação de N'kuhana");
+			RegisterFragment("AFFIX_POISON_PICKUP", "Torne-se um elemento da corrupção.");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "Gera um Ouriço Malaquita aliado que herda todos os seus itens.");
+			RegisterFragment("ASPECT_OF_CORRUPTION", "<style=cDeath>Elemento da Corrupção</style> :");
+			RegisterFragment("PASSIVE_SPIKEBALL", "\nLibera periodicamente bolas cravejadas que brotam poços de espinhos de onde pousam.");
+			RegisterFragment("PASSIVE_RUIN_AURA", "\nEmite uma aura que aplica <style=cIsDamage>ruína</style> a inimigos próximos.");
+			RegisterFragment("RUIN_ON_HIT_BASIC", "\nAtaques <style=cIsDamage>arruínam</style> ao golpear {0}, impedindo a recuperação da saúde.");
+			RegisterFragment("RUIN_ON_HIT", "\nAtaques <style=cIsDamage>arruínam</style> ao golpear {0}, aumentado o <style=cIsDamage>dano recebido</style> em {1}.");
+			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(Ruína impede a recuperação da saúde)</style>");
+			RegisterFragment("WEAKEN_ON_HIT", "\nAtaques <style=cIsDamage>enfraquecem</style> ao golpear {0}, reduzindo a <style=cIsDamage>armadura</style> em <style=cIsDamage>30</style>, a <style=cIsUtility>velocidade de movimento</style> em <style=cIsUtility>40%</style>, e o <style=cIsDamage>dano</style> em <style=cIsDamage>40%</style>.");
+
+			RegisterFragment("AFFIX_LUNAR_NAME", "Design Compartilhado");
+			RegisterFragment("AFFIX_LUNAR_PICKUP", "Torne-se um aspecto da perfeição.");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "Ganhe proteção temporária contra golpes poderosos.");
+			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cDeath>Aspecto da Perfeição</style> :");
+			RegisterFragment("PASSIVE_LUNAR_PROJ", "\nLance projéteis periodicamente durante o combate.");
+			RegisterFragment("CRIPPLE_ON_HIT", "\nAtaques <style=cIsDamage>paralisam</style> ao golpear {0}, reduzindo a <style=cIsDamage>armadura</style> em <style=cIsDamage>20</style> e a <style=cIsUtility>velocidade de movimento</style> em <style=cIsUtility>50%</style>.");
+
+			RegisterFragment("AFFIX_EARTH_NAME", "Vossa Reafirmação");
+			RegisterFragment("AFFIX_EARTH_PICKUP", "Torne-se um aspecto da terra.");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "Concede uma alta regeneração de saúde breve.");
+			RegisterFragment("ASPECT_OF_EARTH", "<style=cDeath>Aspecto da Terra</style> :");
+			RegisterFragment("PASSIVE_HEAL_ALLY", "\nCure aliados próximos.");
+			RegisterFragment("POACH_ON_HIT_BASIC", "\nAtaques <style=cIsUtility>caçam</style> ao golpear {0}, fazendo com que os golpes contra eles <style=cIsHealing>curem</style> em {1} do <style=cIsDamage>dano</style> causado.");
+			RegisterFragment("POACH_ON_HIT", "\nAtaques <style=cIsUtility>caçam</style> ao golpear {0}, reduzindo a <style=cIsUtility>velocidade de ataque</style> em {1}.");
+			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(Golpes contra inimigos caçados curam em {0} do dano causado)</style>");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>Cura</style> em {0} do <style=cIsDamage>dano</style> que você causa.");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>Modificador Sanguessuga =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
+
+			RegisterFragment("AFFIX_VOID_NAME", "Fratura Entrópica");
+			RegisterFragment("AFFIX_VOID_PICKUP", "Torne-se um aspecto da nulidade.");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "Redefine todos os seus tempos de recarga.");
+			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>Aspecto da Nulidade</style> :");
+			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>Bloqueia</style> dano recebido uma vez. Recarrega após um atraso.");
+			RegisterFragment("NULLIFY_ON_HIT", "\nAtaques <style=cIsUtility>anulam</style> ao golpear {0}");
+			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(Inimigos com 3 acúmulos de anulação ficam enraizados por 3 segundos)</style>");
+			RegisterFragment("COLLAPSE_DOT", "\nAtaques <style=cIsDamage>derrubam</style> ao golpear em {0} {1} de dano {2}.");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n<style=cIsDamage>100%</style> de chance de <style=cIsDamage>derrubar</style> um inimigo em <style=cIsDamage>400%</style> de dano base.");
+			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>Corrompe todos os Aspectos Itemizados</style>.");
+
+			RegisterFragment("AFFIX_PLATED_NAME", "Incorporação da Subserviência");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "Torne-se um aspecto da resistência.");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>Aspecto da Resistência</style> :");
+			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\nGanhe placas defensivas que mitigam o dano pesado.");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\nAtaques <style=cIsUtility>sufocam</style> ao golpear {0}, reduzindo o dano causado.");
+
+			RegisterFragment("AFFIX_WARPED_NAME", "Fé Extraviada");
+			RegisterFragment("AFFIX_WARPED_PICKUP", "Torne-se um aspecto da gravidade.");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>Aspecto da Gravidade</style> :");
+			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\nReflete periodicamente projéteis próximos.");
+			RegisterFragment("LEVITATE_ON_HIT", "\nAtaques <style=cIsUtility>levitam</style> ao golpear {0}.");
+
+			RegisterFragment("AFFIX_VEILED_NAME", "Maldição da Obscuridade");
+			RegisterFragment("AFFIX_VEILED_PICKUP", "Torne-se um aspecto da ofuscação.");
+			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>Aspecto da Ofuscação</style> :");
+			RegisterFragment("CLOAK_ON_HIT", "\nAtaques <style=cIsUtility>encobrem</style> você ao golpear.");
+			RegisterFragment("CLOAK_ON_HIT_TIMED", "\nAtaques <style=cIsUtility>encobrem</style> você ao golpear {0}.");
+			RegisterFragment("ELUSIVE_ON_HIT", "\nAtaques concedem <style=cIsUtility>elusivo</style> ao golpear.");
+			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(Elusivo concede {0} de velocidade de movimento)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(Elusivo concede {0} de chance de desviar)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(Elusivo concede {0} de velocidade de movimento e {1} de chance de desviar)</style>");
+			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(O efeito Elusivo decai em {0} a cada segundo)</style>");
+			RegisterFragment("ELUSIVE_EFFECT", "\nEfeito Elusivo de {0}.");
+
+			RegisterFragment("AFFIX_ARAGONITE_NAME", "Seu Temperamento");
+			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "Torne-se um aspecto da fúria.");
+			RegisterFragment("AFFIX_ARAGONITE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FURY", "<style=cDeath>Aspecto da Fúria</style> :");
+			RegisterFragment("PASSIVE_ANGRY_HIT", "\nDesencadeie uma explosão de raiva periodicamente ao golpear.");
+			RegisterFragment("PASSIVE_ANGRY_AURA", "\nEmite uma aura que fortalece aliados próximos.");
+			RegisterFragment("ANGRY_ATKSPD", "\nConcede a aliados próximos {0} de <style=cIsUtility>velocidade de movimento</style> aumentada.");
+			RegisterFragment("ANGRY_MOVSPD", "\nConcede a aliados próximos {0} de <style=cIsDamage>velocidade de ataque</style> aumentada.");
+			RegisterFragment("ANGRY_BOTHSPD", "\nConcede a aliados próximos {0} de <style=cIsUtility>velocidade de movimento</style> e <style=cIsDamage>velocidade de ataque</style> aumentada.");
+			RegisterFragment("ANGRY_COOLDOWN", "\nConcede a aliados próximos {0} de redução da <style=cIsUtility>recarga de habildades</style>.");
+
+			RegisterFragment("AFFIX_GOLD_NAME", "Coven d'Ouro");
+			RegisterFragment("AFFIX_GOLD_PICKUP", "Torne-se um aspecto da fortuna.");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FORTUNE", "<style=cDeath>Aspecto da Fortuna</style> :");
+			RegisterFragment("GOLD_ON_HIT", "\nAtaques concedem ouro ao golpear.");
+			RegisterFragment("ITEMSCORE_REGEN", "\n<style=cIsHealing>regeneração de saúde</style> bônus baseada na quantidade e nível dos itens possuídos.");
+			RegisterFragment("ITEMSCORE_REGEN_MULT", "\nMultiplicador de regeneração de pontuação do item de {0}.");
+
+			RegisterFragment("AFFIX_SEPIA_NAME", "Reflexão Desaparecendo");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "Torne-se um aspecto da ilusão.");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>Aspecto da Ilusão</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\nAtaques aplicam <style=cIsUtility>visão distorcida</style> ao golpear {0}, reduzindo a chance de golpear em {1}.");
+
+			RegisterFragment("AFFIX_SANGUINE_NAME", "Fidelidade Sangrenta");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "Torne-se um aspecto do plano vermelho.");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "Teletransporte-se e ganhe breve invulnerabilidade.");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>Aspecto do Plano Vermelho</style> :");
+			RegisterFragment("BLEED_DOT", "\nAtaques <style=cIsDamage>sangram</style> ao golpear causando {0} de dano base {1}.");
+			RegisterFragment("DOT_AMP", "\nAumenta o <style=cIsDamage>multiplicador do dano degenerativo</style> em {0}.");
+
+			RegisterFragment("AFFIX_NULLIFIER_NAME", "Bênção dos Parvos");
+			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "Torne-se um aspecto do vazio.");
+			RegisterFragment("AFFIX_NULLIFIER_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>Aspecto do Vazio</style> :");
+			RegisterFragment("PASSIVE_NULL_AURA", "\nEmite uma aura que protege aliados próximos e penaliza inimigos próximos.");
+			RegisterFragment("NULL_ON_HIT", "\nAtaques <style=cIsUtility>nulificam</style> ao golpear.");
+			RegisterFragment("NULL_ON_HIT_SPD", "\nAtaques <style=cIsUtility>nulificam</style> ao golpear, reduzindo a <style=cIsUtility>velocidade de movimento</style> em {0}.");
+
+			RegisterFragment("NEARBY_ARMOR", "\nConcede a aliados próximos {0} de <style=cIsHealing>armadura</style> adicional.");
+			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nConcede a aliados próximos <style=cIsHealing>armadura</style> adicional.");
+
+			RegisterFragment("CONVERT_SHIELD", "\nConverta {0} da sua saúde em <style=cIsHealing>escudo regenerador</style>.");
+			RegisterFragment("EXTRA_SHIELD_CONVERT", "\nGanhe {0} de <style=cIsHealing>escudo</style> extra da conversão.");
+			RegisterFragment("CONVERT_SHIELD_REGEN", "\nPelo menos {0} da <style=cIsHealing>regeneração da saúde</style> se aplica ao <style=cIsHealing>escudo</style>.");
+			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(A recuperação de escudo natural é desativada)</style>");
+
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\nGanhe {0} de saúde como <style=cIsHealing>escudo</style> extra.");
+			RegisterFragment("STAT_EXTRA_JUMP", "\nGanhe <style=cIsUtility>+1</style> <style=cIsUtility>quantidade de saltos</style> máximos.");
+			RegisterFragment("STAT_MOVESPEED", "\nAumenta a <style=cIsUtility>velocidade de movimento</style> em {0}.");
+			RegisterFragment("STAT_ATTACKSPEED", "\nAumenta a <style=cIsDamage>velocidad de ataque</style> em {0}.");
+			RegisterFragment("STAT_BOTHSPEED", "\nAumenta a <style=cIsUtility>velocidade de movimento</style> e a <style=cIsDamage>velocidade de ataque</style> em {0}.");
+			RegisterFragment("STAT_ARMOR", "\nAumenta a <style=cIsHealing>armadura</style> em {0}.");
+			RegisterFragment("STAT_HEALTH", "\nAumenta a <style=cIsHealing>saúde máxima</style> em {0}.");
+			RegisterFragment("STAT_REGENERATION", "\nAumenta a <style=cIsHealing>regeneração de saúde</style> em {0}.");
+			RegisterFragment("STAT_DAMAGE", "\nAumenta o <style=cIsDamage>dano</style> em {0}.");
+			RegisterFragment("STAT_COOLDOWN", "\nReduz os <style=cIsUtility>tempos de recarga das habilidades</style> em {0}.");
+
+			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\nGanhe uma grande quantidade de <style=cIsHealing>escudo regenerador</style>.");
+
+			RegisterFragment("BLOCK_CHANCE", "\n{0} de chance de <style=cIsHealing>bloquear</style> o dano recebido.");
+			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\nChance de <style=cIsHealing>bloquear</style> o dano recebido.");
+			RegisterFragment("BLOCK_DETAIL", "\n<style=cStack>(A chance de bloquear não é afetada pela sorte)</style>");
+
+			RegisterFragment("DODGE_CHANCE", "\n{0} de chance de <style=cIsHealing>desviar</style> o dano recebido.");
+			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\nChance de <style=cIsHealing>desviar</style> o dano recebido.");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(A chance de desviar não é afetada pela sorte)</style>");
+
+			RegisterFragment("PLATING_EFFECT", "\nReduz todo o <style=cIsDamage>dano recebido</style> em {0}.");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(O dano recebido não pode ser reduzido para menos de 1)</style>");
+
+			RegisterFragment("FALL_REDUCTION", "\nReduz o dano de queda em {0}.");
+			RegisterFragment("FALL_IMMUNE", "\nImune a dano de queda.");
+
+			RegisterFragment("FORCE_REDUCTION", "\nReduz o empurrão em {0}.");
+			RegisterFragment("FORCE_IMMUNE", "\nImune ao empurrão.");
+
+
+
+			RegisterFragment("PASSIVE_UNKNOWN_AURA", "\nEmite uma aura que <style=cStack>(???)</style>");
+
+			RegisterFragment("HEADHUNTER", "Ganhe o <style=cIsDamage>poder</style> de qualquer monstro de elite abatido por {0}.");
+
+			targetLanguage = "";
 		}
 
 
 
 		public static string TextFragment(string key, bool trim = false)
 		{
-			if (fragments.ContainsKey(targetFragmentLanguage))
+			if (targetLanguage != "" || targetLanguage != "default")
 			{
-				if (fragments[targetFragmentLanguage].ContainsKey(key))
+				if (fragments.ContainsKey(targetLanguage))
 				{
-					//Logger.Info("Found fragment (" + key + ") in (" + targetFragmentLanguage + ") fragment language.");
-					string output = fragments[targetFragmentLanguage][key];
-					if (trim) output = output.Trim('\n');
-					return output;
+					if (fragments[targetLanguage].ContainsKey(key))
+					{
+						//Logger.Info("Found fragment (" + key + ") in (" + targetFragmentLanguage + ") fragment language.");
+						string output = fragments[targetLanguage][key];
+						if (trim) output = output.Trim('\n');
+						return output;
+					}
 				}
 			}
+
 			if (fragments.ContainsKey("default"))
 			{
 				if (fragments["default"].ContainsKey(key))
@@ -482,9 +727,8 @@ namespace TPDespair.ZetAspects
 		internal static void ChangeText()
 		{
 			string text;
-			targetFragmentLanguage = "default";
 
-
+			targetLanguage = "default";
 
 			text = String.Format(
 				TextFragment("HEADHUNTER"),
@@ -514,6 +758,43 @@ namespace TPDespair.ZetAspects
 				text += TextFragment("STAT_EXTRA_JUMP");
 			}
 			RegisterToken("ITEM_SHIELDONLY_DESC", text);
+
+
+
+
+
+			targetLanguage = "pt-BR";
+
+			text = String.Format(
+				TextFragment("HEADHUNTER"),
+				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
+			);
+			RegisterToken("ITEM_HEADHUNTER_DESC", text);
+
+
+
+			text = String.Format(
+				TextFragment("CONVERT_SHIELD", true),
+				ScalingText(1f, "percent", "cIsHealing")
+			);
+			text += String.Format(
+				TextFragment("EXTRA_SHIELD_CONVERT"),
+				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
+			);
+			if (Configuration.TranscendenceRegen.Value > 0f)
+			{
+				text += String.Format(
+					TextFragment("CONVERT_SHIELD_REGEN"),
+					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+				);
+			}
+			if (Catalog.shieldJump)
+			{
+				text += TextFragment("STAT_EXTRA_JUMP");
+			}
+			RegisterToken("ITEM_SHIELDONLY_DESC", text);
+
+			targetLanguage = "";
 		}
 	}
 }

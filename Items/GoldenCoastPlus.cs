@@ -40,13 +40,31 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string locToken = identifier.ToUpperInvariant();
 
-			targetFragmentLanguage = "default";
+			targetLanguage = "default";
+
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
 			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
 			string desc = BuildDescription(false);
 			RegisterToken("ITEM_" + locToken + "_DESC", desc);
 			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
+
+
+
+			targetLanguage = "pt-BR";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXGOLD_NAME", TextFragment("AFFIX_GOLD_NAME"));
+			RegisterToken("EQUIPMENT_AFFIXGOLD_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
+			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
+
+
+
+			targetLanguage = "";
 		}
 
 		public static string BuildDescription(bool combine)
