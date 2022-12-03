@@ -151,6 +151,11 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixNullifier, Configuration.AspectDropWeightNullifier.Value);
 			}
+
+			if (Catalog.Blighted.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixBlighted, Configuration.AspectDropWeightBlighted.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

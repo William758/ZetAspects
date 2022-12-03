@@ -48,12 +48,18 @@ namespace TPDespair.ZetAspects
 					DestroyedBodies[netId] -= FixedUpdateStopwatch;
 					if (DestroyedBodies[netId] <= 0f)
 					{
+						if (BlightedStateManager.NetIds.Contains(netId))
+						{
+							BlightedStateManager.DestroyEntry(netId);
+						}
+
 						DestroyedBodies.Remove(netId);
 
 						if (DisplayHooks.BodyEliteDisplay.ContainsKey(netId))
 						{
 							DisplayHooks.BodyEliteDisplay.Remove(netId);
 						}
+
 						if (ShieldRegenAccumulator.ContainsKey(netId))
 						{
 							ShieldRegenAccumulator.Remove(netId);
@@ -1596,9 +1602,10 @@ namespace TPDespair.ZetAspects
 			if (self.alive)
 			{
 				CharacterBody body = self.body;
+				bool destroyed = DestroyedBodies.ContainsKey(body.netId);
 				bool canRegenShield = self.shield >= 1f || body.outOfDangerStopwatch > Configuration.ShieldRegenBreakDelay.Value;
 
-				if (self.shield < self.fullShield && body.regen > 0f && canRegenShield)
+				if (self.shield < self.fullShield && body.regen > 0f && canRegenShield && !destroyed)
 				{
 					float shieldRegen = 0f;
 
@@ -1773,6 +1780,8 @@ namespace TPDespair.ZetAspects
 							manager.RefreshEliteBuffs();
 						}
 
+						BlightedStateManager.ApplyBlightedAspectBuffs(self);
+
 						ApplyAspectBuffs(self);
 					}
 				}
@@ -1886,6 +1895,11 @@ namespace TPDespair.ZetAspects
 			if (Catalog.WarWisp.populated)
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixNullifier, Catalog.Item.ZetAspectNullifier, Catalog.Equip.AffixNullifier);
+			}
+
+			if (Catalog.Blighted.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBlighted, Catalog.Item.ZetAspectBlighted, Catalog.Equip.AffixBlighted);
 			}
 		}
 

@@ -54,6 +54,10 @@ Monster endurance damage reduction multiplier : x0.5
 
 ![effects](https://i.imgur.com/uao6nvi.png)
 
+## BlightedElites:
+
+![effects](https://i.imgur.com/kFos0O8.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -65,6 +69,10 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 Brazilian Portuguese translation by SpookyGabe#9476.
 
 ## Changelog:
+
+v2.7.21 - Added BlightedElites support.
+
+v2.7.20 - Update Brazilian Portuguese translation.
 
 v2.7.19 - Added Brazilian Portuguese translation by SpookyGabe#9476.
 

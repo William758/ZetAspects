@@ -133,6 +133,14 @@ namespace TPDespair.ZetAspects
 
 			EquipmentDef targetEquipDef;
 
+			if (Catalog.Blighted.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBlighted;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBlighted) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (!isDead)
 			{
 				targetEquipDef = Catalog.Equip.AffixVoid;
@@ -241,6 +249,13 @@ namespace TPDespair.ZetAspects
 
 			EquipmentDef targetEquipDef;
 
+			if (Catalog.Blighted.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBlighted;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (!isDead)
 			{
 				targetEquipDef = Catalog.Equip.AffixVoid;
@@ -329,6 +344,12 @@ namespace TPDespair.ZetAspects
 		private static EquipmentDef GetEliteDisplayFromItem(Inventory inventory, bool isDead = false)
 		{
 			EquipmentDef targetEquipDef;
+
+			if (Catalog.Blighted.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBlighted;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBlighted) > 0) return targetEquipDef;
+			}
 
 			if (!isDead)
 			{
@@ -510,6 +531,11 @@ namespace TPDespair.ZetAspects
 			if (Catalog.WarWisp.Enabled)
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixNullifier, Catalog.Item.ZetAspectNullifier);
+			}
+
+			if (Catalog.Blighted.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlighted, Catalog.Item.ZetAspectBlighted);
 			}
 		}
 

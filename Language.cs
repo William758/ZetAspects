@@ -238,6 +238,14 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("NULL_ON_HIT", "\nAttacks <style=cIsUtility>null</style> on hit.");
 			RegisterFragment("NULL_ON_HIT_SPD", "\nAttacks <style=cIsUtility>null</style> on hit, reducing <style=cIsUtility>movement speed</style> by {0}.");
 
+			RegisterFragment("AFFIX_BLIGHTED_NAME", "Betrayal of the Bulwark");
+			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "Become an aspect of decay.");
+			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "Reroll your randomized Elite Affixes.");
+			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>Aspect of Decay</style> :");
+			RegisterFragment("PASSIVE_BLIGHT", "\nGain 2 random Elite Affixes.");
+
+
+
 			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
 			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nGrants nearby allies additional <style=cIsHealing>armor</style>.");
 
@@ -352,7 +360,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_RED_ACTIVE", "Lança um míssil flamejante teleguiado.");
 			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>Elemento de Fogo</style> :");
 			RegisterFragment("PASSIVE_FIRE_TRAIL", "\nDeixe para trás um rastro de fogo que causa dano a inimigos em contato.");
-			RegisterFragment("BURN_DOT", "\nAtaques <style=cIsDamage>queimam</style> ao golpear causando {0} {1} de dano {2}.");
+			RegisterFragment("BURN_DOT", "\nAtaques <style=cIsDamage>queimam</style> ao golpear causando {0} de dano {1} {2}.");
 
 			RegisterFragment("AFFIX_HAUNTED_NAME", "Tiara Espectral");
 			RegisterFragment("AFFIX_HAUNTED_PICKUP", "Torne-se um elemento incorpóreo.");
@@ -471,6 +479,8 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("NULL_ON_HIT", "\nAtaques <style=cIsUtility>nulificam</style> ao golpear.");
 			RegisterFragment("NULL_ON_HIT_SPD", "\nAtaques <style=cIsUtility>nulificam</style> ao golpear, reduzindo a <style=cIsUtility>velocidade de movimento</style> em {0}.");
 
+
+
 			RegisterFragment("NEARBY_ARMOR", "\nConcede a aliados próximos {0} de <style=cIsHealing>armadura</style> adicional.");
 			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nConcede a aliados próximos <style=cIsHealing>armadura</style> adicional.");
 
@@ -480,9 +490,9 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(A recuperação de escudo natural é desativada)</style>");
 
 			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\nGanhe {0} de saúde como <style=cIsHealing>escudo</style> extra.");
-			RegisterFragment("STAT_EXTRA_JUMP", "\nGanhe <style=cIsUtility>+1</style> <style=cIsUtility>quantidade de saltos</style> máximos.");
+			RegisterFragment("STAT_EXTRA_JUMP", "\nGanhe <style=cIsUtility>+1</style> de <style=cIsUtility>quantidade de saltos</style> máximos.");
 			RegisterFragment("STAT_MOVESPEED", "\nAumenta a <style=cIsUtility>velocidade de movimento</style> em {0}.");
-			RegisterFragment("STAT_ATTACKSPEED", "\nAumenta a <style=cIsDamage>velocidad de ataque</style> em {0}.");
+			RegisterFragment("STAT_ATTACKSPEED", "\nAumenta a <style=cIsDamage>velocidade de ataque</style> em {0}.");
 			RegisterFragment("STAT_BOTHSPEED", "\nAumenta a <style=cIsUtility>velocidade de movimento</style> e a <style=cIsDamage>velocidade de ataque</style> em {0}.");
 			RegisterFragment("STAT_ARMOR", "\nAumenta a <style=cIsHealing>armadura</style> em {0}.");
 			RegisterFragment("STAT_HEALTH", "\nAumenta a <style=cIsHealing>saúde máxima</style> em {0}.");

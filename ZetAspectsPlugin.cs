@@ -19,10 +19,11 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.19";
+		public const string ModVer = "2.7.21";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -96,6 +97,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(0f, 5f, 7.5f));
 				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixNullifier, transform.position + new Vector3(-5f, 5f, -5f));
+				CreateDroplet(Catalog.Equip.AffixBlighted, transform.position + new Vector3(0f, 5f, -7.5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

@@ -38,6 +38,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
 		public static ConfigEntry<float> AspectDropWeightNullifier { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBlighted { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -68,6 +69,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> EliteReworksHooks { get; set; }
 		public static ConfigEntry<bool> SpikeStripHooks { get; set; }
 		public static ConfigEntry<bool> WarWispHooks { get; set; }
+		public static ConfigEntry<bool> BlightedHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -216,6 +218,13 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectNullifierAllyArmorGain { get; set; }
 		public static ConfigEntry<float> AspectNullifierBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectNullifierStackArmorGain { get; set; }
+
+		public static ConfigEntry<float> AspectBlightedBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedBaseHealthGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackHealthGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBlightedStackDamageGain { get; set; }
 
 
 
@@ -370,6 +379,10 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightNullifier", 1f,
 					"Drop chance multiplier for AffixNullifier"
 				);
+				AspectDropWeightBlighted = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBlighted", 1f,
+					"Drop chance multiplier for AffixBlighted"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -490,6 +503,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "warWispHooks", true,
 				"Allows for the reading and modification of functions and values within the WispWarframe mod. Must be enabled to allow itemized aspect to function."
 			);
+			BlightedHooks = Config.Bind(
+				"21-Mod Compatibility", "blightedHooks", true,
+				"Allows for the reading and modification of functions and values within the BlightedElites mod. Should be enabled to allow better buff control."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -497,6 +514,7 @@ namespace TPDespair.ZetAspects
 			AetheriumConfigs(Config);
 			BubbetConfigs(Config);
 			WarWispConfigs(Config);
+			BlightedConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1082,6 +1100,34 @@ namespace TPDespair.ZetAspects
 			AspectNullifierStackArmorGain = Config.Bind(
 				"2fa-AspectNullifier", "nullifierAddedArmor", 15f,
 				"Armor gained per stack."
+			);
+		}
+
+		private static void BlightedConfigs(ConfigFile Config)
+		{
+			AspectBlightedBaseHealthGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedBaseHealthGained", 0.20f,
+				"Health gained. Set to 0 to disable."
+			);
+			AspectBlightedStackHealthGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedAddedHealthGained", 0.10f,
+				"Health gained per stack."
+			);
+			AspectBlightedBaseDamageGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectBlightedStackDamageGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+			AspectBlightedBaseCooldownGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectBlightedStackCooldownGain = Config.Bind(
+				"2ga-AspectBlighted", "blightedAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
 			);
 		}
 

@@ -225,6 +225,15 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixBlighted))
+						{
+							if (Configuration.AspectBlightedBaseDamageGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+								value += Configuration.AspectBlightedBaseDamageGain.Value + Configuration.AspectBlightedStackDamageGain.Value * (count - 1f);
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -369,6 +378,15 @@ namespace TPDespair.ZetAspects
 							{
 								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
 								value += Configuration.AspectVoidBaseHealthGain.Value + Configuration.AspectVoidStackHealthGain.Value * (count - 1f);
+							}
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixBlighted))
+						{
+							if (Configuration.AspectBlightedBaseHealthGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+								value += Configuration.AspectBlightedBaseHealthGain.Value + Configuration.AspectBlightedStackHealthGain.Value * (count - 1f);
 							}
 						}
 
@@ -765,6 +783,12 @@ namespace TPDespair.ZetAspects
 					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterCooldownMult.Value;
 					additiveReduction += effectValue;
 				}
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixBlighted) && Configuration.AspectBlightedBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+				additiveReduction += Configuration.AspectBlightedBaseCooldownGain.Value + Configuration.AspectBlightedStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (additiveReduction > 0f)

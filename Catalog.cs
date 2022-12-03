@@ -100,6 +100,8 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixNullifier;
 
+			public static Sprite AffixBlighted;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
@@ -162,6 +164,8 @@ namespace TPDespair.ZetAspects
 
 					AffixNullifier = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixNullifier.png");
 				}
+
+				AffixBlighted = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlighted.png");
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
@@ -243,6 +247,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixSepia;
 
 			public static BuffDef AffixNullifier;
+
+			public static BuffDef AffixBlighted;
 		}
 
 		public static class Equip
@@ -269,6 +275,8 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixSepia;
 
 			public static EquipmentDef AffixNullifier;
+
+			public static EquipmentDef AffixBlighted;
 		}
 
 		public static class Item
@@ -300,6 +308,8 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectSepia;
 
 			public static ItemDef ZetAspectNullifier;
+
+			public static ItemDef ZetAspectBlighted;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -662,6 +672,11 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectNullifier);
 				transformableAspectItemDefs.Add(ZetAspectNullifier);
 			}
+
+			ItemDef ZetAspectBlighted = Items.ZetAspectBlighted.DefineItem();
+			Item.ZetAspectBlighted = ZetAspectBlighted;
+			ZetAspectsContent.itemDefs.Add(ZetAspectBlighted);
+			transformableAspectItemDefs.Add(ZetAspectBlighted);
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -826,6 +841,7 @@ namespace TPDespair.ZetAspects
 			Aetherium.PreInit();
 			Bubbet.PreInit();
 			WarWisp.PreInit();
+			Blighted.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -904,6 +920,8 @@ namespace TPDespair.ZetAspects
 
 			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
 
+			if (PluginLoaded("com.Moffein.BlightedElites") && Configuration.BlightedHooks.Value) Compat.Blighted.LateSetup();
+
 			setupCompat = true;
 		}
 
@@ -924,6 +942,7 @@ namespace TPDespair.ZetAspects
 			Aetherium.Init();
 			Bubbet.Init();
 			WarWisp.Init();
+			Blighted.Init();
 
 			Language.ChangeText();
 
@@ -1039,6 +1058,12 @@ namespace TPDespair.ZetAspects
 			{
 				WarWisp.ItemEntries(true);
 				WarWisp.EquipmentEntries(false);
+			}
+
+			if (Blighted.populated)
+			{
+				Blighted.ItemEntries(true);
+				Blighted.EquipmentEntries(false);
 			}
 		}
 
@@ -1850,8 +1875,6 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-
-
 		public static class WarWisp
 		{
 			private static bool equipDefPopulated = false;
@@ -1987,6 +2010,154 @@ namespace TPDespair.ZetAspects
 			internal static void FillEqualities()
 			{
 				CreateEquality(Equip.AffixNullifier, Buff.AffixNullifier, Item.ZetAspectNullifier);
+			}
+		}
+
+		public static class Blighted
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.Moffein.BlightedElites")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixBlightedMoffein");
+				if (index != EquipmentIndex.None) Equip.AffixBlighted = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixBlighted)
+				{
+					Buff.AffixBlighted = Equip.AffixBlighted.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectBlighted, ref Equip.AffixBlighted, ref Buff.AffixBlighted, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectBlighted.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectBlighted, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectBlighted, Equip.AffixBlighted);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectBlighted, Equip.AffixBlighted);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixBlighted, Sprites.AffixBlighted, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixBlighted, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixBlighted);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixBlighted, Buff.AffixBlighted, Item.ZetAspectBlighted);
 			}
 		}
 
