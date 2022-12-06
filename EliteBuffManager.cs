@@ -78,8 +78,7 @@ namespace TPDespair.ZetAspects
 
 	public static class BlightedStateManager
 	{
-		public static Dictionary<CharacterBody, BuffIndex[]> Entries = new Dictionary<CharacterBody, BuffIndex[]>();
-		public static List<NetworkInstanceId> NetIds = new List<NetworkInstanceId>();
+		public static Dictionary<NetworkInstanceId, BuffIndex[]> Affixes = new Dictionary<NetworkInstanceId, BuffIndex[]>();
 
 
 
@@ -88,88 +87,80 @@ namespace TPDespair.ZetAspects
 			//Logger.Warn("ZetAspects - BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
 			//Logger.Warn("Setting EliteBuffs : [" + BuffCatalog.GetBuffDef(firstBuff).name + "] - [" + BuffCatalog.GetBuffDef(secondBuff).name + "]");
 
-			if (!Entries.ContainsKey(body)) CreateEntry(body);
+			NetworkInstanceId netId = body.netId;
 
-			BuffIndex oldFirstBuff = Entries[body][0];
-			BuffIndex oldSecondBuff = Entries[body][1];
+			if (!Affixes.ContainsKey(netId)) CreateEntry(netId);
 
-			Entries[body][0] = firstBuff;
-			Entries[body][1] = secondBuff;
+			BuffIndex oldFirstBuff = Affixes[netId][0];
+			BuffIndex oldSecondBuff = Affixes[netId][1];
+
+			Affixes[netId][0] = firstBuff;
+			Affixes[netId][1] = secondBuff;
 
 			if (NetworkServer.active)
 			{
-				bool clearBuffs = true;
-
-				Inventory inventory = body.inventory;
-				if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-				bool destroyed = EffectHooks.DestroyedBodies.ContainsKey(body.netId);
-				if (destroyed) clearBuffs = false;
-
-				if (clearBuffs)
-				{
-					if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
-					if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
-				}
-
-				if (!destroyed) ApplyBlightedAspectBuffs(body);
-			}
-		}
-
-		internal static void Deactivated(CharacterBody body, bool destroyEntry = false)
-		{
-			if (Entries.ContainsKey(body))
-			{
-				BuffIndex firstBuff = Entries[body][0];
-				BuffIndex secondBuff = Entries[body][1];
-
-				Entries[body][0] = BuffIndex.None;
-				Entries[body][1] = BuffIndex.None;
-
-				if (NetworkServer.active)
+				if (!EffectHooks.DestroyedBodies.ContainsKey(netId))
 				{
 					bool clearBuffs = true;
 
 					Inventory inventory = body.inventory;
 					if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-					if (EffectHooks.DestroyedBodies.ContainsKey(body.netId)) clearBuffs = false;
 
 					if (clearBuffs)
 					{
-						if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
-						if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
+						if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
+						if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
 					}
-				}
 
-				if (destroyEntry)
+					ApplyBlightedAspectBuffs(body);
+				}
+			}
+		}
+
+		internal static void Deactivated(CharacterBody body)
+		{
+			NetworkInstanceId netId = body.netId;
+
+			if (Affixes.ContainsKey(netId))
+			{
+				BuffIndex firstBuff = Affixes[netId][0];
+				BuffIndex secondBuff = Affixes[netId][1];
+
+				Affixes[netId][0] = BuffIndex.None;
+				Affixes[netId][1] = BuffIndex.None;
+
+				if (NetworkServer.active)
 				{
-					Entries.Remove(body);
-					NetIds.Remove(body.netId);
+					if (!EffectHooks.DestroyedBodies.ContainsKey(netId))
+					{
+						bool clearBuffs = true;
+
+						Inventory inventory = body.inventory;
+						if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
+
+						if (clearBuffs)
+						{
+							if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
+							if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
+						}
+					}
 				}
 			}
 		}
 
 		
 
-		private static void CreateEntry(CharacterBody body)
+		private static void CreateEntry(NetworkInstanceId netId)
 		{
 			BuffIndex[] buffs = new BuffIndex[] { BuffIndex.None, BuffIndex.None };
-			Entries.Add(body, buffs);
-			NetIds.Add(body.netId);
+			Affixes.Add(netId, buffs);
 		}
 
 		internal static void DestroyEntry(NetworkInstanceId netId)
 		{
-			if (NetIds.Contains(netId))
+			if (Affixes.ContainsKey(netId))
 			{
-				foreach (CharacterBody body in Entries.Keys)
-				{
-					if (body.netId == netId)
-					{
-						Deactivated(body, true);
-
-						return;
-					}
-				}
+				Affixes.Remove(netId);
 			}
 		}
 
@@ -184,11 +175,13 @@ namespace TPDespair.ZetAspects
 
 		public static bool HasAspectFromBlighted(CharacterBody body, BuffIndex buffIndex)
 		{
-			if (Entries.ContainsKey(body))
+			NetworkInstanceId netId = body.netId;
+
+			if (Affixes.ContainsKey(netId))
 			{
 				if (buffIndex == BuffIndex.None) return false;
-				if (Entries[body][0] == buffIndex) return true;
-				if (Entries[body][1] == buffIndex) return true;
+				if (Affixes[netId][0] == buffIndex) return true;
+				if (Affixes[netId][1] == buffIndex) return true;
 			}
 
 			return false;
@@ -196,16 +189,18 @@ namespace TPDespair.ZetAspects
 
 		internal static void ApplyBlightedAspectBuffs(CharacterBody body)
 		{
-			if (Entries.ContainsKey(body))
+			NetworkInstanceId netId = body.netId;
+
+			if (Affixes.ContainsKey(netId))
 			{
 				BuffIndex targetBuff;
 
-				targetBuff = Entries[body][0];
+				targetBuff = Affixes[netId][0];
 				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
 				{
 					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);
 				}
-				targetBuff = Entries[body][1];
+				targetBuff = Affixes[netId][1];
 				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
 				{
 					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);

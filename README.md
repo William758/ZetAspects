@@ -70,6 +70,8 @@ Brazilian Portuguese translation by SpookyGabe#9476.
 
 ## Changelog:
 
+v2.7.22 - Fixed BlightedStateManager NRE.
+
 v2.7.21 - Added BlightedElites support.
 
 v2.7.20 - Update Brazilian Portuguese translation.

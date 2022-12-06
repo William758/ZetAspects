@@ -48,7 +48,7 @@ namespace TPDespair.ZetAspects
 					DestroyedBodies[netId] -= FixedUpdateStopwatch;
 					if (DestroyedBodies[netId] <= 0f)
 					{
-						if (BlightedStateManager.NetIds.Contains(netId))
+						if (BlightedStateManager.Affixes.ContainsKey(netId))
 						{
 							BlightedStateManager.DestroyEntry(netId);
 						}
