@@ -252,14 +252,23 @@ namespace TPDespair.ZetAspects.Compat
 		{
 			if (RageScriptObjectField != null && BuffArrayField != null)
 			{
-				BuffDef[] buffs = (BuffDef[])BuffArrayField.GetValue(RageScriptObjectField.GetValue(RageEliteType));
-				BuffDef buff = buffs[0];
-				if (buff)
+				try
 				{
-					BuffIndex index = buff.buffIndex;
+					BuffDef[] buffs = (BuffDef[])BuffArrayField.GetValue(RageScriptObjectField.GetValue(RageEliteType));
+					BuffDef buff = buffs[0];
+					if (buff)
+					{
+						BuffIndex index = buff.buffIndex;
 
-					Logger.Info("[PlasmaSpikeStripCompat] - GetRageBuffWardBuffIndex : " + index);
-					return index;
+						Logger.Info("[PlasmaSpikeStripCompat] - GetRageBuffWardBuffIndex : " + index);
+						return index;
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.Warn("[PlasmaSpikeStripCompat] - Error on GetRageBuffWardBuffIndex");
+					Logger.Warn(e);
+					return BuffIndex.None;
 				}
 			}
 

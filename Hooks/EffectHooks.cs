@@ -1923,6 +1923,8 @@ namespace TPDespair.ZetAspects
 
 		private static void VoidBearFix_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration)
 		{
+			if (buffDef == null) return;
+
 			if (NetworkServer.active)
 			{
 				BuffIndex buffIndex = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
