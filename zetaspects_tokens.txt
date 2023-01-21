@@ -181,6 +181,14 @@ RegisterFragment("PASSIVE_NULL_AURA", "\nEmit an aura that protects nearby allie
 RegisterFragment("NULL_ON_HIT", "\nAttacks <style=cIsUtility>null</style> on hit.");
 RegisterFragment("NULL_ON_HIT_SPD", "\nAttacks <style=cIsUtility>null</style> on hit, reducing <style=cIsUtility>movement speed</style> by {0}.");
 
+RegisterFragment("AFFIX_BLIGHTED_NAME", "Betrayal of the Bulwark");
+RegisterFragment("AFFIX_BLIGHTED_PICKUP", "Become an aspect of decay.");
+RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "Reroll your randomized Elite Affixes.");
+RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>Aspect of Decay</style> :");
+RegisterFragment("PASSIVE_BLIGHT", "\nGain 2 random Elite Affixes.");
+			
+			
+
 RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
 RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nGrants nearby allies additional <style=cIsHealing>armor</style>.");
 
