@@ -64,6 +64,19 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXGOLD_NAME", TextFragment("AFFIX_GOLD_NAME"));
+			RegisterToken("EQUIPMENT_AFFIXGOLD_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
+			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
+
+
+
 			targetLanguage = "";
 		}
 

@@ -68,7 +68,11 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 Brazilian Portuguese translation by SpookyGabe#9476.
 
+Korean translation by 깽비#8221.
+
 ## Changelog:
+
+v2.7.24 - Added Korean translation by 깽비#8221.
 
 v2.7.23 - Fix NRE when handling buffs.
 

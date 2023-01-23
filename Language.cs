@@ -525,6 +525,250 @@ namespace TPDespair.ZetAspects
 
 			RegisterFragment("HEADHUNTER", "Ganhe o <style=cIsDamage>poder</style> de qualquer monstro de elite abatido por {0}.");
 
+
+
+
+			targetLanguage = "ko";
+
+			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n\n{0} 중첩으로 계산됩니다.");
+			RegisterFragment("HOW_TO_CONVERT", "\n우측 하단 장비 아이콘을 클릭하여 변환");
+
+			RegisterFragment("BASE_STACK_FORMAT", "{0} {1}");
+
+			RegisterFragment("FLAT_VALUE", "{0}");
+			RegisterFragment("PERCENT_VALUE", "{0}%");
+			RegisterFragment("FLATREGEN_VALUE", "{0} hp/s");
+			RegisterFragment("PERCENTREGEN_VALUE", "{0}% hp/s");
+			RegisterFragment("DURATION_VALUE", "{0}s");
+			RegisterFragment("METER_VALUE", "{0}m");
+
+			RegisterFragment("FLAT_STACK_INC", "<style=cStack>(중첩당 +{0})</style>");
+			RegisterFragment("PERCENT_STACK_INC", "<style=cStack>(중첩당 +{0}%)</style>");
+			RegisterFragment("FLATREGEN_STACK_INC", "<style=cStack>(중첩당 +{0} hp/s)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_INC", "<style=cStack>(중첩당 +{0}% hp/s)</style>");
+			RegisterFragment("DURATION_STACK_INC", "<style=cStack>(중첩당 +{0}s)</style>");
+			RegisterFragment("METER_STACK_INC", "<style=cStack>(중첩당 +{0}m)</style>");
+			RegisterFragment("FLAT_STACK_DEC", "<style=cStack>(중첩당 -{0})</style>");
+			RegisterFragment("PERCENT_STACK_DEC", "<style=cStack>(중첩당 -{0}%)</style>");
+			RegisterFragment("FLATREGEN_STACK_DEC", "<style=cStack>(중첩당 -{0} hp/s)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_DEC", "<style=cStack>(중첩당 -{0}% hp/s)</style>");
+			RegisterFragment("DURATION_STACK_DEC", "<style=cStack>(중첩당 -{0}s)</style>");
+			RegisterFragment("METER_STACK_DEC", "<style=cStack>(중첩당 -{0}m)</style>");
+
+			RegisterFragment("BASE_DAMAGE", "기본");
+			RegisterFragment("TOTAL_DAMAGE", "총");
+
+			RegisterFragment("FOR_SECOND", "{0} 초 동안");
+			RegisterFragment("FOR_SECONDS", "{0} 초 동안");
+			RegisterFragment("OVER_SECOND", "{0} 초 이상");
+			RegisterFragment("OVER_SECONDS", "{0} 초에 걸쳐");
+			RegisterFragment("AFTER_SECOND", "{0} 초 후");
+			RegisterFragment("AFTER_SECONDS", "{0} 초 후");
+			RegisterFragment("EVERY_SECOND", "매초");
+			RegisterFragment("EVERY_SECONDS", "{0} 초마다");
+			RegisterFragment("SECOND", "{0} 초");
+			RegisterFragment("SECONDS", "{0} 초");
+
+
+
+			RegisterFragment("AFFIX_WHITE_NAME", "살을 에는 그녀의 포옹");
+			RegisterFragment("AFFIX_WHITE_PICKUP", "얼음의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "스킬을 비활성화하는 얼음 결정을 배치합니다.");
+			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "체력을 흡수하는 얼음 결정을 배치합니다.");
+			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>얼음의 형태</style> :");
+			RegisterFragment("CHILL_ON_HIT", "\n공격 적중 시 <style=cIsUtility>냉기</style>를 부여해 {0}, <style=cIsUtility>이동 속도</style>를 <style=cIsUtility>80%</style> 감소시킵니다.");
+			RegisterFragment("CHANCE_TO_FREEZE", "\n공격은 {0} 확률로 {1} <style=cIsUtility>동결</style> 시킵니다.");
+			RegisterFragment("FROST_BLADE", "\n공격 시 {0} 피해를 입히는 <style=cIsDamage>날</style>을 발사합니다.");
+
+			RegisterFragment("AFFIX_BLUE_NAME", "두 타격 사이의 고요");
+			RegisterFragment("AFFIX_BLUE_PICKUP", "번개의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_BLUE_ACTIVE", "텔레포트 사용.");
+			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>번개의 형태</style> :");
+			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n때때로 주변에 분산 폭탄을 떨어뜨립니다.");
+			RegisterFragment("SAP_ON_HIT", "\n공격 적중 시 <style=cIsUtility>부하</style>를 부여해 {0}, <style=cIsUtility>피해량</style>을 {1} 감소시킵니다.");
+			RegisterFragment("SCATTER_BOMB", "\n공격 시 {0} 의 피해를 주는 폭발하는 산란 폭탄을 투하합니다.");
+			RegisterFragment("LIGHTNING_BOMB", "\n공격 적중 시 {1} 폭발하는 <style=cIsDamage>폭탄</style>을 부착하여 {0} 피해를 입힙니다.");
+
+			RegisterFragment("AFFIX_RED_NAME", "이프리트의 차이");
+			RegisterFragment("AFFIX_RED_PICKUP", "불의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_RED_ACTIVE", "유도 화염탄을 발사합니다.");
+			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>불의 형태</style> :");
+			RegisterFragment("PASSIVE_FIRE_TRAIL", "\n적에게 닿으면 피해를 입히는 불타는 흔적을 남깁니다.");
+			RegisterFragment("BURN_DOT", "\n공격 적중 시 <style=cIsDamage>화상</style>을 부여하고 {2}, {0} {1} 피해를 입힙니다.");
+
+			RegisterFragment("AFFIX_HAUNTED_NAME", "유령 왕관");
+			RegisterFragment("AFFIX_HAUNTED_PICKUP", "무형의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "주변 아군에게 일시적으로 타격을 피할 수 있는 기회를 부여합니다.");
+			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>무형의 형태</style> :");
+			RegisterFragment("PASSIVE_GHOST_AURA", "\n주변 아군을 은폐하는 오라를 발산합니다.");
+			RegisterFragment("PASSIVE_POSSESS", "\n주변 아군들에게 들러붙어 빙의합니다.");
+			RegisterFragment("SHRED_ON_HIT", "\n공격 적중 시 <style=cIsDamage>파쇄</style>를 부여해 {0}, <style=cIsDamage>방어력</style>을 {1} 감소시킵니다.");
+			RegisterFragment("GHOST_ARMOR", "\n주변 아군에게 {0} 추가 <style=cIsHealing>방어력</style>을 부여합니다.");
+			RegisterFragment("GHOST_DODGE", "\n주변 아군에게 {0} 확률의 <style=cIsHealing>회피</style> 기회를 부여합니다.");
+
+			RegisterFragment("AFFIX_POISON_NAME", "은쿠하나의 보고서");
+			RegisterFragment("AFFIX_POISON_PICKUP", "부패의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "아이템을 물려받는 아군 말라카이트 성게를 소환합니다.");
+			RegisterFragment("ASPECT_OF_CORRUPTION", "<style=cDeath>부패의 형태</style> :");
+			RegisterFragment("PASSIVE_SPIKEBALL", "\n떨어지는 곳에서 가시 구덩이를 생성하는 스파이크 볼을 주기적으로 방출합니다.");
+			RegisterFragment("PASSIVE_RUIN_AURA", "\n가까운 적에게 <style=cIsDamage>파멸</style>을 적용하는 오라를 방출합니다.");
+			RegisterFragment("RUIN_ON_HIT_BASIC", "\n공격 적중 시 <style=cIsDamage>파멸</style>를 부여해 {0}, 체력 회복을 막습니다.");
+			RegisterFragment("RUIN_ON_HIT", "\n공격 적중 시 <style=cIsDamage>파멸</style>을 부여해 {0}, <style=cIsDamage>받는 피해량</style>을 {1} 증가시킵니다.");
+			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(파멸은 체력 회복을 방해합니다)</style>");
+			RegisterFragment("WEAKEN_ON_HIT", "\n공격 적중 시 <style=cIsDamage>약화</style>를 부여해 {0}, <style=cIsDamage>방어력</style>을 <style=cIsDamage>30</style>, <style=cIsUtility>이동 속도</style>를 <style=cIsUtility>40%</style>, 그리고 <style=cIsDamage>피해량</style>을 <style=cIsDamage>40%</style> 감소시킵니다.");
+
+			RegisterFragment("AFFIX_LUNAR_NAME", "공유된 설계");
+			RegisterFragment("AFFIX_LUNAR_PICKUP", "완성의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "강력한 타격에 대해 일시적인 보호를 얻습니다.");
+			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cDeath>완성의 형태</style> :");
+			RegisterFragment("PASSIVE_LUNAR_PROJ", "\n전투 중에 주기적으로 발사체를 발사합니다.");
+			RegisterFragment("CRIPPLE_ON_HIT", "\n공격 적중 시 <style=cIsDamage>손상</style>을 부여해 {0}, <style=cIsDamage>방어력</style>을 <style=cIsDamage>20</style> 그리고 <style=cIsUtility>이동 속도</style>를 <style=cIsUtility>50%</style> 감소시킵니다.");
+
+			RegisterFragment("AFFIX_EARTH_NAME", "그의 안도");
+			RegisterFragment("AFFIX_EARTH_PICKUP", "땅의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "짧은 시간 동안 체력 재생을 증가 시킵니다.");
+			RegisterFragment("ASPECT_OF_EARTH", "<style=cDeath>땅의 형태</style> :");
+			RegisterFragment("PASSIVE_HEAL_ALLY", "\n주변의 아군을 치료합니다.");
+			RegisterFragment("POACH_ON_HIT_BASIC", "\n공격 적중 시 <style=cIsUtility>밀렵</style>을 부여해 {0}, 입힌 <style=cIsDamage>피해</style>의 {1}만큼 <style=cIsHealing>회복</style>합니다.");
+			RegisterFragment("POACH_ON_HIT", "\n공격 적중 시 <style=cIsUtility>밀렵</style>을 부여해 {0}, <style=cIsUtility>공격 속도</style>를 {1} 감소시킵니다.");
+			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(밀렵된 적 타격 시 입힌 피해의 {0}만큼 회복)</style>");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n입힌 <style=cIsDamage>피해</style>의 {0}만큼 <style=cIsHealing>회복</style>합니다.");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>거머리 수정자 =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
+
+			RegisterFragment("AFFIX_VOID_NAME", "엔트로피 파괴");
+			RegisterFragment("AFFIX_VOID_PICKUP", "공허의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "모든 재사용 대기시간을 재설정합니다.");
+			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>공허의 형태</style> :");
+			RegisterFragment("PASSIVE_BLOCK", "\n피해를 한 번 <style=cIsHealing>무시</style>합니다. 지연 후 재충전됩니다.");
+			RegisterFragment("NULLIFY_ON_HIT", "\n공격 적중 시 {0} <style=cIsUtility>무효</style>를 부여합니다.");
+			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(무효 중첩이 3개인 적은 3초 동안 속박됩니다)</style>");
+			RegisterFragment("COLLAPSE_DOT", "\n공격 적중 시 <style=cIsDamage>붕괴</style>를 부여하고 {2}, {0} {1} 피해를 입힙니다.");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n<style=cIsDamage>100%</style> 확률로 적에게 <style=cIsDamage>붕괴</style>를 부여하고 <style=cIsDamage>400%</style> 피해를 입힙니다.");
+			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>모든 형태를 오염시킵니다</style>.");
+
+			RegisterFragment("AFFIX_PLATED_NAME", "복종의 합금");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "인내의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>인내의 형태</style> :");
+			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\n큰 피해를 완화하는 방어 장갑을 얻습니다.");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\n공격 적중 시 <style=cIsUtility>억압</style>을 부여해 {0}, 적에게서 받는 피해를 감소시킵니다.");
+
+			RegisterFragment("AFFIX_WARPED_NAME", "잘못된 믿음");
+			RegisterFragment("AFFIX_WARPED_PICKUP", "중력의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>중력의 형태</style> :");
+			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\n근처의 투사체를 가끔 빗나가게 만듭니다.");
+			RegisterFragment("LEVITATE_ON_HIT", "\n공격 적중 시 <style=cIsUtility>부양</style>을 부여해 {0} 공중에 떠오르게 만듭니다.");
+
+			RegisterFragment("AFFIX_VEILED_NAME", "무명의 저주");
+			RegisterFragment("AFFIX_VEILED_PICKUP", "맹의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>맹의 형태</style> :");
+			RegisterFragment("CLOAK_ON_HIT", "\n공격 적중 시 <style=cIsUtility>은신</style> 합니다.");
+			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n공격 적중 시 {0} <style=cIsUtility>은신</style> 합니다.");
+			RegisterFragment("ELUSIVE_ON_HIT", "\n공격 적중 시 <style=cIsUtility>은신</style> 합니다.");
+			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(은신은 {0} 이동 속도 부여)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(은신은 {0} 회피 확률 부여)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(은신은 {0} 이동 속도 증가와 {1} 회피 확률 증가)</style>");
+			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(은신 효과 및 추가 능력은 매초마다 {0} 씩 사라집니다)</style>");
+			RegisterFragment("ELUSIVE_EFFECT", "\n은신 시 효과 {0}.");
+
+			RegisterFragment("AFFIX_ARAGONITE_NAME", "그녀의 성질");
+			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "분노의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_ARAGONITE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FURY", "<style=cDeath>분노의 형태</style> :");
+			RegisterFragment("PASSIVE_ANGRY_HIT", "\n공격 적중 시 가끔 분노 폭발을 일으킵니다.");
+			RegisterFragment("PASSIVE_ANGRY_AURA", "\n근처 아군을 강화하는 오라를 발산합니다.");
+			RegisterFragment("ANGRY_ATKSPD", "\n주변 아군의 <style=cIsUtility>이동 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("ANGRY_MOVSPD", "\n주변 아군의 <style=cIsDamage>공격 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("ANGRY_BOTHSPD", "\n주변 아군의 <style=cIsUtility>이동 속도</style>와 <style=cIsDamage>공격 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("ANGRY_COOLDOWN", "\n주변 아군의 <style=cIsUtility>스킬 재사용 대기시간</style>을 {0} 감소시킵니다.");
+
+			RegisterFragment("AFFIX_GOLD_NAME", "골드의 집회");
+			RegisterFragment("AFFIX_GOLD_PICKUP", "금전의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FORTUNE", "<style=cDeath>금전의 형태</style> :");
+			RegisterFragment("GOLD_ON_HIT", "\n공격 적중 시 골드를 획득합니다.");
+			RegisterFragment("ITEMSCORE_REGEN", "\n소유한 아이템의 수량과 등급에 따라 보너스 <style=cIsHealing>체력 재생</style>이 주어집니다.");
+			RegisterFragment("ITEMSCORE_REGEN_MULT", "\n{0}의 아이템 점수 재생 계수.");
+
+			RegisterFragment("AFFIX_SEPIA_NAME", "흐려지는 반사");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "환상의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>환상의 형태</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\n공격 적중 시 <style=cIsUtility>왜곡된 시야</style>를 부여해 {0}, 명중률을 {1} 감소시킵니다.");
+
+			RegisterFragment("AFFIX_SANGUINE_NAME", "피투성이 서약");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "피의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "순간이동으로 돌진하여 짧은 무적 판정을 얻습니다.");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>피의 형태</style> :");
+			RegisterFragment("BLEED_DOT", "\n공격 적중 시 <style=cIsDamage>출혈</style>을 부여해 {1}, {0} 피해를 입힙니다.");
+			RegisterFragment("DOT_AMP", "\n<style=cIsDamage>지속 피해</style>를 {0} 증가시킵니다.");
+
+			RegisterFragment("AFFIX_NULLIFIER_NAME", "파보스의 축복");
+			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "무효의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_NULLIFIER_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>무효의 형태</style> :");
+			RegisterFragment("PASSIVE_NULL_AURA", "\n근처의 아군을 보호하고 적에게 디버프를 주는 오라를 발산합니다.");
+			RegisterFragment("NULL_ON_HIT", "\n공격 적중 시 <style=cIsUtility>파기</style>를 부여합니다..");
+			RegisterFragment("NULL_ON_HIT_SPD", "\n공격 적중 시<style=cIsUtility>파기</style>를 부여해, <style=cIsUtility>이동 속도</style>를 {0} 감소시킵니다.");
+
+			RegisterFragment("AFFIX_BLIGHTED_NAME", "방벽의 배신");
+			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "쇠퇴의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "무작위 엘리트 형태를 다시 굴립니다.");
+			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>쇠퇴의 형태</style> :");
+			RegisterFragment("PASSIVE_BLIGHT", "\n임의의 엘리트 형태를 2개 획득합니다.");
+
+
+
+			RegisterFragment("NEARBY_ARMOR", "\n주변 아군에게 {0} 추가 <style=cIsHealing>방어력</style>을 부여합니다.");
+			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\n주변 아군에게 추가 <style=cIsHealing>방어력</style>을 부여합니다.");
+
+			RegisterFragment("CONVERT_SHIELD", "\n체력의 {0} 를 <style=cIsHealing>재생되는 보호막</style>으로 전환합니다.");
+			RegisterFragment("EXTRA_SHIELD_CONVERT", "\n전환으로 {0} 추가 <style=cIsHealing>보호막</style>을 얻습니다.");
+			RegisterFragment("CONVERT_SHIELD_REGEN", "\n최소 {0} 의 <style=cIsHealing>체력 재생</style> 이 <style=cIsHealing>보호막</style>에 적용됩니다.");
+			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(자연 보호막 복구 비활성화)</style>");
+
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\n최대 체력의 {0} 해당하는 추가 <style=cIsHealing>보호막</style>을 얻습니다.");
+			RegisterFragment("STAT_EXTRA_JUMP", "\n최대 <style=cIsUtility>점프 횟수</style>를 <style=cIsUtility>+1</style> 얻습니다.");
+			RegisterFragment("STAT_MOVESPEED", "\n<style=cIsUtility>이동 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("STAT_ATTACKSPEED", "\n<style=cIsDamage>공격 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("STAT_BOTHSPEED", "\n<style=cIsUtility>이동 속도</style> 와 <style=cIsDamage>공격 속도</style>를 {0} 증가시킵니다.");
+			RegisterFragment("STAT_ARMOR", "\n<style=cIsHealing>방어력</style>을 {0} 증가시킵니다.");
+			RegisterFragment("STAT_HEALTH", "\n<style=cIsHealing>최대 체력</style>을 {0} 증가시킵니다.");
+			RegisterFragment("STAT_REGENERATION", "\n<style=cIsHealing>체력 재생</style>을 {0} 증가시킵니다.");
+			RegisterFragment("STAT_DAMAGE", "\n<style=cIsDamage>피해량</style>을 {0} 증가시킵니다.");
+			RegisterFragment("STAT_COOLDOWN", "\n<style=cIsUtility>스킬 재사용 대기시간</style>을 {0} 감소시킵니다.");
+
+			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\n대량의 <style=cIsHealing>재생 보호막</style>을 얻습니다.");
+
+			RegisterFragment("BLOCK_CHANCE", "\n{0} 확률로 받는 피해를 <style=cIsHealing>차단</style> 합니다.");
+			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\n확률로 받는 피해를 <style=cIsHealing>차단</style> 합니다.");
+			RegisterFragment("BLOCK_DETAIL", "\n<style=cStack>(차단확률은 운에 영향을 받지 않습니다)</style>");
+
+			RegisterFragment("DODGE_CHANCE", "\n{0} 확률로 받는 피해를 <style=cIsHealing>회피</style> 합니다.");
+			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\n확률로 받는 피해를 <style=cIsHealing>회피</style> 합니다.");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(회피확률은 운에 영향을 받지 않습니다)</style>");
+
+			RegisterFragment("PLATING_EFFECT", "\n모든 <style=cIsDamage>받는 피해</style>를 {0} 감소시킵니다.");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(받는 데미지는 1 미만으로 감소할 수 없습니다)</style>");
+
+			RegisterFragment("FALL_REDUCTION", "\n낙하 피해를 {0} 감소시킵니다.");
+			RegisterFragment("FALL_IMMUNE", "\n낙하 피해에 면역입니다.");
+
+			RegisterFragment("FORCE_REDUCTION", "\n넉백을 {0} 감소시킵니다.");
+			RegisterFragment("FORCE_IMMUNE", "\n넉백에 면역입니다.");
+
+
+
+			RegisterFragment("PASSIVE_UNKNOWN_AURA", "\n오라를 내뿜다. <style=cStack>(???)</style>");
+
+			RegisterFragment("HEADHUNTER", "{0} 동안 처치한 엘리트 몬스터의 <style=cIsDamage>힘</style> 을 얻습니다.");
+
+
+
+
+
 			targetLanguage = "";
 		}
 
@@ -803,6 +1047,45 @@ namespace TPDespair.ZetAspects
 				text += TextFragment("STAT_EXTRA_JUMP");
 			}
 			RegisterToken("ITEM_SHIELDONLY_DESC", text);
+
+
+
+
+
+			targetLanguage = "ko";
+
+			text = String.Format(
+				TextFragment("HEADHUNTER"),
+				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
+			);
+			RegisterToken("ITEM_HEADHUNTER_DESC", text);
+
+
+
+			text = String.Format(
+				TextFragment("CONVERT_SHIELD", true),
+				ScalingText(1f, "percent", "cIsHealing")
+			);
+			text += String.Format(
+				TextFragment("EXTRA_SHIELD_CONVERT"),
+				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
+			);
+			if (Configuration.TranscendenceRegen.Value > 0f)
+			{
+				text += String.Format(
+					TextFragment("CONVERT_SHIELD_REGEN"),
+					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+				);
+			}
+			if (Catalog.shieldJump)
+			{
+				text += TextFragment("STAT_EXTRA_JUMP");
+			}
+			RegisterToken("ITEM_SHIELDONLY_DESC", text);
+
+
+
+
 
 			targetLanguage = "";
 		}

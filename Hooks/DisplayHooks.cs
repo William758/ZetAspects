@@ -222,7 +222,15 @@ namespace TPDespair.ZetAspects
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-
+			/*
+			if (Catalog.GOTCE.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBackup;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBackup) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+			*/
 			if (Catalog.Bubbet.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSepia;
@@ -323,7 +331,14 @@ namespace TPDespair.ZetAspects
 			targetEquipDef = Catalog.Equip.AffixWhite;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-
+			/*
+			if (Catalog.GOTCE.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBackup;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+			*/
 			if (Catalog.Bubbet.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSepia;
@@ -404,7 +419,13 @@ namespace TPDespair.ZetAspects
 
 			targetEquipDef = Catalog.Equip.AffixWhite;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectWhite) > 0) return targetEquipDef;
-
+			/*
+			if (Catalog.GOTCE.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBackup;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectSepia) > 0) return targetEquipDef;
+			}
+			*/
 			if (Catalog.Bubbet.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixSepia;
@@ -537,6 +558,12 @@ namespace TPDespair.ZetAspects
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlighted, Catalog.Item.ZetAspectBlighted);
 			}
+			/*
+			if (Catalog.GOTCE.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBackup, Catalog.Item.ZetAspectBackup);
+			}
+			*/
 		}
 
 		private static void HandleAspectDisplay(CharacterModel model, EquipmentDef display, EquipmentDef target, ItemDef item)

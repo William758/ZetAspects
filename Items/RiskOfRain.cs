@@ -64,6 +64,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_WHITE_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_WHITE_PICKUP"));
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			equipActiveFragment = Catalog.altIceActive ? "AFFIX_WHITE_ACTIVE_ALT" : "AFFIX_WHITE_ACTIVE";
+			RegisterToken("EQUIPMENT_AFFIXWHITE_DESC", EquipmentDescription(desc, TextFragment(equipActiveFragment)));
+
+
+
 			targetLanguage = "";
 		}
 
@@ -139,6 +151,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 			targetLanguage = "pt-BR";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_BLUE_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_BLUE_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXBLUE_DESC", EquipmentDescription(desc, TextFragment("AFFIX_BLUE_ACTIVE")));
+
+
+
+			targetLanguage = "ko";
 
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_BLUE_NAME"));
 			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_BLUE_PICKUP"));
@@ -300,6 +324,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_RED_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_RED_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXRED_DESC", EquipmentDescription(desc, TextFragment("AFFIX_RED_ACTIVE")));
+
+
+
 			targetLanguage = "";
 		}
 
@@ -383,6 +419,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 			targetLanguage = "pt-BR";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_HAUNTED_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_HAUNTED_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXHAUNTED_DESC", EquipmentDescription(desc, TextFragment("AFFIX_HAUNTED_ACTIVE")));
+
+
+
+			targetLanguage = "ko";
 
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_HAUNTED_NAME"));
 			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_HAUNTED_PICKUP"));
@@ -534,6 +582,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_POISON_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_POISON_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXPOISON_DESC", EquipmentDescription(desc, TextFragment("AFFIX_POISON_ACTIVE")));
+
+
+
 			targetLanguage = "";
 		}
 
@@ -648,6 +708,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_LUNAR_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_LUNAR_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXLUNAR_DESC", EquipmentDescription(desc, TextFragment("AFFIX_LUNAR_ACTIVE")));
+
+
+
 			targetLanguage = "";
 		}
 
@@ -737,6 +809,18 @@ namespace TPDespair.ZetAspects.Items
 
 
 			targetLanguage = "pt-BR";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_EARTH_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_EARTH_PICKUP"));
+
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXEARTH_DESC", EquipmentDescription(desc, TextFragment("AFFIX_EARTH_ACTIVE")));
+
+
+
+			targetLanguage = "ko";
 
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_EARTH_NAME"));
 			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_EARTH_PICKUP"));
@@ -901,6 +985,22 @@ namespace TPDespair.ZetAspects.Items
 
 
 			targetLanguage = "pt-BR";
+
+			corruptText = AspectVoidContagiousItem.Value ? TextFragment("CORRUPT_ASPECT_ITEM", true) : "";
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VOID_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VOID_PICKUP") + " " + corruptText);
+
+			desc = BuildDescription(false);
+			corruptText = AspectVoidContagiousItem.Value ? TextFragment("CORRUPT_ASPECT_ITEM") : "";
+			RegisterToken("ITEM_" + locToken + "_DESC", desc + corruptText);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("EQUIPMENT_AFFIXVOID_NAME", TextFragment("AFFIX_VOID_NAME"));
+			RegisterToken("EQUIPMENT_AFFIXVOID_PICKUP", TextFragment("AFFIX_VOID_PICKUP"));
+			RegisterToken("EQUIPMENT_AFFIXVOID_DESC", EquipmentDescription(desc, TextFragment("AFFIX_VOID_ACTIVE")));
+
+
+
+			targetLanguage = "ko";
 
 			corruptText = AspectVoidContagiousItem.Value ? TextFragment("CORRUPT_ASPECT_ITEM", true) : "";
 			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VOID_NAME"));

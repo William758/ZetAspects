@@ -66,6 +66,19 @@ namespace TPDespair.ZetAspects.Items
 
 
 
+			targetLanguage = "ko";
+
+			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SEPIA_NAME"));
+			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
+			desc = BuildDescription(false);
+			RegisterToken("ITEM_" + locToken + "_DESC", desc);
+			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+			RegisterToken("BUB_SEPIA_ASPECT_NAME", TextFragment("AFFIX_SEPIA_NAME"));
+			RegisterToken("BUB_SEPIA_ASPECT_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
+			RegisterToken("BUB_SEPIA_ASPECT_DESC", EquipmentDescription(desc, TextFragment("AFFIX_SEPIA_ACTIVE")));
+
+
+
 			targetLanguage = "";
 		}
 

@@ -39,6 +39,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
 		public static ConfigEntry<float> AspectDropWeightNullifier { get; set; }
 		public static ConfigEntry<float> AspectDropWeightBlighted { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBackup { get; set; }
+		public static ConfigEntry<float> AspectDropWeightPurity { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -382,6 +384,14 @@ namespace TPDespair.ZetAspects
 				AspectDropWeightBlighted = Config.Bind(
 					"0b-DropWeight", "aspectDropWeightBlighted", 1f,
 					"Drop chance multiplier for AffixBlighted"
+				);
+				AspectDropWeightBackup = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBackup", 1f,
+					"Drop chance multiplier for AffixBackup"
+				);
+				AspectDropWeightPurity = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightPurity", 1f,
+					"Drop chance multiplier for AffixPurity"
 				);
 
 				Catalog.dropWeightsAvailable = true;
