@@ -7,13 +7,13 @@ using static TPDespair.ZetAspects.Language;
 
 namespace TPDespair.ZetAspects.Items
 {
-	public static class ZetAspectBackup
+	public static class ZetAspectPurity
 	{
-		public static string identifier = "ZetAspectBackup";
+		public static string identifier = "ZetAspectPurity";
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
+			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
 			if (AspectWorldUnique.Value)
 			{
 				Array.Resize(ref tags, 3);
@@ -21,15 +21,15 @@ namespace TPDespair.ZetAspects.Items
 			}
 
 			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.CrackedOutlineRed;
-			else outlineSprite = Catalog.Sprites.CrackedOutlineYellow;
+			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
+			else outlineSprite = Catalog.Sprites.OutlineYellow;
 
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBackup, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixPure;
+			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPurity, outlineSprite);
 
 			itemDef.AutoPopulateTokens();
 
@@ -39,7 +39,7 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
-			string affix = "BACKUP";
+			string affix = "PURITY";
 
 			targetLanguage = "default";
 
@@ -49,7 +49,7 @@ namespace TPDespair.ZetAspects.Items
 			RegisterToken("ITEM_" + locToken + "_DESC", desc);
 			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-			EquipmentDef equipDef = Catalog.Equip.AffixBackup;
+			EquipmentDef equipDef = Catalog.Equip.AffixPurity;
 			if (equipDef)
 			{
 				RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -98,46 +98,23 @@ namespace TPDespair.ZetAspects.Items
 
 		public static string BuildDescription(bool combine)
 		{
-			string output = TextFragment("ASPECT_OF_BACKUP");
-			output += String.Format(
-				TextFragment("BACKUPED_ON_HIT"),
-				SecondText(5f, "for")
-			);
-			output += TextFragment("BACKUPED_DETAIL");
+			string output = TextFragment("ASPECT_OF_PURITY");
+			output += TextFragment("PASSIVE_PURITY");
+			output += TextFragment("CLEANSE_ON_HIT");
 
-			if (Compat.GOTCE.chargeOverride)
-			{
-				if (AspectBackupBaseChargesGain.Value > 0)
-				{
-					output += String.Format(
-						TextFragment("STAT_SECONDARY_CHARGE"),
-						ScalingText(AspectBackupBaseChargesGain.Value, AspectBackupStackChargesGain.Value, "flat", "cIsUtility", combine)
-					);
-				}
-			}
-			else
+			if (AspectPurityBaseHealthGain.Value > 0f)
 			{
 				output += String.Format(
-					TextFragment("STAT_SECONDARY_CHARGE"),
-					ScalingText(3, "flat", "cIsUtility")
+					TextFragment("STAT_HEALTH"),
+					ScalingText(AspectPurityBaseHealthGain.Value, AspectPurityStackHealthGain.Value, "flat", "cIsHealing", combine)
 				);
 			}
 
-			if (Compat.GOTCE.backupStatHook)
-			{
-				if (AspectBackupBaseCooldownGain.Value > 0)
-				{
-					output += String.Format(
-						TextFragment("STAT_SECONDARY_COOLDOWN"),
-						ScalingText(AspectBackupBaseCooldownGain.Value, AspectBackupStackCooldownGain.Value, "percent", "cIsUtility", combine)
-					);
-				}
-			}
-			else
+			if (AspectPurityBaseRegenGain.Value > 0f)
 			{
 				output += String.Format(
-					TextFragment("STAT_SECONDARY_COOLDOWN"),
-					ScalingText(0.5f, "percent", "cIsUtility")
+					TextFragment("STAT_REGENERATION"),
+					ScalingText(AspectPurityBaseRegenGain.Value, AspectPurityStackRegenGain.Value, "flatregen", "cIsHealing", combine)
 				);
 			}
 

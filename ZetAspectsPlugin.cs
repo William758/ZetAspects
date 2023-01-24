@@ -20,12 +20,12 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)]
-	//[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
-	//[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.24";
+		public const string ModVer = "2.7.25";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -42,11 +42,18 @@ namespace TPDespair.ZetAspects
 			DropHooks.Init();
 			DisplayHooks.Init();
 
+			// - EliteReworks is LateSetup only
+
 			if (Catalog.Aetherium.Enabled && Configuration.AetheriumHooks.Value) Compat.Aetherium.Init();
 
+			// - targeting this specific assembly from SpikeStrip
 			if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent") && Configuration.SpikeStripHooks.Value) Compat.PlasmaSpikeStrip.Init();
 
 			if (Catalog.WarWisp.Enabled && Configuration.WarWispHooks.Value) Compat.WarWisp.Init();
+
+			// - Blighted is LateSetup only
+
+			if (Catalog.GOTCE.Enabled && Configuration.GotceHooks.Value) Compat.GOTCE.Init();
 
 			Language.Init();
 		}
@@ -100,6 +107,9 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixNullifier, transform.position + new Vector3(-5f, 5f, -5f));
 				CreateDroplet(Catalog.Equip.AffixBlighted, transform.position + new Vector3(0f, 5f, -7.5f));
+				CreateDroplet(Catalog.Equip.AffixBackup, transform.position + new Vector3(5f, 5f, -5f));
+
+				CreateDroplet(Catalog.Equip.AffixPurity, transform.position + new Vector3(-10f, 10f, 10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

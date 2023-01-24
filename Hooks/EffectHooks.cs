@@ -1901,6 +1901,16 @@ namespace TPDespair.ZetAspects
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBlighted, Catalog.Item.ZetAspectBlighted, Catalog.Equip.AffixBlighted);
 			}
+
+			if (Catalog.GOTCE.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBackup, Catalog.Item.ZetAspectBackup, Catalog.Equip.AffixBackup);
+			}
+
+			if (Catalog.Thalasso.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPurity, Catalog.Item.ZetAspectPurity, Catalog.Equip.AffixPurity);
+			}
 		}
 
 		private static void ApplyAspectBuff(CharacterBody body, Inventory inventory, BuffDef buffDef, ItemDef itemDef, EquipmentDef equipDef)

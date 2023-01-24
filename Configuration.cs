@@ -72,6 +72,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> SpikeStripHooks { get; set; }
 		public static ConfigEntry<bool> WarWispHooks { get; set; }
 		public static ConfigEntry<bool> BlightedHooks { get; set; }
+		public static ConfigEntry<bool> GotceHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -228,6 +229,15 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBlightedBaseDamageGain { get; set; }
 		public static ConfigEntry<float> AspectBlightedStackDamageGain { get; set; }
 
+		public static ConfigEntry<int> AspectBackupBaseChargesGain { get; set; }
+		public static ConfigEntry<int> AspectBackupStackChargesGain { get; set; }
+		public static ConfigEntry<float> AspectBackupBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectBackupStackCooldownGain { get; set; }
+
+		public static ConfigEntry<float> AspectPurityBaseHealthGain { get; set; }
+		public static ConfigEntry<float> AspectPurityStackHealthGain { get; set; }
+		public static ConfigEntry<float> AspectPurityBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectPurityStackRegenGain { get; set; }
 
 
 		public static bool ValidElusiveModifier = false;
@@ -517,6 +527,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "blightedHooks", true,
 				"Allows for the reading and modification of functions and values within the BlightedElites mod. Should be enabled to allow better buff control."
 			);
+			GotceHooks = Config.Bind(
+				"21-Mod Compatibility", "gotceHooks", true,
+				"Allows for the reading and modification of functions and values within the GOTCE mod."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -525,6 +539,8 @@ namespace TPDespair.ZetAspects
 			BubbetConfigs(Config);
 			WarWispConfigs(Config);
 			BlightedConfigs(Config);
+			GotceConfigs(Config);
+			ThalassoConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1138,6 +1154,46 @@ namespace TPDespair.ZetAspects
 			AspectBlightedStackCooldownGain = Config.Bind(
 				"2ga-AspectBlighted", "blightedAddedCooldown", 0.1f,
 				"Cooldown reduction gained per stack."
+			);
+		}
+
+		private static void GotceConfigs(ConfigFile Config)
+		{
+			AspectBackupBaseChargesGain = Config.Bind(
+				"2ha-AspectBackup", "backupBaseCharges", 2,
+				"Secondary charges gained. Set to 0 to disable."
+			);
+			AspectBackupStackChargesGain = Config.Bind(
+				"2ha-AspectBackup", "backupAddedCharges", 1,
+				"Secondary charges gained per stack."
+			);
+			AspectBackupBaseCooldownGain = Config.Bind(
+				"2ha-AspectBackup", "backupBaseCooldown", 0.5f,
+				"Secondary cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectBackupStackCooldownGain = Config.Bind(
+				"2ha-AspectBackup", "backupAddedCooldown", 0.25f,
+				"Secondary cooldown reduction gained per stack."
+			);
+		}
+
+		private static void ThalassoConfigs(ConfigFile Config)
+		{
+			AspectPurityBaseHealthGain = Config.Bind(
+				"2ia-AspectPurity", "purityBaseHealth", 200f,
+				"Health gained. Set to 0 to disable."
+			);
+			AspectPurityStackHealthGain = Config.Bind(
+				"2ia-AspectPurity", "purityAddedHealth", 100f,
+				"Health gained per stack."
+			);
+			AspectPurityBaseRegenGain = Config.Bind(
+				"2ia-AspectPurity", "purityBaseRegen", 12f,
+				"Health regeneration gained. Set to 0 to disable."
+			);
+			AspectPurityStackRegenGain = Config.Bind(
+				"2ia-AspectPurity", "purityAddedRegen", 6f,
+				"Health regeneration gained per stack."
 			);
 		}
 

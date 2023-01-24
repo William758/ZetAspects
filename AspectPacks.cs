@@ -730,8 +730,11 @@ namespace TPDespair.ZetAspects
 					EquipmentColor();
 
 					BuffDef buffDef = Buff.AffixSepia;
-					buffDef.buffColor = Color.white;
-					buffDef.iconSprite = Sprites.SepiaEliteIcon;
+					if (buffDef)
+					{
+						buffDef.buffColor = Color.white;
+						buffDef.iconSprite = Sprites.SepiaElite;
+					}
 
 					FillEqualities();
 
@@ -1110,7 +1113,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
-		/*
+		
 		public static class GOTCE
 		{
 			private static bool equipDefPopulated = false;
@@ -1163,6 +1166,13 @@ namespace TPDespair.ZetAspects
 					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
 					EquipmentColor();
 
+					BuffDef buffDef = Buff.BackupDebuff;
+					if (buffDef)
+					{
+						buffDef.buffColor = Color.white;
+						buffDef.iconSprite = Sprites.BackupDebuff;
+					}
+
 					FillEqualities();
 
 					populated = true;
@@ -1177,7 +1187,7 @@ namespace TPDespair.ZetAspects
 
 				EquipmentIndex index;
 
-				index = EquipmentCatalog.FindEquipmentIndex("ELITE_EQUIPMENT_BACKUP_NAME");
+				index = EquipmentCatalog.FindEquipmentIndex("ELITE_EQUIPMENT_BACKUP");
 				if (index != EquipmentIndex.None) Equip.AffixBackup = EquipmentCatalog.GetEquipmentDef(index);
 
 				equipDefPopulated = true;
@@ -1191,6 +1201,9 @@ namespace TPDespair.ZetAspects
 				{
 					Buff.AffixBackup = Equip.AffixBackup.passiveBuffDef;
 				}
+
+				BuffIndex index = BuffCatalog.FindBuffIndex("Backuped");
+				if (index != BuffIndex.None) Buff.BackupDebuff = BuffCatalog.GetBuffDef(index);
 
 				buffDefPopulated = true;
 			}
@@ -1206,7 +1219,7 @@ namespace TPDespair.ZetAspects
 
 			private static void SetupText()
 			{
-				//Items.ZetAspectBackup.SetupTokens();
+				Items.ZetAspectBackup.SetupTokens();
 			}
 
 			internal static void ItemEntries(bool shown)
@@ -1228,7 +1241,7 @@ namespace TPDespair.ZetAspects
 			{
 				if (iconsReplaced) return;
 
-				ReplaceEquipmentIcon(Equip.AffixBackup, Sprites.AffixBackup, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixBackup, Sprites.AffixBackup, Sprites.CrackedOutlineOrange);
 
 				iconsReplaced = true;
 			}
@@ -1248,6 +1261,145 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixBackup, Buff.AffixBackup, Item.ZetAspectBackup);
 			}
 		}
-		*/
+
+
+
+		public static class Thalasso
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.jt_hehe.Thalassophobia")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("THALASSOPHOBIA_ELITE_EQUIPMENT_AFFIX_PURE");
+				if (index != EquipmentIndex.None) Equip.AffixPurity = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixPurity)
+				{
+					Buff.AffixPurity = Equip.AffixPurity.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectPurity, ref Equip.AffixPurity, ref Buff.AffixPurity, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectPurity.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectPurity, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectPurity, Equip.AffixPurity);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyItemPrefab(Item.ZetAspectPurity, Equip.AffixPurity);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixPurity, Sprites.AffixPurity, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixPurity, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixPurity);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixPurity, Buff.AffixPurity, Item.ZetAspectPurity);
+			}
+		}
 	}
 }

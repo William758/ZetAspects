@@ -244,6 +244,20 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>Aspect of Decay</style> :");
 			RegisterFragment("PASSIVE_BLIGHT", "\nGain 2 random Elite Affixes.");
 
+			RegisterFragment("AFFIX_BACKUP_NAME", "Secret Compartment");
+			RegisterFragment("AFFIX_BACKUP_PICKUP", "Become an aspect of backup.");
+			RegisterFragment("AFFIX_BACKUP_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_BACKUP", "<style=cDeath>Aspect of Backup</style> :");
+			RegisterFragment("BACKUPED_ON_HIT", "\nAttacks apply <style=cIsUtility>backuped</style> on hit {0}.");
+			RegisterFragment("BACKUPED_DETAIL", "\n<style=cStack>(Backuped prevents use of the secondary skill)</style>");
+
+			RegisterFragment("AFFIX_PURITY_NAME", "Purifying Light");
+			RegisterFragment("AFFIX_PURITY_PICKUP", "Become an aspect of purity.");
+			RegisterFragment("AFFIX_PURITY_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_PURITY", "<style=cDeath>Aspect of Purity</style> :");
+			RegisterFragment("PASSIVE_PURITY", "\nBecome immune to debuffs, dots and stuns.");
+			RegisterFragment("CLEANSE_ON_HIT", "\nAttacks <style=cIsUtility>cleanse</style> the <style=cIsUtility>buffs</style> on enemies you hit.");
+
 
 
 			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -264,6 +278,9 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health regeneration</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
+
+			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
+			RegisterFragment("STAT_SECONDARY_CHARGE", "\nGain <style=cIsUtility>+{0}</style> charges of your <style=cIsUtility>secondary skill</style>.");
 
 			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\nGain a large amount of <style=cIsHealing>regenerating shield</style>.");
 

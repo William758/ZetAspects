@@ -342,6 +342,12 @@ namespace TPDespair.ZetAspects
 							value += Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (count - 1f);
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixPurity) && Configuration.AspectPurityBaseHealthGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPurity);
+							value += Configuration.AspectPurityBaseHealthGain.Value + Configuration.AspectPurityStackHealthGain.Value * (count - 1f);
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, baseValue);
@@ -568,6 +574,12 @@ namespace TPDespair.ZetAspects
 							amount += Configuration.AspectSepiaBaseRegenGain.Value + Configuration.AspectSepiaStackRegenGain.Value * (count - 1f);
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixPurity) && Configuration.AspectPurityBaseRegenGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPurity);
+							amount += Configuration.AspectPurityBaseRegenGain.Value + Configuration.AspectPurityStackRegenGain.Value * (count - 1f);
+						}
+
 						if (amount != 0f)
 						{
 							if (!self.isPlayerControlled)
@@ -648,26 +660,47 @@ namespace TPDespair.ZetAspects
 
 					ModifyCrit(self);
 
-					float mult = GetCooldownMultiplier(self);
-					if (mult != 1f)
+					SkillLocator skillLocator = self.skillLocator;
+					if (skillLocator)
 					{
-						SkillLocator skillLocator = self.skillLocator;
-
-						if (skillLocator.primary)
+						float mult = GetCooldownMultiplier(self);
+						if (mult != 1f)
 						{
-							skillLocator.primary.cooldownScale *= mult;
+							if (skillLocator.primary) skillLocator.primary.cooldownScale *= mult;
+							if (skillLocator.secondary) skillLocator.secondary.cooldownScale *= mult;
+							if (skillLocator.utility) skillLocator.utility.cooldownScale *= mult;
+							if (skillLocator.special) skillLocator.special.cooldownScale *= mult;
 						}
+
 						if (skillLocator.secondary)
 						{
-							skillLocator.secondary.cooldownScale *= mult;
-						}
-						if (skillLocator.utility)
-						{
-							skillLocator.utility.cooldownScale *= mult;
-						}
-						if (skillLocator.special)
-						{
-							skillLocator.special.cooldownScale *= mult;
+							if (self.HasBuff(Catalog.Buff.AffixBackup))
+							{
+								if (Compat.GOTCE.backupStatHook)
+								{
+									if (Configuration.AspectBackupBaseCooldownGain.Value > 0f)
+									{
+										float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBackup);
+										float coeff = Configuration.AspectBackupBaseCooldownGain.Value + Configuration.AspectBackupStackCooldownGain.Value * (count - 1f);
+
+										coeff = 1f - (Util.ConvertAmplificationPercentageIntoReductionPercentage(coeff * 100f) / 100f);
+										//Logger.Warn("Backup Cooldown Mult : " + coeff);
+										skillLocator.secondary.cooldownScale *= coeff;
+									}
+								}
+
+								if (Compat.GOTCE.chargeOverride)
+								{
+									if (Configuration.AspectBackupBaseChargesGain.Value > 0)
+									{
+										float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBackup);
+										int charges = Mathf.RoundToInt(Configuration.AspectBackupBaseChargesGain.Value + Configuration.AspectBackupStackChargesGain.Value * (count - 1f));
+
+										//Logger.Warn("Backup Bonus Charges : " + charges);
+										skillLocator.secondary.SetBonusStockFromBody(skillLocator.secondary.bonusStockFromBody + charges);
+									}
+								}
+							}
 						}
 					}
 				}

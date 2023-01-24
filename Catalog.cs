@@ -76,6 +76,10 @@ namespace TPDespair.ZetAspects
 			public static Sprite NullOutlineOrange;
 			public static Sprite NullOutlineYellow;
 
+			public static Sprite CrackedOutlineRed;
+			public static Sprite CrackedOutlineOrange;
+			public static Sprite CrackedOutlineYellow;
+
 			public static Sprite AffixWhite;
 			public static Sprite AffixBlue;
 			public static Sprite AffixRed;
@@ -96,15 +100,16 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixSanguine;
 
 			public static Sprite AffixSepia;
-			public static Sprite SepiaEliteIcon;
+			public static Sprite SepiaElite;
 
 			public static Sprite AffixNullifier;
 
 			public static Sprite AffixBlighted;
 
 			public static Sprite AffixBackup;
+			public static Sprite BackupDebuff;
 
-			public static Sprite AffixNull;
+			public static Sprite AffixPurity;
 
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
@@ -156,7 +161,7 @@ namespace TPDespair.ZetAspects
 				if (Bubbet.Enabled)
 				{
 					AffixSepia = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSepia.png");
-					SepiaEliteIcon = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffAffixSepia.png");
+					SepiaElite = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffAffixSepia.png");
 					ZetSepiaBlind = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSepiaBlind.png");
 				}
 
@@ -170,18 +175,22 @@ namespace TPDespair.ZetAspects
 				}
 
 				AffixBlighted = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlighted.png");
-				/*
+				
 				if (GOTCE.Enabled)
 				{
-					AffixBackup = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlighted.png");
+					CrackedOutlineRed = Assets.LoadAsset<Sprite>("Assets/Icons/texCrackedOutlineRed.png");
+					CrackedOutlineOrange = Assets.LoadAsset<Sprite>("Assets/Icons/texCrackedOutlineOrange.png");
+					CrackedOutlineYellow = Assets.LoadAsset<Sprite>("Assets/Icons/texCrackedOutlineYellow.png");
+
+					AffixBackup = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBackup.png");
+					BackupDebuff = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffNoSecondary.png");
 				}
-				*/
-				/*
+				
 				if (Thalasso.Enabled)
 				{
-					AffixPurity = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlighted.png");
+					AffixPurity = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPurity.png");
 				}
-				*/
+				
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -194,6 +203,7 @@ namespace TPDespair.ZetAspects
 		{
 			public static GameObject AffixVoid;
 			public static GameObject AffixSepia;
+			public static GameObject AffixPure;
 
 
 
@@ -204,6 +214,11 @@ namespace TPDespair.ZetAspects
 				if (Bubbet.Enabled)
 				{
 					AffixSepia = Assets.LoadAsset<GameObject>("Assets/Prefabs/prefabAffixSepia.prefab");
+				}
+
+				if (Thalasso.Enabled)
+				{
+					AffixPure = Assets.LoadAsset<GameObject>("Assets/Prefabs/prefabAffixPure.prefab");
 				}
 			}
 		}
@@ -237,6 +252,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetPoached;
 			public static BuffDef ZetSepiaBlind;
 			public static BuffDef ZetElusive;
+
+			public static BuffDef BackupDebuff;
 
 
 
@@ -704,7 +721,7 @@ namespace TPDespair.ZetAspects
 			Item.ZetAspectBlighted = ZetAspectBlighted;
 			ZetAspectsContent.itemDefs.Add(ZetAspectBlighted);
 			transformableAspectItemDefs.Add(ZetAspectBlighted);
-			/*
+			
 			if (GOTCE.Enabled)
 			{
 				ItemDef ZetAspectBackup = Items.ZetAspectBackup.DefineItem();
@@ -712,7 +729,14 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectBackup);
 				transformableAspectItemDefs.Add(ZetAspectBackup);
 			}
-			*/
+
+			if (Thalasso.Enabled)
+			{
+				ItemDef ZetAspectPurity = Items.ZetAspectPurity.DefineItem();
+				Item.ZetAspectPurity = ZetAspectPurity;
+				ZetAspectsContent.itemDefs.Add(ZetAspectPurity);
+				transformableAspectItemDefs.Add(ZetAspectPurity);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -878,8 +902,8 @@ namespace TPDespair.ZetAspects
 			Bubbet.PreInit();
 			WarWisp.PreInit();
 			Blighted.PreInit();
-			//GOTCE.PreInit();
-			//Thalasso.PreInit();
+			GOTCE.PreInit();
+			Thalasso.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -981,8 +1005,8 @@ namespace TPDespair.ZetAspects
 			Bubbet.Init();
 			WarWisp.Init();
 			Blighted.Init();
-			//GOTCE.Init();
-			//Thalasso.Init();
+			GOTCE.Init();
+			Thalasso.Init();
 
 			Language.ChangeText();
 
@@ -1106,20 +1130,17 @@ namespace TPDespair.ZetAspects
 				Blighted.EquipmentEntries(false);
 			}
 
-			/*
 			if (GOTCE.populated)
 			{
 				GOTCE.ItemEntries(true);
 				GOTCE.EquipmentEntries(false);
 			}
-			*/
-			/*
+
 			if (Thalasso.populated)
 			{
 				Thalasso.ItemEntries(true);
 				Thalasso.EquipmentEntries(false);
 			}
-			*/
 		}
 
 

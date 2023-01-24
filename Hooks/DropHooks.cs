@@ -156,18 +156,16 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixBlighted, Configuration.AspectDropWeightBlighted.Value);
 			}
-			/*
+			
 			if (Catalog.GOTCE.Enabled)
 			{
 				SetDropWeight(Catalog.Equip.AffixBackup, Configuration.AspectDropWeightBackup.Value);
 			}
-			*/
-			/*
+			
 			if (Catalog.Thalasso.Enabled)
 			{
 				SetDropWeight(Catalog.Equip.AffixPurity, Configuration.AspectDropWeightPurity.Value);
 			}
-			*/
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)
