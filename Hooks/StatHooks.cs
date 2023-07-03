@@ -113,6 +113,25 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixNight) && Configuration.AspectNightBaseMovementGain.Value > 0f)
+						{
+							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+							float effectValue = Configuration.AspectNightBaseMovementGain.Value + Configuration.AspectNightStackMovementGain.Value * (count - 1f);
+							if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterMovementMult.Value;
+							value += effectValue;
+						}
+
+						if (Compat.RisingTides.nightSpeedStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.NightSpeed) && Configuration.AspectNightBaseSafeMovementGain.Value > 0f)
+							{
+								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+								float effectValue = Configuration.AspectNightBaseSafeMovementGain.Value + Configuration.AspectNightStackSafeMovementGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterSafeMovementMult.Value;
+								value += effectValue;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -232,6 +251,12 @@ namespace TPDespair.ZetAspects
 								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
 								value += Configuration.AspectBlightedBaseDamageGain.Value + Configuration.AspectBlightedStackDamageGain.Value * (count - 1f);
 							}
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixBlackHole) && Configuration.AspectBlackHoleBaseDamageGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlackHole);
+							value += Configuration.AspectBlackHoleBaseDamageGain.Value + Configuration.AspectBlackHoleStackDamageGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -399,7 +424,7 @@ namespace TPDespair.ZetAspects
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
-					/*
+					
 					c.Index += 4;
 
 					// multiplier
@@ -407,10 +432,14 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, baseValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
+						if (self.HasBuff(Catalog.Buff.AffixBarrier) && !Configuration.AspectBarrierPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
+						{
+							value *= 2f;
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, baseValue);
-					*/
 				}
 				else
 				{
@@ -460,6 +489,25 @@ namespace TPDespair.ZetAspects
 							{
 								float effectValue = Configuration.AspectAragoniteAllyAtkSpdGain.Value;
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterAtkSpdMult.Value;
+								value += effectValue;
+							}
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixNight) && Configuration.AspectNightBaseAtkSpdGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+							float effectValue = Configuration.AspectNightBaseAtkSpdGain.Value + Configuration.AspectNightStackAtkSpdGain.Value * (count - 1f);
+							if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterAtkSpdMult.Value;
+							value += effectValue;
+						}
+
+						if (Compat.RisingTides.nightSpeedStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.NightSpeed) && Configuration.AspectNightBaseSafeAtkSpdGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+								float effectValue = Configuration.AspectNightBaseSafeAtkSpdGain.Value + Configuration.AspectNightStackSafeAtkSpdGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterSafeAtkSpdMult.Value;
 								value += effectValue;
 							}
 						}
@@ -578,6 +626,12 @@ namespace TPDespair.ZetAspects
 						{
 							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPurity);
 							amount += Configuration.AspectPurityBaseRegenGain.Value + Configuration.AspectPurityStackRegenGain.Value * (count - 1f);
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixMoney) && Configuration.AspectMoneyBaseRegenGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixMoney);
+							amount += Configuration.AspectMoneyBaseRegenGain.Value + Configuration.AspectMoneyStackRegenGain.Value * (count - 1f);
 						}
 
 						if (amount != 0f)
@@ -822,6 +876,12 @@ namespace TPDespair.ZetAspects
 			{
 				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
 				additiveReduction += Configuration.AspectBlightedBaseCooldownGain.Value + Configuration.AspectBlightedStackCooldownGain.Value * (count - 1f);
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixWater) && Configuration.AspectWaterBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWater);
+				additiveReduction += Configuration.AspectWaterBaseCooldownGain.Value + Configuration.AspectWaterStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (additiveReduction > 0f)

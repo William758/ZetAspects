@@ -102,6 +102,7 @@ namespace TPDespair.ZetAspects
 			OnHitEnemyHook();
 			FixTimedChillApplication();
 			ShieldRegenHook();
+			GoldFromKillHook();
 
 			//PreventVoidEquipmentRemovalHook();
 			EquipmentLostBuffHook();
@@ -249,6 +250,14 @@ namespace TPDespair.ZetAspects
 									if (Configuration.AspectSepiaBlindDodgeEffect.Value > 0f)
 									{
 										avoidChance += Configuration.AspectSepiaBlindDodgeEffect.Value;
+									}
+								}
+
+								if (atkBody.HasBuff(Catalog.Buff.NightBlind))
+								{
+									if (Configuration.AspectNightBlindDodgeEffect.Value > 0f)
+									{
+										avoidChance += Configuration.AspectNightBlindDodgeEffect.Value;
 									}
 								}
 							}
@@ -800,6 +809,26 @@ namespace TPDespair.ZetAspects
 								float extraDamage = Mathf.Abs(Configuration.AspectPoisonNullDamageTaken.Value);
 								damage *= 1f + extraDamage;
 							}
+
+							float reduction = 0f;
+
+							if (vicBody.HasBuff(Catalog.Buff.AffixBarrier))
+							{
+								damage /= 0.7f;
+
+								if (Configuration.AspectBarrierBaseDamageReductionGain.Value > 0f)
+								{
+									float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBarrier);
+									float effectValue = Configuration.AspectBarrierBaseDamageReductionGain.Value + Configuration.AspectBarrierStackDamageReductionGain.Value * (count - 1f);
+
+									reduction += effectValue;
+								}
+							}
+
+							if (reduction > 0f)
+							{
+								damage *= 1f / (1f + reduction);
+							}
 						}
 
 						return damage;
@@ -1075,7 +1104,7 @@ namespace TPDespair.ZetAspects
 			if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectWhiteMonsterDamageMult.Value;
 
 			var procMask = default(ProcChainMask);
-			if (Catalog.borboFrostBlade) procMask.AddProc(ProcType.Thorns);
+			if (Catalog.borboFrostBlade || Configuration.AspectWhiteThornsProc.Value) procMask.AddProc(ProcType.Thorns);
 
 			//Logger.Warn("Damage : " + damageInfo.damage + " - " + "FrostBlade : " + damage);
 
@@ -1587,6 +1616,50 @@ namespace TPDespair.ZetAspects
 
 
 
+		private static void GoldFromKillHook()
+		{
+			IL.RoR2.DeathRewards.OnKilledServer += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchStloc(2)
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldloc, 0);
+					c.Emit(OpCodes.Ldloc, 2);
+					c.EmitDelegate<Func<CharacterBody, uint, uint>>((atkBody, reward) =>
+					{
+						float mult = 1f;
+
+						if (atkBody.HasBuff(Catalog.Buff.AffixMoney) && Configuration.AspectMoneyStackGoldMult.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixMoney);
+							mult += Configuration.AspectMoneyBaseGoldMult.Value + Configuration.AspectMoneyStackGoldMult.Value * (count - 1);
+						}
+
+						if (mult > 1f)
+						{
+							return (uint)(reward * mult);
+						}
+
+						return reward;
+					});
+					c.Emit(OpCodes.Stloc, 2);
+				}
+				else
+				{
+					Logger.Warn("GoldFromKillHook Failed");
+				}
+			};
+		}
+
+
+
 		private static void ShieldRegenHook()
 		{
 			On.RoR2.HealthComponent.ServerFixedUpdate += (orig, self) =>
@@ -1795,8 +1868,12 @@ namespace TPDespair.ZetAspects
 			if (NetworkServer.active)
 			{
 				int count = DestroyedBodies.ContainsKey(body.netId) ? 0 : body.eliteBuffCount;
-
 				body.AddItemBehavior<EliteBuffManager>(count);
+
+				/*
+				count = body.HasBuff(Catalog.Buff.AffixMoney) ? Mathf.RoundToInt(100f * Catalog.GetStackMagnitude(body, Catalog.Buff.AffixMoney)) : 0 ;
+				body.AddItemBehavior<GoldPowerBehavior>(count);
+				*/
 			}
 		}
 
@@ -1910,6 +1987,15 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Thalasso.populated)
 			{
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPurity, Catalog.Item.ZetAspectPurity, Catalog.Equip.AffixPurity);
+			}
+
+			if (Catalog.RisingTides.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBarrier, Catalog.Item.ZetAspectBarrier, Catalog.Equip.AffixBarrier);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBlackHole, Catalog.Item.ZetAspectBlackHole, Catalog.Equip.AffixBlackHole);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixMoney, Catalog.Item.ZetAspectMoney, Catalog.Equip.AffixMoney);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixNight, Catalog.Item.ZetAspectNight, Catalog.Equip.AffixNight);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWater, Catalog.Item.ZetAspectWater, Catalog.Equip.AffixWater);
 			}
 		}
 

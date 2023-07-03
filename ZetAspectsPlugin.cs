@@ -22,10 +22,11 @@ namespace TPDespair.ZetAspects
 	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.25";
+		public const string ModVer = "2.7.27";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -54,6 +55,8 @@ namespace TPDespair.ZetAspects
 			// - Blighted is LateSetup only
 
 			if (Catalog.GOTCE.Enabled && Configuration.GotceHooks.Value) Compat.GOTCE.Init();
+
+			if (Catalog.RisingTides.Enabled && Configuration.RisingTidesHooks.Value) Compat.RisingTides.Init();
 
 			Language.Init();
 		}
@@ -102,6 +105,17 @@ namespace TPDespair.ZetAspects
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
+				CreateDroplet(Catalog.Equip.AffixBarrier, transform.position + new Vector3(-5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixBlackHole, transform.position + new Vector3(0f, 5f, 7.5f));
+				CreateDroplet(Catalog.Equip.AffixMoney, transform.position + new Vector3(5f, 5f, 5f));
+				CreateDroplet(Catalog.Equip.AffixNight, transform.position + new Vector3(-5f, 5f, -5f));
+				CreateDroplet(Catalog.Equip.AffixWater, transform.position + new Vector3(0f, 5f, -7.5f));
+			}
+
+			if (Input.GetKeyDown(KeyCode.F5))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+
 				CreateDroplet(Catalog.Equip.AffixGold, transform.position + new Vector3(-5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixSanguine, transform.position + new Vector3(0f, 5f, 7.5f));
 				CreateDroplet(Catalog.Equip.AffixSepia, transform.position + new Vector3(5f, 5f, 5f));
@@ -112,7 +126,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixPurity, transform.position + new Vector3(-10f, 10f, 10f));
 			}
 
-			if (Input.GetKeyDown(KeyCode.F5))
+			if (Input.GetKeyDown(KeyCode.F6))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 

@@ -166,6 +166,15 @@ namespace TPDespair.ZetAspects
 			{
 				SetDropWeight(Catalog.Equip.AffixPurity, Configuration.AspectDropWeightPurity.Value);
 			}
+
+			if (Catalog.RisingTides.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixBarrier, Configuration.AspectDropWeightBarrier.Value);
+				SetDropWeight(Catalog.Equip.AffixBlackHole, Configuration.AspectDropWeightBlackHole.Value);
+				SetDropWeight(Catalog.Equip.AffixMoney, Configuration.AspectDropWeightMoney.Value);
+				SetDropWeight(Catalog.Equip.AffixNight, Configuration.AspectDropWeightNight.Value);
+				SetDropWeight(Catalog.Equip.AffixWater, Configuration.AspectDropWeightWater.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

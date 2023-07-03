@@ -41,6 +41,11 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightBlighted { get; set; }
 		public static ConfigEntry<float> AspectDropWeightBackup { get; set; }
 		public static ConfigEntry<float> AspectDropWeightPurity { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBarrier { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBlackHole { get; set; }
+		public static ConfigEntry<float> AspectDropWeightMoney { get; set; }
+		public static ConfigEntry<float> AspectDropWeightNight { get; set; }
+		public static ConfigEntry<float> AspectDropWeightWater { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -73,6 +78,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> WarWispHooks { get; set; }
 		public static ConfigEntry<bool> BlightedHooks { get; set; }
 		public static ConfigEntry<bool> GotceHooks { get; set; }
+		public static ConfigEntry<bool> RisingTidesHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -80,6 +86,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectWhiteSlowDuration { get; set; }
 		public static ConfigEntry<float> AspectWhiteBaseDamage { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackDamage { get; set; }
+		public static ConfigEntry<bool> AspectWhiteThornsProc { get; set; }
 		public static ConfigEntry<float> AspectWhiteMonsterDamageMult { get; set; }
 
 		public static ConfigEntry<float> AspectBlueSappedDuration { get; set; }
@@ -238,6 +245,35 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectPurityStackHealthGain { get; set; }
 		public static ConfigEntry<float> AspectPurityBaseRegenGain { get; set; }
 		public static ConfigEntry<float> AspectPurityStackRegenGain { get; set; }
+
+		public static ConfigEntry<bool> AspectBarrierPlayerHealthReduction { get; set; }
+		public static ConfigEntry<float> AspectBarrierBaseDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBarrierStackDamageReductionGain { get; set; }
+
+		public static ConfigEntry<float> AspectBlackHoleBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBlackHoleStackDamageGain { get; set; }
+
+		public static ConfigEntry<float> AspectMoneyBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectMoneyStackRegenGain { get; set; }
+		public static ConfigEntry<float> AspectMoneyBaseGoldMult { get; set; }
+		public static ConfigEntry<float> AspectMoneyStackGoldMult { get; set; }
+
+		public static ConfigEntry<float> AspectNightBlindDodgeEffect { get; set; }
+		public static ConfigEntry<float> AspectNightBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectNightStackMovementGain { get; set; }
+		public static ConfigEntry<float> AspectNightMonsterMovementMult { get; set; }
+		public static ConfigEntry<float> AspectNightBaseAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectNightStackAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectNightMonsterAtkSpdMult { get; set; }
+		public static ConfigEntry<float> AspectNightBaseSafeMovementGain { get; set; }
+		public static ConfigEntry<float> AspectNightStackSafeMovementGain { get; set; }
+		public static ConfigEntry<float> AspectNightMonsterSafeMovementMult { get; set; }
+		public static ConfigEntry<float> AspectNightBaseSafeAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectNightStackSafeAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectNightMonsterSafeAtkSpdMult { get; set; }
+
+		public static ConfigEntry<float> AspectWaterBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectWaterStackCooldownGain { get; set; }
 
 
 		public static bool ValidElusiveModifier = false;
@@ -403,6 +439,26 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightPurity", 1f,
 					"Drop chance multiplier for AffixPurity"
 				);
+				AspectDropWeightBarrier = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBarrier", 1f,
+					"Drop chance multiplier for AffixBarrier"
+				);
+				AspectDropWeightBlackHole = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBlackHole", 1f,
+					"Drop chance multiplier for AffixBlackHole"
+				);
+				AspectDropWeightMoney = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightMoney", 1f,
+					"Drop chance multiplier for AffixMoney"
+				);
+				AspectDropWeightNight = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightNight", 1f,
+					"Drop chance multiplier for AffixNight"
+				);
+				AspectDropWeightWater = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightWater", 1f,
+					"Drop chance multiplier for AffixWater"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -531,6 +587,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "gotceHooks", true,
 				"Allows for the reading and modification of functions and values within the GOTCE mod."
 			);
+			RisingTidesHooks = Config.Bind(
+				"21-Mod Compatibility", "risingTidesHooks", true,
+				"Allows for the reading and modification of functions and values within the RisingTides mod."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -541,6 +601,7 @@ namespace TPDespair.ZetAspects
 			BlightedConfigs(Config);
 			GotceConfigs(Config);
 			ThalassoConfigs(Config);
+			RisingTidesConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -568,6 +629,10 @@ namespace TPDespair.ZetAspects
 			AspectWhiteStackDamage = Config.Bind(
 				"2aa-AspectWhite", "whiteAddedTotalDamage", 0.10f,
 				"Added total damage of blades per stack."
+			);
+			AspectWhiteThornsProc = Config.Bind(
+				"2aa-AspectWhite", "whiteThornsProc", true,
+				"Use ProcType.Thorns on blades, helps prevent infinite chaining."
 			);
 			AspectWhiteMonsterDamageMult = Config.Bind(
 				"2aa-AspectWhite", "whiteMonsterDamageMult", 1f,
@@ -1194,6 +1259,118 @@ namespace TPDespair.ZetAspects
 			AspectPurityStackRegenGain = Config.Bind(
 				"2ia-AspectPurity", "purityAddedRegen", 6f,
 				"Health regeneration gained per stack."
+			);
+		}
+
+		private static void RisingTidesConfigs(ConfigFile Config)
+		{
+			AspectBarrierPlayerHealthReduction = Config.Bind(
+				"2ja-AspectBarrier", "barrierPlayerHealthReduction", false,
+				"Apply health reduction to player team."
+			);
+			AspectBarrierBaseDamageReductionGain = Config.Bind(
+				"2ja-AspectBarrier", "barrierBaseDamageReduction", 0.3f,
+				"Damage reduction gained. Set to 0 to disable."
+			);
+			AspectBarrierStackDamageReductionGain = Config.Bind(
+				"2ja-AspectBarrier", "barrierStackDamageReduction", 0.15f,
+				"Damage reduction gained per stack."
+			);
+
+
+
+			AspectBlackHoleBaseDamageGain = Config.Bind(
+				"2jb-AspectBlackHole", "blackHoleBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectBlackHoleStackDamageGain = Config.Bind(
+				"2jb-AspectBlackHole", "blackHoleAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+
+
+
+			AspectMoneyBaseRegenGain = Config.Bind(
+				"2jc-AspectMoney", "moneyBaseRegen", 12f,
+				"Health regeneration gained. Set to 0 to disable."
+			);
+			AspectMoneyStackRegenGain = Config.Bind(
+				"2jc-AspectMoney", "moneyAddedRegen", 6f,
+				"Health regeneration gained per stack."
+			);
+			AspectMoneyBaseGoldMult = Config.Bind(
+				"2jc-AspectMoney", "moneyBaseGoldMult", 0.2f,
+				"Gold from kills increase. Set to 0 to disable."
+			);
+			AspectMoneyStackGoldMult = Config.Bind(
+				"2jc-AspectMoney", "moneyAddedGoldMult", 0.1f,
+				"Gold from kills increase per stack."
+			);
+
+
+
+			AspectNightBlindDodgeEffect = Config.Bind(
+				"2jd-AspectNight", "nightBlindDodgeEffect", 35f,
+				"Dodge chance effect from blind. Set to 0 to disable."
+			);
+			AspectNightBaseMovementGain = Config.Bind(
+				"2jd-AspectNight", "nightBaseMovementGained", 0.20f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectNightStackMovementGain = Config.Bind(
+				"2jd-AspectNight", "nightAddedMovementGained", 0.10f,
+				"Movement speed gained per stack."
+			);
+			AspectNightMonsterMovementMult = Config.Bind(
+				"2jd-AspectNight", "nightMonsterMovementMult", 1f,
+				"Monster movement speed gain multiplier."
+			);
+			AspectNightBaseAtkSpdGain = Config.Bind(
+				"2jd-AspectNight", "nightBaseAtkSpdGained", 0.10f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectNightStackAtkSpdGain = Config.Bind(
+				"2jd-AspectNight", "nightAddedAtkSpdGained", 0.1f,
+				"Attack speed gained per stack."
+			);
+			AspectNightMonsterAtkSpdMult = Config.Bind(
+				"2jd-AspectNight", "nightMonsterAtkSpdMult", 1f,
+				"Monster attack speed gain multiplier."
+			);
+			AspectNightBaseSafeMovementGain = Config.Bind(
+				"2jd-AspectNight", "nightBaseSafeMovementGained", 0.40f,
+				"Movement speed gained while out of danger. Set to 0 to disable."
+			);
+			AspectNightStackSafeMovementGain = Config.Bind(
+				"2jd-AspectNight", "nightAddedSafeMovementGained", 0f,
+				"Movement speed gained while out of danger per stack."
+			);
+			AspectNightMonsterSafeMovementMult = Config.Bind(
+				"2jd-AspectNight", "nightMonsterSafeMovementMult", 2f,
+				"Monster movement speed gain while out of danger multiplier."
+			);
+			AspectNightBaseSafeAtkSpdGain = Config.Bind(
+				"2jd-AspectNight", "nightBaseSafeAtkSpdGained", 0.20f,
+				"Attack speed gained while out of danger. Set to 0 to disable."
+			);
+			AspectNightStackSafeAtkSpdGain = Config.Bind(
+				"2jd-AspectNight", "nightAddedSafeAtkSpdGained", 0f,
+				"Attack speed gained while out of danger per stack."
+			);
+			AspectNightMonsterSafeAtkSpdMult = Config.Bind(
+				"2jd-AspectNight", "nightMonsterSafeAtkSpdMult", 1.5f,
+				"Monster attack speed gain while out of danger multiplier."
+			);
+
+
+
+			AspectWaterBaseCooldownGain = Config.Bind(
+				"2je-AspectWater", "waterBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectWaterStackCooldownGain = Config.Bind(
+				"2je-AspectWater", "waterAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
 			);
 		}
 

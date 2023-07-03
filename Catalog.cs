@@ -111,6 +111,12 @@ namespace TPDespair.ZetAspects
 
 			public static Sprite AffixPurity;
 
+			public static Sprite AffixBarrier;
+			public static Sprite AffixBlackHole;
+			public static Sprite AffixMoney;
+			public static Sprite AffixNight;
+			public static Sprite AffixWater;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
@@ -190,7 +196,16 @@ namespace TPDespair.ZetAspects
 				{
 					AffixPurity = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPurity.png");
 				}
-				
+
+				if (RisingTides.Enabled)
+				{
+					AffixBarrier = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBarrier.png");
+					AffixBlackHole = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBlackHole.png");
+					AffixMoney = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixArmored.png");
+					AffixNight = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixNight.png");
+					AffixWater = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWater.png");
+				}
+
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -254,6 +269,8 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetElusive;
 
 			public static BuffDef BackupDebuff;
+			public static BuffDef NightSpeed;
+			public static BuffDef NightBlind;
 
 
 
@@ -285,6 +302,12 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixBackup;
 
 			public static BuffDef AffixPurity;
+
+			public static BuffDef AffixBarrier;
+			public static BuffDef AffixBlackHole;
+			public static BuffDef AffixMoney;
+			public static BuffDef AffixNight;
+			public static BuffDef AffixWater;
 		}
 
 		public static class Equip
@@ -317,6 +340,12 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixBackup;
 
 			public static EquipmentDef AffixPurity;
+
+			public static EquipmentDef AffixBarrier;
+			public static EquipmentDef AffixBlackHole;
+			public static EquipmentDef AffixMoney;
+			public static EquipmentDef AffixNight;
+			public static EquipmentDef AffixWater;
 		}
 
 		public static class Item
@@ -354,6 +383,12 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectBackup;
 
 			public static ItemDef ZetAspectPurity;
+
+			public static ItemDef ZetAspectBarrier;
+			public static ItemDef ZetAspectBlackHole;
+			public static ItemDef ZetAspectMoney;
+			public static ItemDef ZetAspectNight;
+			public static ItemDef ZetAspectWater;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -367,6 +402,8 @@ namespace TPDespair.ZetAspects
 		public static BuffIndex altSlow80 = BuffIndex.None;
 		public static BuffIndex rageAura = BuffIndex.None;
 		public static BuffIndex nullifierRecipient = BuffIndex.None;
+		public static BuffIndex waterInvuln = BuffIndex.None;
+		public static BuffIndex reactorInvuln = BuffIndex.None;
 		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
 
 
@@ -737,6 +774,34 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectPurity);
 				transformableAspectItemDefs.Add(ZetAspectPurity);
 			}
+
+			if (RisingTides.Enabled)
+			{
+				ItemDef ZetAspectBarrier = Items.ZetAspectBarrier.DefineItem();
+				Item.ZetAspectBarrier = ZetAspectBarrier;
+				ZetAspectsContent.itemDefs.Add(ZetAspectBarrier);
+				transformableAspectItemDefs.Add(ZetAspectBarrier);
+
+				ItemDef ZetAspectBlackHole = Items.ZetAspectBlackHole.DefineItem();
+				Item.ZetAspectBlackHole = ZetAspectBlackHole;
+				ZetAspectsContent.itemDefs.Add(ZetAspectBlackHole);
+				transformableAspectItemDefs.Add(ZetAspectBlackHole);
+
+				ItemDef ZetAspectMoney = Items.ZetAspectMoney.DefineItem();
+				Item.ZetAspectMoney = ZetAspectMoney;
+				ZetAspectsContent.itemDefs.Add(ZetAspectMoney);
+				transformableAspectItemDefs.Add(ZetAspectMoney);
+
+				ItemDef ZetAspectNight = Items.ZetAspectNight.DefineItem();
+				Item.ZetAspectNight = ZetAspectNight;
+				ZetAspectsContent.itemDefs.Add(ZetAspectNight);
+				transformableAspectItemDefs.Add(ZetAspectNight);
+
+				ItemDef ZetAspectWater = Items.ZetAspectWater.DefineItem();
+				Item.ZetAspectWater = ZetAspectWater;
+				ZetAspectsContent.itemDefs.Add(ZetAspectWater);
+				transformableAspectItemDefs.Add(ZetAspectWater);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -904,6 +969,7 @@ namespace TPDespair.ZetAspects
 			Blighted.PreInit();
 			GOTCE.PreInit();
 			Thalasso.PreInit();
+			RisingTides.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -935,6 +1001,16 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.PopcornFactory.WispMod"))
 			{
 				nullifierRecipient = BuffCatalog.FindBuffIndex("Nullifier Armour Buff");
+			}
+
+			if (PluginLoaded("com.TeamMoonstorm.Starstorm2-Nightly"))
+			{
+				reactorInvuln = BuffCatalog.FindBuffIndex("BuffReactor");
+			}
+
+			if (PluginLoaded("com.themysticsword.risingtides"))
+			{
+				waterInvuln = BuffCatalog.FindBuffIndex("RisingTides_WaterInvincibility");
 			}
 
 			if (aspectAbilities)
@@ -1007,6 +1083,7 @@ namespace TPDespair.ZetAspects
 			Blighted.Init();
 			GOTCE.Init();
 			Thalasso.Init();
+			RisingTides.Init();
 
 			Language.ChangeText();
 
@@ -1140,6 +1217,12 @@ namespace TPDespair.ZetAspects
 			{
 				Thalasso.ItemEntries(true);
 				Thalasso.EquipmentEntries(false);
+			}
+
+			if (RisingTides.populated)
+			{
+				RisingTides.ItemEntries(true);
+				RisingTides.EquipmentEntries(false);
 			}
 		}
 

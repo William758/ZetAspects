@@ -58,6 +58,24 @@ Monster endurance damage reduction multiplier : x0.5
 
 ![effects](https://i.imgur.com/kFos0O8.png)
 
+## GOTCE:
+
+![effects](https://i.imgur.com/7FxKgsu.png)
+
+## Thalassophobia:
+
+![effects](https://i.imgur.com/9ok4kSK.png)
+
+## RisingTides:
+
+![effects](https://i.imgur.com/SoGh7tl.png)
+
+Monster Bismuth health multiplier : x0.5
+
+Monster Nocturnal OOD movement speed multiplier : x2
+
+Monster Nocturnal OOD attack speed multiplier : x1.5
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -71,6 +89,12 @@ Brazilian Portuguese translation by SpookyGabe#9476.
 Korean translation by 깽비#8221.
 
 ## Changelog:
+
+v2.7.27 - Added support for elites from RisingTides.
+
+v2.7.26 - Prevent frost blades from procing themselves in certain situations.
+
+v2.7.25 - Added support for elites from GOTCE and Thalassophobia.
 
 v2.7.24 - Added Korean translation by 깽비#8221.
 

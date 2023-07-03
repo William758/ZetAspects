@@ -149,6 +149,32 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBarrier;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBarrier) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixWater;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectWater) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixBlackHole;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBlackHole) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -180,6 +206,19 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixMoney;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectMoney) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixNight;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectNight) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.Thalasso.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixPurity;
@@ -190,11 +229,6 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.populated)
 			{
-				targetEquipDef = Catalog.Equip.AffixAragonite;
-				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
-				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
-				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-
 				targetEquipDef = Catalog.Equip.AffixVeiled;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectVeiled) > 0) return targetEquipDef;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -279,6 +313,28 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBarrier;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixWater;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixBlackHole;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 			if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -305,6 +361,17 @@ namespace TPDespair.ZetAspects
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixMoney;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixNight;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+			}
+
 			if (Catalog.Thalasso.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixPurity;
@@ -314,10 +381,6 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.populated)
 			{
-				targetEquipDef = Catalog.Equip.AffixAragonite;
-				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
-				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
-
 				targetEquipDef = Catalog.Equip.AffixVeiled;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -387,6 +450,24 @@ namespace TPDespair.ZetAspects
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectVoid) > 0) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixBarrier;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBarrier) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixWater;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectWater) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixBlackHole;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectBlackHole) > 0) return targetEquipDef;
+			}
+
+			if (Catalog.SpikeStrip.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixAragonite;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
+			}
+
 			targetEquipDef = Catalog.Equip.AffixLunar;
 			if (inventory.GetItemCount(Catalog.Item.ZetAspectLunar) > 0) return targetEquipDef;
 
@@ -408,6 +489,15 @@ namespace TPDespair.ZetAspects
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectNullifier) > 0) return targetEquipDef;
 			}
 
+			if (Catalog.RisingTides.populated)
+			{
+				targetEquipDef = Catalog.Equip.AffixMoney;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectMoney) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixNight;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectNight) > 0) return targetEquipDef;
+			}
+
 			if (Catalog.Thalasso.populated)
 			{
 				targetEquipDef = Catalog.Equip.AffixPurity;
@@ -416,9 +506,6 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.SpikeStrip.populated)
 			{
-				targetEquipDef = Catalog.Equip.AffixAragonite;
-				if (inventory.GetItemCount(Catalog.Item.ZetAspectAragonite) > 0) return targetEquipDef;
-
 				targetEquipDef = Catalog.Equip.AffixVeiled;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectVeiled) > 0) return targetEquipDef;
 
@@ -588,6 +675,15 @@ namespace TPDespair.ZetAspects
 			if (Catalog.Thalasso.Enabled)
 			{
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixPurity, Catalog.Item.ZetAspectPurity);
+			}
+
+			if (Catalog.RisingTides.Enabled)
+			{
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBarrier, Catalog.Item.ZetAspectBarrier);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixWater, Catalog.Item.ZetAspectWater);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlackHole, Catalog.Item.ZetAspectBlackHole);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixMoney, Catalog.Item.ZetAspectMoney);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixNight, Catalog.Item.ZetAspectNight);
 			}
 		}
 
@@ -763,7 +859,7 @@ namespace TPDespair.ZetAspects
 				CharacterBody body = healthComponent.body;
 				if (body)
 				{
-					if (body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) || body.HasBuff(RoR2Content.Buffs.Immune)) immune = true;
+					if (HasInvulnBuff(body)) immune = true;
 
 					if (body.HasBuff(RoR2Content.Buffs.AffixLunar)) convertShield = true;
 
@@ -801,6 +897,16 @@ namespace TPDespair.ZetAspects
 			{
 				SetShieldColor(hpBar, shieldVoidColor);
 			}
+		}
+
+		private static bool HasInvulnBuff(CharacterBody body)
+		{
+			if (body.HasBuff(RoR2Content.Buffs.HiddenInvincibility)) return true;
+			if (body.HasBuff(RoR2Content.Buffs.Immune)) return true;
+			if (body.HasBuff(Catalog.reactorInvuln)) return true;
+			if (body.HasBuff(Catalog.waterInvuln)) return true;
+
+			return false;
 		}
 
 		private static void SetShieldColor(HealthBar hpBar, Color32 color)

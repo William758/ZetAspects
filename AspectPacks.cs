@@ -1401,5 +1401,215 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixPurity, Buff.AffixPurity, Item.ZetAspectPurity);
 			}
 		}
+
+
+
+		public static class RisingTides
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.themysticsword.risingtides")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixBarrier");
+				if (index != EquipmentIndex.None) Equip.AffixBarrier = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixBlackHole");
+				if (index != EquipmentIndex.None) Equip.AffixBlackHole = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixMoney");
+				if (index != EquipmentIndex.None) Equip.AffixMoney = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixNight");
+				if (index != EquipmentIndex.None) Equip.AffixNight = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixWater");
+				if (index != EquipmentIndex.None) Equip.AffixWater = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixBarrier)
+				{
+					Buff.AffixBarrier = Equip.AffixBarrier.passiveBuffDef;
+				}
+				if (Equip.AffixBlackHole)
+				{
+					Buff.AffixBlackHole = Equip.AffixBlackHole.passiveBuffDef;
+				}
+				if (Equip.AffixMoney)
+				{
+					Buff.AffixMoney = Equip.AffixMoney.passiveBuffDef;
+				}
+				if (Equip.AffixNight)
+				{
+					Buff.AffixNight = Equip.AffixNight.passiveBuffDef;
+				}
+				if (Equip.AffixWater)
+				{
+					Buff.AffixWater = Equip.AffixWater.passiveBuffDef;
+				}
+
+				BuffIndex index = BuffCatalog.FindBuffIndex("RisingTides_NightSpeedBoost");
+				if (index != BuffIndex.None) Buff.NightSpeed = BuffCatalog.GetBuffDef(index);
+
+				index = BuffCatalog.FindBuffIndex("RisingTides_NightReducedVision");
+				if (index != BuffIndex.None) Buff.NightBlind = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectBarrier, ref Equip.AffixBarrier, ref Buff.AffixBarrier, state);
+				DisableInactiveItem(Item.ZetAspectBlackHole, ref Equip.AffixBlackHole, ref Buff.AffixBlackHole, state);
+				DisableInactiveItem(Item.ZetAspectMoney, ref Equip.AffixMoney, ref Buff.AffixMoney, state);
+				DisableInactiveItem(Item.ZetAspectNight, ref Equip.AffixNight, ref Buff.AffixNight, state);
+				DisableInactiveItem(Item.ZetAspectWater, ref Equip.AffixWater, ref Buff.AffixWater, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectBarrier.SetupTokens();
+				Items.ZetAspectBlackHole.SetupTokens();
+				Items.ZetAspectMoney.SetupTokens();
+				Items.ZetAspectNight.SetupTokens();
+				Items.ZetAspectWater.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectBarrier, shown);
+				SetItemState(Item.ZetAspectBlackHole, shown);
+				SetItemState(Item.ZetAspectMoney, shown);
+				SetItemState(Item.ZetAspectNight, shown);
+				SetItemState(Item.ZetAspectWater, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectBarrier, Equip.AffixBarrier);
+				CopyExpansion(Item.ZetAspectBlackHole, Equip.AffixBlackHole);
+				CopyExpansion(Item.ZetAspectMoney, Equip.AffixMoney);
+				CopyExpansion(Item.ZetAspectNight, Equip.AffixNight);
+				CopyExpansion(Item.ZetAspectWater, Equip.AffixWater);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectBarrier, Equip.AffixBarrier);
+				CopyEquipmentPrefab(Item.ZetAspectBlackHole, Equip.AffixBlackHole);
+				CopyEquipmentPrefab(Item.ZetAspectMoney, Equip.AffixMoney);
+				CopyEquipmentPrefab(Item.ZetAspectNight, Equip.AffixNight);
+				CopyEquipmentPrefab(Item.ZetAspectWater, Equip.AffixWater);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixBarrier, Sprites.AffixBarrier, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixBlackHole, Sprites.AffixBlackHole, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixMoney, Sprites.AffixMoney, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixNight, Sprites.AffixNight, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixWater, Sprites.AffixWater, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixBarrier, shown);
+				SetEquipmentState(Equip.AffixBlackHole, shown);
+				SetEquipmentState(Equip.AffixMoney, shown);
+				SetEquipmentState(Equip.AffixNight, shown);
+				SetEquipmentState(Equip.AffixWater, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixBarrier);
+				ColorEquipmentDroplet(Equip.AffixBlackHole);
+				ColorEquipmentDroplet(Equip.AffixMoney);
+				ColorEquipmentDroplet(Equip.AffixNight);
+				ColorEquipmentDroplet(Equip.AffixWater);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixBarrier, Buff.AffixBarrier, Item.ZetAspectBarrier);
+				CreateEquality(Equip.AffixBlackHole, Buff.AffixBlackHole, Item.ZetAspectBlackHole);
+				CreateEquality(Equip.AffixMoney, Buff.AffixMoney, Item.ZetAspectMoney);
+				CreateEquality(Equip.AffixNight, Buff.AffixNight, Item.ZetAspectNight);
+				CreateEquality(Equip.AffixWater, Buff.AffixWater, Item.ZetAspectWater);
+			}
+		}
 	}
 }
