@@ -814,7 +814,20 @@ namespace TPDespair.ZetAspects
 
 							if (vicBody.HasBuff(Catalog.Buff.AffixBarrier))
 							{
-								damage /= 0.7f;
+								if (healthComponent.barrier > 0f)
+								{
+									float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierDamageResistance, 50f);
+
+									damage /= 1f - cfgValue / 100f;
+
+									if (Configuration.AspectBarrierBaseBarrierDamageReductionGain.Value > 0f)
+									{
+										float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBarrier);
+										float effectValue = Configuration.AspectBarrierBaseBarrierDamageReductionGain.Value + Configuration.AspectBarrierStackBarrierDamageReductionGain.Value * (count - 1f);
+
+										reduction += effectValue;
+									}
+								}
 
 								if (Configuration.AspectBarrierBaseDamageReductionGain.Value > 0f)
 								{
@@ -971,13 +984,13 @@ namespace TPDespair.ZetAspects
 				if (atkBody)
 				{
 					float mult = 1;
-					/*
-					if (atkBody.HasBuff(Catalog.EliteVariety.Buffs.AffixImpPlane) && Configuration.AspectImpaleBaseDotAmp.Value > 0f)
+					
+					if (atkBody.HasBuff(Catalog.Buff.AffixRealgar) && Configuration.AspectRealgarBaseDotAmp.Value > 0f)
 					{
-						float count = ZetAspectsPlugin.GetStackMagnitude(atkBody, Catalog.EliteVariety.Buffs.AffixImpPlane);
-						mult += Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
+						float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixRealgar);
+						mult += Configuration.AspectRealgarBaseDotAmp.Value + Configuration.AspectRealgarStackDotAmp.Value * (count - 1f);
 					}
-					*/
+					
 					if (atkBody.HasBuff(Catalog.Buff.AffixSanguine) && Configuration.AspectSanguineBaseDotAmp.Value > 0f)
 					{
 						float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixSanguine);
@@ -1996,6 +2009,7 @@ namespace TPDespair.ZetAspects
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixMoney, Catalog.Item.ZetAspectMoney, Catalog.Equip.AffixMoney);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixNight, Catalog.Item.ZetAspectNight, Catalog.Equip.AffixNight);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWater, Catalog.Item.ZetAspectWater, Catalog.Equip.AffixWater);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixRealgar, Catalog.Item.ZetAspectRealgar, Catalog.Equip.AffixRealgar);
 			}
 		}
 

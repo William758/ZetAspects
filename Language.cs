@@ -270,7 +270,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_BLACKHOLE_PICKUP", "Become an aspect of invasion.");
 			RegisterFragment("AFFIX_BLACKHOLE_ACTIVE", "Fire a homing attack at all marked enemies.");
 			RegisterFragment("ASPECT_OF_INVASION", "<style=cDeath>Aspect of Invasion</style> :");
-			RegisterFragment("BLACKMARK_ON_HIT", "\nAttacks apply a <style=cIsDamage>mark</style> on hit, detonating for <style=cIsDamage>48</style> <style=cStack>(+12 per attacker level)</style> damage when <style=cIsDamage>7</style> stacks are applied.");
+			RegisterFragment("BLACKMARK_ON_HIT", "\nAttacks apply a <style=cIsDamage>mark</style> on hit, detonating for <style=cIsDamage>{0}</style> <style=cStack>(+{1} per level)</style> damage when <style=cIsDamage>7</style> stacks are applied.");
 
 			RegisterFragment("AFFIX_MONEY_NAME", "Wrath of the Rock");
 			RegisterFragment("AFFIX_MONEY_PICKUP", "Become an aspect of polarity.");
@@ -298,6 +298,13 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_IDLE_INVULN", "\nBecome invulnerable while not using any abilities.");
 			RegisterFragment("BUBBLE_ON_HIT", "\nAttacks <style=cIsUtility>imprison</style> enemies in a bubble on hit.");
 
+			RegisterFragment("AFFIX_REALGAR_NAME", "Collision of Dimensions");
+			RegisterFragment("AFFIX_REALGAR_PICKUP", "Become an aspect of extrinsicality.");
+			RegisterFragment("AFFIX_REALGAR_ACTIVE", "Gain temporary immunity to all damage-over-time effects.");
+			RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>Aspect of Extrinsicality</style> :");
+			RegisterFragment("PASSIVE_RED_FISSURE", "\nCreate a red fissure that spews projectiles.");
+			RegisterFragment("SCAR_ON_HIT", "\nAttacks <style=cIsDamage>scar</style> all enemies on hit, dealing damage over time.");
+
 
 
 			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -319,6 +326,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN", "\nReduces <style=cIsHealing>damage taken</style> by {0}.");
+			RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\nReduces <style=cIsHealing>damage taken</style> by {0} while <style=cIsHealing>barrier</style> is active.");
 
 			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
 			RegisterFragment("STAT_SECONDARY_CHARGE", "\nGain <style=cIsUtility>+{0}</style> charges of your <style=cIsUtility>secondary skill</style>.");

@@ -434,7 +434,9 @@ namespace TPDespair.ZetAspects
 					{
 						if (self.HasBuff(Catalog.Buff.AffixBarrier) && !Configuration.AspectBarrierPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
 						{
-							value *= 2f;
+							float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierHealthReduction, 50f);
+
+							value /= 1f - cfgValue / 100f;
 						}
 
 						return value;

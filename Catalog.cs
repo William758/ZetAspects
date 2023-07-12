@@ -116,6 +116,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixMoney;
 			public static Sprite AffixNight;
 			public static Sprite AffixWater;
+			public static Sprite AffixRealgar;
 
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
@@ -204,6 +205,7 @@ namespace TPDespair.ZetAspects
 					AffixMoney = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixArmored.png");
 					AffixNight = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixNight.png");
 					AffixWater = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWater.png");
+					AffixRealgar = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixImpPlane.png");
 				}
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
@@ -308,6 +310,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixMoney;
 			public static BuffDef AffixNight;
 			public static BuffDef AffixWater;
+			public static BuffDef AffixRealgar;
 		}
 
 		public static class Equip
@@ -346,6 +349,7 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixMoney;
 			public static EquipmentDef AffixNight;
 			public static EquipmentDef AffixWater;
+			public static EquipmentDef AffixRealgar;
 		}
 
 		public static class Item
@@ -389,6 +393,7 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectMoney;
 			public static ItemDef ZetAspectNight;
 			public static ItemDef ZetAspectWater;
+			public static ItemDef ZetAspectRealgar;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -801,6 +806,11 @@ namespace TPDespair.ZetAspects
 				Item.ZetAspectWater = ZetAspectWater;
 				ZetAspectsContent.itemDefs.Add(ZetAspectWater);
 				transformableAspectItemDefs.Add(ZetAspectWater);
+
+				ItemDef ZetAspectRealgar = Items.ZetAspectRealgar.DefineItem();
+				Item.ZetAspectRealgar = ZetAspectRealgar;
+				ZetAspectsContent.itemDefs.Add(ZetAspectRealgar);
+				transformableAspectItemDefs.Add(ZetAspectRealgar);
 			}
 		}
 

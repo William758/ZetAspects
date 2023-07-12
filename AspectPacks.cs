@@ -1485,6 +1485,9 @@ namespace TPDespair.ZetAspects
 				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixWater");
 				if (index != EquipmentIndex.None) Equip.AffixWater = EquipmentCatalog.GetEquipmentDef(index);
 
+				index = EquipmentCatalog.FindEquipmentIndex("RisingTides_AffixImpPlane");
+				if (index != EquipmentIndex.None) Equip.AffixRealgar = EquipmentCatalog.GetEquipmentDef(index);
+
 				equipDefPopulated = true;
 			}
 
@@ -1512,6 +1515,10 @@ namespace TPDespair.ZetAspects
 				{
 					Buff.AffixWater = Equip.AffixWater.passiveBuffDef;
 				}
+				if (Equip.AffixRealgar)
+				{
+					Buff.AffixRealgar = Equip.AffixRealgar.passiveBuffDef;
+				}
 
 				BuffIndex index = BuffCatalog.FindBuffIndex("RisingTides_NightSpeedBoost");
 				if (index != BuffIndex.None) Buff.NightSpeed = BuffCatalog.GetBuffDef(index);
@@ -1533,6 +1540,7 @@ namespace TPDespair.ZetAspects
 				DisableInactiveItem(Item.ZetAspectMoney, ref Equip.AffixMoney, ref Buff.AffixMoney, state);
 				DisableInactiveItem(Item.ZetAspectNight, ref Equip.AffixNight, ref Buff.AffixNight, state);
 				DisableInactiveItem(Item.ZetAspectWater, ref Equip.AffixWater, ref Buff.AffixWater, state);
+				DisableInactiveItem(Item.ZetAspectRealgar, ref Equip.AffixRealgar, ref Buff.AffixRealgar, state);
 			}
 
 			private static void SetupText()
@@ -1542,6 +1550,7 @@ namespace TPDespair.ZetAspects
 				Items.ZetAspectMoney.SetupTokens();
 				Items.ZetAspectNight.SetupTokens();
 				Items.ZetAspectWater.SetupTokens();
+				Items.ZetAspectRealgar.SetupTokens();
 			}
 
 			internal static void ItemEntries(bool shown)
@@ -1551,6 +1560,7 @@ namespace TPDespair.ZetAspects
 				SetItemState(Item.ZetAspectMoney, shown);
 				SetItemState(Item.ZetAspectNight, shown);
 				SetItemState(Item.ZetAspectWater, shown);
+				SetItemState(Item.ZetAspectRealgar, shown);
 			}
 
 			private static void CopyExpansionReq()
@@ -1560,6 +1570,7 @@ namespace TPDespair.ZetAspects
 				CopyExpansion(Item.ZetAspectMoney, Equip.AffixMoney);
 				CopyExpansion(Item.ZetAspectNight, Equip.AffixNight);
 				CopyExpansion(Item.ZetAspectWater, Equip.AffixWater);
+				CopyExpansion(Item.ZetAspectRealgar, Equip.AffixRealgar);
 			}
 
 			private static void CopyModelPrefabs()
@@ -1569,6 +1580,7 @@ namespace TPDespair.ZetAspects
 				CopyEquipmentPrefab(Item.ZetAspectMoney, Equip.AffixMoney);
 				CopyEquipmentPrefab(Item.ZetAspectNight, Equip.AffixNight);
 				CopyEquipmentPrefab(Item.ZetAspectWater, Equip.AffixWater);
+				CopyEquipmentPrefab(Item.ZetAspectRealgar, Equip.AffixRealgar);
 			}
 
 			private static void ApplyEquipmentIcons()
@@ -1580,6 +1592,7 @@ namespace TPDespair.ZetAspects
 				ReplaceEquipmentIcon(Equip.AffixMoney, Sprites.AffixMoney, Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equip.AffixNight, Sprites.AffixNight, Sprites.OutlineOrange);
 				ReplaceEquipmentIcon(Equip.AffixWater, Sprites.AffixWater, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixRealgar, Sprites.AffixRealgar, Sprites.OutlineOrange);
 
 				iconsReplaced = true;
 			}
@@ -1591,6 +1604,7 @@ namespace TPDespair.ZetAspects
 				SetEquipmentState(Equip.AffixMoney, shown);
 				SetEquipmentState(Equip.AffixNight, shown);
 				SetEquipmentState(Equip.AffixWater, shown);
+				SetEquipmentState(Equip.AffixRealgar, shown);
 			}
 
 			internal static void EquipmentColor()
@@ -1600,6 +1614,7 @@ namespace TPDespair.ZetAspects
 				ColorEquipmentDroplet(Equip.AffixMoney);
 				ColorEquipmentDroplet(Equip.AffixNight);
 				ColorEquipmentDroplet(Equip.AffixWater);
+				ColorEquipmentDroplet(Equip.AffixRealgar);
 			}
 
 			internal static void FillEqualities()
@@ -1609,6 +1624,7 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixMoney, Buff.AffixMoney, Item.ZetAspectMoney);
 				CreateEquality(Equip.AffixNight, Buff.AffixNight, Item.ZetAspectNight);
 				CreateEquality(Equip.AffixWater, Buff.AffixWater, Item.ZetAspectWater);
+				CreateEquality(Equip.AffixRealgar, Buff.AffixRealgar, Item.ZetAspectRealgar);
 			}
 		}
 	}

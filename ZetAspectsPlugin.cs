@@ -26,7 +26,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.27";
+		public const string ModVer = "2.7.28";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -47,7 +47,7 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.Aetherium.Enabled && Configuration.AetheriumHooks.Value) Compat.Aetherium.Init();
 
-			// - targeting this specific assembly from SpikeStrip
+			// - Targeting this specific assembly from SpikeStrip
 			if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent") && Configuration.SpikeStripHooks.Value) Compat.PlasmaSpikeStrip.Init();
 
 			if (Catalog.WarWisp.Enabled && Configuration.WarWispHooks.Value) Compat.WarWisp.Init();
@@ -110,6 +110,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixMoney, transform.position + new Vector3(5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixNight, transform.position + new Vector3(-5f, 5f, -5f));
 				CreateDroplet(Catalog.Equip.AffixWater, transform.position + new Vector3(0f, 5f, -7.5f));
+				CreateDroplet(Catalog.Equip.AffixRealgar, transform.position + new Vector3(5f, 5f, -5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

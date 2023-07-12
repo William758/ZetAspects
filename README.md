@@ -68,7 +68,7 @@ Monster endurance damage reduction multiplier : x0.5
 
 ## RisingTides:
 
-![effects](https://i.imgur.com/SoGh7tl.png)
+![effects](https://i.imgur.com/qu6dbBd.png)
 
 Monster Bismuth health multiplier : x0.5
 
@@ -89,6 +89,8 @@ Brazilian Portuguese translation by SpookyGabe#9476.
 Korean translation by 깽비#8221.
 
 ## Changelog:
+
+v2.7.28 - Added support for Realgar elites from RisingTides.
 
 v2.7.27 - Added support for elites from RisingTides.
 

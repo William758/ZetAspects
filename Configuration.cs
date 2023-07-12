@@ -46,6 +46,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightMoney { get; set; }
 		public static ConfigEntry<float> AspectDropWeightNight { get; set; }
 		public static ConfigEntry<float> AspectDropWeightWater { get; set; }
+		public static ConfigEntry<float> AspectDropWeightRealgar { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -249,6 +250,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectBarrierPlayerHealthReduction { get; set; }
 		public static ConfigEntry<float> AspectBarrierBaseDamageReductionGain { get; set; }
 		public static ConfigEntry<float> AspectBarrierStackDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBarrierBaseBarrierDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBarrierStackBarrierDamageReductionGain { get; set; }
 
 		public static ConfigEntry<float> AspectBlackHoleBaseDamageGain { get; set; }
 		public static ConfigEntry<float> AspectBlackHoleStackDamageGain { get; set; }
@@ -274,6 +277,9 @@ namespace TPDespair.ZetAspects
 
 		public static ConfigEntry<float> AspectWaterBaseCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectWaterStackCooldownGain { get; set; }
+
+		public static ConfigEntry<float> AspectRealgarBaseDotAmp { get; set; }
+		public static ConfigEntry<float> AspectRealgarStackDotAmp { get; set; }
 
 
 		public static bool ValidElusiveModifier = false;
@@ -458,6 +464,10 @@ namespace TPDespair.ZetAspects
 				AspectDropWeightWater = Config.Bind(
 					"0b-DropWeight", "aspectDropWeightWater", 1f,
 					"Drop chance multiplier for AffixWater"
+				);
+				AspectDropWeightRealgar = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightRealgar", 1f,
+					"Drop chance multiplier for AffixRealgar"
 				);
 
 				Catalog.dropWeightsAvailable = true;
@@ -1276,6 +1286,14 @@ namespace TPDespair.ZetAspects
 				"2ja-AspectBarrier", "barrierStackDamageReduction", 0.15f,
 				"Damage reduction gained per stack."
 			);
+			AspectBarrierBaseBarrierDamageReductionGain = Config.Bind(
+				"2ja-AspectBarrier", "barrierBaseBarrierDamageReduction", 0f,
+				"Damage reduction gained while barrier is active. Set to 0 to disable."
+			);
+			AspectBarrierStackBarrierDamageReductionGain = Config.Bind(
+				"2ja-AspectBarrier", "barrierStackBarrierDamageReduction", 0f,
+				"Damage reduction gained per stack while barrier is active."
+			);
 
 
 
@@ -1371,6 +1389,17 @@ namespace TPDespair.ZetAspects
 			AspectWaterStackCooldownGain = Config.Bind(
 				"2je-AspectWater", "waterAddedCooldown", 0.1f,
 				"Cooldown reduction gained per stack."
+			);
+
+
+
+			AspectRealgarBaseDotAmp = Config.Bind(
+				"2jf-AspectRealgar", "realgarBaseDotAmp", 0.20f,
+				"DOT damage multiplier gained. Set to 0 to disable."
+			);
+			AspectRealgarStackDotAmp = Config.Bind(
+				"2jf-AspectRealgar", "realgarAddedDotAmp", 0.10f,
+				"DOT damage multiplier gained per stack."
 			);
 		}
 

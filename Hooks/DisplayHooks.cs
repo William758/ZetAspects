@@ -156,6 +156,11 @@ namespace TPDespair.ZetAspects
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+				targetEquipDef = Catalog.Equip.AffixRealgar;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectRealgar) > 0) return targetEquipDef;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 				targetEquipDef = Catalog.Equip.AffixWater;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectWater) > 0) return targetEquipDef;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -319,6 +324,10 @@ namespace TPDespair.ZetAspects
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 
+				targetEquipDef = Catalog.Equip.AffixRealgar;
+				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
+				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+
 				targetEquipDef = Catalog.Equip.AffixWater;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -454,6 +463,9 @@ namespace TPDespair.ZetAspects
 			{
 				targetEquipDef = Catalog.Equip.AffixBarrier;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectBarrier) > 0) return targetEquipDef;
+
+				targetEquipDef = Catalog.Equip.AffixRealgar;
+				if (inventory.GetItemCount(Catalog.Item.ZetAspectRealgar) > 0) return targetEquipDef;
 
 				targetEquipDef = Catalog.Equip.AffixWater;
 				if (inventory.GetItemCount(Catalog.Item.ZetAspectWater) > 0) return targetEquipDef;
@@ -684,6 +696,7 @@ namespace TPDespair.ZetAspects
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixBlackHole, Catalog.Item.ZetAspectBlackHole);
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixMoney, Catalog.Item.ZetAspectMoney);
 				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixNight, Catalog.Item.ZetAspectNight);
+				HandleAspectDisplay(model, displayDef, Catalog.Equip.AffixRealgar, Catalog.Item.ZetAspectRealgar);
 			}
 		}
 

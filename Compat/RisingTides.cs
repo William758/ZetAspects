@@ -18,9 +18,77 @@ namespace TPDespair.ZetAspects.Compat
 
 		private static readonly BindingFlags Flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
+		internal static FieldInfo BarrierDamageResistance;
+		internal static FieldInfo BarrierHealthReduction;
+
+		internal static FieldInfo BlackHoleDamageScale;
+
+		internal static FieldInfo NightBlindRange;
+
+
+
 		private static MethodInfo NightSpeedStatMethod;
 
 		internal static bool nightSpeedStatHook = false;
+
+
+
+		internal static FieldInfo GetField(string typeName, string fieldName)
+		{
+			Type type = Type.GetType(typeName + ", " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				FieldInfo fieldInfo = type.GetField(fieldName, Flags);
+				if (fieldInfo == null) Logger.Warn(identifier + " - Could Not Find Field : " + typeName + "." + fieldName);
+				return fieldInfo;
+			}
+			else
+			{
+				Logger.Warn(identifier + " - Could Not Find Type : " + typeName);
+				return null;
+			}
+		}
+		/*
+		internal static FieldInfo GetField(string typeName, string nestedTypeName, string fieldName)
+		{
+			Type type = Type.GetType(typeName + ", " + PluginAssembly.FullName, false);
+			if (type != null)
+			{
+				type = type.GetNestedType(nestedTypeName, Flags);
+				if (type != null)
+				{
+					FieldInfo fieldInfo = type.GetField(fieldName, Flags);
+					if (fieldInfo == null) Logger.Warn(identifier + " - Could Not Find Field : " + nestedTypeName + "." + fieldName);
+					return fieldInfo;
+				}
+				else
+				{
+					Logger.Warn(identifier + " - Could Not Find NestedType : " + typeName + "." + nestedTypeName);
+					return null;
+				}
+			}
+			else
+			{
+				Logger.Warn(identifier + " - Could Not Find Type : " + typeName);
+				return null;
+			}
+		}
+		*/
+		internal static float GetConfigValue(FieldInfo fieldInfo, float defaultValue)
+		{
+			object fieldValue = fieldInfo.GetValue(null);
+			Type type = fieldValue.GetType();
+			PropertyInfo propInfo = type.GetProperty("Value", Flags);
+			if (propInfo != null)
+			{
+				return (float)propInfo.GetValue(fieldValue);
+			}
+			else 
+			{
+				Logger.Warn(identifier + " - Could Not Get Value For : " + fieldInfo.Name);
+				return defaultValue;
+			}
+		}
 
 
 
@@ -59,6 +127,15 @@ namespace TPDespair.ZetAspects.Compat
 			{
 				Logger.Warn(identifier + " - Could Not Find Type : RisingTides.Buffs.NightSpeedBoost");
 			}
+
+
+
+			BarrierDamageResistance = GetField("RisingTides.Buffs.AffixBarrier", "barrierDamageResistance");
+			BarrierHealthReduction = GetField("RisingTides.Buffs.AffixBarrier", "healthReduction");
+
+			BlackHoleDamageScale = GetField("RisingTides.Buffs.AffixBlackHole", "markBaseDamage");
+
+			NightBlindRange = GetField("RisingTides.Buffs.NightReducedVision", "visionDistance");
 		}
 
 		private static void HookMethods()
@@ -66,118 +143,30 @@ namespace TPDespair.ZetAspects.Compat
 			if (NightSpeedStatMethod != null)
 			{
 				HookEndpointManager.Modify(NightSpeedStatMethod, (ILContext.Manipulator)DisableStatHook);
-
-				if (!nightSpeedStatHook)
-				{
-					HookEndpointManager.Unmodify(NightSpeedStatMethod, (ILContext.Manipulator)DisableStatHook);
-					Logger.Warn(identifier + " - DisableStatHook Failed! - Removing Hook");
-				}
 			}
 		}
 
 
 
-		// Should be able to disable any RecalculateStatsAPI stats ???
 		private static void DisableStatHook(ILContext il)
 		{
 			ILCursor c = new ILCursor(il);
 
-			int counter = 0;
-			bool findFail = false;
+			bool found = c.TryGotoNext(
+				x => x.MatchStloc(0)
+			);
 
-			while (true)
-			{
-				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(2),
-					x => x.MatchDup()
-				);
-
-				if (!found) break;
-
-				int statArgsIndex = c.Index;
-				int valueFound = -1;
-
-				int nextIndex = FindNextIndex(c, statArgsIndex, out valueFound);
-
-				if (valueFound != -1 && c.Index - statArgsIndex <= 3)
-				{
-					c.Index = nextIndex + 1;
-
-					bool additive = valueFound == 0;
-					string type = additive ? "Add/Sub" : "Mul/Div";
-					float cancleValue = additive ? 0f : 1f;
-
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldc_R4, cancleValue);
-
-					c.Index++;
-
-					string nextInst = c.Next.ToString();
-
-					counter++;
-
-					Logger.Info(identifier + " - DisableStatHook : DisableStat[" + counter + "] (" + nextInst + ") (" + type + ") at cursor index : " + statArgsIndex);
-				}
-				else
-				{
-					Logger.Warn(identifier + " - DisableStatHook : Could not find stat adjustment!");
-				}
-			}
-
-			if (counter > 0 && !findFail)
+			if (found)
 			{
 				nightSpeedStatHook = true;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldc_I4, 0);
 			}
-		}
-
-		private static int FindNextIndex(ILCursor c, int index, out int value)
-		{
-			int closestMatch = 99999;
-			int newValue = -1;
-
-			c.Index = index;
-			if (c.TryGotoNext(x => x.MatchLdcR4(out _), x => x.MatchAdd()))
+			else
 			{
-				if (c.Index < closestMatch)
-				{
-					closestMatch = c.Index;
-					newValue = 0;
-				}
+				Logger.Warn(identifier + " - DisableStatHook Failed");
 			}
-
-			c.Index = index;
-			if (c.TryGotoNext(x => x.MatchLdcR4(out _), x => x.MatchSub()))
-			{
-				if (c.Index < closestMatch)
-				{
-					closestMatch = c.Index;
-					newValue = 0;
-				}
-			}
-
-			c.Index = index;
-			if (c.TryGotoNext(x => x.MatchLdcR4(out _), x => x.MatchMul()))
-			{
-				if (c.Index < closestMatch)
-				{
-					closestMatch = c.Index;
-					newValue = 1;
-				}
-			}
-
-			c.Index = index;
-			if (c.TryGotoNext(x => x.MatchLdcR4(out _), x => x.MatchDiv()))
-			{
-				if (c.Index < closestMatch)
-				{
-					closestMatch = c.Index;
-					newValue = 1;
-				}
-			}
-
-			value = newValue;
-
-			return closestMatch;
 		}
 	}
 }

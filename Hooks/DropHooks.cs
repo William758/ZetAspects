@@ -174,6 +174,7 @@ namespace TPDespair.ZetAspects
 				SetDropWeight(Catalog.Equip.AffixMoney, Configuration.AspectDropWeightMoney.Value);
 				SetDropWeight(Catalog.Equip.AffixNight, Configuration.AspectDropWeightNight.Value);
 				SetDropWeight(Catalog.Equip.AffixWater, Configuration.AspectDropWeightWater.Value);
+				SetDropWeight(Catalog.Equip.AffixRealgar, Configuration.AspectDropWeightRealgar.Value);
 			}
 		}
 
