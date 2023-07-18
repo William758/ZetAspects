@@ -39,43 +39,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "SANGUINE";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_SANGUINE_ACTIVE"), true));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_SANGUINE_ACTIVE"), true));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_NAME", TextFragment("AFFIX_SANGUINE_NAME"));
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_PICKUP", TextFragment("AFFIX_SANGUINE_PICKUP"));
-			RegisterToken("AETHERIUM_ELITE_EQUIPMENT_AFFIX_SANGUINE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_SANGUINE_ACTIVE"), true));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixSanguine;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}

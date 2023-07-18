@@ -39,45 +39,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "SEPIA";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("BUB_SEPIA_ASPECT_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("BUB_SEPIA_ASPECT_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			RegisterToken("BUB_SEPIA_ASPECT_DESC", EquipmentDescription(desc, TextFragment("AFFIX_SEPIA_ACTIVE")));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("BUB_SEPIA_ASPECT_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("BUB_SEPIA_ASPECT_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			RegisterToken("BUB_SEPIA_ASPECT_DESC", EquipmentDescription(desc, TextFragment("AFFIX_SEPIA_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("BUB_SEPIA_ASPECT_NAME", TextFragment("AFFIX_SEPIA_NAME"));
-			RegisterToken("BUB_SEPIA_ASPECT_PICKUP", TextFragment("AFFIX_SEPIA_PICKUP"));
-			RegisterToken("BUB_SEPIA_ASPECT_DESC", EquipmentDescription(desc, TextFragment("AFFIX_SEPIA_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixSepia;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}

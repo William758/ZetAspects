@@ -88,7 +88,11 @@ Brazilian Portuguese translation by SpookyGabe#9476.
 
 Korean translation by 깽비#8221.
 
+Chinese translation by BTP-G.
+
 ## Changelog:
+
+v2.7.29 - Added Chinese translation by BTP-G.
 
 v2.7.28 - Added support for Realgar elites from RisingTides.
 

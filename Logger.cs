@@ -9,7 +9,7 @@ namespace TPDespair.ZetAspects
 
 		internal static void Info(object data)
 		{
-			logSource.LogInfo(data);
+			logSource.LogWarning(data);
 		}
 
 		internal static void Warn(object data)

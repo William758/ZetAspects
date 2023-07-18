@@ -39,43 +39,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "PLATED";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_PLATED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_PLATED_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXPLATED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_PLATED_ACTIVE")));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_PLATED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_PLATED_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXPLATED_NAME", TextFragment("AFFIX_PLATED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXPLATED_PICKUP", TextFragment("AFFIX_PLATED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXPLATED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_PLATED_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_PLATED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_PLATED_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXPLATED_NAME", TextFragment("AFFIX_PLATED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXPLATED_PICKUP", TextFragment("AFFIX_PLATED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXPLATED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_PLATED_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixPlated;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}
@@ -142,46 +125,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "WARPED";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_WARPED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_WARPED_PICKUP"));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXWARPED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_WARPED_ACTIVE")));
-
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_WARPED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_WARPED_PICKUP"));
-
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXWARPED_NAME", TextFragment("AFFIX_WARPED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXWARPED_PICKUP", TextFragment("AFFIX_WARPED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXWARPED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_WARPED_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_WARPED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_WARPED_PICKUP"));
-
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXWARPED_NAME", TextFragment("AFFIX_WARPED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXWARPED_PICKUP", TextFragment("AFFIX_WARPED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXWARPED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_WARPED_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixWarped;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}
@@ -266,43 +229,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "VEILED";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VEILED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VEILED_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXVEILED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_VEILED_ACTIVE")));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VEILED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VEILED_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXVEILED_NAME", TextFragment("AFFIX_VEILED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXVEILED_PICKUP", TextFragment("AFFIX_VEILED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXVEILED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_VEILED_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_VEILED_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_VEILED_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXVEILED_NAME", TextFragment("AFFIX_VEILED_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXVEILED_PICKUP", TextFragment("AFFIX_VEILED_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXVEILED_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_VEILED_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixVeiled;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}
@@ -437,43 +383,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "ARAGONITE";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_ARAGONITE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_ARAGONITE_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_ARAGONITE_ACTIVE")));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_ARAGONITE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_ARAGONITE_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_NAME", TextFragment("AFFIX_ARAGONITE_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_PICKUP", TextFragment("AFFIX_ARAGONITE_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_ARAGONITE_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_ARAGONITE_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_ARAGONITE_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_NAME", TextFragment("AFFIX_ARAGONITE_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_PICKUP", TextFragment("AFFIX_ARAGONITE_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXARAGONITE_DESCRIPTION", EquipmentDescription(desc, TextFragment("AFFIX_ARAGONITE_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixAragonite;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}

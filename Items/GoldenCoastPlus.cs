@@ -39,43 +39,26 @@ namespace TPDespair.ZetAspects.Items
 		public static void SetupTokens()
 		{
 			string locToken = identifier.ToUpperInvariant();
+			string affix = "GOLD";
 
-			targetLanguage = "default";
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
 
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
-			string desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-
-
-			targetLanguage = "pt-BR";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXGOLD_NAME", TextFragment("AFFIX_GOLD_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXGOLD_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
-
-
-
-			targetLanguage = "ko";
-
-			RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_GOLD_NAME"));
-			RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
-			desc = BuildDescription(false);
-			RegisterToken("ITEM_" + locToken + "_DESC", desc);
-			if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
-			RegisterToken("EQUIPMENT_AFFIXGOLD_NAME", TextFragment("AFFIX_GOLD_NAME"));
-			RegisterToken("EQUIPMENT_AFFIXGOLD_PICKUP", TextFragment("AFFIX_GOLD_PICKUP"));
-			RegisterToken("EQUIPMENT_AFFIXGOLD_DESC", EquipmentDescription(desc, TextFragment("AFFIX_GOLD_ACTIVE")));
-
-
+				EquipmentDef equipDef = Catalog.Equip.AffixGold;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
 
 			targetLanguage = "";
 		}

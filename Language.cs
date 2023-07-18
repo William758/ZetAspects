@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TPDespair.ZetAspects
@@ -7,31 +8,44 @@ namespace TPDespair.ZetAspects
 	public static class Language
 	{
 		public static string targetLanguage = "default";
+		public static bool verboseSetup = false;
 
 		public static Dictionary<string, Dictionary<string, string>> tokens = new Dictionary<string, Dictionary<string, string>>();
 		public static Dictionary<string, Dictionary<string, string>> fragments = new Dictionary<string, Dictionary<string, string>>();
 
 
 
-		public static void RegisterToken(string token, string text, string language = "default")
+		public static void RegisterToken(string token, string text)
 		{
-			if (targetLanguage != "" || targetLanguage != "default") language = targetLanguage;
+			string language = (targetLanguage != "") ? targetLanguage : "default";
 
-			if (!tokens.ContainsKey(language)) tokens.Add(language, new Dictionary<string, string>());
+			if (!tokens.ContainsKey(language))
+			{
+				if (verboseSetup) Logger.Info("Creating (" + language + ") token language.");
+				tokens.Add(language, new Dictionary<string, string>());
+			}
 
 			var langDict = tokens[language];
 
-			if (!langDict.ContainsKey(token)) langDict.Add(token, text);
-			else langDict[token] = text;
+			if (!langDict.ContainsKey(token))
+			{
+				if (verboseSetup) Logger.Info("Creating token (" + token + ") in (" + language + ") token language.");
+				langDict.Add(token, text);
+			}
+			else
+			{
+				if (verboseSetup) Logger.Info("Replacing token (" + token + ") in (" + language + ") token language.");
+				langDict[token] = text;
+			}
 		}
 		
-		public static void RegisterFragment(string token, string text, string language = "default")
+		public static void RegisterFragment(string token, string text)
 		{
-			if (targetLanguage != "" || targetLanguage != "default") language = targetLanguage;
+			string language = (targetLanguage != "") ? targetLanguage : "default";
 
 			if (!fragments.ContainsKey(language))
 			{
-				//Logger.Info("Creating (" + language + ") fragment language.");
+				if (verboseSetup) Logger.Info("Creating (" + language + ") fragment language.");
 				fragments.Add(language, new Dictionary<string, string>());
 			}
 
@@ -39,7 +53,7 @@ namespace TPDespair.ZetAspects
 
 			if (!langDict.ContainsKey(token))
 			{
-				//Logger.Info("Creating fragment (" + token + ") in (" + language + ") fragment language.");
+				if (verboseSetup) Logger.Info("Creating fragment (" + token + ") in (" + language + ") fragment language.");
 				langDict.Add(token, text);
 			}
 			else
@@ -834,6 +848,261 @@ namespace TPDespair.ZetAspects
 
 
 
+			targetLanguage = "zh-CN";
+
+			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n叠加层数计为 {0} 层");
+			RegisterFragment("HOW_TO_CONVERT", "\n单击右下角的装备图标将其转化为物品");
+
+			RegisterFragment("BASE_STACK_FORMAT", "{0} {1}");
+
+			RegisterFragment("FLAT_VALUE", "{0}");
+			RegisterFragment("PERCENT_VALUE", "{0}%");
+			RegisterFragment("FLATREGEN_VALUE", "{0}hp/s");
+			RegisterFragment("PERCENTREGEN_VALUE", "{0}%hp/s");
+			RegisterFragment("DURATION_VALUE", "{0}s");
+			RegisterFragment("METER_VALUE", "{0}m");
+
+			RegisterFragment("FLAT_STACK_INC", "<style=cStack>（每层+{0}）</style>");
+			RegisterFragment("PERCENT_STACK_INC", "<style=cStack>（每层+{0}%）</style>");
+			RegisterFragment("FLATREGEN_STACK_INC", "<style=cStack>（每层+{0} hp/s）</style>");
+			RegisterFragment("PERCENTREGEN_STACK_INC", "<style=cStack>（每层+{0}% hp/s）</style>");
+			RegisterFragment("DURATION_STACK_INC", "<style=cStack>（每层+{0}s）</style>");
+			RegisterFragment("METER_STACK_INC", "<style=cStack>（每层+{0}m）</style>");
+			RegisterFragment("FLAT_STACK_DEC", "<style=cStack>（每层-{0}）</style>");
+			RegisterFragment("PERCENT_STACK_DEC", "<style=cStack>（每层-{0}%）</style>");
+			RegisterFragment("FLATREGEN_STACK_DEC", "<style=cStack>（每层-{0} hp/s）</style>");
+			RegisterFragment("PERCENTREGEN_STACK_DEC", "<style=cStack>（每层-{0}% hp/s）</style>");
+			RegisterFragment("DURATION_STACK_DEC", "<style=cStack>（每层-{0}s）</style>");
+			RegisterFragment("METER_STACK_DEC", "<style=cStack>（每层-{0}m）</style>");
+
+			RegisterFragment("BASE_DAMAGE", "基础");
+			RegisterFragment("TOTAL_DAMAGE", "总");
+
+			RegisterFragment("FOR_SECOND", "{0}秒");
+			RegisterFragment("FOR_SECONDS", "{0}秒");
+			RegisterFragment("OVER_SECOND", "{0}秒内");
+			RegisterFragment("OVER_SECONDS", "{0}秒内");
+			RegisterFragment("AFTER_SECOND", "{0}秒后");
+			RegisterFragment("AFTER_SECONDS", "{0}秒后");
+			RegisterFragment("EVERY_SECOND", "每秒");
+			RegisterFragment("EVERY_SECONDS", "每{0}秒");
+			RegisterFragment("SECOND", " {0}秒");
+			RegisterFragment("SECONDS", " {0}秒");
+
+
+
+			RegisterFragment("AFFIX_WHITE_NAME", "她的噬咬拥抱");
+			RegisterFragment("AFFIX_WHITE_PICKUP", "成为冰霜的象征");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "放置一个禁用技能的冰晶");
+			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "部署一个消耗生命的冰晶");
+			RegisterFragment("ASPECT_OF_ICE", "<color=#CCFFFF>冰霜的象征</color>：");
+			RegisterFragment("CHILL_ON_HIT", "\n<style=cIsUtility>寒冷</style>。攻击减速敌人{0}，降低<style=cIsUtility>80%</style><style=cIsUtility>移动速度</style>。");
+			RegisterFragment("CHANCE_TO_FREEZE", "\n击中时有{0}概率<style=cIsUtility>冻结</style>敌人{1}。");
+			RegisterFragment("FROST_BLADE", "\n击中时发射<style=cIsDamage>冰刀</style>，造成{0}的总伤害。");
+
+			RegisterFragment("AFFIX_BLUE_NAME", "暴风雨前的宁静");
+			RegisterFragment("AFFIX_BLUE_PICKUP", "成为雷电的象征");
+			RegisterFragment("AFFIX_BLUE_ACTIVE", "传送");
+			RegisterFragment("ASPECT_OF_LIGHTNING", "<color=#99CCFF>雷电的象征</color>：");
+			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n偶尔在你周围投下分散炸弹。");
+			RegisterFragment("SAP_ON_HIT", "\n攻击使敌人<style=cIsUtility>削弱</style>{0}，降低其{1}的<style=cIsUtility>伤害</style>。");
+			RegisterFragment("SCATTER_BOMB", "\n攻击投掷散弹，爆炸造成{0}的总伤害。");
+			RegisterFragment("LIGHTNING_BOMB", "\n攻击附加一个<style=cIsDamage>闪电球</style>，{1}爆炸造成{0}的总伤害。");
+
+			RegisterFragment("AFFIX_RED_NAME", "伊芙利特的卓越");
+			RegisterFragment("AFFIX_RED_PICKUP", "成为火焰的象征");
+			RegisterFragment("AFFIX_RED_ACTIVE", "发射一枚追踪的火焰导弹");
+			RegisterFragment("ASPECT_OF_FIRE", "<color=#f25d25>火焰的象征</color>：");
+			RegisterFragment("PASSIVE_FIRE_TRAIL", "\n移动留下一条火焰轨迹，会对接触到的敌人造成伤害。");
+			RegisterFragment("BURN_DOT", "\n攻击<style=cIsDamage>点燃</style>敌人，{2}造成{0}{1}伤害。");
+
+			RegisterFragment("AFFIX_HAUNTED_NAME", "幽灵头饰");
+			RegisterFragment("AFFIX_HAUNTED_PICKUP", "成为无形的象征");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "暂时给予附近盟友闪避攻击的机会。");
+			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<color=#20b2aa>无形的象征</color>：");
+			RegisterFragment("PASSIVE_GHOST_AURA", "\n释放一个光环，使附近的盟友隐身。");
+			RegisterFragment("PASSIVE_POSSESS", "\n附着在附近的盟友身上。");
+			RegisterFragment("SHRED_ON_HIT", "\n攻击造成<style=cIsDamage>撕碎</style>{0}，减少{1}点<style=cIsDamage>护甲</style>。");
+			RegisterFragment("GHOST_ARMOR", "\n给予附近盟友{0}点<style=cIsHealing>护甲</style>。");
+			RegisterFragment("GHOST_DODGE", "\n给予附近盟友{0}的<style=cIsHealing>闪避</style>几率。");
+
+			RegisterFragment("AFFIX_POISON_NAME", "恩库哈纳的反驳");
+			RegisterFragment("AFFIX_POISON_PICKUP", "成为腐蚀的象征");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "召唤一个继承你物品的孔雀石刺胆。");
+			RegisterFragment("ASPECT_OF_CORRUPTION", "<color=#014421>腐蚀的象征</color>：");
+			RegisterFragment("PASSIVE_SPIKEBALL", "\n周期性的释放刺球，在它们落地的地方生成刺坑。");
+			RegisterFragment("PASSIVE_RUIN_AURA", "\n释放一个光环，对附近的敌人造成<style=cIsDamage>禁疗</style>。");
+			RegisterFragment("RUIN_ON_HIT_BASIC", "\n攻击造成<style=cIsDamage>禁疗</style>减益{0}，阻止生命回复。");
+			RegisterFragment("RUIN_ON_HIT", "\n攻击造成<style=cIsDamage>禁疗</style>减益{0}，使其受到的<style=cIsDamage>伤害</style>增加{1}。");
+			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(禁疗阻止生命回复)</style>");
+			RegisterFragment("WEAKEN_ON_HIT", "\n攻击使敌人<style=cIsDamage>虚弱</style>{0}，减少<style=cIsDamage>30</style>点<style=cIsDamage>护甲</style>，<style=cIsUtility>40%</style>的<style=cIsUtility>移动速度</style>，和<style=cIsDamage>40%</style>的<style=cIsDamage>伤害</style>。");
+
+			RegisterFragment("AFFIX_LUNAR_NAME", "共同的设击");
+			RegisterFragment("AFFIX_LUNAR_PICKUP", "成为完美的象征");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "获得临时屏障以抵御强力攻击。");
+			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cIsLunar>完美的象征</style>：");
+			RegisterFragment("PASSIVE_LUNAR_PROJ", "\n在战斗中定期发射导弹。");
+			RegisterFragment("CRIPPLE_ON_HIT", "\n攻击使敌人<style=cIsDamage>致残</style>{0}，降低<style=cIsDamage>20</style>点<style=cIsDamage>护甲</style>和<style=cIsUtility>50%</style><style=cIsUtility>移动速度</style>。");
+
+			RegisterFragment("AFFIX_EARTH_NAME", "大地之证");
+			RegisterFragment("AFFIX_EARTH_PICKUP", "成为大地的象征");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "给予短暂的生命恢复。");
+			RegisterFragment("ASPECT_OF_EARTH", "<style=cIsHealing>大地的象征</style>：");
+			RegisterFragment("PASSIVE_HEAL_ALLY", "\n治疗附近的盟友。");
+			RegisterFragment("POACH_ON_HIT_BASIC", "\n攻击造成<style=cIsUtility>窃取</style>{0}， 再次攻击有<style=cIsUtility>窃取</style>减益的敌人时，<style=cIsHealing>治疗</style>自身等同于你造成<style=cIsDamage>伤害</style>的{1}的生命值。");
+			RegisterFragment("POACH_ON_HIT", "\n攻击造成<style=cIsUtility>窃取</style>{0}，降低敌人{1}的<style=cIsUtility>攻击速度</style>。");
+			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(攻击有<style=cIsUtility>窃取</style>减益的敌人时，<style=cIsHealing>治疗</style>自身等同于你造成<style=cIsDamage>伤害</style>的{0}的生命值。)</style>");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>治疗</style>造成<style=cIsDamage>伤害</style>的{0}的生命值");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>吸血公式 =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
+
+			RegisterFragment("AFFIX_VOID_NAME", "熵的破裂");
+			RegisterFragment("AFFIX_VOID_PICKUP", "成为虚空的象征");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "重置所有冷却时间");
+			RegisterFragment("ASPECT_OF_VOID", "<style=cIsVoid>虚空的象征</style>：");
+			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>阻挡</style>一次传入伤害，一段时间后再次充能。");
+			RegisterFragment("NULLIFY_ON_HIT", "\n攻击造成<style=cIsUtility>禁锢</style>{0}");
+			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(叠加3层禁锢时，定身敌人3秒)</style>");
+			RegisterFragment("COLLAPSE_DOT", "\n攻击叠加<style=cIsDamage>瓦解</style>，{2}造成{0}的{1}伤害。");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n攻击有<style=cIsDamage>100%</style>概率<style=cIsDamage>瓦解</style>敌人，造成<style=cIsDamage>400%</style>基础伤害。");
+			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>腐化其他象征</style>。");
+
+			RegisterFragment("AFFIX_PLATED_NAME", "耐腐蚀的合金");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "成为忍耐力的象征");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>忍耐力的象征</style> :");
+			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\n获得防御镀层，以减轻严重伤害。");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\n攻击使敌人<style=cIsUtility>窒息</style>{0}，减少造成的伤害。");
+
+			RegisterFragment("AFFIX_WARPED_NAME", "错误信仰");
+			RegisterFragment("AFFIX_WARPED_PICKUP", "成为重力的象征");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>重力的象征</style> :");
+			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\n偶尔偏转周边的射弹。");
+			RegisterFragment("LEVITATE_ON_HIT", "\n攻击使敌人<style=cIsUtility>悬浮</style>{0}。");
+
+			RegisterFragment("AFFIX_VEILED_NAME", "模糊的诅咒");
+			RegisterFragment("AFFIX_VEILED_PICKUP", "成为模糊的象征");
+			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>模糊的象征</style> :");
+			RegisterFragment("CLOAK_ON_HIT", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果。");
+			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果{0}。");
+			RegisterFragment("ELUSIVE_ON_HIT", "\n攻击敌人给予自身<style=cIsUtility>难以捉摸</style>效果。");
+			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}移动速度)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}闪避几率)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}移动速度和{1}闪避几率)</style>");
+			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(难以捉摸效果每秒衰减{0})</style>");
+			RegisterFragment("ELUSIVE_EFFECT", "\nn难以捉摸效果影响{0}。");
+
+			RegisterFragment("AFFIX_ARAGONITE_NAME", "她的脾气");
+			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "成为愤怒的象征");
+			RegisterFragment("AFFIX_ARAGONITE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FURY", "<style=cDeath>愤怒的象征</style> :");
+			RegisterFragment("PASSIVE_ANGRY_HIT", "\n偶尔在攻击命中是爆发愤怒。");
+			RegisterFragment("PASSIVE_ANGRY_AURA", "\n释放一个光环，给予附近盟友力量。");
+			RegisterFragment("ANGRY_ATKSPD", "\n提升附近盟友{0}<style=cIsUtility>移动速度</style>。");
+			RegisterFragment("ANGRY_MOVSPD", "\n提升附近盟友{0}<style=cIsDamage>攻击速度</style>。");
+			RegisterFragment("ANGRY_BOTHSPD", "\n提升附近盟友{0}<style=cIsUtility>移动速度</style>和<style=cIsDamage>攻击速度</style>。");
+			RegisterFragment("ANGRY_COOLDOWN", "\n减少附近盟友{0}<style=cIsUtility>技能冷却</style>。");
+
+			RegisterFragment("AFFIX_GOLD_NAME", "黄金集会");
+			RegisterFragment("AFFIX_GOLD_PICKUP", "成为财富的象征");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FORTUNE", "<color=yellow>财富的象征</color>：");
+			RegisterFragment("GOLD_ON_HIT", "\n击中时获得金钱。");
+			RegisterFragment("ITEMSCORE_REGEN", "\n获得额外的<style=cIsHealing>基础生命值再生</style>，基于物品的稀有度和数量。");
+			RegisterFragment("ITEMSCORE_REGEN_MULT", "\n物品计分倍率为{0}。");
+			/*
+			RegisterFragment("AFFIX_SEPIA_NAME", "Fading Reflection");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "Become an aspect of illusion.");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>Aspect of Illusion</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\nAttacks apply <style=cIsUtility>distorted vision</style> on hit {0}, reducing hit chance by {1}.");
+
+			RegisterFragment("AFFIX_SANGUINE_NAME", "Bloody Fealty");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "Become an aspect of the red plane.");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "Teleport dash and gain brief invulnurability.");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>Aspect of the Red Plane</style> :");
+			RegisterFragment("BLEED_DOT", "\nAttacks <style=cIsDamage>bleed</style> on hit for {0} base damage {1}.");
+			RegisterFragment("DOT_AMP", "\nIncreases <style=cIsDamage>damage over time multiplier</style> by {0}.");
+			
+			RegisterFragment("AFFIX_NULLIFIER_NAME", "Blessing of Parvos");
+			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "Become an aspect of null.");
+			RegisterFragment("AFFIX_NULLIFIER_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>Aspect of Null</style> :");
+			RegisterFragment("PASSIVE_NULL_AURA", "\nEmit an aura that protects nearby allies and debuffs nearby enemies.");
+			RegisterFragment("NULL_ON_HIT", "\nAttacks <style=cIsUtility>null</style> on hit.");
+			RegisterFragment("NULL_ON_HIT_SPD", "\nAttacks <style=cIsUtility>null</style> on hit, reducing <style=cIsUtility>movement speed</style> by {0}.");
+
+			RegisterFragment("AFFIX_BLIGHTED_NAME", "Betrayal of the Bulwark");
+			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "Become an aspect of decay.");
+			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "Reroll your randomized Elite Affixes.");
+			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>Aspect of Decay</style> :");
+			RegisterFragment("PASSIVE_BLIGHT", "\nGain 2 random Elite Affixes.");
+
+			RegisterFragment("AFFIX_BACKUP_NAME", "Secret Compartment");
+			RegisterFragment("AFFIX_BACKUP_PICKUP", "Become an aspect of backup.");
+			RegisterFragment("AFFIX_BACKUP_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_BACKUP", "<style=cDeath>Aspect of Backup</style> :");
+			RegisterFragment("BACKUPED_ON_HIT", "\nAttacks apply <style=cIsUtility>backuped</style> on hit {0}.");
+			RegisterFragment("BACKUPED_DETAIL", "\n<style=cStack>(Backuped prevents use of the secondary skill)</style>");
+
+			RegisterFragment("AFFIX_PURITY_NAME", "Purifying Light");
+			RegisterFragment("AFFIX_PURITY_PICKUP", "Become an aspect of purity.");
+			RegisterFragment("AFFIX_PURITY_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_PURITY", "<style=cDeath>Aspect of Purity</style> :");
+			RegisterFragment("PASSIVE_PURITY", "\nBecome immune to debuffs, dots and stuns.");
+			RegisterFragment("CLEANSE_ON_HIT", "\nAttacks <style=cIsUtility>cleanse</style> the <style=cIsUtility>buffs</style> on enemies you hit.");
+
+
+
+			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
+			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nGrants nearby allies additional <style=cIsHealing>armor</style>.");
+			*/
+			RegisterFragment("CONVERT_SHIELD", "\n将生命值的{0}转化为<style=cIsHealing>可再生护盾</style>。");
+			RegisterFragment("EXTRA_SHIELD_CONVERT", "\n从生命值转换中获得额外{0}的<style=cIsHealing>护盾</style>");
+			RegisterFragment("CONVERT_SHIELD_REGEN", "\n至少{0}的<style=cIsHealing>基础生命值再生</style>会适用于<style=cIsHealing>护盾</style>。");
+			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(自然护盾再生已禁用)</style>");
+
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\n将生命值的{0}转化为额外的<style=cIsHealing>护盾</style>。");
+			RegisterFragment("STAT_EXTRA_JUMP", "\n增加<style=cIsUtility>1次</style>最大<style=cIsUtility>跳跃数量</style>。");
+			RegisterFragment("STAT_MOVESPEED", "\n增加{0}<style=cIsUtility>移动速度</style>。");
+			RegisterFragment("STAT_ATTACKSPEED", "\n增加{0}<style=cIsDamage>攻击速度</style>。");
+			RegisterFragment("STAT_BOTHSPEED", "\n增加{0}<style=cIsUtility>移动速度</style>和<style=cIsDamage>攻击速度</style>。");
+			RegisterFragment("STAT_ARMOR", "\n增加{0}<style=cIsHealing>护甲</style>。");
+			RegisterFragment("STAT_HEALTH", "\n增加{0}<style=cIsHealing>最大生命值</style>。");
+			RegisterFragment("STAT_REGENERATION", "\n增加{0}<style=cIsHealing>基础生命值再生速度</style>。");
+			RegisterFragment("STAT_DAMAGE", "\n增加{0}<style=cIsDamage>伤害</style>。");
+			RegisterFragment("STAT_COOLDOWN", "\n减少{0}<style=cIsUtility>技能冷却</style>。");
+			/*
+			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
+			RegisterFragment("STAT_SECONDARY_CHARGE", "\nGain <style=cIsUtility>+{0}</style> charges of your <style=cIsUtility>secondary skill</style>.");
+			*/
+			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\n获得大量的<style=cIsHealing>可再生护盾</style>。");
+
+			RegisterFragment("BLOCK_CHANCE", "\n{0}几率<style=cIsHealing>阻挡</style>传入伤害。");
+			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>阻挡</style>传入伤害。");
+			RegisterFragment("BLOCK_DETAIL", "\n<style=cStack>(阻挡几率不受运气影响)</style>");
+
+			RegisterFragment("DODGE_CHANCE", "\n{0}几率<style=cIsHealing>闪避</style>传入伤害。");
+			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>闪避</style>传入伤害。");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(闪避几率不受运气影响)</style>");
+
+			RegisterFragment("PLATING_EFFECT", "\n降低{0}所有<style=cIsDamage>传入伤害</style>。");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(传入伤害不能降低到1一下)</style>");
+
+			RegisterFragment("FALL_REDUCTION", "\n减少{0}坠落伤害。");
+			RegisterFragment("FALL_IMMUNE", "\n免疫坠落伤害。");
+
+			RegisterFragment("FORCE_REDUCTION", "\n减小{0}击退。");
+			RegisterFragment("FORCE_IMMUNE", "\n免疫击退。");
+
+
+
+			RegisterFragment("PASSIVE_UNKNOWN_AURA", "\n释放一个光环，造成<style=cStack>(???)</style>");
+
+			RegisterFragment("HEADHUNTER", "从任何被击杀的精英怪中获得<style=cIsDamage>力量</style>，持续{0}。");
+
+
 
 			targetLanguage = "";
 		}
@@ -848,7 +1117,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (fragments[targetLanguage].ContainsKey(key))
 					{
-						//Logger.Info("Found fragment (" + key + ") in (" + targetFragmentLanguage + ") fragment language.");
+						if (verboseSetup) Logger.Info("Found fragment (" + key + ") in (" + targetLanguage + ") fragment language.");
 						string output = fragments[targetLanguage][key];
 						if (trim) output = output.Trim('\n');
 						return output;
@@ -860,7 +1129,7 @@ namespace TPDespair.ZetAspects
 			{
 				if (fragments["default"].ContainsKey(key))
 				{
-					//Logger.Info("Found fragment (" + key + ") in (default) fragment language.");
+					if (verboseSetup) Logger.Info("Found fragment (" + key + ") in (default) fragment language.");
 					string output = fragments["default"][key];
 					if (trim) output = output.Trim('\n');
 					return output;
@@ -1048,110 +1317,39 @@ namespace TPDespair.ZetAspects
 		{
 			string text;
 
-			targetLanguage = "default";
-
-			text = String.Format(
-				TextFragment("HEADHUNTER"),
-				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
-			);
-			RegisterToken("ITEM_HEADHUNTER_DESC", text);
-
-
-
-			text = String.Format(
-				TextFragment("CONVERT_SHIELD", true),
-				ScalingText(1f, "percent", "cIsHealing")
-			);
-			text += String.Format(
-				TextFragment("EXTRA_SHIELD_CONVERT"),
-				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
-			);
-			if (Configuration.TranscendenceRegen.Value > 0f)
+			foreach (string language in fragments.Keys)
 			{
-				text += String.Format(
-					TextFragment("CONVERT_SHIELD_REGEN"),
-					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+				targetLanguage = language;
+
+				text = String.Format(
+					TextFragment("HEADHUNTER"),
+					ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
 				);
-			}
-			if (Catalog.shieldJump)
-			{
-				text += TextFragment("STAT_EXTRA_JUMP");
-			}
-			RegisterToken("ITEM_SHIELDONLY_DESC", text);
+				RegisterToken("ITEM_HEADHUNTER_DESC", text);
 
 
 
-
-
-			targetLanguage = "pt-BR";
-
-			text = String.Format(
-				TextFragment("HEADHUNTER"),
-				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
-			);
-			RegisterToken("ITEM_HEADHUNTER_DESC", text);
-
-
-
-			text = String.Format(
-				TextFragment("CONVERT_SHIELD", true),
-				ScalingText(1f, "percent", "cIsHealing")
-			);
-			text += String.Format(
-				TextFragment("EXTRA_SHIELD_CONVERT"),
-				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
-			);
-			if (Configuration.TranscendenceRegen.Value > 0f)
-			{
-				text += String.Format(
-					TextFragment("CONVERT_SHIELD_REGEN"),
-					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+				text = String.Format(
+					TextFragment("CONVERT_SHIELD", true),
+					ScalingText(1f, "percent", "cIsHealing")
 				);
-			}
-			if (Catalog.shieldJump)
-			{
-				text += TextFragment("STAT_EXTRA_JUMP");
-			}
-			RegisterToken("ITEM_SHIELDONLY_DESC", text);
-
-
-
-
-
-			targetLanguage = "ko";
-
-			text = String.Format(
-				TextFragment("HEADHUNTER"),
-				ScalingText(Configuration.HeadHunterBaseDuration.Value, Configuration.HeadHunterStackDuration.Value, "duration", "cIsDamage")
-			);
-			RegisterToken("ITEM_HEADHUNTER_DESC", text);
-
-
-
-			text = String.Format(
-				TextFragment("CONVERT_SHIELD", true),
-				ScalingText(1f, "percent", "cIsHealing")
-			);
-			text += String.Format(
-				TextFragment("EXTRA_SHIELD_CONVERT"),
-				ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
-			);
-			if (Configuration.TranscendenceRegen.Value > 0f)
-			{
 				text += String.Format(
-					TextFragment("CONVERT_SHIELD_REGEN"),
-					ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+					TextFragment("EXTRA_SHIELD_CONVERT"),
+					ScalingText(0.5f, 0.25f, "percent", "cIsHealing")
 				);
+				if (Configuration.TranscendenceRegen.Value > 0f)
+				{
+					text += String.Format(
+						TextFragment("CONVERT_SHIELD_REGEN"),
+						ScalingText(Configuration.TranscendenceRegen.Value, "percent", "cIsHealing")
+					);
+				}
+				if (Catalog.shieldJump)
+				{
+					text += TextFragment("STAT_EXTRA_JUMP");
+				}
+				RegisterToken("ITEM_SHIELDONLY_DESC", text);
 			}
-			if (Catalog.shieldJump)
-			{
-				text += TextFragment("STAT_EXTRA_JUMP");
-			}
-			RegisterToken("ITEM_SHIELDONLY_DESC", text);
-
-
-
-
 
 			targetLanguage = "";
 		}

@@ -201,6 +201,53 @@ RegisterFragment("ASPECT_OF_PURITY", "<style=cDeath>Aspect of Purity</style> :")
 RegisterFragment("PASSIVE_PURITY", "\nBecome immune to debuffs, dots and stuns.");
 RegisterFragment("CLEANSE_ON_HIT", "\nAttacks <style=cIsUtility>cleanse</style> the <style=cIsUtility>buffs</style> on enemies you hit.");
 
+RegisterFragment("AFFIX_BARRIER_NAME", "Combined Efforts");
+RegisterFragment("AFFIX_BARRIER_PICKUP", "Become an aspect of unity.");
+RegisterFragment("AFFIX_BARRIER_ACTIVE", "Gain some barrier.");
+RegisterFragment("ASPECT_OF_UNITY", "<style=cDeath>Aspect of Unity</style> :");
+RegisterFragment("PASSIVE_BARRIER_STOP", "\nBarrier does not decay.");
+RegisterFragment("FORCE_IMMUNE_BARRIER", "\nImmune to knockback while <style=cIsHealing>barrier</style> is active.");
+RegisterFragment("RANDOM_DEBUFF_ON_HIT", "\nAttacks apply a <style=cIsUtility>random debuff</style> on hit.");
+
+RegisterFragment("AFFIX_BLACKHOLE_NAME", "Another Mind");
+RegisterFragment("AFFIX_BLACKHOLE_PICKUP", "Become an aspect of invasion.");
+RegisterFragment("AFFIX_BLACKHOLE_ACTIVE", "Fire a homing attack at all marked enemies.");
+RegisterFragment("ASPECT_OF_INVASION", "<style=cDeath>Aspect of Invasion</style> :");
+RegisterFragment("BLACKMARK_ON_HIT", "\nAttacks apply a <style=cIsDamage>mark</style> on hit, detonating for <style=cIsDamage>{0}</style> <style=cStack>(+{1} per level)</style> damage when <style=cIsDamage>7</style> stacks are applied.");
+
+RegisterFragment("AFFIX_MONEY_NAME", "Wrath of the Rock");
+RegisterFragment("AFFIX_MONEY_PICKUP", "Become an aspect of polarity.");
+RegisterFragment("AFFIX_MONEY_ACTIVE", "Temporarily stop all incoming projectiles.");
+RegisterFragment("ASPECT_OF_POLARITY", "<style=cDeath>Aspect of Polarity</style> :");
+RegisterFragment("PASSIVE_DRAIN_MONEY", "\nSteal the money of nearby enemies.");
+RegisterFragment("GOLD_FROM_KILL", "\nKills grant {0} more gold.");
+RegisterFragment("PULLDOWN_ON_HIT", "\nAttacks <style=cIsUtility>pull down</style> airborne enemies on hit.");
+
+RegisterFragment("AFFIX_NIGHT_NAME", "Bulwark's Absence");
+RegisterFragment("AFFIX_NIGHT_PICKUP", "Become an aspect of darkness.");
+RegisterFragment("AFFIX_NIGHT_ACTIVE", "Gain temporary invisibility.");
+RegisterFragment("ASPECT_OF_DARKNESS", "<style=cDeath>Aspect of Darkness</style> :");
+RegisterFragment("NIGHTBLIND_ON_HIT", "\nAttacks apply <style=cIsUtility>darkened vision</style> on hit {0}, reducing hit chance by {1}.");
+RegisterFragment("NIGHTBLIND_DETAIL", "\n<style=cStack>(Vision range is reduced to {0})</style>");
+RegisterFragment("OOD_NIGHT_ATKSPD", "\nGain {0} increased <style=cIsDamage>attack speed</style> while out of danger.");
+RegisterFragment("OOD_NIGHT_MOVSPD", "\nGain {0} increased <style=cIsUtility>movement speed</style> and {1} increased <style=cIsDamage>attack speed</style> while out of danger.");
+RegisterFragment("OOD_NIGHT_BOTHSAMESPD", "\nGain {0} increased <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style> while out of danger.");
+RegisterFragment("OOD_NIGHT_BOTHDIFFSPD", "\nGain {0} increased <style=cIsUtility>movement speed</style> and {1} increased <style=cIsDamage>attack speed</style> while out of danger.");
+
+RegisterFragment("AFFIX_WATER_NAME", "First Sighting of the Stormy Petrel");
+RegisterFragment("AFFIX_WATER_PICKUP", "Become an aspect of alterability.");
+RegisterFragment("AFFIX_WATER_ACTIVE", "Cleanse all debuffs and gain some health.");
+RegisterFragment("ASPECT_OF_ALTERABILITY", "<style=cDeath>Aspect of Alterability</style> :");
+RegisterFragment("PASSIVE_IDLE_INVULN", "\nBecome invulnerable while not using any abilities.");
+RegisterFragment("BUBBLE_ON_HIT", "\nAttacks <style=cIsUtility>imprison</style> enemies in a bubble on hit.");
+
+RegisterFragment("AFFIX_REALGAR_NAME", "Collision of Dimensions");
+RegisterFragment("AFFIX_REALGAR_PICKUP", "Become an aspect of extrinsicality.");
+RegisterFragment("AFFIX_REALGAR_ACTIVE", "Gain temporary immunity to all damage-over-time effects.");
+RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>Aspect of Extrinsicality</style> :");
+RegisterFragment("PASSIVE_RED_FISSURE", "\nCreate a red fissure that spews projectiles.");
+RegisterFragment("SCAR_ON_HIT", "\nAttacks <style=cIsDamage>scar</style> all enemies on hit, dealing damage over time.");
+
 
 
 RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -221,6 +268,8 @@ RegisterFragment("STAT_HEALTH", "\nIncreases <style=cIsHealing>maximum health</s
 RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health regeneration</style> by {0}.");
 RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
+RegisterFragment("STAT_DAMAGE_TAKEN", "\nReduces <style=cIsHealing>damage taken</style> by {0}.");
+RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\nReduces <style=cIsHealing>damage taken</style> by {0} while <style=cIsHealing>barrier</style> is active.");
 
 RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
 RegisterFragment("STAT_SECONDARY_CHARGE", "\nGain <style=cIsUtility>+{0}</style> charges of your <style=cIsUtility>secondary skill</style>.");
