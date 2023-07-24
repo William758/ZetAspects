@@ -44,7 +44,7 @@ Monster endurance damage reduction and armor disabled with NemSpikeStrip
 
 Stifle debuff changed from (-100% * buffCount) base damage to (-50% * SQRT(buffCount)) base damage
 
-Monster elusive effect magnitude multiplier with NemSpikeStrip : x0.5
+Elusive effect magnitude multiplier with NemSpikeStrip : x0.5
 
 ## GoldenCoastPlus:
 
