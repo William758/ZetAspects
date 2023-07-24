@@ -157,12 +157,23 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectVoidStackCollapseDamage { get; set; }
 		public static ConfigEntry<float> AspectVoidMonsterDamageMult { get; set; }
 
+		public static ConfigEntry<float> AspectPlatedStifleMult { get; set; }
+		public static ConfigEntry<float> AspectPlatedStifleExponent { get; set; }
+		public static ConfigEntry<float> AspectPlatedPlayerPlateCountMult { get; set; }
+		public static ConfigEntry<float> AspectPlatedMonsterPlateCountMult { get; set; }
 		public static ConfigEntry<float> AspectPlatedBaseArmorGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedStackArmorGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedBasePlatingGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedStackPlatingGain { get; set; }
 		public static ConfigEntry<float> AspectPlatedMonsterPlatingMult { get; set; }
+		public static ConfigEntry<bool> AspectPlatedPlayerHealthReduction { get; set; }
+		public static ConfigEntry<bool> AspectPlatedAllowDefenceWithNem { get; set; }
 
+		public static ConfigEntry<float> AspectWarpedLiftForce { get; set; }
+		public static ConfigEntry<int> AspectWarpedAltDebuff { get; set; }
+		public static ConfigEntry<float> AspectWarpedAltJumpMult { get; set; }
+		public static ConfigEntry<float> AspectWarpedAltSpeedMult { get; set; }
+		public static ConfigEntry<float> AspectWarpedAltAccelerationMult { get; set; }
 		public static ConfigEntry<float> AspectWarpedBaseCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectWarpedStackCooldownGain { get; set; }
 		public static ConfigEntry<float> AspectWarpedBaseFallReductionGain { get; set; }
@@ -174,10 +185,12 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectVeiledStackDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectVeiledBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectVeiledStackMovementGain { get; set; }
+		public static ConfigEntry<bool> AspectVeiledCloakOnSpawn { get; set; }
 		public static ConfigEntry<bool> AspectVeiledCloakOnly { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveDuration { get; set; }
 		public static ConfigEntry<bool> AspectVeiledElusiveDecay { get; set; }
 		public static ConfigEntry<bool> AspectVeiledElusiveRefresh { get; set; }
+		public static ConfigEntry<float> AspectVeiledElusiveEffectMultWithNem { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveMovementGain { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveDodgeGain { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveStackEffect { get; set; }
@@ -913,6 +926,22 @@ namespace TPDespair.ZetAspects
 
 		private static void SpikeStripConfigs(ConfigFile Config)
 		{
+			AspectPlatedStifleMult = Config.Bind(
+				"2ba-AspectPlated", "platedStifleMult", 0.5f,
+				"Multiplier applied to damage reduction of stiffle."
+			);
+			AspectPlatedStifleExponent = Config.Bind(
+				"2ba-AspectPlated", "platedStifleExponent", 0.5f,
+				"Exponent applied to buff count of stiffle for damage calculations."
+			);
+			AspectPlatedPlayerPlateCountMult = Config.Bind(
+				"2ba-AspectPlated", "platedPlayerPlateCountMult", 1f,
+				"Multiplier applied to number of health plates for players."
+			);
+			AspectPlatedMonsterPlateCountMult = Config.Bind(
+				"2ba-AspectPlated", "platedMonsterPlateCountMult", 0.275f,
+				"Multiplier applied to number of health plates for monsters."
+			);
 			AspectPlatedBaseArmorGain = Config.Bind(
 				"2ba-AspectPlated", "platedBaseArmor", 30f,
 				"Armor gained. Set to 0 to disable."
@@ -933,9 +962,37 @@ namespace TPDespair.ZetAspects
 				"2ba-AspectPlated", "platedMonsterPlatingMult", 0.5f,
 				"Monster incoming damage reduction multiplier."
 			);
+			AspectPlatedPlayerHealthReduction = Config.Bind(
+				"2ba-AspectPlated", "platedPlayerHealthReduction", true,
+				"NemSpikeStrip - Apply health reduction to player team."
+			);
+			AspectPlatedAllowDefenceWithNem = Config.Bind(
+				"2ba-AspectPlated", "platedAllowDefenceWithNem", false,
+				"NemSpikeStrip - Apply armor and damage reduction with NemSpikeStrip installed."
+			);
 
 
 
+			AspectWarpedLiftForce = Config.Bind(
+				"2bb-AspectWarped", "warpedLiftForce", 100f,
+				"Lift force applied by anti-gravity bubble."
+			);
+			AspectWarpedAltDebuff = Config.Bind(
+				"2bb-AspectWarped", "warpedAltDebuff", 0,
+				"Change debuff into a buff that reduces jump power and movement. 0 = dont change, 1 = only change debuff applied to players, 2 = change debuff for everything."
+			);
+			AspectWarpedAltJumpMult = Config.Bind(
+				"2bb-AspectWarped", "warpedAltJumpMult", 0.75f,
+				"Jump power multiplier from alt debuff."
+			);
+			AspectWarpedAltSpeedMult = Config.Bind(
+				"2bb-AspectWarped", "warpedAltSpeedMult", 0.75f,
+				"Movement speed multiplier from alt debuff."
+			);
+			AspectWarpedAltAccelerationMult = Config.Bind(
+				"2bb-AspectWarped", "warpedAltAccelerationMult", 0.5f,
+				"Acceleration multiplier from alt debuff."
+			);
 			AspectWarpedBaseCooldownGain = Config.Bind(
 				"2bb-AspectWarped", "warpedBaseCooldown", 0.2f,
 				"Cooldown reduction gained. Set to 0 to disable."
@@ -979,6 +1036,10 @@ namespace TPDespair.ZetAspects
 				"2bc-AspectVeiled", "veiledAddedMovementGained", 0f,
 				"Movement speed gained per stack."
 			);
+			AspectVeiledCloakOnSpawn = Config.Bind(
+				"2bc-AspectVeiled", "veiledCloakOnSpawn", true,
+				"Allow Veiled elites to cloak for 20 seconds whenever they spawn."
+			);
 			AspectVeiledCloakOnly = Config.Bind(
 				"2bc-AspectVeiled", "veiledCloakOnly", false,
 				"Dont apply elusive and only cloak. Affected by duration and refresh configs."
@@ -994,6 +1055,10 @@ namespace TPDespair.ZetAspects
 			AspectVeiledElusiveRefresh = Config.Bind(
 				"2bc-AspectVeiled", "veiledElusiveRefresh", true,
 				"Whether elusive can be refreshed while you are already elusive."
+			);
+			AspectVeiledElusiveEffectMultWithNem = Config.Bind(
+				"2bc-AspectVeiled", "veiledElusiveEffectMultWithNem", 0.50f,
+				"Multiplier on magnitude of elusive effects with NemSpikeStrip installed."
 			);
 			AspectVeiledElusiveMovementGain = Config.Bind(
 				"2bc-AspectVeiled", "veiledElusiveMovementGained", 0.40f,

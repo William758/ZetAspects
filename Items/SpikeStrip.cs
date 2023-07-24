@@ -66,25 +66,52 @@ namespace TPDespair.ZetAspects.Items
 		public static string BuildDescription(bool combine)
 		{
 			string output = TextFragment("ASPECT_OF_ENDURANCE");
-			output += TextFragment("PASSIVE_DEFENSE_PLATING");
+
+			if (Compat.NemSpikeStrip.PlatedEnabled)
+			{
+				string temp = TextFragment("PASSIVE_DEFENSE_PLATING");
+				if (!temp.Contains("\n")) temp = "\n" + temp;
+				output += temp;
+			}
+			else
+			{
+				output += TextFragment("PASSIVE_DEFENSE_PLATING");
+			}
+
 			output += String.Format(
 				TextFragment("DAMAGEREDUCTION_ON_HIT"),
 				SecondText(8f, "for")
 			);
-			if (AspectPlatedBaseArmorGain.Value > 0f)
+
+			if (Compat.NemSpikeStrip.PlatedEnabled && AspectPlatedPlayerHealthReduction.Value)
 			{
-				output += String.Format(
-					TextFragment("STAT_ARMOR"),
-					ScalingText(AspectPlatedBaseArmorGain.Value, AspectPlatedStackArmorGain.Value, "flat", "cIsHealing", combine)
-				);
+				float cfgValue = Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.PlatedHealthField, 0.2f);
+				if (cfgValue != 1f)
+				{
+					output += String.Format(
+						TextFragment("STAT_HEALTH_REDUCTION"),
+						ScalingText(1f - cfgValue, "percent", "cIsHealth")
+					);
+				}
 			}
-			if (AspectPlatedBasePlatingGain.Value > 0f)
+
+			if (!Compat.NemSpikeStrip.PlatedEnabled || AspectPlatedAllowDefenceWithNem.Value)
 			{
-				output += String.Format(
-					TextFragment("PLATING_EFFECT"),
-					ScalingText(AspectPlatedBasePlatingGain.Value, AspectPlatedStackPlatingGain.Value, "flat", "cIsDamage", combine)
-				);
-				output += TextFragment("PLATING_DETAIL");
+				if (AspectPlatedBaseArmorGain.Value > 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_ARMOR"),
+						ScalingText(AspectPlatedBaseArmorGain.Value, AspectPlatedStackArmorGain.Value, "flat", "cIsHealing", combine)
+					);
+				}
+				if (AspectPlatedBasePlatingGain.Value > 0f)
+				{
+					output += String.Format(
+						TextFragment("PLATING_EFFECT"),
+						ScalingText(AspectPlatedBasePlatingGain.Value, AspectPlatedStackPlatingGain.Value, "flat", "cIsDamage", combine)
+					);
+					output += TextFragment("PLATING_DETAIL");
+				}
 			}
 
 			return output;
@@ -153,10 +180,28 @@ namespace TPDespair.ZetAspects.Items
 		{
 			string output = TextFragment("ASPECT_OF_GRAVITY");
 			output += TextFragment("PASSIVE_DEFLECT_PROJ");
-			output += String.Format(
-				TextFragment("LEVITATE_ON_HIT"),
-				SecondText(4f, "for")
-			);
+
+			if (AspectWarpedAltDebuff.Value >= 2 && Catalog.antiGrav != BuffIndex.None)
+			{
+				output += String.Format(
+					TextFragment("WARPED_ON_HIT"),
+					SecondText(4f, "for")
+				);
+			}
+			else
+			{
+				float duration = 4f;
+				if (Compat.NemSpikeStrip.WarpedEnabled)
+				{
+					duration = Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.WarpedDurationField, 4f);
+				}
+
+				output += String.Format(
+					TextFragment("LEVITATE_ON_HIT"),
+					SecondText(duration, "for")
+				);
+			}
+
 			if (AspectWarpedBaseCooldownGain.Value > 0f)
 			{
 				output += String.Format(
@@ -277,7 +322,9 @@ namespace TPDespair.ZetAspects.Items
 				);
 			}
 
-			if (!Compat.PlasmaSpikeStrip.cloakHook && attemptDisableCloak) 
+			bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
+
+			if (!Compat.PlasmaSpikeStrip.cloakHook && attemptDisableCloak && !nemCloak) 
 			{
 				output += TextFragment("CLOAK_ON_HIT");
 			}
@@ -287,7 +334,11 @@ namespace TPDespair.ZetAspects.Items
 
 				if (AspectVeiledCloakOnly.Value)
 				{
-					if (duration > 0.1f)
+					if (nemCloak)
+					{
+						output += TextFragment("CLOAK_ON_HIT");
+					}
+					else if (duration > 0.1f)
 					{
 						output += String.Format(
 							TextFragment("CLOAK_ON_HIT_TIMED"),
@@ -299,6 +350,14 @@ namespace TPDespair.ZetAspects.Items
 				{
 					float movSpd = AspectVeiledElusiveMovementGain.Value;
 					float dodge = AspectVeiledElusiveDodgeGain.Value;
+
+					if (nemCloak)
+					{
+						float mult = AspectVeiledElusiveEffectMultWithNem.Value;
+
+						movSpd *= mult;
+						dodge *= mult;
+					}
 
 					if (duration > 0.1f && ValidElusiveModifier)
 					{
@@ -342,9 +401,14 @@ namespace TPDespair.ZetAspects.Items
 					}
 					else
 					{
-						if (!attemptDisableCloak) output += TextFragment("CLOAK_ON_HIT");
+						if (!attemptDisableCloak || nemCloak) output += TextFragment("CLOAK_ON_HIT");
 					}
 				}
+			}
+
+			if (nemCloak)
+			{
+				output += TextFragment("DECLOAK_WHEN_HIT");
 			}
 
 			return output;

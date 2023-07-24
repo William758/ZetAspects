@@ -96,11 +96,12 @@ namespace TPDespair.ZetAspects
 			PreventAspectCrippleHook();
 			PreventAspectCollapseHook();
 			DamageTakenHook();
+			//HealMultHook();
 			HeadHunterBuffHook();
 			DotAmpHook();
 			OnHitAllHook();
 			OnHitEnemyHook();
-			FixTimedChillApplication();
+			//FixTimedChillApplication();
 			ShieldRegenHook();
 			GoldFromKillHook();
 
@@ -109,6 +110,8 @@ namespace TPDespair.ZetAspects
 			EquipmentGainedBuffHook();
 			ApplyAspectBuffOnInventoryChangedHook();
 			UpdateOnBuffLostHook();
+
+			On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += BuffInterceptHook;
 
 			//RefreshAspectBuffsHook();
 			CharacterBody.onBodyInventoryChangedGlobal += HandleEliteBuffManager;
@@ -292,8 +295,10 @@ namespace TPDespair.ZetAspects
 
 								if (vicBody.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveDodgeGain.Value > 0f)
 								{
+									bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
+
 									float count = Mathf.Max(5f, vicBody.GetBuffCount(Catalog.Buff.ZetElusive));
-									avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / 20f);
+									avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / (nemCloak ? 40f : 20f));
 								}
 							}
 
@@ -362,12 +367,15 @@ namespace TPDespair.ZetAspects
 						CharacterBody vicBody = healthComponent.body;
 						if (vicBody)
 						{
-							if (vicBody.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBasePlatingGain.Value > 0f)
+							if (!Compat.NemSpikeStrip.PlatedEnabled || Configuration.AspectPlatedAllowDefenceWithNem.Value)
 							{
-								float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixPlated);
-								float effectValue = Configuration.AspectPlatedBasePlatingGain.Value + Configuration.AspectPlatedStackPlatingGain.Value * (count - 1f);
-								if (vicBody.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectPlatedMonsterPlatingMult.Value;
-								plating += effectValue;
+								if (vicBody.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBasePlatingGain.Value > 0f)
+								{
+									float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixPlated);
+									float effectValue = Configuration.AspectPlatedBasePlatingGain.Value + Configuration.AspectPlatedStackPlatingGain.Value * (count - 1f);
+									if (vicBody.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectPlatedMonsterPlatingMult.Value;
+									plating += effectValue;
+								}
 							}
 						}
 
@@ -873,6 +881,43 @@ namespace TPDespair.ZetAspects
 		}
 		*/
 
+		/*
+		private static void HealMultHook()
+		{
+			IL.RoR2.HealthComponent.Heal += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(0),
+					x => x.MatchLdflda<HealthComponent>("itemCounts"),
+					x => x.MatchLdfld(typeof(HealthComponent.ItemCounts).GetField("increaseHealing"))
+				);
+
+				if (found)
+				{
+					c.Index += 1;
+
+					c.Emit(OpCodes.Ldarg, 1);
+					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, healAmount) =>
+					{
+						float mult = 1f;
+
+						return healAmount *= mult;
+					});
+					c.Emit(OpCodes.Starg, 1);
+
+					c.Emit(OpCodes.Ldarg, 0);
+				}
+				else
+				{
+					Logger.Warn("HealMultHook Failed!");
+				}
+			};
+		}
+		*/
+
+
 		private static void HeadHunterBuffHook()
 		{
 			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
@@ -1096,6 +1141,8 @@ namespace TPDespair.ZetAspects
 					ApplyBleed(attacker, victim, damageInfo);
 					ApplySepiaBlind(attacker, victim, damageInfo);
 					ApplyElusive(attacker, damageInfo);
+					ApplyNemCloak(attacker, damageInfo);
+					ApplyWarped(attacker, victim, damageInfo);
 				}
 			}
 		}
@@ -1140,7 +1187,8 @@ namespace TPDespair.ZetAspects
 			};
 			OrbManager.instance.AddOrb(lightningOrb);
 		}
-
+		/*
+		 * moved to BuffInterceptHook
 		private static void FixTimedChillApplication()
 		{
 			On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += (orig, self, buffDef, duration) =>
@@ -1162,7 +1210,7 @@ namespace TPDespair.ZetAspects
 				orig(self, buffDef, duration);
 			};
 		}
-
+		*/
 		private static void ApplyChill(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
 		{
 			if (!CanApplyAspectChill(self)) return;
@@ -1481,9 +1529,14 @@ namespace TPDespair.ZetAspects
 			BuffDef eliteBuff = Catalog.Buff.AffixVeiled;
 			if (!eliteBuff || !self.HasBuff(eliteBuff)) return;
 
+			bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
+			bool cloakOnly = Configuration.AspectVeiledCloakOnly.Value;
+
+			if (nemCloak && (cloakOnly || self.HasBuff(Catalog.veiledCooldown))) return;
+
 			float duration = Configuration.AspectVeiledElusiveDuration.Value;
 			bool refresh = Configuration.AspectVeiledElusiveRefresh.Value;
-			if (Configuration.AspectVeiledCloakOnly.Value)
+			if (cloakOnly)
 			{
 				if (duration > 0.1f && (refresh || !self.HasBuff(RoR2Content.Buffs.Cloak)))
 				{
@@ -1522,9 +1575,12 @@ namespace TPDespair.ZetAspects
 						self.AddTimedBuff(elusiveBuff.buffIndex, buffDuration);
 					}
 
-					float cloakDuration = effectDecay ? (decayInterval * count) : duration;
+					if (!nemCloak)
+					{
+						float cloakDuration = effectDecay ? (decayInterval * count) : duration;
 
-					ApplyCloak(self, damageInfo, cloakDuration);
+						ApplyCloak(self, damageInfo, cloakDuration);
+					}
 				}
 			}
 		}
@@ -1557,6 +1613,48 @@ namespace TPDespair.ZetAspects
 			}
 
 			self.AddTimedBuff(cloakBuff.buffIndex, duration);
+		}
+
+		private static void ApplyNemCloak(CharacterBody self, DamageInfo damageInfo)
+		{
+			if (!Compat.NemSpikeStrip.VeiledEnabled) return;
+
+			BuffDef eliteBuff = Catalog.Buff.AffixVeiled;
+			if (!eliteBuff || !self.HasBuff(eliteBuff)) return;
+
+			// - NemSpikeStrip OnHitEnemy Prefix does not seem to be working ??? - also doesnt account for being on cooldown ?
+			if (Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true))
+			{
+				BuffDef cloakBuff = RoR2Content.Buffs.Cloak;
+				if (!self.HasBuff(cloakBuff) && !self.HasBuff(Catalog.veiledCooldown))
+				{
+					self.AddBuff(cloakBuff.buffIndex);
+					EffectManager.SpawnEffect(Catalog.SmokeBombMiniPrefab, new EffectData
+					{
+						origin = damageInfo.attacker.transform.position,
+						rotation = damageInfo.attacker.transform.rotation,
+						scale = self.bestFitRadius * 0.2f
+					}, true);
+				}
+			}
+		}
+
+		private static void ApplyWarped(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)
+		{
+			int config = Configuration.AspectWarpedAltDebuff.Value;
+			if (config <= 0) return;
+
+			if (config >= 2 || victim.teamComponent.teamIndex == TeamIndex.Player)
+			{
+				BuffDef buffDef = Catalog.Buff.AffixWarped;
+				if (!buffDef || !self.HasBuff(buffDef)) return;
+
+				BuffDef appliedBuff = Catalog.Buff.ZetWarped;
+				if (!appliedBuff) return;
+
+				float duration = 4f * damageInfo.procCoefficient;
+				if (duration > 0.1f) victim.AddTimedBuff(appliedBuff, duration);
+			}
 		}
 
 
@@ -1883,6 +1981,23 @@ namespace TPDespair.ZetAspects
 				int count = DestroyedBodies.ContainsKey(body.netId) ? 0 : body.eliteBuffCount;
 				body.AddItemBehavior<EliteBuffManager>(count);
 
+				if (body.HasBuff(Catalog.Buff.AffixVeiled))
+				{
+					bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
+					if (nemCloak)
+					{
+						if (!body.HasBuff(Catalog.veiledCooldown) && !body.HasBuff(RoR2Content.Buffs.Cloak))
+						{
+							body.AddTimedBuff(Catalog.veiledCooldown, 0.1f);
+						}
+
+						if (body.HasBuff(Catalog.veiledCooldown) && body.HasBuff(Catalog.Buff.ZetElusive))
+						{
+							body.ClearTimedBuffs(Catalog.Buff.ZetElusive);
+						}
+					}
+				}
+
 				/*
 				count = body.HasBuff(Catalog.Buff.AffixMoney) ? Mathf.RoundToInt(100f * Catalog.GetStackMagnitude(body, Catalog.Buff.AffixMoney)) : 0 ;
 				body.AddItemBehavior<GoldPowerBehavior>(count);
@@ -2027,6 +2142,45 @@ namespace TPDespair.ZetAspects
 			if (bodyIndex == Catalog.healOrbBodyIndex && buffDef == Catalog.Buff.AffixEarth) return false;
 
 			return true;
+		}
+
+
+
+		private static void BuffInterceptHook(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration)
+		{
+			if (NetworkServer.active)
+			{
+				if (buffDef == RoR2Content.Buffs.Slow80)
+				{
+					if (duration < 0.1f) return;
+					if (Catalog.limitChillStacks && self.GetBuffCount(RoR2Content.Buffs.Slow80) >= 10) return;
+				}
+
+				BuffIndex buffIndex = buffDef.buffIndex;
+				if (buffIndex != BuffIndex.None)
+				{
+					if (buffIndex == Catalog.altSlow80)
+					{
+						ChillApplication(self, duration);
+						return;
+					}
+
+					if (buffIndex == Catalog.antiGrav)
+					{
+						int config = Configuration.AspectWarpedAltDebuff.Value;
+						if (self.teamComponent.teamIndex == TeamIndex.Player)
+						{
+							if (config > 0) return;
+						}
+						else
+						{
+							if (config > 1) return;
+						}
+					}
+				}
+			}
+
+			orig(self, buffDef, duration);
 		}
 
 

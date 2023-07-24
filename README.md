@@ -38,6 +38,14 @@ Monster fury movement speed multiplier : x2
 
 Monster endurance damage reduction multiplier : x0.5
 
+Monster endurance plate layer count multiplier : x0.275
+
+Monster endurance damage reduction and armor disabled with NemSpikeStrip
+
+Stifle debuff changed from (-100% * buffCount) base damage to (-50% * SQRT(buffCount)) base damage
+
+Monster elusive effect magnitude multiplier with NemSpikeStrip : x0.5
+
 ## GoldenCoastPlus:
 
 ![effects](https://i.imgur.com/HFBYaVV.png)
@@ -91,6 +99,13 @@ Korean translation by 깽비#8221.
 Chinese translation by BTP-G.
 
 ## Changelog:
+
+v2.7.30 - Added support for NemSpikeStrip, NemRisingTides support will be done later. 
+          Added extra configs for some SpikeStrip Elites.
+		  Config for WarpedElite : liftforce , alternate debuff that slows movement, acceleration and reduces jump power.
+		  Config for PlatedElite : multiplier for plating count, effect of stifle stacks on damage reduction.
+		  Config for VeiledElite : disable cloak on spawn.
+		  Fixed Disabled aspects not getting their deprecated tier assigned.
 
 v2.7.29 - Added Chinese translation by BTP-G.
 

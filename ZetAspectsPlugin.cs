@@ -13,20 +13,22 @@ using System.Security.Permissions;
 namespace TPDespair.ZetAspects
 {
 	[BepInPlugin(ModGuid, ModName, ModVer)]
+	[BepInDependency("_com.groovesalad.GrooveUnsharedUtils", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
-	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.29";
+		public const string ModVer = "2.7.30";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -47,8 +49,12 @@ namespace TPDespair.ZetAspects
 
 			if (Catalog.Aetherium.Enabled && Configuration.AetheriumHooks.Value) Compat.Aetherium.Init();
 
-			// - Targeting this specific assembly from SpikeStrip
-			if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent") && Configuration.SpikeStripHooks.Value) Compat.PlasmaSpikeStrip.Init();
+			if (Configuration.SpikeStripHooks.Value)
+			{
+				if (Catalog.PluginLoaded("_com.groovesalad.GrooveUnsharedUtils")) Compat.SpikeStripUnsharedUtils.Init();
+				if (Catalog.PluginLoaded("com.groovesalad.GrooveSaladSpikestripContent")) Compat.GrooveSpikeStrip.Init();
+				if (Catalog.PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent")) Compat.PlasmaSpikeStrip.Init();
+			}
 
 			if (Catalog.WarWisp.Enabled && Configuration.WarWispHooks.Value) Compat.WarWisp.Init();
 
@@ -57,6 +63,8 @@ namespace TPDespair.ZetAspects
 			if (Catalog.GOTCE.Enabled && Configuration.GotceHooks.Value) Compat.GOTCE.Init();
 
 			if (Catalog.RisingTides.Enabled && Configuration.RisingTidesHooks.Value) Compat.RisingTides.Init();
+
+			// - NemSpikeStrip is LateSetup only
 
 			Language.Init();
 		}

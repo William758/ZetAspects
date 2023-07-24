@@ -91,8 +91,10 @@ namespace TPDespair.ZetAspects
 
 							if (self.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
 							{
+								bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
+
 								count = Mathf.Max(5f, self.GetBuffCount(Catalog.Buff.ZetElusive));
-								value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / 20f);
+								value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / (nemCloak ? 40f : 20f));
 							}
 						}
 
@@ -421,6 +423,15 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (Compat.NemSpikeStrip.PlatedEnabled && self.HasBuff(Catalog.Buff.AffixPlated) && !Configuration.AspectPlatedPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
+						{
+							float cfgValue = Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.PlatedHealthField, 0.2f);
+							if (cfgValue != 1f)
+							{
+								value -= cfgValue - 1f;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -712,6 +723,13 @@ namespace TPDespair.ZetAspects
 
 				if (self)
 				{
+					if (self.HasBuff(Catalog.Buff.ZetWarped))
+					{
+						self.moveSpeed *= Configuration.AspectWarpedAltSpeedMult.Value;
+						self.jumpPower *= Configuration.AspectWarpedAltJumpMult.Value;
+						self.acceleration *= Configuration.AspectWarpedAltAccelerationMult.Value;
+					}
+
 					self.armor += GetArmorDelta(self);
 
 					ModifyCrit(self);
@@ -778,10 +796,13 @@ namespace TPDespair.ZetAspects
 				addedArmor += Configuration.AspectHauntedAllyArmorGain.Value;
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBaseArmorGain.Value > 0f)
+			if (!Compat.NemSpikeStrip.PlatedEnabled || Configuration.AspectPlatedAllowDefenceWithNem.Value)
 			{
-				count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPlated);
-				addedArmor += Configuration.AspectPlatedBaseArmorGain.Value + Configuration.AspectPlatedStackArmorGain.Value * (count - 1f);
+				if (self.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBaseArmorGain.Value > 0f)
+				{
+					count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPlated);
+					addedArmor += Configuration.AspectPlatedBaseArmorGain.Value + Configuration.AspectPlatedStackArmorGain.Value * (count - 1f);
+				}
 			}
 
 			if (self.HasBuff(Catalog.Buff.AffixNullifier))

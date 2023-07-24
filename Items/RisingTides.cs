@@ -70,6 +70,18 @@ namespace TPDespair.ZetAspects.Items
 			output += TextFragment("PASSIVE_BARRIER_STOP");
 			output += TextFragment("FORCE_IMMUNE_BARRIER");
 
+			if (AspectBarrierPlayerHealthReduction.Value)
+			{
+				float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierHealthReduction, 50f);
+				if (cfgValue != 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_HEALTH_REDUCTION"),
+						ScalingText(cfgValue * 0.01f, "percent", "cIsHealth")
+					);
+				}
+			}
+
 			if (AspectBarrierBaseDamageReductionGain.Value > 0f)
 			{
 				output += String.Format(
@@ -154,10 +166,10 @@ namespace TPDespair.ZetAspects.Items
 
 			float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BlackHoleDamageScale, 60f);
 			output += String.Format(
-					TextFragment("BLACKMARK_ON_HIT"),
-					Mathf.Round(cfgValue * 8f) / 10f,
-					Mathf.Round(cfgValue * 2f) / 10f
-				); ;
+				TextFragment("BLACKMARK_ON_HIT"),
+				Mathf.Round(cfgValue * 8f) / 10f,
+				Mathf.Round(cfgValue * 2f) / 10f
+			);
 
 			if (AspectBlackHoleBaseDamageGain.Value > 0f)
 			{

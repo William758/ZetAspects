@@ -125,6 +125,7 @@ namespace TPDespair.ZetAspects
 			public static Sprite ZetPoached;
 			public static Sprite ZetSepiaBlind;
 			public static Sprite ZetElusive;
+			public static Sprite ZetWarped;
 
 
 
@@ -153,6 +154,7 @@ namespace TPDespair.ZetAspects
 					AffixVeiled = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVeiled.png");
 					AffixAragonite = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixAragonite.png");
 					ZetElusive = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffElusive.png");
+					ZetWarped = LegacyResourcesAPI.Load<BuffDef>("BuffDefs/Slow80").iconSprite;
 				}
 
 				if (GoldenCoastPlus.Enabled)
@@ -269,6 +271,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetPoached;
 			public static BuffDef ZetSepiaBlind;
 			public static BuffDef ZetElusive;
+			public static BuffDef ZetWarped;
 
 			public static BuffDef BackupDebuff;
 			public static BuffDef NightSpeed;
@@ -405,7 +408,9 @@ namespace TPDespair.ZetAspects
 		public static BodyIndex urchinOrbitalBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BuffIndex altSlow80 = BuffIndex.None;
+		public static BuffIndex antiGrav = BuffIndex.None;
 		public static BuffIndex rageAura = BuffIndex.None;
+		public static BuffIndex veiledCooldown = BuffIndex.None;
 		public static BuffIndex nullifierRecipient = BuffIndex.None;
 		public static BuffIndex waterInvuln = BuffIndex.None;
 		public static BuffIndex reactorInvuln = BuffIndex.None;
@@ -642,6 +647,15 @@ namespace TPDespair.ZetAspects
 				ZetElusive.iconSprite = Sprites.ZetElusive;
 				Buff.ZetElusive = ZetElusive;
 				ZetAspectsContent.buffDefs.Add(ZetElusive);
+
+				BuffDef ZetWarped = ScriptableObject.CreateInstance<BuffDef>();
+				ZetWarped.name = "ZetWarped";
+				ZetWarped.buffColor = new Color(0.65f, 0.5f, 0.75f);
+				ZetWarped.canStack = false;
+				ZetWarped.isDebuff = true;
+				ZetWarped.iconSprite = Sprites.ZetWarped;
+				Buff.ZetWarped = ZetWarped;
+				ZetAspectsContent.buffDefs.Add(ZetWarped);
 			}
 		}
 
@@ -1003,6 +1017,11 @@ namespace TPDespair.ZetAspects
 			diluvianArtifactIndex = ArtifactCatalog.FindArtifactIndex("ARTIFACT_DILUVIFACT");
 			altSlow80 = BuffCatalog.FindBuffIndex("EliteReworksSlow80");
 
+			if (PluginLoaded("com.groovesalad.GrooveSaladSpikestripContent"))
+			{
+				antiGrav = Compat.GrooveSpikeStrip.GetGravityBuffIndex();
+			}
+
 			if (PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent"))
 			{
 				rageAura = Compat.PlasmaSpikeStrip.GetRageBuffWardBuffIndex();
@@ -1069,6 +1088,8 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
 
 			if (PluginLoaded("com.Moffein.BlightedElites") && Configuration.BlightedHooks.Value) Compat.Blighted.LateSetup();
+
+			if (PluginLoaded("prodzpod.NemesisSpikestrip")) Compat.NemSpikeStrip.LateSetup();
 
 			setupCompat = true;
 		}
@@ -1306,6 +1327,7 @@ namespace TPDespair.ZetAspects
 			}
 
 			itemDef.tier = ItemTier.NoTier;
+			AssignDepricatedTier(itemDef, ItemTier.NoTier);
 			itemDef.hidden = true;
 			if (itemDef.DoesNotContainTag(ItemTag.WorldUnique))
 			{
