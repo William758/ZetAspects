@@ -244,7 +244,10 @@ namespace TPDespair.ZetAspects.Items
 			string output = TextFragment("ASPECT_OF_POLARITY");
 
 			output += TextFragment("PULLDOWN_ON_HIT");
-			output += TextFragment("PASSIVE_DRAIN_MONEY");
+
+			string temp = TextFragment("PASSIVE_DRAIN_MONEY");
+			if (!temp.Contains("\n")) temp = "\n" + temp;
+			output += temp;
 
 			if (AspectMoneyBaseGoldMult.Value > 0f)
 			{

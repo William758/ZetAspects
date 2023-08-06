@@ -176,6 +176,12 @@ namespace TPDespair.ZetAspects
 				SetDropWeight(Catalog.Equip.AffixWater, Configuration.AspectDropWeightWater.Value);
 				SetDropWeight(Catalog.Equip.AffixRealgar, Configuration.AspectDropWeightRealgar.Value);
 			}
+
+			if (Catalog.NemRisingTides.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixBuffered, Configuration.AspectDropWeightBuffered.Value);
+				SetDropWeight(Catalog.Equip.AffixOppressive, Configuration.AspectDropWeightOppressive.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

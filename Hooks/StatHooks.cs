@@ -134,6 +134,12 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveBaseMovementGain.Value > 0f)
+						{
+							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixOppressive);
+							value += Configuration.AspectOppressiveBaseMovementGain.Value + Configuration.AspectOppressiveStackMovementGain.Value * (count - 1f);
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -170,6 +176,8 @@ namespace TPDespair.ZetAspects
 						if (self.teamComponent.teamIndex == TeamIndex.Player)
 						{
 							if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedExtraJump.Value) value++;
+
+							if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveExtraJump.Value) value++;
 						}
 
 						return value;
@@ -443,7 +451,9 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, baseValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.AffixBarrier) && !Configuration.AspectBarrierPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
+						//BuffDef targetBuff = Catalog.nemBarrier ? Catalog.Buff.AffixBuffered : Catalog.Buff.AffixBarrier;
+						BuffDef targetBuff = Catalog.Buff.AffixBarrier;
+						if (self.HasBuff(targetBuff) && !Configuration.AspectBarrierPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
 						{
 							float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierHealthReduction, 50f);
 

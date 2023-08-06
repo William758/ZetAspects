@@ -44,7 +44,7 @@ Monster endurance damage reduction and armor disabled with NemSpikeStrip
 
 Stifle debuff changed from (-100% * buffCount) base damage to (-50% * SQRT(buffCount)) base damage
 
-Monster elusive effect magnitude multiplier with NemSpikeStrip : x0.5
+Elusive effect magnitude multiplier with NemSpikeStrip : x0.5
 
 ## GoldenCoastPlus:
 
@@ -84,6 +84,10 @@ Monster Nocturnal OOD movement speed multiplier : x2
 
 Monster Nocturnal OOD attack speed multiplier : x1.5
 
+## NemRisingTides:
+
+![effects](https://i.imgur.com/g5uLb9X.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -99,6 +103,8 @@ Korean translation by 깽비#8221.
 Chinese translation by BTP-G.
 
 ## Changelog:
+
+v2.7.31 - Update Chinese translation. Added support for NemRisingTides.
 
 v2.7.30 - Added support for NemSpikeStrip, NemRisingTides support will be done later. 
           Added extra configs for some SpikeStrip Elites.

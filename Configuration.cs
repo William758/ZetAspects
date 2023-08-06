@@ -47,6 +47,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightNight { get; set; }
 		public static ConfigEntry<float> AspectDropWeightWater { get; set; }
 		public static ConfigEntry<float> AspectDropWeightRealgar { get; set; }
+		public static ConfigEntry<float> AspectDropWeightBuffered { get; set; }
+		public static ConfigEntry<float> AspectDropWeightOppressive { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -294,6 +296,16 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectRealgarBaseDotAmp { get; set; }
 		public static ConfigEntry<float> AspectRealgarStackDotAmp { get; set; }
 
+		public static ConfigEntry<bool> AspectOppressiveExtraJump { get; set; }
+		public static ConfigEntry<float> AspectOppressiveBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectOppressiveStackMovementGain { get; set; }
+
+		public static ConfigEntry<float> AspectBufferedBaseDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBufferedStackDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBufferedBaseBarrierDamageReductionGain { get; set; }
+		public static ConfigEntry<float> AspectBufferedStackBarrierDamageReductionGain { get; set; }
+
+
 
 		public static bool ValidElusiveModifier = false;
 
@@ -482,6 +494,14 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightRealgar", 1f,
 					"Drop chance multiplier for AffixRealgar"
 				);
+				AspectDropWeightBuffered = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightBuffered", 1f,
+					"Drop chance multiplier for AffixBuffered"
+				);
+				AspectDropWeightOppressive = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightOppressive", 1f,
+					"Drop chance multiplier for AffixOppressive"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -625,6 +645,7 @@ namespace TPDespair.ZetAspects
 			GotceConfigs(Config);
 			ThalassoConfigs(Config);
 			RisingTidesConfigs(Config);
+			NemRisingTidesConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1465,6 +1486,39 @@ namespace TPDespair.ZetAspects
 			AspectRealgarStackDotAmp = Config.Bind(
 				"2jf-AspectRealgar", "realgarAddedDotAmp", 0.10f,
 				"DOT damage multiplier gained per stack."
+			);
+		}
+
+		private static void NemRisingTidesConfigs(ConfigFile Config)
+		{
+			AspectOppressiveExtraJump = Config.Bind(
+				"2ka-AspectOppressive", "oppressiveExtraJump", true,
+				"Extra jump. Player Only"
+			);
+			AspectOppressiveBaseMovementGain = Config.Bind(
+				"2ka-AspectOppressive", "oppressiveBaseMovementGained", 0.20f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectOppressiveStackMovementGain = Config.Bind(
+				"2ka-AspectOppressive", "oppressiveAddedMovementGained", 0.10f,
+				"Movement speed gained per stack."
+			);
+
+			AspectBufferedBaseDamageReductionGain = Config.Bind(
+				"2kb-AspectBuffered", "bufferedBaseDamageReduction", 0f,
+				"Damage reduction gained. Set to 0 to disable."
+			);
+			AspectBufferedStackDamageReductionGain = Config.Bind(
+				"2kb-AspectBuffered", "bufferedStackDamageReduction", 0f,
+				"Damage reduction gained per stack."
+			);
+			AspectBufferedBaseBarrierDamageReductionGain = Config.Bind(
+				"2kb-AspectBuffered", "bufferedBaseBarrierDamageReduction", 0.3f,
+				"Damage reduction gained while barrier is active. Set to 0 to disable."
+			);
+			AspectBufferedStackBarrierDamageReductionGain = Config.Bind(
+				"2kb-AspectBuffered", "bufferedStackBarrierDamageReduction", 0.15f,
+				"Damage reduction gained per stack while barrier is active."
 			);
 		}
 

@@ -55,6 +55,7 @@ namespace TPDespair.ZetAspects
 		public static bool aspectAbilities = false;
 		public static bool immuneHealth = false;
 		public static bool altIceActive = false;
+		public static bool nemBarrier = false;
 
 		public static bool ChillCanStack => RoR2Content.Buffs.Slow80.canStack;
 
@@ -117,6 +118,9 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixNight;
 			public static Sprite AffixWater;
 			public static Sprite AffixRealgar;
+
+			public static Sprite AffixBuffered;
+			public static Sprite AffixOppressive;
 
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
@@ -209,6 +213,9 @@ namespace TPDespair.ZetAspects
 					AffixWater = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixWater.png");
 					AffixRealgar = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixImpPlane.png");
 				}
+
+				AffixBuffered = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffered.png");
+				AffixOppressive = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixOppressive.png");
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
@@ -314,6 +321,9 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixNight;
 			public static BuffDef AffixWater;
 			public static BuffDef AffixRealgar;
+
+			public static BuffDef AffixBuffered;
+			public static BuffDef AffixOppressive;
 		}
 
 		public static class Equip
@@ -353,6 +363,9 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixNight;
 			public static EquipmentDef AffixWater;
 			public static EquipmentDef AffixRealgar;
+
+			public static EquipmentDef AffixBuffered;
+			public static EquipmentDef AffixOppressive;
 		}
 
 		public static class Item
@@ -397,6 +410,9 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectNight;
 			public static ItemDef ZetAspectWater;
 			public static ItemDef ZetAspectRealgar;
+
+			public static ItemDef ZetAspectBuffered;
+			public static ItemDef ZetAspectOppressive;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -826,6 +842,16 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectRealgar);
 				transformableAspectItemDefs.Add(ZetAspectRealgar);
 			}
+
+			ItemDef ZetAspectBuffered = Items.ZetAspectBuffered.DefineItem();
+			Item.ZetAspectBuffered = ZetAspectBuffered;
+			ZetAspectsContent.itemDefs.Add(ZetAspectBuffered);
+			transformableAspectItemDefs.Add(ZetAspectBuffered);
+
+			ItemDef ZetAspectOppressive = Items.ZetAspectOppressive.DefineItem();
+			Item.ZetAspectOppressive = ZetAspectOppressive;
+			ZetAspectsContent.itemDefs.Add(ZetAspectOppressive);
+			transformableAspectItemDefs.Add(ZetAspectOppressive);
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -994,6 +1020,7 @@ namespace TPDespair.ZetAspects
 			GOTCE.PreInit();
 			Thalasso.PreInit();
 			RisingTides.PreInit();
+			NemRisingTides.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -1042,6 +1069,11 @@ namespace TPDespair.ZetAspects
 				waterInvuln = BuffCatalog.FindBuffIndex("RisingTides_WaterInvincibility");
 			}
 
+			if (EquipmentCatalog.FindEquipmentIndex("NemesisRisingTides_AffixBuffered") != EquipmentIndex.None)
+			{
+				nemBarrier = true;
+			}
+
 			if (aspectAbilities)
 			{
 				urchinOrbitalBodyIndex = BodyCatalog.FindBodyIndex("AspectAbilitiesMalachiteUrchinOrbitalBody");
@@ -1072,6 +1104,8 @@ namespace TPDespair.ZetAspects
 
 			SetupIntermediate();
 
+			DisplayHooks.SetupRenderPriority();
+
 			Logger.Info("Catalog Setup Complete");
 
 			setupComplete = true;
@@ -1090,6 +1124,8 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.Moffein.BlightedElites") && Configuration.BlightedHooks.Value) Compat.Blighted.LateSetup();
 
 			if (PluginLoaded("prodzpod.NemesisSpikestrip")) Compat.NemSpikeStrip.LateSetup();
+
+			//if (PluginLoaded("prodzpod.NemesisRisingTides")) Compat.NemRisingTides.LateSetup();
 
 			setupCompat = true;
 		}
@@ -1115,6 +1151,7 @@ namespace TPDespair.ZetAspects
 			GOTCE.Init();
 			Thalasso.Init();
 			RisingTides.Init();
+			NemRisingTides.Init();
 
 			Language.ChangeText();
 
@@ -1254,6 +1291,12 @@ namespace TPDespair.ZetAspects
 			{
 				RisingTides.ItemEntries(true);
 				RisingTides.EquipmentEntries(false);
+			}
+
+			if (NemRisingTides.populated)
+			{
+				NemRisingTides.ItemEntries(true);
+				NemRisingTides.EquipmentEntries(false);
 			}
 		}
 

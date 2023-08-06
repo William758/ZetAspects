@@ -820,14 +820,20 @@ namespace TPDespair.ZetAspects
 
 							float reduction = 0f;
 
-							if (vicBody.HasBuff(Catalog.Buff.AffixBarrier))
+							if ((!Catalog.nemBarrier && vicBody.HasBuff(Catalog.Buff.AffixBarrier)) || (Catalog.nemBarrier && vicBody.HasBuff(Catalog.Buff.AffixBuffered)))
 							{
 								if (healthComponent.barrier > 0f)
 								{
 									float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierDamageResistance, 50f);
 
 									damage /= 1f - cfgValue / 100f;
+								}
+							}
 
+							if (vicBody.HasBuff(Catalog.Buff.AffixBarrier))
+							{
+								if (healthComponent.barrier > 0f)
+								{
 									if (Configuration.AspectBarrierBaseBarrierDamageReductionGain.Value > 0f)
 									{
 										float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBarrier);
@@ -841,6 +847,28 @@ namespace TPDespair.ZetAspects
 								{
 									float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBarrier);
 									float effectValue = Configuration.AspectBarrierBaseDamageReductionGain.Value + Configuration.AspectBarrierStackDamageReductionGain.Value * (count - 1f);
+
+									reduction += effectValue;
+								}
+							}
+
+							if (vicBody.HasBuff(Catalog.Buff.AffixBuffered))
+							{
+								if (healthComponent.barrier > 0f)
+								{
+									if (Configuration.AspectBufferedBaseBarrierDamageReductionGain.Value > 0f)
+									{
+										float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBuffered);
+										float effectValue = Configuration.AspectBufferedBaseBarrierDamageReductionGain.Value + Configuration.AspectBufferedStackBarrierDamageReductionGain.Value * (count - 1f);
+
+										reduction += effectValue;
+									}
+								}
+
+								if (Configuration.AspectBufferedBaseDamageReductionGain.Value > 0f)
+								{
+									float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixBuffered);
+									float effectValue = Configuration.AspectBufferedBaseDamageReductionGain.Value + Configuration.AspectBufferedStackDamageReductionGain.Value * (count - 1f);
 
 									reduction += effectValue;
 								}
@@ -2125,6 +2153,12 @@ namespace TPDespair.ZetAspects
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixNight, Catalog.Item.ZetAspectNight, Catalog.Equip.AffixNight);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixWater, Catalog.Item.ZetAspectWater, Catalog.Equip.AffixWater);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixRealgar, Catalog.Item.ZetAspectRealgar, Catalog.Equip.AffixRealgar);
+			}
+
+			if (Catalog.NemRisingTides.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBuffered, Catalog.Item.ZetAspectBuffered, Catalog.Equip.AffixBuffered);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixOppressive, Catalog.Item.ZetAspectOppressive, Catalog.Equip.AffixOppressive);
 			}
 		}
 

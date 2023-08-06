@@ -1627,5 +1627,175 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixRealgar, Buff.AffixRealgar, Item.ZetAspectRealgar);
 			}
 		}
+
+
+
+		public static class NemRisingTides
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("prodzpod.NemesisRisingTides")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				Compat.NemRisingTides.PrepareEquipmentCheck();
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("NemesisRisingTides_AffixBuffered");
+				if (index != EquipmentIndex.None)
+				{
+                    if (Compat.NemRisingTides.GetBufferedEnabled())
+					{
+						Equip.AffixBuffered = EquipmentCatalog.GetEquipmentDef(index);
+					}
+				}
+
+				index = EquipmentCatalog.FindEquipmentIndex("NemesisRisingTides_AffixOppressive");
+				if (index != EquipmentIndex.None)
+				{
+					if (Compat.NemRisingTides.GetOppressiveEnabled())
+					{
+						Equip.AffixOppressive = EquipmentCatalog.GetEquipmentDef(index);
+					}
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixBuffered)
+				{
+					Buff.AffixBuffered = Equip.AffixBuffered.passiveBuffDef;
+				}
+				if (Equip.AffixOppressive)
+				{
+					Buff.AffixOppressive = Equip.AffixOppressive.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectBuffered, ref Equip.AffixBuffered, ref Buff.AffixBuffered, state);
+				DisableInactiveItem(Item.ZetAspectOppressive, ref Equip.AffixOppressive, ref Buff.AffixOppressive, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectBuffered.SetupTokens();
+				Items.ZetAspectOppressive.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectBuffered, shown);
+				SetItemState(Item.ZetAspectOppressive, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectBuffered, Equip.AffixBuffered);
+				CopyExpansion(Item.ZetAspectOppressive, Equip.AffixOppressive);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectBuffered, Equip.AffixBuffered);
+				CopyEquipmentPrefab(Item.ZetAspectOppressive, Equip.AffixOppressive);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixBuffered, Sprites.AffixBuffered, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixOppressive, Sprites.AffixOppressive, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixBuffered, shown);
+				SetEquipmentState(Equip.AffixOppressive, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixBuffered);
+				ColorEquipmentDroplet(Equip.AffixOppressive);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixBuffered, Buff.AffixBuffered, Item.ZetAspectBuffered);
+				CreateEquality(Equip.AffixOppressive, Buff.AffixOppressive, Item.ZetAspectOppressive);
+			}
+		}
 	}
 }

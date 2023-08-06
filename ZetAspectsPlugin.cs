@@ -20,15 +20,17 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("com.Moffein.EliteReworks", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
+	//[BepInDependency("prodzpod.NemesisRisingTides", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.30";
+		public const string ModVer = "2.7.31";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -65,6 +67,8 @@ namespace TPDespair.ZetAspects
 			if (Catalog.RisingTides.Enabled && Configuration.RisingTidesHooks.Value) Compat.RisingTides.Init();
 
 			// - NemSpikeStrip is LateSetup only
+
+			// - NemRisingTides
 
 			Language.Init();
 		}
@@ -107,6 +111,9 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixWarped, transform.position + new Vector3(0f, 5f, 7.5f));
 				CreateDroplet(Catalog.Equip.AffixVeiled, transform.position + new Vector3(5f, 5f, 5f));
 				CreateDroplet(Catalog.Equip.AffixAragonite, transform.position + new Vector3(-5f, 5f, -5f));
+
+				CreateDroplet(Catalog.Equip.AffixBuffered, transform.position + new Vector3(0f, 5f, -7.5f));
+				CreateDroplet(Catalog.Equip.AffixOppressive, transform.position + new Vector3(5f, 5f, -5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))

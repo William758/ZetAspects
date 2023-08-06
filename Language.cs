@@ -321,6 +321,21 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_RED_FISSURE", "\nCreate a red fissure that spews projectiles.");
 			RegisterFragment("SCAR_ON_HIT", "\nAttacks <style=cIsDamage>scar</style> all enemies on hit, dealing damage over time.");
 
+			RegisterFragment("AFFIX_BUFFERED_NAME", "Combined Efforts");
+			RegisterFragment("AFFIX_BUFFERED_PICKUP", "Become an aspect of unity.");
+			RegisterFragment("AFFIX_BUFFERED_ACTIVE", "Gain some barrier.");
+			RegisterFragment("ASPECT_OF_UNITY_NEM", "<style=cDeath>Aspect of Unity</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP_NEM", "\nBarrier does not decay.");
+			RegisterFragment("FORCE_IMMUNE_BARRIER_NEM", "\nImmune to knockback while <style=cIsHealing>barrier</style> is active.");
+
+			RegisterFragment("AFFIX_OPPRESSIVE_NAME", "Titanic Pause");
+			RegisterFragment("AFFIX_OPPRESSIVE_PICKUP", "Become an aspect of domination.");
+			RegisterFragment("AFFIX_OPPRESSIVE_ACTIVE", "Forcefully drop nearby enemies.");
+			RegisterFragment("ASPECT_OF_DOMINATION", "<style=cDeath>Aspect of Domination</style> :");
+			RegisterFragment("PASSIVE_GRAVITY_ZONE", "\nEmit an aura that <style=cIsUtility>increases gravity</style> for nearby enemies.");
+			RegisterFragment("PULLDOWN_ON_HIT_NEM", "\nAttacks <style=cIsUtility>pull down</style> airborne enemies on hit.");
+			RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(Jumping is disabled by pull down)</style>");
+
 
 
 			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -879,7 +894,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("METER_STACK_DEC", "<style=cStack>（每层-{0}m）</style>");
 
 			RegisterFragment("BASE_DAMAGE", "基础");
-			RegisterFragment("TOTAL_DAMAGE", "总");
+			RegisterFragment("TOTAL_DAMAGE", "合计");
 
 			RegisterFragment("FOR_SECOND", "{0}秒");
 			RegisterFragment("FOR_SECONDS", "{0}秒");
@@ -899,25 +914,25 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_WHITE_ACTIVE", "放置一个禁用技能的冰晶");
 			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "部署一个消耗生命的冰晶");
 			RegisterFragment("ASPECT_OF_ICE", "<color=#CCFFFF>冰霜的象征</color>：");
-			RegisterFragment("CHILL_ON_HIT", "\n<style=cIsUtility>寒冷</style>。攻击减速敌人{0}，降低<style=cIsUtility>80%</style><style=cIsUtility>移动速度</style>。");
+			RegisterFragment("CHILL_ON_HIT", "\n<style=cIsUtility>寒冷</style>。攻击减速敌人{0}，降低其<style=cIsUtility>80%</style>的<style=cIsUtility>移动速度</style>。");
 			RegisterFragment("CHANCE_TO_FREEZE", "\n击中时有{0}概率<style=cIsUtility>冻结</style>敌人{1}。");
-			RegisterFragment("FROST_BLADE", "\n击中时发射<style=cIsDamage>冰刀</style>，造成{0}的总伤害。");
+			RegisterFragment("FROST_BLADE", "\n击中敌人时发射一把<style=cIsDamage>冰刀</style>，合计造成{0}的伤害。");
 
 			RegisterFragment("AFFIX_BLUE_NAME", "暴风雨前的宁静");
 			RegisterFragment("AFFIX_BLUE_PICKUP", "成为雷电的象征");
 			RegisterFragment("AFFIX_BLUE_ACTIVE", "传送");
 			RegisterFragment("ASPECT_OF_LIGHTNING", "<color=#99CCFF>雷电的象征</color>：");
 			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n偶尔在你周围投下分散炸弹。");
-			RegisterFragment("SAP_ON_HIT", "\n攻击使敌人<style=cIsUtility>削弱</style>{0}，降低其{1}的<style=cIsUtility>伤害</style>。");
-			RegisterFragment("SCATTER_BOMB", "\n攻击投掷散弹，爆炸造成{0}的总伤害。");
-			RegisterFragment("LIGHTNING_BOMB", "\n攻击附加一个<style=cIsDamage>闪电球</style>，{1}爆炸造成{0}的总伤害。");
+			RegisterFragment("SAP_ON_HIT", "\n攻击可<style=cIsUtility>削弱</style>敌人{0}，降低其{1}的<style=cIsUtility>伤害</style>。");
+			RegisterFragment("SCATTER_BOMB", "\n攻击投掷散弹，合计造成{0}的伤害。");
+			RegisterFragment("LIGHTNING_BOMB", "\n攻击附加一个<style=cIsDamage>闪电球</style>，{1}爆炸，合计造成{0}的伤害。");
 
 			RegisterFragment("AFFIX_RED_NAME", "伊芙利特的卓越");
 			RegisterFragment("AFFIX_RED_PICKUP", "成为火焰的象征");
 			RegisterFragment("AFFIX_RED_ACTIVE", "发射一枚追踪的火焰导弹");
 			RegisterFragment("ASPECT_OF_FIRE", "<color=#f25d25>火焰的象征</color>：");
 			RegisterFragment("PASSIVE_FIRE_TRAIL", "\n移动留下一条火焰轨迹，会对接触到的敌人造成伤害。");
-			RegisterFragment("BURN_DOT", "\n攻击<style=cIsDamage>点燃</style>敌人，{2}造成{0}{1}伤害。");
+			RegisterFragment("BURN_DOT", "\n攻击<style=cIsDamage>点燃</style>敌人，{2}{1}造成{0}伤害。");
 
 			RegisterFragment("AFFIX_HAUNTED_NAME", "幽灵头饰");
 			RegisterFragment("AFFIX_HAUNTED_PICKUP", "成为无形的象征");
@@ -936,7 +951,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_SPIKEBALL", "\n周期性的释放刺球，在它们落地的地方生成刺坑。");
 			RegisterFragment("PASSIVE_RUIN_AURA", "\n释放一个光环，对附近的敌人造成<style=cIsDamage>禁疗</style>。");
 			RegisterFragment("RUIN_ON_HIT_BASIC", "\n攻击造成<style=cIsDamage>禁疗</style>减益{0}，阻止生命回复。");
-			RegisterFragment("RUIN_ON_HIT", "\n攻击造成<style=cIsDamage>禁疗</style>减益{0}，使其受到的<style=cIsDamage>伤害</style>增加{1}。");
+			RegisterFragment("RUIN_ON_HIT", "\n攻击造成<style=cIsDamage>禁疗</style>减益{0}，可使其受到的<style=cIsDamage>伤害</style>增加{1}。");
 			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(禁疗阻止生命回复)</style>");
 			RegisterFragment("WEAKEN_ON_HIT", "\n攻击使敌人<style=cIsDamage>虚弱</style>{0}，减少<style=cIsDamage>30</style>点<style=cIsDamage>护甲</style>，<style=cIsUtility>40%</style>的<style=cIsUtility>移动速度</style>，和<style=cIsDamage>40%</style>的<style=cIsDamage>伤害</style>。");
 
@@ -945,7 +960,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_LUNAR_ACTIVE", "获得临时屏障以抵御强力攻击。");
 			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cIsLunar>完美的象征</style>：");
 			RegisterFragment("PASSIVE_LUNAR_PROJ", "\n在战斗中定期发射导弹。");
-			RegisterFragment("CRIPPLE_ON_HIT", "\n攻击使敌人<style=cIsDamage>致残</style>{0}，降低<style=cIsDamage>20</style>点<style=cIsDamage>护甲</style>和<style=cIsUtility>50%</style><style=cIsUtility>移动速度</style>。");
+			RegisterFragment("CRIPPLE_ON_HIT", "\n攻击使敌人<style=cIsDamage>致残</style>{0}，降低其<style=cIsDamage>20</style>点<style=cIsDamage>护甲</style>和<style=cIsUtility>50%</style><style=cIsUtility>移动速度</style>。");
 
 			RegisterFragment("AFFIX_EARTH_NAME", "大地之证");
 			RegisterFragment("AFFIX_EARTH_PICKUP", "成为大地的象征");
@@ -953,9 +968,9 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_EARTH", "<style=cIsHealing>大地的象征</style>：");
 			RegisterFragment("PASSIVE_HEAL_ALLY", "\n治疗附近的盟友。");
 			RegisterFragment("POACH_ON_HIT_BASIC", "\n攻击造成<style=cIsUtility>窃取</style>{0}， 再次攻击有<style=cIsUtility>窃取</style>减益的敌人时，<style=cIsHealing>治疗</style>自身等同于你造成<style=cIsDamage>伤害</style>的{1}的生命值。");
-			RegisterFragment("POACH_ON_HIT", "\n攻击造成<style=cIsUtility>窃取</style>{0}，降低敌人{1}的<style=cIsUtility>攻击速度</style>。");
+			RegisterFragment("POACH_ON_HIT", "\n攻击造成<style=cIsUtility>窃取</style>{0}，降低其{1}的<style=cIsUtility>攻击速度</style>。");
 			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(攻击有<style=cIsUtility>窃取</style>减益的敌人时，<style=cIsHealing>治疗</style>自身等同于你造成<style=cIsDamage>伤害</style>的{0}的生命值。)</style>");
-			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>治疗</style>造成<style=cIsDamage>伤害</style>的{0}的生命值");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n<style=cIsHealing>治疗</style>自身等同于你造成<style=cIsDamage>伤害</style>的{0}的生命值。");
 			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>吸血公式 =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
 
 			RegisterFragment("AFFIX_VOID_NAME", "熵的破裂");
@@ -965,16 +980,16 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>阻挡</style>一次传入伤害，一段时间后再次充能。");
 			RegisterFragment("NULLIFY_ON_HIT", "\n攻击造成<style=cIsUtility>禁锢</style>{0}");
 			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(叠加3层禁锢时，定身敌人3秒)</style>");
-			RegisterFragment("COLLAPSE_DOT", "\n攻击叠加<style=cIsDamage>瓦解</style>，{2}造成{0}的{1}伤害。");
-			RegisterFragment("COLLAPSE_DEFAULT", "\n攻击有<style=cIsDamage>100%</style>概率<style=cIsDamage>瓦解</style>敌人，造成<style=cIsDamage>400%</style>基础伤害。");
+			RegisterFragment("COLLAPSE_DOT", "\n攻击叠加<style=cIsDamage>瓦解</style>，{2}{1}造成{0}的伤害。");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n攻击有<style=cIsDamage>100%</style>概率<style=cIsDamage>瓦解</style>敌人，造成<style=cIsDamage>400%</style>的基础伤害。");
 			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>腐化其他象征</style>。");
 
 			RegisterFragment("AFFIX_PLATED_NAME", "耐腐蚀的合金");
-			RegisterFragment("AFFIX_PLATED_PICKUP", "成为忍耐力的象征");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "成为耐力的象征");
 			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
-			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>忍耐力的象征</style> :");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>耐力的象征</style>：");
 			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\n获得防御镀层，以减轻严重伤害。");
-			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\n攻击使敌人<style=cIsUtility>窒息</style>{0}，减少造成的伤害。");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\n攻击<style=cIsUtility>抑制</style>敌人{0}，减少其造成的伤害。");
 
 			RegisterFragment("AFFIX_WARPED_NAME", "错误信仰");
 			RegisterFragment("AFFIX_WARPED_PICKUP", "成为重力的象征");
@@ -982,11 +997,12 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>重力的象征</style> :");
 			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\n偶尔偏转周边的射弹。");
 			RegisterFragment("LEVITATE_ON_HIT", "\n攻击使敌人<style=cIsUtility>悬浮</style>{0}。");
+			RegisterFragment("WARPED_ON_HIT", "\n攻击造成<style=cIsUtility>扭曲</style>{0}，限制敌人的行动。");
 
 			RegisterFragment("AFFIX_VEILED_NAME", "模糊的诅咒");
 			RegisterFragment("AFFIX_VEILED_PICKUP", "成为模糊的象征");
 			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
-			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>模糊的象征</style> :");
+			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>模糊的象征</style>：");
 			RegisterFragment("CLOAK_ON_HIT", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果。");
 			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果{0}。");
 			RegisterFragment("ELUSIVE_ON_HIT", "\n攻击敌人给予自身<style=cIsUtility>难以捉摸</style>效果。");
@@ -994,7 +1010,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}闪避几率)</style>");
 			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}移动速度和{1}闪避几率)</style>");
 			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(难以捉摸效果每秒衰减{0})</style>");
-			RegisterFragment("ELUSIVE_EFFECT", "\nn难以捉摸效果影响{0}。");
+			RegisterFragment("ELUSIVE_EFFECT", "\n难以捉摸效果影响{0}。");
 
 			RegisterFragment("AFFIX_ARAGONITE_NAME", "她的脾气");
 			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "成为愤怒的象征");
@@ -1005,7 +1021,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ANGRY_ATKSPD", "\n提升附近盟友{0}<style=cIsUtility>移动速度</style>。");
 			RegisterFragment("ANGRY_MOVSPD", "\n提升附近盟友{0}<style=cIsDamage>攻击速度</style>。");
 			RegisterFragment("ANGRY_BOTHSPD", "\n提升附近盟友{0}<style=cIsUtility>移动速度</style>和<style=cIsDamage>攻击速度</style>。");
-			RegisterFragment("ANGRY_COOLDOWN", "\n减少附近盟友{0}<style=cIsUtility>技能冷却</style>。");
+			RegisterFragment("ANGRY_COOLDOWN", "\n降低附近盟友{0}<style=cIsUtility>技能冷却</style>。");
 
 			RegisterFragment("AFFIX_GOLD_NAME", "黄金集会");
 			RegisterFragment("AFFIX_GOLD_PICKUP", "成为财富的象征");
@@ -1055,19 +1071,19 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_PURITY", "<style=cDeath>Aspect of Purity</style> :");
 			RegisterFragment("PASSIVE_PURITY", "\nBecome immune to debuffs, dots and stuns.");
 			RegisterFragment("CLEANSE_ON_HIT", "\nAttacks <style=cIsUtility>cleanse</style> the <style=cIsUtility>buffs</style> on enemies you hit.");
-
-
-
-			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
-			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\nGrants nearby allies additional <style=cIsHealing>armor</style>.");
 			*/
+
+
+			RegisterFragment("NEARBY_ARMOR", "\n给予周围盟友{0}点额外<style=cIsHealing>护甲</style>。");
+			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\n给予周围盟友额外<style=cIsHealing>护甲</style>。");
+			
 			RegisterFragment("CONVERT_SHIELD", "\n将生命值的{0}转化为<style=cIsHealing>可再生护盾</style>。");
 			RegisterFragment("EXTRA_SHIELD_CONVERT", "\n从生命值转换中获得额外{0}的<style=cIsHealing>护盾</style>");
 			RegisterFragment("CONVERT_SHIELD_REGEN", "\n至少{0}的<style=cIsHealing>基础生命值再生</style>会适用于<style=cIsHealing>护盾</style>。");
 			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(自然护盾再生已禁用)</style>");
 
 			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\n将生命值的{0}转化为额外的<style=cIsHealing>护盾</style>。");
-			RegisterFragment("STAT_EXTRA_JUMP", "\n增加<style=cIsUtility>1次</style>最大<style=cIsUtility>跳跃数量</style>。");
+			RegisterFragment("STAT_EXTRA_JUMP", "\n增加<style=cIsUtility>1次</style>最大<style=cIsUtility>跳跃次数</style>。");
 			RegisterFragment("STAT_MOVESPEED", "\n增加{0}<style=cIsUtility>移动速度</style>。");
 			RegisterFragment("STAT_ATTACKSPEED", "\n增加{0}<style=cIsDamage>攻击速度</style>。");
 			RegisterFragment("STAT_BOTHSPEED", "\n增加{0}<style=cIsUtility>移动速度</style>和<style=cIsDamage>攻击速度</style>。");
@@ -1091,7 +1107,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(闪避几率不受运气影响)</style>");
 
 			RegisterFragment("PLATING_EFFECT", "\n降低{0}所有<style=cIsDamage>传入伤害</style>。");
-			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(传入伤害不能降低到1一下)</style>");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(传入伤害不能降低到1以下)</style>");
 
 			RegisterFragment("FALL_REDUCTION", "\n减少{0}坠落伤害。");
 			RegisterFragment("FALL_IMMUNE", "\n免疫坠落伤害。");
