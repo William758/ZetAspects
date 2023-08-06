@@ -104,6 +104,8 @@ Chinese translation by BTP-G.
 
 ## Changelog:
 
+v2.7.32 - Fixed NemRisingTides Aspects not being disabled if the mod isn't installed.
+
 v2.7.31 - Update Chinese translation. Added support for NemRisingTides.
 
 v2.7.30 - Added support for NemSpikeStrip, NemRisingTides support will be done later. 

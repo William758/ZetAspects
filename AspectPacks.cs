@@ -1662,6 +1662,11 @@ namespace TPDespair.ZetAspects
 					DisableInactiveItems();
 					ApplyEquipmentIcons();
 				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
 			}
 
 			internal static void Init()
@@ -1685,6 +1690,11 @@ namespace TPDespair.ZetAspects
 					FillEqualities();
 
 					populated = true;
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
 				}
 			}
 
