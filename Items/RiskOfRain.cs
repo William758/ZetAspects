@@ -54,9 +54,11 @@ namespace TPDespair.ZetAspects.Items
 				EquipmentDef equipDef = Catalog.Equip.AffixWhite;
 				if (equipDef)
 				{
+					string equipActiveFragment = Catalog.altIceActive ? "AFFIX_WHITE_ACTIVE_ALT" : "AFFIX_WHITE_ACTIVE";
+
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
 					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
-					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment(equipActiveFragment)));
 				}
 			}
 

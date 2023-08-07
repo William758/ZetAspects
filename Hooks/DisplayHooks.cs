@@ -146,6 +146,8 @@ namespace TPDespair.ZetAspects
 			{
 				AddAspectRender(Catalog.Equip.AffixGold);
 			}
+
+			Logger.Info("Aspect Render Count : " + AspectRenders.Count);
 		}
 
 		public static void AddAspectRender(EquipmentDef equipDef)
@@ -160,6 +162,7 @@ namespace TPDespair.ZetAspects
 					{
 						if (!AspectRenderEquipment.Contains(equipDef))
 						{
+							Logger.Info("Adding Aspect Render : " + equipDef.nameToken + " , " + itemDef.nameToken);
 							AspectRenders.Add(new KeyValuePair<EquipmentDef, ItemDef>(equipDef, itemDef));
 						}
 					}
@@ -266,8 +269,10 @@ namespace TPDespair.ZetAspects
 			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
 			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
 
-			foreach (EquipmentDef targetEquipDef in AspectRenderEquipment)
+			foreach (KeyValuePair<EquipmentDef, ItemDef> kvp in AspectRenders)
 			{
+				EquipmentDef targetEquipDef = kvp.Key;
+
 				if (isDead && targetEquipDef == Catalog.Equip.AffixVoid) continue;
 
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;

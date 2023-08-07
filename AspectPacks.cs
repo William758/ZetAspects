@@ -1711,7 +1711,7 @@ namespace TPDespair.ZetAspects
 				index = EquipmentCatalog.FindEquipmentIndex("NemesisRisingTides_AffixBuffered");
 				if (index != EquipmentIndex.None)
 				{
-                    if (Compat.NemRisingTides.GetBufferedEnabled())
+					if (Compat.NemRisingTides.GetBufferedEnabled())
 					{
 						Equip.AffixBuffered = EquipmentCatalog.GetEquipmentDef(index);
 					}

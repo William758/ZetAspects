@@ -104,6 +104,8 @@ Chinese translation by BTP-G.
 
 ## Changelog:
 
+v2.7.33 - Fixed Equipment not applying elite displays.
+
 v2.7.32 - Fixed NemRisingTides Aspects not being disabled if the mod isn't installed.
 
 v2.7.31 - Update Chinese translation. Added support for NemRisingTides.
