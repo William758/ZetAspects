@@ -250,6 +250,21 @@ RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>Aspect of Extrinsica
 RegisterFragment("PASSIVE_RED_FISSURE", "\nCreate a red fissure that spews projectiles.");
 RegisterFragment("SCAR_ON_HIT", "\nAttacks <style=cIsDamage>scar</style> all enemies on hit, dealing damage over time.");
 
+RegisterFragment("AFFIX_BUFFERED_NAME", "Combined Efforts");
+RegisterFragment("AFFIX_BUFFERED_PICKUP", "Become an aspect of unity.");
+RegisterFragment("AFFIX_BUFFERED_ACTIVE", "Gain some barrier.");
+RegisterFragment("ASPECT_OF_UNITY_NEM", "<style=cDeath>Aspect of Unity</style> :");
+RegisterFragment("PASSIVE_BARRIER_STOP_NEM", "\nBarrier does not decay.");
+RegisterFragment("FORCE_IMMUNE_BARRIER_NEM", "\nImmune to knockback while <style=cIsHealing>barrier</style> is active.");
+
+RegisterFragment("AFFIX_OPPRESSIVE_NAME", "Titanic Pause");
+RegisterFragment("AFFIX_OPPRESSIVE_PICKUP", "Become an aspect of domination.");
+RegisterFragment("AFFIX_OPPRESSIVE_ACTIVE", "Forcefully drop nearby enemies.");
+RegisterFragment("ASPECT_OF_DOMINATION", "<style=cDeath>Aspect of Domination</style> :");
+RegisterFragment("PASSIVE_GRAVITY_ZONE", "\nEmit an aura that <style=cIsUtility>increases gravity</style> for nearby enemies.");
+RegisterFragment("PULLDOWN_ON_HIT_NEM", "\nAttacks <style=cIsUtility>pull down</style> airborne enemies on hit.");
+RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(Jumping is disabled by pull down)</style>");
+
 
 
 RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
