@@ -20,8 +20,8 @@ namespace TPDespair.ZetAspects
 
 			DirectStatHook();
 
-			OverloadingShieldConversionHook();
-			OtherShieldConversionHook();
+			DisableOverloadingShieldConversionHook();
+			ShieldConversionHook();
 			FullShieldConversionHook();
 		}
 
@@ -927,43 +927,32 @@ namespace TPDespair.ZetAspects
 
 
 
-		private static void OverloadingShieldConversionHook()
+		private static void DisableOverloadingShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(0),
 					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
 					x => x.MatchCall<CharacterBody>("HasBuff")
 				);
 
 				if (found)
 				{
-					c.Index += 7;
+					c.Index += 2;
 
-					// Set health conversion factor
 					c.Emit(OpCodes.Pop);
-					c.EmitDelegate<Func<float>>(() =>
-					{
-						return Mathf.Abs(Configuration.AspectBlueHealthConverted.Value);
-					});
-
-					c.Index += 11;
-
-					// Add converted health to shield
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 66);
+					c.Emit(OpCodes.Ldc_I4, 0);
 				}
 				else
 				{
-					Logger.Warn("OverloadingShieldConversionHook Failed");
+					Logger.Warn("DisableOverloadingShieldConversionHook Failed");
 				}
 			};
 		}
 
-		private static void OtherShieldConversionHook()
+		private static void ShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
 			{
@@ -984,23 +973,41 @@ namespace TPDespair.ZetAspects
 						c.Emit(OpCodes.Ldarg, 0);
 						c.EmitDelegate<Action<CharacterBody>>((body) =>
 						{
-							if (Compat.WarWisp.shieldOverrideHook && body.HasBuff(Catalog.Buff.AffixNullifier))
-							{
-								float converted = body.maxHealth * Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 0.9f);
+							float healthRemaining = 1f;
 
-								body.maxHealth -= converted;
+							if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
+							{
+								if (body.HasBuff(Catalog.Buff.AffixBlue) && Configuration.AspectBlueHealthConverted.Value > 0f)
+								{
+									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectBlueHealthConverted.Value, 0f, 1f);
+								}
+							}
+
+							if (Compat.WarWisp.shieldOverrideHook)
+							{
+								if (body.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierHealthConverted.Value > 0f)
+								{
+									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 1f);
+								}
+							}
+
+							if (healthRemaining < 1f)
+                            {
+                                float converted = body.maxHealth * (1f - healthRemaining);
+
+								body.maxHealth = Mathf.Max(1f, body.maxHealth - converted);
 								body.maxShield += converted;
 							}
 						});
 					}
 					else
 					{
-						Logger.Warn("OtherShieldConversionHook:FindSetShield Failed");
+						Logger.Warn("ShieldConversionHook:FindSetShield Failed");
 					}
 				}
 				else
 				{
-					Logger.Warn("OtherShieldConversionHook:FindRegenScaleVar Failed");
+					Logger.Warn("ShieldConversionHook:FindRegenScaleVar Failed");
 				}
 			};
 		}

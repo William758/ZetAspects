@@ -46,7 +46,8 @@ namespace TPDespair.ZetAspects
 			InterceptAspectDropHook();
 			EquipmentAbsorbHook();
 			DiscoverAspectHook();
-			EquipmentConvertHook();
+			//EquipmentConvertHook();
+			UserChatHook();
 			EquipmentIconHook();
 		}
 
@@ -664,7 +665,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-
+		/*
 		private static void EquipmentConvertHook()
 		{
 			Chat.onChatChanged += delegate ()
@@ -696,7 +697,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-
+		
 		private static Chat.UserChatMessage ReconstructMessage(string message)
 		{
 			Match match = Regex.Match(message, "<color=#e5eefc><noparse>(.+?)<\\/noparse>: <noparse>(.+?)<\\/noparse><\\/color>", RegexOptions.Compiled);
@@ -723,6 +724,44 @@ namespace TPDespair.ZetAspects
 				sender = gameObject,
 				text = match.Groups[2].Value.Trim()
 			};
+		}
+		*/
+		private static void UserChatHook()
+		{
+			On.RoR2.Chat.UserChatMessage.ConstructChatString += (orig, self) =>
+			{
+				string result = orig(self);
+
+				if (NetworkServer.active && Configuration.AspectEquipmentConversion.Value)
+				{
+					if (self.sender && self.text.ToLowerInvariant() == "convertaspect")
+					{
+						NetworkUser user = self.sender.GetComponent<NetworkUser>();
+						if (user)
+						{
+							AttemptEquipmentConversion(user);
+						}
+					}
+				}
+
+				return result;
+			};
+		}
+
+		private static void AttemptEquipmentConversion(NetworkUser user)
+		{
+			CharacterMaster master = user.master;
+			if (!master) return;
+
+			Inventory inventory = master.inventory;
+			if (!inventory) return;
+
+			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
+			if (itemIndex != ItemIndex.None)
+			{
+				inventory.GiveItem(itemIndex);
+				inventory.SetEquipmentIndex(EquipmentIndex.None);
+			}
 		}
 
 		private static void EquipmentIconHook()

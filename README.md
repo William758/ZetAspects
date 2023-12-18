@@ -104,6 +104,8 @@ Chinese translation by BTP-G.
 
 ## Changelog:
 
+v2.7.34 - Fixed equipment conversion without username in chat message. Simplify shield conversion for improved mod compatibility. Updated Korean translation.
+
 v2.7.33 - Fixed Equipment not applying elite displays.
 
 v2.7.32 - Fixed NemRisingTides Aspects not being disabled if the mod isn't installed.

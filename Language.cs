@@ -674,17 +674,17 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_WHITE_ACTIVE", "스킬을 비활성화하는 얼음 결정을 배치합니다.");
 			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "체력을 흡수하는 얼음 결정을 배치합니다.");
 			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>얼음의 형태</style> :");
-			RegisterFragment("CHILL_ON_HIT", "\n공격 적중 시 <style=cIsUtility>냉기</style>를 부여해 {0}, <style=cIsUtility>이동 속도</style>를 <style=cIsUtility>80%</style> 감소시킵니다.");
-			RegisterFragment("CHANCE_TO_FREEZE", "\n공격은 {0} 확률로 {1} <style=cIsUtility>동결</style> 시킵니다.");
-			RegisterFragment("FROST_BLADE", "\n공격 시 {0} 피해를 입히는 <style=cIsDamage>날</style>을 발사합니다.");
+			RegisterFragment("CHILL_ON_HIT", "\n공격 적중 시 <style=cIsUtility>냉기</style>를 부여해 {0}, <style=cIsUtility>이동 속도</style> 를 <style=cIsUtility>80%</style> 감소시킵니다.");
+			RegisterFragment("CHANCE_TO_FREEZE", "\n공격은 {0}의 확률로 {1} <style=cIsUtility>동결</style> 시킵니다.");
+			RegisterFragment("FROST_BLADE", "\n공격 시  {0} 피해를 입히는 <style=cIsDamage>날</style>을 발사합니다.");
 
 			RegisterFragment("AFFIX_BLUE_NAME", "두 타격 사이의 고요");
 			RegisterFragment("AFFIX_BLUE_PICKUP", "번개의 한 형태가 됩니다.");
 			RegisterFragment("AFFIX_BLUE_ACTIVE", "텔레포트 사용.");
 			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>번개의 형태</style> :");
 			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n때때로 주변에 분산 폭탄을 떨어뜨립니다.");
-			RegisterFragment("SAP_ON_HIT", "\n공격 적중 시 <style=cIsUtility>부하</style>를 부여해 {0}, <style=cIsUtility>피해량</style>을 {1} 감소시킵니다.");
-			RegisterFragment("SCATTER_BOMB", "\n공격 시 {0} 의 피해를 주는 폭발하는 산란 폭탄을 투하합니다.");
+			RegisterFragment("SAP_ON_HIT", "\n공격 적중 시 <style=cIsUtility>부하</style>를 부여해 {0}, <style=cIsUtility>피해</style>를 {1} 감소시킵니다.");
+			RegisterFragment("SCATTER_BOMB", "\n공격 시  {0} 의 피해를 주는 폭발하는 산란 폭탄을 투하합니다.");
 			RegisterFragment("LIGHTNING_BOMB", "\n공격 적중 시 {1} 폭발하는 <style=cIsDamage>폭탄</style>을 부착하여 {0} 피해를 입힙니다.");
 
 			RegisterFragment("AFFIX_RED_NAME", "이프리트의 차이");
@@ -699,7 +699,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "주변 아군에게 일시적으로 타격을 피할 수 있는 기회를 부여합니다.");
 			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>무형의 형태</style> :");
 			RegisterFragment("PASSIVE_GHOST_AURA", "\n주변 아군을 은폐하는 오라를 발산합니다.");
-			RegisterFragment("PASSIVE_POSSESS", "\n주변 아군들에게 들러붙어 빙의합니다.");
+			RegisterFragment("PASSIVE_POSSESS", "\n주변 아군들에게 빙의합니다.");
 			RegisterFragment("SHRED_ON_HIT", "\n공격 적중 시 <style=cIsDamage>파쇄</style>를 부여해 {0}, <style=cIsDamage>방어력</style>을 {1} 감소시킵니다.");
 			RegisterFragment("GHOST_ARMOR", "\n주변 아군에게 {0} 추가 <style=cIsHealing>방어력</style>을 부여합니다.");
 			RegisterFragment("GHOST_DODGE", "\n주변 아군에게 {0} 확률의 <style=cIsHealing>회피</style> 기회를 부여합니다.");
@@ -737,7 +737,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_VOID_PICKUP", "공허의 한 형태가 됩니다.");
 			RegisterFragment("AFFIX_VOID_ACTIVE", "모든 재사용 대기시간을 재설정합니다.");
 			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>공허의 형태</style> :");
-			RegisterFragment("PASSIVE_BLOCK", "\n피해를 한 번 <style=cIsHealing>무시</style>합니다. 지연 후 재충전됩니다.");
+			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>차단</style> 피해를 한 번 무시합니다. 지연 후 재충전됩니다.");
 			RegisterFragment("NULLIFY_ON_HIT", "\n공격 적중 시 {0} <style=cIsUtility>무효</style>를 부여합니다.");
 			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(무효 중첩이 3개인 적은 3초 동안 속박됩니다)</style>");
 			RegisterFragment("COLLAPSE_DOT", "\n공격 적중 시 <style=cIsDamage>붕괴</style>를 부여하고 {2}, {0} {1} 피해를 입힙니다.");
@@ -745,7 +745,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>모든 형태를 오염시킵니다</style>.");
 
 			RegisterFragment("AFFIX_PLATED_NAME", "복종의 합금");
-			RegisterFragment("AFFIX_PLATED_PICKUP", "인내의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "인내의 한 형태가  됩니다.");
 			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>인내의 형태</style> :");
 			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\n큰 피해를 완화하는 방어 장갑을 얻습니다.");
@@ -767,7 +767,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ELUSIVE_ON_HIT", "\n공격 적중 시 <style=cIsUtility>은신</style> 합니다.");
 			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(은신은 {0} 이동 속도 부여)</style>");
 			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(은신은 {0} 회피 확률 부여)</style>");
-			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(은신은 {0} 이동 속도 증가와 {1} 회피 확률 증가)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(은신은 {0} 이동 속도와 {1} 회피 확률 부여)</style>");
 			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(은신 효과 및 추가 능력은 매초마다 {0} 씩 사라집니다)</style>");
 			RegisterFragment("ELUSIVE_EFFECT", "\n은신 시 효과 {0}.");
 
@@ -809,7 +809,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>무효의 형태</style> :");
 			RegisterFragment("PASSIVE_NULL_AURA", "\n근처의 아군을 보호하고 적에게 디버프를 주는 오라를 발산합니다.");
 			RegisterFragment("NULL_ON_HIT", "\n공격 적중 시 <style=cIsUtility>파기</style>를 부여합니다..");
-			RegisterFragment("NULL_ON_HIT_SPD", "\n공격 적중 시<style=cIsUtility>파기</style>를 부여해, <style=cIsUtility>이동 속도</style>를 {0} 감소시킵니다.");
+			RegisterFragment("NULL_ON_HIT_SPD", "\n공격 적중 시 <style=cIsUtility>파기</style>를 부여해, <style=cIsUtility>이동 속도</style>를 {0} 감소시킵니다.");
 
 			RegisterFragment("AFFIX_BLIGHTED_NAME", "방벽의 배신");
 			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "쇠퇴의 한 형태가 됩니다.");
@@ -817,6 +817,67 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>쇠퇴의 형태</style> :");
 			RegisterFragment("PASSIVE_BLIGHT", "\n임의의 엘리트 형태를 2개 획득합니다.");
 
+			RegisterFragment("AFFIX_BARRIER_NAME", "결합의 노고");
+			RegisterFragment("AFFIX_BARRIER_PICKUP", "결합의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_BARRIER_ACTIVE", "보호막을 얻습니다.");
+			RegisterFragment("ASPECT_OF_UNITY", "<style=cDeath>결합의 형태</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP", "\n보호막은 붕괴되지 않습니다.");
+			RegisterFragment("FORCE_IMMUNE_BARRIER", "\n<style=cIsHealing>보호막</style>이 활성화되어 있는 동안 넉백에 면역을 갖습니다.");
+			RegisterFragment("RANDOM_DEBUFF_ON_HIT", "\n공격 적중 시 <style=cIsUtility>임의의 디버프</style>를 부여합니다.");
+
+			RegisterFragment("AFFIX_BLACKHOLE_NAME", "또다른 정신");
+			RegisterFragment("AFFIX_BLACKHOLE_PICKUP", "침략의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_BLACKHOLE_ACTIVE", "Fire a homing attack at all marked enemies.");
+			RegisterFragment("ASPECT_OF_INVASION", "<style=cDeath>침략의 형태</style> :");
+			RegisterFragment("BLACKMARK_ON_HIT", "\n공격 적중 시 <style=cIsDamage>흔적</style>을 부여하고 <style=cIsDamage>7번</style>의 중첩시 폭발하여<style=cIsDamage>{0}</style> <style=cStack>(레벨당 +{1})</style> 피해를 입힙니다.");
+
+			RegisterFragment("AFFIX_MONEY_NAME", "암석의 분노");
+			RegisterFragment("AFFIX_MONEY_PICKUP", "자기의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_MONEY_ACTIVE", "다가오는 모든 발사체를 일시적으로 정지시킵니다.");
+			RegisterFragment("ASPECT_OF_POLARITY", "<style=cDeath>자기의 형태</style> :");
+			RegisterFragment("PASSIVE_DRAIN_MONEY", "\n주변 적들의 돈을 훔칩니다.");
+			RegisterFragment("GOLD_FROM_KILL", "\n처치시 골드 획득량이 {0} 증가합니다.");
+			RegisterFragment("PULLDOWN_ON_HIT", "\n공격 적중 시 </style>공중에 떠 있는 적들을 <style=cIsUtility>떨어뜨립니다.");
+
+			RegisterFragment("AFFIX_NIGHT_NAME", "방벽의 부재");
+			RegisterFragment("AFFIX_NIGHT_PICKUP", "밤의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_NIGHT_ACTIVE", "일시적으로 보이지 않게 됩니다.");
+			RegisterFragment("ASPECT_OF_DARKNESS", "<style=cDeath>밤의 형태</style> :");
+			RegisterFragment("NIGHTBLIND_ON_HIT", "\n공격 적중 시 <style=cIsUtility>실명</style>을 부여하여 {0}, 명중률을 {1} 감소시킵니다.");
+			RegisterFragment("NIGHTBLIND_DETAIL", "\n<style=cStack>(시야가 {0} 로 줄어듭니다.)</style>");
+			RegisterFragment("OOD_NIGHT_ATKSPD", "\n위험에서 벗어난 동안 {0} <style=cIsDamage>공격 속도</style> 를 얻습니다.");
+			RegisterFragment("OOD_NIGHT_MOVSPD", "\n위험에서 벗어난 동안 {0} <style=cIsUtility>이동 속도</style> 와 {1} <style=cIsDamage>공격 속도</style>를 얻습니다.");
+			RegisterFragment("OOD_NIGHT_BOTHSAMESPD", "\n위험에서 벗어난 동안 {0} <style=cIsUtility>이동 속도</style> 와 <style=cIsDamage>공격 속도</style> 를 얻습니다.");
+			RegisterFragment("OOD_NIGHT_BOTHDIFFSPD", "\n위엄에서 벗어난 동안 {0} <style=cIsUtility>이동 속도</style> 와 {1} <style=cIsDamage>공격 속도</style> 를 얻습니다.");
+
+			RegisterFragment("AFFIX_WATER_NAME", "페트렐 폭풍의 목격담");
+			RegisterFragment("AFFIX_WATER_PICKUP", "가변성의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_WATER_ACTIVE", "모든 디버프를 해제하고 회복합니다.");
+			RegisterFragment("ASPECT_OF_ALTERABILITY", "<style=cDeath>가변성의 형태</style> :");
+			RegisterFragment("PASSIVE_IDLE_INVULN", "\n어떠한 능력도 사용하지 않을 시 무적상태가 됩니다.");
+			RegisterFragment("BUBBLE_ON_HIT", "\n공격 적중 시 적을 방울 안에 <style=cIsUtility>감금</style> 시킵니다.");
+
+			RegisterFragment("AFFIX_REALGAR_NAME", "차원의 충돌");
+			RegisterFragment("AFFIX_REALGAR_PICKUP", "외부의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_REALGAR_ACTIVE", "시간 경과에 따른 모든 피해 효과에 일시적 면역이 됩니다.");
+			RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>외부의 형태</style> :");
+			RegisterFragment("PASSIVE_RED_FISSURE", "\n투사체를 뿜어내는 붉은 균열을 생성합니다.");
+			RegisterFragment("SCAR_ON_HIT", "\n공격 적중 시 <style=cIsDamage>흉터</style>를 부여해 지속적인 피해를 입힙니다.");
+
+			RegisterFragment("AFFIX_BUFFERED_NAME", "결합 된 노고");
+			RegisterFragment("AFFIX_BUFFERED_PICKUP", "결합의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_BUFFERED_ACTIVE", "보호막을 얻습니다.");
+			RegisterFragment("ASPECT_OF_UNITY_NEM", "<style=cDeath>결합의 형태</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP_NEM", "\n보호막은 붕괴되지 않습니다.");
+			RegisterFragment("FORCE_IMMUNE_BARRIER_NEM", "\n<style=cIsHealing>보호막</style>이 활성화되어 있는 동안 넉백에 면역을 갖습니다.");
+
+			RegisterFragment("AFFIX_OPPRESSIVE_NAME", "티탄의 중단");
+			RegisterFragment("AFFIX_OPPRESSIVE_PICKUP", "지배의 한 형태가 됩니다.");
+			RegisterFragment("AFFIX_OPPRESSIVE_ACTIVE", "주변적들을 강제로 떨어뜨립니다.");
+			RegisterFragment("ASPECT_OF_DOMINATION", "<style=cDeath>지배의 형태</style> :");
+			RegisterFragment("PASSIVE_GRAVITY_ZONE", "\n주변 적의 <style=cIsUtility>중력을 증가</style>시키는 오라를 발산합니다.");
+			RegisterFragment("PULLDOWN_ON_HIT_NEM", "\n공격 적중 시 공중에 떠 있는 적을 <style=cIsUtility>끌어내립니다</style> .");
+			RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(아래로 당기면 점프가 비활성화됩니다)</style>");
 
 
 			RegisterFragment("NEARBY_ARMOR", "\n주변 아군에게 {0} 추가 <style=cIsHealing>방어력</style>을 부여합니다.");
@@ -827,7 +888,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("CONVERT_SHIELD_REGEN", "\n최소 {0} 의 <style=cIsHealing>체력 재생</style> 이 <style=cIsHealing>보호막</style>에 적용됩니다.");
 			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(자연 보호막 복구 비활성화)</style>");
 
-			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\n최대 체력의 {0} 해당하는 추가 <style=cIsHealing>보호막</style>을 얻습니다.");
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\n추가 <style=cIsHealing>보호막</style>으로 {0}의 체력을 얻습니다.");
 			RegisterFragment("STAT_EXTRA_JUMP", "\n최대 <style=cIsUtility>점프 횟수</style>를 <style=cIsUtility>+1</style> 얻습니다.");
 			RegisterFragment("STAT_MOVESPEED", "\n<style=cIsUtility>이동 속도</style>를 {0} 증가시킵니다.");
 			RegisterFragment("STAT_ATTACKSPEED", "\n<style=cIsDamage>공격 속도</style>를 {0} 증가시킵니다.");
@@ -836,7 +897,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_HEALTH", "\n<style=cIsHealing>최대 체력</style>을 {0} 증가시킵니다.");
 			RegisterFragment("STAT_REGENERATION", "\n<style=cIsHealing>체력 재생</style>을 {0} 증가시킵니다.");
 			RegisterFragment("STAT_DAMAGE", "\n<style=cIsDamage>피해량</style>을 {0} 증가시킵니다.");
-			RegisterFragment("STAT_COOLDOWN", "\n<style=cIsUtility>스킬 재사용 대기시간</style>을 {0} 감소시킵니다.");
+			RegisterFragment("STAT_COOLDOWN", "\n<style=cIsUtility>재사용 대기시간</style>을 {0} 감소시킵니다.");
 
 			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\n대량의 <style=cIsHealing>재생 보호막</style>을 얻습니다.");
 
