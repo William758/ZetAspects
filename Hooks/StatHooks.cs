@@ -20,6 +20,7 @@ namespace TPDespair.ZetAspects
 
 			DirectStatHook();
 
+			//IL.RoR2.CharacterBody.RecalculateStats += RecalculateStatsEmpyreanIL;
 			DisableOverloadingShieldConversionHook();
 			ShieldConversionHook();
 			FullShieldConversionHook();
@@ -926,7 +927,39 @@ namespace TPDespair.ZetAspects
 		}
 
 
+		/*
+		private static void RecalculateStatsEmpyreanIL(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
 
+			bool ILFound = c.TryGotoNext(MoveType.After,
+				x => x.MatchLdsfld(typeof(RoR2Content.Buffs), nameof(RoR2Content.Buffs.AffixBlue)),
+				x => x.MatchCallOrCallvirt<CharacterBody>(nameof(CharacterBody.HasBuff)),
+				x => x.MatchBrfalse(out _),
+				x => x.MatchLdarg(0),
+				x => x.MatchCallOrCallvirt<CharacterBody>("get_maxHealth"),
+				x => x.MatchLdcR4(0.5f)
+			);
+
+			if (ILFound)
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate<Func<float, CharacterBody, float>>((defaultPercentage, body) =>
+				{
+					if (body.HasBuff(JunkContent.Buffs.MeatRegenBoost))
+					{
+						return 0.1f;
+					}
+					return defaultPercentage;
+				});
+				Debug.Log(il);
+			}
+			else
+			{
+				Debug.Log("Failed to find IL match for Empyrean hook 1!");
+			}
+		}
+		*/
 		private static void DisableOverloadingShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
@@ -992,8 +1025,8 @@ namespace TPDespair.ZetAspects
 							}
 
 							if (healthRemaining < 1f)
-                            {
-                                float converted = body.maxHealth * (1f - healthRemaining);
+							{
+								float converted = body.maxHealth * (1f - healthRemaining);
 
 								body.maxHealth = Mathf.Max(1f, body.maxHealth - converted);
 								body.maxShield += converted;

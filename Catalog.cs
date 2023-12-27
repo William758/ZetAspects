@@ -968,6 +968,8 @@ namespace TPDespair.ZetAspects
 			{
 				if (itemDef && aspectItemIndexes.Contains(itemDef.itemIndex))
 				{
+					if (Configuration.LogbookHideItem.Value) return false;
+
 					if (DropHooks.CanObtainItem() && HasRequiredExpansion(itemDef.requiredExpansion, expAva))
 					{
 						if (!disabledItemIndexes.Contains(itemDef.itemIndex)) return true;
@@ -986,6 +988,8 @@ namespace TPDespair.ZetAspects
 			{
 				if (equipDef && aspectEquipIndexes.Contains(equipDef.equipmentIndex))
 				{
+					if (Configuration.LogbookHideEquipment.Value) return false;
+
 					if (DropHooks.CanObtainEquipment() && HasRequiredExpansion(equipDef.requiredExpansion, expAva))
 					{
 						ItemIndex itemIndex = ItemizeEliteEquipment(equipDef.equipmentIndex);
@@ -1443,6 +1447,14 @@ namespace TPDespair.ZetAspects
 
 		public static void CopyItemPrefab(ItemDef itemDef, EquipmentDef equipDef)
 		{
+			if (!itemDef) return;
+
+			if (!equipDef)
+			{
+				Logger.Warn("Could not copy model prefab FROM " + itemDef.name + " because its associated equipment was not found!");
+				return;
+			}
+
 			equipDef.pickupModelPrefab = itemDef.pickupModelPrefab;
 			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
 			pickupDef.displayPrefab = itemDef.pickupModelPrefab;

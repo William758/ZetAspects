@@ -13,6 +13,9 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectSkinItemApply { get; set; }
 		public static ConfigEntry<bool> AspectSkinEquipmentPriority { get; set; }
 
+		public static ConfigEntry<bool> LogbookHideItem { get; set; }
+		public static ConfigEntry<bool> LogbookHideEquipment { get; set; }
+
 		public static ConfigEntry<bool> AspectDropVerboseLogging { get; set; }
 		public static ConfigEntry<float> AspectDropChance { get; set; }
 		public static ConfigEntry<float> AspectDropChanceMultiplayerFactor { get; set; }
@@ -351,6 +354,15 @@ namespace TPDespair.ZetAspects
 			AspectSkinEquipmentPriority = Config.Bind(
 				"0a-General", "eliteEquipmentSkinPriority", true,
 				"Whether elite equipment skin takes priority."
+			);
+
+			LogbookHideItem = Config.Bind(
+				"0a-General", "logbookHideItem", false,
+				"Hide itemized aspects from the logbook."
+			);
+			LogbookHideEquipment = Config.Bind(
+				"0a-General", "logbookHideEquipment", false,
+				"Hide aspect equipment from the logbook."
 			);
 
 
