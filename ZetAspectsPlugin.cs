@@ -4,6 +4,7 @@ using UnityEngine;
 
 using System.Security;
 using System.Security.Permissions;
+using HarmonyLib;
 
 [module: UnverifiableCode]
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -27,17 +28,22 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	//[BepInDependency("prodzpod.NemesisRisingTides", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
+	[BepInDependency("com.Nuxlar.MoreElites", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.7.35";
+		public const string ModVer = "2.7.36";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
+
+		public static Harmony harmony;
 
 
 
 		public void Awake()
 		{
+			harmony = new Harmony(ModGuid);
+
 			Configuration.Init(Config);
 			ZetAspects.Logger.logSource = Logger;
 			Catalog.OnAwake();
@@ -69,6 +75,8 @@ namespace TPDespair.ZetAspects
 			// - NemSpikeStrip is LateSetup only
 
 			// - NemRisingTides
+
+			if (Catalog.MoreElites.Enabled && Configuration.MoreElitesHooks.Value) Compat.MoreElites.Init();
 
 			Language.Init();
 		}
@@ -114,6 +122,11 @@ namespace TPDespair.ZetAspects
 
 				CreateDroplet(Catalog.Equip.AffixBuffered, transform.position + new Vector3(0f, 5f, -7.5f));
 				CreateDroplet(Catalog.Equip.AffixOppressive, transform.position + new Vector3(5f, 5f, -5f));
+
+				CreateDroplet(Catalog.Equip.AffixEmpowering, transform.position + new Vector3(-10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixFrenzied, transform.position + new Vector3(0f, 10f, 15f));
+				CreateDroplet(Catalog.Equip.AffixVolatile, transform.position + new Vector3(10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixEcho, transform.position + new Vector3(-10f, 10f, -10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F4))

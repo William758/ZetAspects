@@ -265,6 +265,32 @@ RegisterFragment("PASSIVE_GRAVITY_ZONE", "\nEmit an aura that <style=cIsUtility>
 RegisterFragment("PULLDOWN_ON_HIT_NEM", "\nAttacks <style=cIsUtility>pull down</style> airborne enemies on hit.");
 RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(Jumping is disabled by pull down)</style>");
 
+RegisterFragment("AFFIX_EMPOWERING_NAME", "Empowering Aspect");
+RegisterFragment("AFFIX_EMPOWERING_PICKUP", "Become an aspect of empowering.");
+RegisterFragment("AFFIX_EMPOWERING_ACTIVE", "<style=cStack>(???)</style>");
+RegisterFragment("ASPECT_OF_EMPOWERING", "<style=cDeath>Aspect of Empowering</style> :");
+RegisterFragment("PASSIVE_WARBANNER_AURA", "\nEmit an aura that empowers you and nearby allies.");
+RegisterFragment("AURA_WARBANNER", "\nGrants you and nearby allies {0} increased <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style>.");
+
+RegisterFragment("AFFIX_FRENZIED_NAME", "Frenzied Aspect");
+RegisterFragment("AFFIX_FRENZIED_PICKUP", "Become an aspect of frenzy.");
+RegisterFragment("AFFIX_FRENZIED_ACTIVE", "Teleport to a nearby enemy");
+RegisterFragment("ASPECT_OF_FRENZIED", "<style=cDeath>Aspect of Frenzy</style> :");
+
+RegisterFragment("AFFIX_VOLATILE_NAME", "Volatile Aspect");
+RegisterFragment("AFFIX_VOLATILE_PICKUP", "Become an aspect of volatile.");
+RegisterFragment("AFFIX_VOLATILE_ACTIVE", "<style=cStack>(???)</style>");
+RegisterFragment("ASPECT_OF_VOLATILE", "<style=cDeath>Aspect of Volatile</style> :");
+RegisterFragment("PASSIVE_VOLMISSILE", "\nOccasionally fire a seeking missile.");
+RegisterFragment("EXPLODE_ON_HIT", "\nAttacks <style=cIsDamage>explode</style> on hit, dealing {0} TOTAL damage.");
+
+RegisterFragment("AFFIX_ECHO_NAME", "Echo Aspect");
+RegisterFragment("AFFIX_ECHO_PICKUP", "Become an aspect of echo.");
+RegisterFragment("AFFIX_ECHO_ACTIVE", "<style=cStack>(???)</style>");
+RegisterFragment("ASPECT_OF_ECHO", "<style=cDeath>Aspect of Echo</style> :");
+RegisterFragment("PASSIVE_ECHOCLONE", "\nSpawn 2 clones of yourself.");
+
+
 
 
 RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -287,6 +313,7 @@ RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health rege
 RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
 RegisterFragment("STAT_DAMAGE_TAKEN", "\nReduces <style=cIsHealing>damage taken</style> by {0}.");
+RegisterFragment("STAT_DAMAGE_TAKEN_MINION", "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.");
 RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\nReduces <style=cIsHealing>damage taken</style> by {0} while <style=cIsHealing>barrier</style> is active.");
 
 RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");

@@ -52,6 +52,10 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightRealgar { get; set; }
 		public static ConfigEntry<float> AspectDropWeightBuffered { get; set; }
 		public static ConfigEntry<float> AspectDropWeightOppressive { get; set; }
+		public static ConfigEntry<float> AspectDropWeightEmpowering { get; set; }
+		public static ConfigEntry<float> AspectDropWeightFrenzied { get; set; }
+		public static ConfigEntry<float> AspectDropWeightVolatile { get; set; }
+		public static ConfigEntry<float> AspectDropWeightEcho { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -85,6 +89,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> BlightedHooks { get; set; }
 		public static ConfigEntry<bool> GotceHooks { get; set; }
 		public static ConfigEntry<bool> RisingTidesHooks { get; set; }
+		public static ConfigEntry<bool> MoreElitesHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -308,6 +313,29 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBufferedBaseBarrierDamageReductionGain { get; set; }
 		public static ConfigEntry<float> AspectBufferedStackBarrierDamageReductionGain { get; set; }
 
+		public static ConfigEntry<float> AspectEmpoweringBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectEmpoweringStackDamageGain { get; set; }
+
+		public static ConfigEntry<float> AspectFrenziedBaseMovementGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackMovementGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterMovementMult { get; set; }
+		public static ConfigEntry<float> AspectFrenziedBaseAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackAtkSpdGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterAtkSpdMult { get; set; }
+		public static ConfigEntry<float> AspectFrenziedBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectFrenziedMonsterCooldownMult { get; set; }
+
+		public static ConfigEntry<float> AspectVolatileBaseDamage { get; set; }
+		public static ConfigEntry<float> AspectVolatileStackDamage { get; set; }
+		public static ConfigEntry<float> AspectVolatileMonsterDamageMult { get; set; }
+
+		public static ConfigEntry<float> AspectEchoBaseMinionDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectEchoStackMinionDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectEchoBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectEchoStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectEchoMonsterCooldownMult { get; set; }
+
 
 
 		public static bool ValidElusiveModifier = false;
@@ -514,6 +542,22 @@ namespace TPDespair.ZetAspects
 					"0b-DropWeight", "aspectDropWeightOppressive", 1f,
 					"Drop chance multiplier for AffixOppressive"
 				);
+				AspectDropWeightEmpowering = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightEmpowering", 1f,
+					"Drop chance multiplier for AffixEmpowering"
+				);
+				AspectDropWeightFrenzied = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightFrenzied", 1f,
+					"Drop chance multiplier for AffixFrenzied"
+				);
+				AspectDropWeightVolatile = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightVolatile", 1f,
+					"Drop chance multiplier for AffixVolatile"
+				);
+				AspectDropWeightEcho = Config.Bind(
+					"0b-DropWeight", "aspectDropWeightEcho", 1f,
+					"Drop chance multiplier for AffixEcho"
+				);
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -646,6 +690,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "risingTidesHooks", true,
 				"Allows for the reading and modification of functions and values within the RisingTides mod."
 			);
+			MoreElitesHooks = Config.Bind(
+				"21-Mod Compatibility", "moreElitesHooks", true,
+				"Allows for the reading and modification of functions and values within the MoreElites mod."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -658,6 +706,7 @@ namespace TPDespair.ZetAspects
 			ThalassoConfigs(Config);
 			RisingTidesConfigs(Config);
 			NemRisingTidesConfigs(Config);
+			MoreElitesConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1531,6 +1580,89 @@ namespace TPDespair.ZetAspects
 			AspectBufferedStackBarrierDamageReductionGain = Config.Bind(
 				"2kb-AspectBuffered", "bufferedStackBarrierDamageReduction", 0.15f,
 				"Damage reduction gained per stack while barrier is active."
+			);
+		}
+
+		private static void MoreElitesConfigs(ConfigFile Config)
+		{
+			AspectEmpoweringBaseDamageGain = Config.Bind(
+				"2la-AspectEmpowering", "empoweringBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectEmpoweringStackDamageGain = Config.Bind(
+				"2la-AspectEmpowering", "empoweringAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+
+			AspectFrenziedBaseMovementGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedBaseMovementGained", 0.20f,
+				"Movement speed gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackMovementGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedAddedMovementGained", 0.10f,
+				"Movement speed gained per stack."
+			);
+			AspectFrenziedMonsterMovementMult = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedMonsterMovementMult", 2.5f,
+				"Monster movement speed gain multiplier."
+			);
+			AspectFrenziedBaseAtkSpdGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedBaseAtkSpdGained", 0.20f,
+				"Attack speed gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackAtkSpdGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedAddedAtkSpdGained", 0.10f,
+				"Attack speed gained per stack."
+			);
+			AspectFrenziedMonsterAtkSpdMult = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedMonsterAtkSpdMult", 1.75f,
+				"Monster attack speed gain multiplier."
+			);
+			AspectFrenziedBaseCooldownGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedBaseCooldown", 0.20f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectFrenziedStackCooldownGain = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedAddedCooldown", 0.10f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectFrenziedMonsterCooldownMult = Config.Bind(
+				"2lb-AspectFrenzied", "frenziedMonsterCooldownMult", 1.25f,
+				"Monster cooldown reduction gain multiplier."
+			);
+
+			AspectVolatileBaseDamage = Config.Bind(
+				"2lc-AspectVolatile", "volatileBaseTotalDamage", 0.20f,
+				"Base total damage of explosion. Set to 0 to disable."
+			);
+			AspectVolatileStackDamage = Config.Bind(
+				"2lc-AspectVolatile", "volatileAddedTotalDamage", 0.10f,
+				"Added total damage of explosion per stack."
+			);
+			AspectVolatileMonsterDamageMult = Config.Bind(
+				"2lc-AspectVolatile", "volatileMonsterDamageMult", 1f,
+				"Monster explosion damage multiplier."
+			);
+
+			AspectEchoBaseMinionDamageResistGain = Config.Bind(
+				"2ld-AspectEcho", "echoBaseMinionDamageResistGain", 0.20f,
+				"Minion damage taken reduction. Set to 0 to disable."
+			);
+			AspectEchoStackMinionDamageResistGain = Config.Bind(
+				"2ld-AspectEcho", "echoAddedMinionDamageResistGain", 0.10f,
+				"Minion damage taken reduction per stack."
+			);
+			AspectEchoBaseCooldownGain = Config.Bind(
+				"2ld-AspectEcho", "echoBaseCooldown", 0.20f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectEchoStackCooldownGain = Config.Bind(
+				"2ld-AspectEcho", "echoAddedCooldown", 0.10f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectEchoMonsterCooldownMult = Config.Bind(
+				"2ld-AspectEcho", "echoMonsterCooldownMult", 1f,
+				"Monster cooldown reduction gain multiplier."
 			);
 		}
 

@@ -122,6 +122,11 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixBuffered;
 			public static Sprite AffixOppressive;
 
+			public static Sprite AffixBuffing;
+			public static Sprite AffixFrenzied;
+			public static Sprite AffixVolatile;
+			public static Sprite AffixEcho;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
@@ -217,6 +222,14 @@ namespace TPDespair.ZetAspects
 				AffixBuffered = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffered.png");
 				AffixOppressive = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixOppressive.png");
 
+				if (MoreElites.Enabled)
+				{
+					AffixBuffing = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffing.png");
+					AffixFrenzied = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixFrenzied.png");
+					AffixVolatile = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVolatile.png");
+					AffixEcho = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEcho.png");
+				}
+
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -279,6 +292,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef ZetSepiaBlind;
 			public static BuffDef ZetElusive;
 			public static BuffDef ZetWarped;
+			public static BuffDef ZetEchoPrimer;
 
 			public static BuffDef BackupDebuff;
 			public static BuffDef NightSpeed;
@@ -324,6 +338,11 @@ namespace TPDespair.ZetAspects
 
 			public static BuffDef AffixBuffered;
 			public static BuffDef AffixOppressive;
+
+			public static BuffDef AffixEmpowering;
+			public static BuffDef AffixFrenzied;
+			public static BuffDef AffixVolatile;
+			public static BuffDef AffixEcho;
 		}
 
 		public static class Equip
@@ -366,6 +385,11 @@ namespace TPDespair.ZetAspects
 
 			public static EquipmentDef AffixBuffered;
 			public static EquipmentDef AffixOppressive;
+
+			public static EquipmentDef AffixEmpowering;
+			public static EquipmentDef AffixFrenzied;
+			public static EquipmentDef AffixVolatile;
+			public static EquipmentDef AffixEcho;
 		}
 
 		public static class Item
@@ -413,16 +437,25 @@ namespace TPDespair.ZetAspects
 
 			public static ItemDef ZetAspectBuffered;
 			public static ItemDef ZetAspectOppressive;
+
+			public static ItemDef ZetAspectEmpowering;
+			public static ItemDef ZetAspectFrenzied;
+			public static ItemDef ZetAspectVolatile;
+			public static ItemDef ZetAspectEcho;
 		}
 
 		public static EffectDef RejectTextDef;
 
 		public static ArtifactIndex diluvianArtifactIndex = ArtifactIndex.None;
+
 		public static BodyIndex mithrixBodyIndex = BodyIndex.None;
 		public static BodyIndex voidlingBodyIndex = BodyIndex.None;
 		public static BodyIndex urchinTurretBodyIndex = BodyIndex.None;
 		public static BodyIndex urchinOrbitalBodyIndex = BodyIndex.None;
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
+		public static BodyIndex artifactShellBodyIndex = BodyIndex.None;
+		public static BodyIndex goldenTitanBodyIndex = BodyIndex.None;
+
 		public static BuffIndex altSlow80 = BuffIndex.None;
 		public static BuffIndex antiGrav = BuffIndex.None;
 		public static BuffIndex rageAura = BuffIndex.None;
@@ -430,6 +463,9 @@ namespace TPDespair.ZetAspects
 		public static BuffIndex nullifierRecipient = BuffIndex.None;
 		public static BuffIndex waterInvuln = BuffIndex.None;
 		public static BuffIndex reactorInvuln = BuffIndex.None;
+
+		public static ItemIndex summonedEcho = ItemIndex.None;
+
 		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
 
 
@@ -673,6 +709,19 @@ namespace TPDespair.ZetAspects
 				Buff.ZetWarped = ZetWarped;
 				ZetAspectsContent.buffDefs.Add(ZetWarped);
 			}
+
+			if (MoreElites.Enabled)
+			{
+				BuffDef ZetEchoPrimer = ScriptableObject.CreateInstance<BuffDef>();
+				ZetEchoPrimer.name = "ZetEchoPrimer";
+				ZetEchoPrimer.buffColor = Color.white;
+				ZetEchoPrimer.canStack = false;
+				ZetEchoPrimer.isDebuff = false;
+				ZetEchoPrimer.isHidden = true;
+				ZetEchoPrimer.iconSprite = Sprites.ZetElusive;
+				Buff.ZetEchoPrimer = ZetEchoPrimer;
+				ZetAspectsContent.buffDefs.Add(ZetEchoPrimer);
+			}
 		}
 
 		private static void CreateItems()
@@ -852,6 +901,29 @@ namespace TPDespair.ZetAspects
 			Item.ZetAspectOppressive = ZetAspectOppressive;
 			ZetAspectsContent.itemDefs.Add(ZetAspectOppressive);
 			transformableAspectItemDefs.Add(ZetAspectOppressive);
+
+			if (MoreElites.Enabled)
+			{
+				ItemDef ZetAspectEmpowering = Items.ZetAspectEmpowering.DefineItem();
+				Item.ZetAspectEmpowering = ZetAspectEmpowering;
+				ZetAspectsContent.itemDefs.Add(ZetAspectEmpowering);
+				transformableAspectItemDefs.Add(ZetAspectEmpowering);
+
+				ItemDef ZetAspectFrenzied = Items.ZetAspectFrenzied.DefineItem();
+				Item.ZetAspectFrenzied = ZetAspectFrenzied;
+				ZetAspectsContent.itemDefs.Add(ZetAspectFrenzied);
+				transformableAspectItemDefs.Add(ZetAspectFrenzied);
+
+				ItemDef ZetAspectVolatile = Items.ZetAspectVolatile.DefineItem();
+				Item.ZetAspectVolatile = ZetAspectVolatile;
+				ZetAspectsContent.itemDefs.Add(ZetAspectVolatile);
+				transformableAspectItemDefs.Add(ZetAspectVolatile);
+
+				ItemDef ZetAspectEcho = Items.ZetAspectEcho.DefineItem();
+				Item.ZetAspectEcho = ZetAspectEcho;
+				ZetAspectsContent.itemDefs.Add(ZetAspectEcho);
+				transformableAspectItemDefs.Add(ZetAspectEcho);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -1025,6 +1097,7 @@ namespace TPDespair.ZetAspects
 			Thalasso.PreInit();
 			RisingTides.PreInit();
 			NemRisingTides.PreInit();
+			MoreElites.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -1083,6 +1156,8 @@ namespace TPDespair.ZetAspects
 				urchinOrbitalBodyIndex = BodyCatalog.FindBodyIndex("AspectAbilitiesMalachiteUrchinOrbitalBody");
 			}
 
+			summonedEcho = ItemCatalog.FindItemIndex("SummonedEcho");
+
 			ItemTierDef itemTierDef = ItemTierCatalog.FindTierDef("VoidLunarTierDef");
 			if (itemTierDef)
 			{
@@ -1110,6 +1185,8 @@ namespace TPDespair.ZetAspects
 
 			DisplayHooks.SetupRenderPriority();
 
+			DumpInfo();
+
 			Logger.Info("Catalog Setup Complete");
 
 			setupComplete = true;
@@ -1130,6 +1207,8 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("prodzpod.NemesisSpikestrip")) Compat.NemSpikeStrip.LateSetup();
 
 			//if (PluginLoaded("prodzpod.NemesisRisingTides")) Compat.NemRisingTides.LateSetup();
+
+			if (PluginLoaded("com.themysticsword.aspectabilities")) Compat.AspectAbilities.LateSetup();
 
 			setupCompat = true;
 		}
@@ -1156,6 +1235,7 @@ namespace TPDespair.ZetAspects
 			Thalasso.Init();
 			RisingTides.Init();
 			NemRisingTides.Init();
+			MoreElites.Init();
 
 			Language.ChangeText();
 
@@ -1185,6 +1265,23 @@ namespace TPDespair.ZetAspects
 						}
 					}
 				}
+			}
+		}
+
+		private static void DumpInfo()
+		{
+			Logger.Info("Catalog - Dump Info");
+			Logger.Info("-------------------");
+			Logger.Info("buffIndexes: " + aspectBuffIndexes.Count);
+
+			foreach (BuffIndex buffIndex in aspectBuffIndexes)
+			{
+				BuffDef buffDef = BuffCatalog.GetBuffDef(buffIndex);
+				EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(buffToEquip[buffIndex]);
+				ItemDef itemDef = ItemCatalog.GetItemDef(buffToItem[buffIndex]);
+
+				Logger.Info("[" + buffIndex + "] " + buffDef.name + " - isElite: " + buffDef.isElite);
+				Logger.Info("-- item: " + itemDef.name + " equip: " + equipDef.name);
 			}
 		}
 
@@ -1301,6 +1398,12 @@ namespace TPDespair.ZetAspects
 			{
 				NemRisingTides.ItemEntries(true);
 				NemRisingTides.EquipmentEntries(false);
+			}
+
+			if (MoreElites.populated)
+			{
+				MoreElites.ItemEntries(true);
+				MoreElites.EquipmentEntries(false);
 			}
 		}
 

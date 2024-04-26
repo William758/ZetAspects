@@ -88,6 +88,16 @@ Monster Nocturnal OOD attack speed multiplier : x1.5
 
 ![effects](https://i.imgur.com/g5uLb9X.png)
 
+## MoreElites:
+
+![effects](https://i.imgur.com/ySgSzGV.png)
+
+Monster Frenzied movement speed multiplier : x2.5
+
+Monster Frenzied attack speed multiplier : x1.75
+
+Monster Frenzied cooldown reduction multiplier : x1.25
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -103,6 +113,10 @@ Korean translation by 깽비#8221.
 Chinese translation by BTP-G.
 
 ## Changelog:
+
+v2.7.36 - Added support for MoreElites. Some bugfixes.
+
+v2.7.35 - Fixed possible NRE is mod setup. Added configs to hide aspect items and equipment from the logbook.
 
 v2.7.34 - Fixed equipment conversion without username in chat message. Simplify shield conversion for improved mod compatibility. Updated Korean translation.
 

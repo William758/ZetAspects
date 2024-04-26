@@ -336,6 +336,32 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PULLDOWN_ON_HIT_NEM", "\nAttacks <style=cIsUtility>pull down</style> airborne enemies on hit.");
 			RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(Jumping is disabled by pull down)</style>");
 
+			RegisterFragment("AFFIX_EMPOWERING_NAME", "Empowering Aspect");
+			RegisterFragment("AFFIX_EMPOWERING_PICKUP", "Become an aspect of empowering.");
+			RegisterFragment("AFFIX_EMPOWERING_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_EMPOWERING", "<style=cDeath>Aspect of Empowering</style> :");
+			RegisterFragment("PASSIVE_WARBANNER_AURA", "\nEmit an aura that empowers you and nearby allies.");
+			RegisterFragment("AURA_WARBANNER", "\nGrants you and nearby allies {0} increased <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style>.");
+
+			RegisterFragment("AFFIX_FRENZIED_NAME", "Frenzied Aspect");
+			RegisterFragment("AFFIX_FRENZIED_PICKUP", "Become an aspect of frenzy.");
+			RegisterFragment("AFFIX_FRENZIED_ACTIVE", "Teleport to a nearby enemy");
+			RegisterFragment("ASPECT_OF_FRENZIED", "<style=cDeath>Aspect of Frenzy</style> :");
+
+			RegisterFragment("AFFIX_VOLATILE_NAME", "Volatile Aspect");
+			RegisterFragment("AFFIX_VOLATILE_PICKUP", "Become an aspect of volatile.");
+			RegisterFragment("AFFIX_VOLATILE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_VOLATILE", "<style=cDeath>Aspect of Volatile</style> :");
+			RegisterFragment("PASSIVE_VOLMISSILE", "\nOccasionally fire a seeking missile.");
+			RegisterFragment("EXPLODE_ON_HIT", "\nAttacks <style=cIsDamage>explode</style> on hit, dealing {0} TOTAL damage.");
+
+			RegisterFragment("AFFIX_ECHO_NAME", "Echo Aspect");
+			RegisterFragment("AFFIX_ECHO_PICKUP", "Become an aspect of echo.");
+			RegisterFragment("AFFIX_ECHO_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ECHO", "<style=cDeath>Aspect of Echo</style> :");
+			RegisterFragment("PASSIVE_ECHOCLONE", "\nSpawn 2 clones of yourself.");
+
+
 
 
 			RegisterFragment("NEARBY_ARMOR", "\nGrants nearby allies {0} additional <style=cIsHealing>armor</style>.");
@@ -358,6 +384,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN", "\nReduces <style=cIsHealing>damage taken</style> by {0}.");
+			RegisterFragment("STAT_DAMAGE_TAKEN_MINION", "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\nReduces <style=cIsHealing>damage taken</style> by {0} while <style=cIsHealing>barrier</style> is active.");
 
 			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
@@ -1333,6 +1360,147 @@ namespace TPDespair.ZetAspects
 			output += baseDesc;
 			output += EquipmentStackText(Configuration.AspectEquipmentEffect.Value);
 			if (Configuration.AspectEquipmentConversion.Value) output += TextFragment("HOW_TO_CONVERT");
+
+			return output;
+		}
+
+
+
+		public static string HasteText(float baseMS, float stackMS, float baseAS, float stackAS, bool combine = false)
+		{
+			string output = "";
+
+			if (baseMS == baseAS && stackMS == stackAS)
+			{
+				if (baseMS > 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_BOTHSPEED"),
+						ScalingText(baseMS, stackMS, "percent", "cIsDamage", combine)
+					);
+				}
+			}
+			else
+			{
+				if (baseMS > 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_MOVESPEED"),
+						ScalingText(baseMS, stackMS, "percent", "cIsUtility", combine)
+					);
+				}
+				if (baseAS > 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_ATTACKSPEED"),
+						ScalingText(baseAS, stackAS, "percent", "cIsDamage", combine)
+					);
+				}
+			}
+
+			return output;
+		}
+
+		public static string HasteText(float baseMS, float stackMS, float baseAS, float stackAS, float allyMS, float allyAS, bool combine = false)
+		{
+			string output = "";
+
+			if (baseMS == baseAS && stackMS == stackAS)
+			{
+				if (baseMS > 0f)
+				{
+					output += String.Format(
+						TextFragment("STAT_BOTHSPEED"),
+						ScalingText(baseMS, stackMS, "percent", "cIsDamage", combine)
+					);
+				}
+
+				if (allyMS == allyAS)
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_BOTHSPD"),
+							ScalingText(allyMS, "percent", "cIsDamage")
+						);
+					}
+				}
+				else
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_MOVSPD"),
+							ScalingText(allyMS, "percent", "cIsUtility")
+						);
+					}
+					if (allyAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_ATKSPD"),
+							ScalingText(allyAS, "percent", "cIsDamage")
+						);
+					}
+				}
+			}
+			else
+			{
+				if (allyMS == allyAS)
+				{
+					if (baseMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("STAT_MOVESPEED"),
+							ScalingText(baseMS, stackMS, "percent", "cIsUtility", combine)
+						);
+					}
+					if (baseAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("STAT_ATTACKSPEED"),
+							ScalingText(baseAS, stackAS, "percent", "cIsDamage", combine)
+						);
+					}
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_BOTHSPD"),
+							ScalingText(allyMS, "percent", "cIsDamage")
+						);
+					}
+				}
+				else
+				{
+					if (baseMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("STAT_MOVESPEED"),
+							ScalingText(baseMS, stackMS, "percent", "cIsUtility", combine)
+						);
+					}
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_MOVSPD"),
+							ScalingText(allyMS, "percent", "cIsUtility")
+						);
+					}
+					if (baseAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("STAT_ATTACKSPEED"),
+							ScalingText(baseAS, stackAS, "percent", "cIsDamage", combine)
+						);
+					}
+					if (allyAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_ATKSPD"),
+							ScalingText(allyAS, "percent", "cIsDamage")
+						);
+					}
+				}
+			}
 
 			return output;
 		}

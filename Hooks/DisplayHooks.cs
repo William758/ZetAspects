@@ -90,6 +90,11 @@ namespace TPDespair.ZetAspects
 				AddAspectRender(Catalog.Equip.AffixAragonite);
 			}
 
+			if (Catalog.MoreElites.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixEcho);
+			}
+
 			AddAspectRender(Catalog.Equip.AffixLunar);
 			AddAspectRender(Catalog.Equip.AffixPoison);
 			AddAspectRender(Catalog.Equip.AffixHaunted);
@@ -131,6 +136,13 @@ namespace TPDespair.ZetAspects
 			AddAspectRender(Catalog.Equip.AffixRed);
 			AddAspectRender(Catalog.Equip.AffixBlue);
 			AddAspectRender(Catalog.Equip.AffixWhite);
+
+			if (Catalog.MoreElites.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixVolatile);
+				AddAspectRender(Catalog.Equip.AffixEmpowering);
+				AddAspectRender(Catalog.Equip.AffixFrenzied);
+			}
 
 			if (Catalog.GOTCE.populated)
 			{
@@ -590,7 +602,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		private static bool HasInvulnBuff(CharacterBody body)
+		internal static bool HasInvulnBuff(CharacterBody body)
 		{
 			if (body.HasBuff(RoR2Content.Buffs.HiddenInvincibility)) return true;
 			if (body.HasBuff(RoR2Content.Buffs.Immune)) return true;

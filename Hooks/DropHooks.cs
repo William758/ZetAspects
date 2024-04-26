@@ -183,6 +183,14 @@ namespace TPDespair.ZetAspects
 				SetDropWeight(Catalog.Equip.AffixBuffered, Configuration.AspectDropWeightBuffered.Value);
 				SetDropWeight(Catalog.Equip.AffixOppressive, Configuration.AspectDropWeightOppressive.Value);
 			}
+
+			if (Catalog.MoreElites.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixEmpowering, Configuration.AspectDropWeightEmpowering.Value);
+				SetDropWeight(Catalog.Equip.AffixFrenzied, Configuration.AspectDropWeightFrenzied.Value);
+				SetDropWeight(Catalog.Equip.AffixVolatile, Configuration.AspectDropWeightVolatile.Value);
+				SetDropWeight(Catalog.Equip.AffixEcho, Configuration.AspectDropWeightEcho.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)
@@ -483,15 +491,22 @@ namespace TPDespair.ZetAspects
 		{
 			EquipmentIndex index = equipDef.equipmentIndex;
 
-			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
-			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
-
 			if (disableDrops) return false;
+
+			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
+			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
+
+			if (!vicBody.HasBuff(equipDef.passiveBuffDef))
+			{
+				Logger.Warn("AttemptDrop - Victim is trying to drop an aspect but does not have its associated buff!");
+				Logger.Warn("--Victim : " + vicBody.name + "[" + vicBody.netId + "] Equipment : " + equipDef.name);
+				return false;
+			}
 
 			float chance = GetDropChance(index);
 			if (Configuration.AspectDropVerboseLogging.Value)
 			{
-				Logger.Info("Elite Killed - Rolling aspect drop chance!");
+				Logger.Info("AttemptDrop - Rolling aspect drop chance!");
 				Logger.Info("--Victim : " + vicBody.name + "[" + vicBody.netId + "] Equipment : " + equipDef.name);
 				Logger.Info("--Aspect drop chance : " + chance);
 			}

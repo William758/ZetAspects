@@ -117,7 +117,7 @@ namespace TPDespair.ZetAspects
 			CharacterBody.onBodyInventoryChangedGlobal += HandleEliteBuffManager;
 		}
 
-
+		
 
 		internal static void ApplyVoidBearCooldownFix()
 		{
@@ -874,6 +874,23 @@ namespace TPDespair.ZetAspects
 								}
 							}
 
+							if (Catalog.MoreElites.Enabled && Configuration.AspectEchoBaseMinionDamageResistGain.Value > 0f)
+							{
+								CharacterMaster master = vicBody.master;
+								if (master)
+								{
+									CharacterBody ownerBody = GetMinionOwnerBody(master);
+									if (ownerBody && ownerBody.HasBuff(Catalog.Buff.AffixEcho))
+									{
+										float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixEcho);
+										float effectValue = Configuration.AspectEchoBaseMinionDamageResistGain.Value + Configuration.AspectEchoStackMinionDamageResistGain.Value * (count - 1f);
+
+										reduction += effectValue;
+									}
+								}
+							}
+
+
 							if (reduction > 0f)
 							{
 								damage *= 1f / (1f + reduction);
@@ -897,7 +914,7 @@ namespace TPDespair.ZetAspects
 			//Debug.LogWarning("Checking Master Name : " + minionMaster.name + " - " + result);
 			return result;
 		}
-		
+		*/
 		internal static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
 		{
 			MinionOwnership minionOwnership = minionMaster.minionOwnership;
@@ -907,7 +924,7 @@ namespace TPDespair.ZetAspects
 
 			return ownerMaster.GetBody();
 		}
-		*/
+		
 
 		/*
 		private static void HealMultHook()
@@ -1959,9 +1976,16 @@ namespace TPDespair.ZetAspects
 						{
 							if (self && !DestroyedBodies.ContainsKey(self.netId))
 							{
-								if (BodyAllowedAffix(self.bodyIndex, buffDef))
+								if (Catalog.Buff.AffixEcho && buffDef == Catalog.Buff.AffixEcho)
 								{
-									self.AddTimedBuff(buffDef, 1.25f);
+									self.AddTimedBuff(Catalog.Buff.ZetEchoPrimer, 0.1f);
+								}
+								else
+								{
+									if (BodyAllowedAffix(self, buffDef))
+									{
+										self.AddTimedBuff(buffDef, 1.25f);
+									}
 								}
 							}
 
@@ -2065,16 +2089,17 @@ namespace TPDespair.ZetAspects
 
 						if (inventory)
 						{
-							if (BodyAllowedAffix(self.bodyIndex, buffDef) && Catalog.HasAspectItemOrEquipment(inventory, buffDef))
+							BuffDef buffToCheck = buffDef;
+
+							if (Catalog.Buff.ZetEchoPrimer && buffDef == Catalog.Buff.ZetEchoPrimer) buffToCheck = Catalog.Buff.AffixEcho;
+
+							if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex) && BodyAllowedAffix(self, buffToCheck) && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck))
 							{
-								self.AddTimedBuff(buffDef, BuffCycleDuration);
+								self.AddTimedBuff(buffToCheck, BuffCycleDuration);
 							}
-							else
-							{
-								// update itemBehaviors and itemDisplays
-								//self.OnInventoryChanged();
-								inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
-							}
+
+							// update itemBehaviors and itemDisplays
+							inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
 						}
 					}
 				}
@@ -2160,6 +2185,20 @@ namespace TPDespair.ZetAspects
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBuffered, Catalog.Item.ZetAspectBuffered, Catalog.Equip.AffixBuffered);
 				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixOppressive, Catalog.Item.ZetAspectOppressive, Catalog.Equip.AffixOppressive);
 			}
+
+			if (Catalog.MoreElites.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixEmpowering, Catalog.Item.ZetAspectEmpowering, Catalog.Equip.AffixEmpowering);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixFrenzied, Catalog.Item.ZetAspectFrenzied, Catalog.Equip.AffixFrenzied);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixVolatile, Catalog.Item.ZetAspectVolatile, Catalog.Equip.AffixVolatile);
+				if (inventory.GetItemCount(Catalog.summonedEcho) == 0)
+				{
+					if (Catalog.Buff.AffixEcho && !self.HasBuff(Catalog.Buff.AffixEcho))
+					{
+						if (Catalog.HasAspectItemOrEquipment(inventory, Catalog.Item.ZetAspectEcho, Catalog.Equip.AffixEcho)) self.AddTimedBuff(Catalog.Buff.ZetEchoPrimer, 0.1f);
+					}
+				}
+			}
 		}
 
 		private static void ApplyAspectBuff(CharacterBody body, Inventory inventory, BuffDef buffDef, ItemDef itemDef, EquipmentDef equipDef)
@@ -2170,10 +2209,18 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		private static bool BodyAllowedAffix(BodyIndex bodyIndex, BuffDef buffDef)
+		private static bool BodyAllowedAffix(CharacterBody body, BuffDef buffDef)
 		{
+			BodyIndex bodyIndex = body.bodyIndex;
+
 			if ((bodyIndex == Catalog.urchinTurretBodyIndex || bodyIndex == Catalog.urchinOrbitalBodyIndex) && buffDef == Catalog.Buff.AffixPoison) return false;
 			if (bodyIndex == Catalog.healOrbBodyIndex && buffDef == Catalog.Buff.AffixEarth) return false;
+
+			Inventory inventory = body.inventory;
+			if (inventory != null)
+			{
+				if (Catalog.Buff.AffixEcho && buffDef == Catalog.Buff.AffixEcho && inventory.GetItemCount(Catalog.summonedEcho) != 0) return false;
+			}
 
 			return true;
 		}

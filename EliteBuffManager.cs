@@ -41,6 +41,9 @@ namespace TPDespair.ZetAspects
 		{
 			refreshTimer = refreshInterval;
 
+			//bool logInfo = false;
+			//logInfo = body.isPlayerControlled;
+
 			Inventory inventory = body.inventory;
 			if (inventory)
 			{
@@ -53,6 +56,8 @@ namespace TPDespair.ZetAspects
 					{
 						if (timedBuff.timer <= refreshThreshold)
 						{
+							//if (logInfo) Logger.Info("EBM - " + timedBuff.buffIndex + " : " + timedBuff.timer);
+
 							if (!buffsToRefresh.Contains(buffIndex))
 							{
 								buffsToRefresh.Add(buffIndex);
@@ -60,11 +65,18 @@ namespace TPDespair.ZetAspects
 						}
 					}
 				}
-
+				/*
+				if (logInfo && buffsToRefresh.Count > 0)
+				{
+					Logger.Info("EBM RefreshCount - " + buffsToRefresh.Count);
+				}
+				*/
 				foreach (BuffIndex buffIndex in buffsToRefresh)
 				{
 					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || BlightedStateManager.HasAspectFromBlighted(body, buffIndex))
 					{
+						//if (logInfo) Logger.Info("EBM Refresh - " + buffIndex);
+
 						body.AddTimedBuff(buffIndex, refreshDuration);
 					}
 				}

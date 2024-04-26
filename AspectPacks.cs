@@ -27,6 +27,8 @@ namespace TPDespair.ZetAspects
 				voidlingBodyIndex = BodyCatalog.FindBodyIndex("VoidRaidCrabBody");
 				urchinTurretBodyIndex = BodyCatalog.FindBodyIndex("UrchinTurretBody");
 				healOrbBodyIndex = BodyCatalog.FindBodyIndex("AffixEarthHealerBody");
+				artifactShellBodyIndex = BodyCatalog.FindBodyIndex("ArtifactShellBody");
+				goldenTitanBodyIndex = BodyCatalog.FindBodyIndex("TitanGoldBody");
 
 				PopulateEquipment();
 				PopulateBuffs();
@@ -1805,6 +1807,203 @@ namespace TPDespair.ZetAspects
 			{
 				CreateEquality(Equip.AffixBuffered, Buff.AffixBuffered, Item.ZetAspectBuffered);
 				CreateEquality(Equip.AffixOppressive, Buff.AffixOppressive, Item.ZetAspectOppressive);
+			}
+		}
+
+
+
+		public static class MoreElites
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.Nuxlar.MoreElites")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("AffixEmpowering");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixEmpowering = EquipmentCatalog.GetEquipmentDef(index);
+				}
+				index = EquipmentCatalog.FindEquipmentIndex("AffixFrenziedNuxlar");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixFrenzied = EquipmentCatalog.GetEquipmentDef(index);
+				}
+				index = EquipmentCatalog.FindEquipmentIndex("AffixVolatile");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixVolatile = EquipmentCatalog.GetEquipmentDef(index);
+				}
+				index = EquipmentCatalog.FindEquipmentIndex("AffixEcho");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixEcho = EquipmentCatalog.GetEquipmentDef(index);
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixEmpowering)
+				{
+					Buff.AffixEmpowering = Equip.AffixEmpowering.passiveBuffDef;
+				}
+				if (Equip.AffixFrenzied)
+				{
+					Buff.AffixFrenzied = Equip.AffixFrenzied.passiveBuffDef;
+				}
+				if (Equip.AffixVolatile)
+				{
+					Buff.AffixVolatile = Equip.AffixVolatile.passiveBuffDef;
+				}
+				if (Equip.AffixEcho)
+				{
+					Buff.AffixEcho = Equip.AffixEcho.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectEmpowering, ref Equip.AffixEmpowering, ref Buff.AffixEmpowering, state);
+				DisableInactiveItem(Item.ZetAspectFrenzied, ref Equip.AffixFrenzied, ref Buff.AffixFrenzied, state);
+				DisableInactiveItem(Item.ZetAspectVolatile, ref Equip.AffixVolatile, ref Buff.AffixVolatile, state);
+				DisableInactiveItem(Item.ZetAspectEcho, ref Equip.AffixEcho, ref Buff.AffixEcho, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectEmpowering.SetupTokens();
+				Items.ZetAspectFrenzied.SetupTokens();
+				Items.ZetAspectVolatile.SetupTokens();
+				Items.ZetAspectEcho.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectEmpowering, shown);
+				SetItemState(Item.ZetAspectFrenzied, shown);
+				SetItemState(Item.ZetAspectVolatile, shown);
+				SetItemState(Item.ZetAspectEcho, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectEmpowering, Equip.AffixEmpowering);
+				CopyExpansion(Item.ZetAspectFrenzied, Equip.AffixFrenzied);
+				CopyExpansion(Item.ZetAspectVolatile, Equip.AffixVolatile);
+				CopyExpansion(Item.ZetAspectEcho, Equip.AffixEcho);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectEmpowering, Equip.AffixEmpowering);
+				CopyEquipmentPrefab(Item.ZetAspectFrenzied, Equip.AffixFrenzied);
+				CopyEquipmentPrefab(Item.ZetAspectVolatile, Equip.AffixVolatile);
+				CopyEquipmentPrefab(Item.ZetAspectEcho, Equip.AffixEcho);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixEmpowering, Sprites.AffixBuffing, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixFrenzied, Sprites.AffixFrenzied, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixVolatile, Sprites.AffixVolatile, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixEcho, Sprites.AffixEcho, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixEmpowering, shown);
+				SetEquipmentState(Equip.AffixFrenzied, shown);
+				SetEquipmentState(Equip.AffixVolatile, shown);
+				SetEquipmentState(Equip.AffixEcho, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixEmpowering);
+				ColorEquipmentDroplet(Equip.AffixFrenzied);
+				ColorEquipmentDroplet(Equip.AffixVolatile);
+				ColorEquipmentDroplet(Equip.AffixEcho);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixEmpowering, Buff.AffixEmpowering, Item.ZetAspectEmpowering);
+				CreateEquality(Equip.AffixFrenzied, Buff.AffixFrenzied, Item.ZetAspectFrenzied);
+				CreateEquality(Equip.AffixVolatile, Buff.AffixVolatile, Item.ZetAspectVolatile);
+				CreateEquality(Equip.AffixEcho, Buff.AffixEcho, Item.ZetAspectEcho);
 			}
 		}
 	}

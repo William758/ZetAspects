@@ -141,6 +141,17 @@ namespace TPDespair.ZetAspects
 							value += Configuration.AspectOppressiveBaseMovementGain.Value + Configuration.AspectOppressiveStackMovementGain.Value * (count - 1f);
 						}
 
+						if (Compat.MoreElites.frenzyStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseMovementGain.Value > 0f)
+							{
+								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+								float effectValue = Configuration.AspectFrenziedBaseMovementGain.Value + Configuration.AspectFrenziedStackMovementGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterMovementMult.Value;
+								value += effectValue;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -268,6 +279,15 @@ namespace TPDespair.ZetAspects
 						{
 							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlackHole);
 							value += Configuration.AspectBlackHoleBaseDamageGain.Value + Configuration.AspectBlackHoleStackDamageGain.Value * (count - 1f);
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixEmpowering))
+						{
+							if (Configuration.AspectEmpoweringBaseDamageGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEmpowering);
+								value += Configuration.AspectEmpoweringBaseDamageGain.Value + Configuration.AspectEmpoweringStackDamageGain.Value * (count - 1f);
+							}
 						}
 
 						return value;
@@ -536,6 +556,17 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (Compat.MoreElites.frenzyStatHook)
+						{
+							if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseAtkSpdGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+								float effectValue = Configuration.AspectFrenziedBaseAtkSpdGain.Value + Configuration.AspectFrenziedStackAtkSpdGain.Value * (count - 1f);
+								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterAtkSpdMult.Value;
+								value += effectValue;
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -712,9 +743,9 @@ namespace TPDespair.ZetAspects
 
 			if (teamIndex == TeamIndex.Player || body.outOfDanger)
 			{
-				if (!body.HasBuff(RoR2Content.Buffs.HiddenInvincibility) && !body.HasBuff(RoR2Content.Buffs.Immune))
+				if (!DisplayHooks.HasInvulnBuff(body))
 				{
-					if (body.baseNameToken != "ARTIFACTSHELL_BODY_NAME" && body.baseNameToken != "TITANGOLD_BODY_NAME")
+					if (body.bodyIndex != Catalog.artifactShellBodyIndex && body.bodyIndex != Catalog.goldenTitanBodyIndex)
 					{
 						return true;
 					}
@@ -916,6 +947,25 @@ namespace TPDespair.ZetAspects
 			{
 				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWater);
 				additiveReduction += Configuration.AspectWaterBaseCooldownGain.Value + Configuration.AspectWaterStackCooldownGain.Value * (count - 1f);
+			}
+
+			if (Compat.MoreElites.frenzyStatHook)
+			{
+				if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseCooldownGain.Value > 0f)
+				{
+					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+					float effectValue = Configuration.AspectFrenziedBaseCooldownGain.Value + Configuration.AspectFrenziedStackCooldownGain.Value * (count - 1f);
+					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterCooldownMult.Value;
+					additiveReduction += effectValue;
+				}
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixEcho) && Configuration.AspectEchoBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEcho);
+				float effectValue = Configuration.AspectEchoBaseCooldownGain.Value + Configuration.AspectEchoStackCooldownGain.Value * (count - 1f);
+				if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectEchoMonsterCooldownMult.Value;
+				additiveReduction += effectValue;
 			}
 
 			if (additiveReduction > 0f)

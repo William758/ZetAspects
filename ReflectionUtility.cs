@@ -29,16 +29,20 @@ namespace TPDespair.ZetAspects
 
 			public bool FindPluginAssembly()
 			{
-				Logger.Warn("Find Assembly : " + GUID + " - " + identifier);
+				Logger.Warn(identifier + " - Find Assembly for : " + GUID);
 
-				if (!Chainloader.PluginInfos.ContainsKey(GUID)) return false;
+				if (!Chainloader.PluginInfos.ContainsKey(GUID))
+				{
+					Logger.Warn(identifier + " - No plugin with that GUID found!");
+					return false;
+				}
 
 				BaseUnityPlugin plugin = Chainloader.PluginInfos[GUID].Instance;
 				PluginAssembly = Assembly.GetAssembly(plugin.GetType());
 
 				if (PluginAssembly == null)
 				{
-					Logger.Warn(identifier + " - Could Not Find Assembly");
+					Logger.Warn(identifier + " - Could Not Get Assembly");
 
 					return false;
 				}
@@ -144,7 +148,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		public static bool GetConfigValue(this Reflector reflector, Type instance, FieldInfo fieldInfo, bool defaultValue)
+		public static bool GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, bool defaultValue)
 		{
 			object fieldValue = fieldInfo.GetValue(instance);
 			Type type = fieldValue.GetType();
@@ -176,7 +180,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		public static int GetConfigValue(this Reflector reflector, Type instance, FieldInfo fieldInfo, int defaultValue)
+		public static int GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, int defaultValue)
 		{
 			object fieldValue = fieldInfo.GetValue(instance);
 			Type type = fieldValue.GetType();
@@ -208,7 +212,7 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		public static float GetConfigValue(this Reflector reflector, Type instance, FieldInfo fieldInfo, float defaultValue)
+		public static float GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, float defaultValue)
 		{
 			object fieldValue = fieldInfo.GetValue(instance);
 			Type type = fieldValue.GetType();
