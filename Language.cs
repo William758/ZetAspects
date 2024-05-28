@@ -1043,7 +1043,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(禁疗阻止生命回复)</style>");
 			RegisterFragment("WEAKEN_ON_HIT", "\n攻击使敌人<style=cIsDamage>虚弱</style>{0}，减少<style=cIsDamage>30</style>点<style=cIsDamage>护甲</style>，<style=cIsUtility>40%</style>的<style=cIsUtility>移动速度</style>，和<style=cIsDamage>40%</style>的<style=cIsDamage>伤害</style>。");
 
-			RegisterFragment("AFFIX_LUNAR_NAME", "共同的设击");
+			RegisterFragment("AFFIX_LUNAR_NAME", "共同的设计");
 			RegisterFragment("AFFIX_LUNAR_PICKUP", "成为完美的象征");
 			RegisterFragment("AFFIX_LUNAR_ACTIVE", "获得临时屏障以抵御强力攻击。");
 			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cIsLunar>完美的象征</style>：");
@@ -1065,7 +1065,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_VOID_PICKUP", "成为虚空的象征");
 			RegisterFragment("AFFIX_VOID_ACTIVE", "重置所有冷却时间");
 			RegisterFragment("ASPECT_OF_VOID", "<style=cIsVoid>虚空的象征</style>：");
-			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>阻挡</style>一次传入伤害，一段时间后再次充能。");
+			RegisterFragment("PASSIVE_BLOCK", "\n<style=cIsHealing>阻挡</style>一次受到的伤害，一段时间后再次充能。");
 			RegisterFragment("NULLIFY_ON_HIT", "\n攻击造成<style=cIsUtility>禁锢</style>{0}");
 			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(叠加3层禁锢时，定身敌人3秒)</style>");
 			RegisterFragment("COLLAPSE_DOT", "\n攻击叠加<style=cIsDamage>瓦解</style>，{2}{1}造成{0}的伤害。");
@@ -1091,20 +1091,22 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_VEILED_PICKUP", "成为模糊的象征");
 			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>模糊的象征</style>：");
-			RegisterFragment("CLOAK_ON_HIT", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果。");
-			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n攻击敌人使自己获得<style=cIsUtility>隐蔽</style>效果{0}。");
-			RegisterFragment("ELUSIVE_ON_HIT", "\n攻击敌人给予自身<style=cIsUtility>难以捉摸</style>效果。");
-			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}移动速度)</style>");
-			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}闪避几率)</style>");
-			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(难以捉摸效果给予{0}移动速度和{1}闪避几率)</style>");
-			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(难以捉摸效果每秒衰减{0})</style>");
-			RegisterFragment("ELUSIVE_EFFECT", "\n难以捉摸效果影响{0}。");
+			RegisterFragment("CLOAK_ON_HIT", "\n攻击敌人使自己获得<style=cIsUtility>朦胧</style>效果。");
+			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n攻击敌人使自己获得<style=cIsUtility>朦胧</style>效果{0}。");
+			RegisterFragment("DECLOAK_WHEN_HIT", "\n被击中会让你解除朦胧。");
+			RegisterFragment("ELUSIVE_ON_HIT", "\n攻击敌人给予自身<style=cIsUtility>朦胧</style>效果。");
+			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(朦胧效果给予{0}移动速度)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(朦胧效果给予{0}闪避几率)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(朦胧效果给予{0}移动速度和{1}闪避几率)</style>");
+			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(朦胧效果每秒衰减{0})</style>");
+			RegisterFragment("ELUSIVE_EFFECT", "\n朦胧效果影响{0}。");
+
 
 			RegisterFragment("AFFIX_ARAGONITE_NAME", "她的脾气");
 			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "成为愤怒的象征");
 			RegisterFragment("AFFIX_ARAGONITE_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_FURY", "<style=cDeath>愤怒的象征</style> :");
-			RegisterFragment("PASSIVE_ANGRY_HIT", "\n偶尔在攻击命中是爆发愤怒。");
+			RegisterFragment("PASSIVE_ANGRY_HIT", "\n偶尔在攻击命中时爆发愤怒。");
 			RegisterFragment("PASSIVE_ANGRY_AURA", "\n释放一个光环，给予附近盟友力量。");
 			RegisterFragment("ANGRY_ATKSPD", "\n提升附近盟友{0}<style=cIsUtility>移动速度</style>。");
 			RegisterFragment("ANGRY_MOVSPD", "\n提升附近盟友{0}<style=cIsDamage>攻击速度</style>。");
@@ -1118,34 +1120,34 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("GOLD_ON_HIT", "\n击中时获得金钱。");
 			RegisterFragment("ITEMSCORE_REGEN", "\n获得额外的<style=cIsHealing>基础生命值再生</style>，基于物品的稀有度和数量。");
 			RegisterFragment("ITEMSCORE_REGEN_MULT", "\n物品计分倍率为{0}。");
-			/*
-			RegisterFragment("AFFIX_SEPIA_NAME", "Fading Reflection");
-			RegisterFragment("AFFIX_SEPIA_PICKUP", "Become an aspect of illusion.");
-			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
-			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>Aspect of Illusion</style> :");
-			RegisterFragment("SEPIABLIND_ON_HIT", "\nAttacks apply <style=cIsUtility>distorted vision</style> on hit {0}, reducing hit chance by {1}.");
-
-			RegisterFragment("AFFIX_SANGUINE_NAME", "Bloody Fealty");
-			RegisterFragment("AFFIX_SANGUINE_PICKUP", "Become an aspect of the red plane.");
-			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "Teleport dash and gain brief invulnurability.");
-			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>Aspect of the Red Plane</style> :");
-			RegisterFragment("BLEED_DOT", "\nAttacks <style=cIsDamage>bleed</style> on hit for {0} base damage {1}.");
-			RegisterFragment("DOT_AMP", "\nIncreases <style=cIsDamage>damage over time multiplier</style> by {0}.");
 			
-			RegisterFragment("AFFIX_NULLIFIER_NAME", "Blessing of Parvos");
-			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "Become an aspect of null.");
+			RegisterFragment("AFFIX_SEPIA_NAME", "衰退的影像");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "成为幻觉的象征");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>幻觉的象征</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\n攻击造成 <style=cIsUtility>扭曲幻象</style> {0}，降低敌人 {1} 命中几率。");
+
+			RegisterFragment("AFFIX_SANGUINE_NAME", "血腥的忠诚");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "成为血色的象征");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "向前传送并获得短暂无敌。");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>血色的象征</style> :");
+			RegisterFragment("BLEED_DOT", "\n攻击附加 <style=cIsDamage>流血</style> ，在 {1} 造成 {0} 基础伤害。");
+			RegisterFragment("DOT_AMP", "\n每隔一段时间增加 {0} <style=cIsDamage>伤害</style>。");
+
+			RegisterFragment("AFFIX_NULLIFIER_NAME", "帕尔沃斯的祝福");
+			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "成为空无的象征");
 			RegisterFragment("AFFIX_NULLIFIER_ACTIVE", "<style=cStack>(???)</style>");
-			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>Aspect of Null</style> :");
-			RegisterFragment("PASSIVE_NULL_AURA", "\nEmit an aura that protects nearby allies and debuffs nearby enemies.");
-			RegisterFragment("NULL_ON_HIT", "\nAttacks <style=cIsUtility>null</style> on hit.");
-			RegisterFragment("NULL_ON_HIT_SPD", "\nAttacks <style=cIsUtility>null</style> on hit, reducing <style=cIsUtility>movement speed</style> by {0}.");
+			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>空无的象征</style> :");
+			RegisterFragment("PASSIVE_NULL_AURA", "\n获得一个光环，保护附近的盟友并削弱附近的敌人。");
+			RegisterFragment("NULL_ON_HIT", "\n攻击附加 <style=cIsUtility>空无</style> 效果。");
+			RegisterFragment("NULL_ON_HIT_SPD", "\n攻击附加 <style=cIsUtility>空无</style> 效果，减少 {0} <style=cIsUtility>移动速度</style> 。");
 
-			RegisterFragment("AFFIX_BLIGHTED_NAME", "Betrayal of the Bulwark");
-			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "Become an aspect of decay.");
-			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "Reroll your randomized Elite Affixes.");
-			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>Aspect of Decay</style> :");
-			RegisterFragment("PASSIVE_BLIGHT", "\nGain 2 random Elite Affixes.");
-
+			RegisterFragment("AFFIX_BLIGHTED_NAME", "堡垒的背叛");
+			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "成为破败的象征");
+			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "重新随机你的精英效果。");
+			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>破败的象征</style> :");
+			RegisterFragment("PASSIVE_BLIGHT", "\n获得 2 个随机精英效果。");
+			/*
 			RegisterFragment("AFFIX_BACKUP_NAME", "Secret Compartment");
 			RegisterFragment("AFFIX_BACKUP_PICKUP", "Become an aspect of backup.");
 			RegisterFragment("AFFIX_BACKUP_ACTIVE", "<style=cStack>(???)</style>");
@@ -1160,6 +1162,60 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_PURITY", "\nBecome immune to debuffs, dots and stuns.");
 			RegisterFragment("CLEANSE_ON_HIT", "\nAttacks <style=cIsUtility>cleanse</style> the <style=cIsUtility>buffs</style> on enemies you hit.");
 			*/
+			RegisterFragment("AFFIX_BARRIER_NAME", "合作的成果");
+			RegisterFragment("AFFIX_BARRIER_PICKUP", "成为团结的象征");
+			RegisterFragment("AFFIX_BARRIER_ACTIVE", "获得一些屏障。");
+			RegisterFragment("ASPECT_OF_UNITY", "<style=cDeath>团结的象征</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP", "\n屏障不会衰减。");
+			RegisterFragment("FORCE_IMMUNE_BARRIER", "\n拥有 <style=cIsHealing>屏障</style> 时免疫击退。");
+			RegisterFragment("RANDOM_DEBUFF_ON_HIT", "\n攻击附加 <style=cIsUtility>随机减益</style> 。");
+
+			RegisterFragment("AFFIX_BLACKHOLE_NAME", "另一种想法");
+			RegisterFragment("AFFIX_BLACKHOLE_PICKUP", "成为侵略的象征");
+			RegisterFragment("AFFIX_BLACKHOLE_ACTIVE", "对所有被标记的敌人进行追踪攻击。");
+			RegisterFragment("ASPECT_OF_INVASION", "<style=cDeath>侵略的象征</style> :");
+			RegisterFragment("BLACKMARK_ON_HIT", "\n攻击会 <style=cIsDamage>标记</style> 敌人， 累计 <style=cIsDamage>7</style> 层会引爆标记并造成 <style=cIsDamage>{0}</style> <style=cStack>(+{1} 每层)</style> 伤害。");
+
+			RegisterFragment("AFFIX_MONEY_NAME", "磐石的忿怒");
+			RegisterFragment("AFFIX_MONEY_PICKUP", "成为极性的象征");
+			RegisterFragment("AFFIX_MONEY_ACTIVE", "暂时停止所有来袭的飞行物。");
+			RegisterFragment("ASPECT_OF_POLARITY", "<style=cDeath>极性的象征</style> :");
+			RegisterFragment("PASSIVE_DRAIN_MONEY", "\n偷走附近敌人的金币。");
+			RegisterFragment("GOLD_FROM_KILL", "\n击杀获得额外 {0} 金币。");
+			RegisterFragment("PULLDOWN_ON_HIT", "\n攻击会 <style=cIsUtility>击落</style> 空中敌人。");
+
+			RegisterFragment("AFFIX_NIGHT_NAME", "堡垒的缺席");
+			RegisterFragment("AFFIX_NIGHT_PICKUP", "成为黑暗的象征");
+			RegisterFragment("AFFIX_NIGHT_ACTIVE", "暂时隐身。");
+			RegisterFragment("ASPECT_OF_DARKNESS", "<style=cDeath>黑暗的象征</style> :");
+			RegisterFragment("NIGHTBLIND_ON_HIT", "\n攻击造成 {0} <style=cIsUtility>黑暗幻象</style> ， 减少 {1} 命中率。");
+			RegisterFragment("NIGHTBLIND_DETAIL", "\n<style=cStack>(幻象范围减少为 {0})</style>");
+			RegisterFragment("OOD_NIGHT_ATKSPD", "\n未被击中时增加 {0} <style=cIsDamage>攻击速度</style> 。");
+			RegisterFragment("OOD_NIGHT_MOVSPD", "\n未被击中时增加 {0} <style=cIsUtility>移动速度</style> 和 {1} <style=cIsDamage>攻击速度</style> 。");
+			RegisterFragment("OOD_NIGHT_BOTHSAMESPD", "\n未被击中时增加 {0} <style=cIsUtility>移动速度</style> 和 <style=cIsDamage>攻击速度</style> 。");
+			RegisterFragment("OOD_NIGHT_BOTHDIFFSPD", "\n未被击中时增加 {0} <style=cIsUtility>移动速度</style> 和 {1} <style=cIsDamage>攻击速度</style> 。");
+
+			RegisterFragment("AFFIX_WATER_NAME", "初见暴风雨中的海燕");
+			RegisterFragment("AFFIX_WATER_PICKUP", "成为可变的象征");
+			RegisterFragment("AFFIX_WATER_ACTIVE", "清除所有减益并恢复一些生命值。");
+			RegisterFragment("ASPECT_OF_ALTERABILITY", "<style=cDeath>可变的象征</style> :");
+			RegisterFragment("PASSIVE_IDLE_INVULN", "\n不使用任何技能时获得无敌效果。");
+			RegisterFragment("BUBBLE_ON_HIT", "\n攻击会将敌人 <style=cIsUtility>囚禁</style> 在一个气泡中。");
+
+			RegisterFragment("AFFIX_REALGAR_NAME", "维度碰撞");
+			RegisterFragment("AFFIX_REALGAR_PICKUP", "成为外表的象征");
+			RegisterFragment("AFFIX_REALGAR_ACTIVE", "暂时免疫所有持续伤害。");
+			RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>外表的象征</style> :");
+			RegisterFragment("PASSIVE_RED_FISSURE", "\n制造一个喷射飞行物的红色裂隙。");
+			RegisterFragment("SCAR_ON_HIT", "\n攻击附加 <style=cIsDamage>伤口</style> 效果， 持续造成伤害。");
+
+			RegisterFragment("AFFIX_BUFFERED_NAME", "合作的成果");
+			RegisterFragment("AFFIX_BUFFERED_PICKUP", "成为团结的象征");
+			RegisterFragment("AFFIX_BUFFERED_ACTIVE", "获得一些屏障。");
+			RegisterFragment("ASPECT_OF_UNITY_NEM", "<style=cDeath>团结的象征</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP_NEM", "\n屏障不会衰减。");
+			RegisterFragment("FORCE_IMMUNE_BARRIER_NEM", "\n拥有 <style=cIsHealing>屏障</style> 时免疫击退。");
+
 
 
 			RegisterFragment("NEARBY_ARMOR", "\n给予周围盟友{0}点额外<style=cIsHealing>护甲</style>。");
@@ -1180,22 +1236,25 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_REGENERATION", "\n增加{0}<style=cIsHealing>基础生命值再生速度</style>。");
 			RegisterFragment("STAT_DAMAGE", "\n增加{0}<style=cIsDamage>伤害</style>。");
 			RegisterFragment("STAT_COOLDOWN", "\n减少{0}<style=cIsUtility>技能冷却</style>。");
+			RegisterFragment("STAT_DAMAGE_TAKEN", "\n减少  {0} <style=cIsHealing>受到的伤害</style> 。");
+			//RegisterFragment("STAT_DAMAGE_TAKEN_MINION", "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.");
+			RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\n<style=cIsHealing>屏障</style> 激活时减少 {0} <style=cIsHealing>受到的伤害</style> 。");
 			/*
 			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\nReduces the <style=cIsUtility>cooldown</style> of your <style=cIsUtility>secondary skill</style> by {0}.");
 			RegisterFragment("STAT_SECONDARY_CHARGE", "\nGain <style=cIsUtility>+{0}</style> charges of your <style=cIsUtility>secondary skill</style>.");
 			*/
 			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\n获得大量的<style=cIsHealing>可再生护盾</style>。");
 
-			RegisterFragment("BLOCK_CHANCE", "\n{0}几率<style=cIsHealing>阻挡</style>传入伤害。");
-			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>阻挡</style>传入伤害。");
+			RegisterFragment("BLOCK_CHANCE", "\n{0}几率<style=cIsHealing>阻挡</style>受到的伤害。");
+			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>阻挡</style>受到的伤害。");
 			RegisterFragment("BLOCK_DETAIL", "\n<style=cStack>(阻挡几率不受运气影响)</style>");
 
-			RegisterFragment("DODGE_CHANCE", "\n{0}几率<style=cIsHealing>闪避</style>传入伤害。");
-			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>闪避</style>传入伤害。");
+			RegisterFragment("DODGE_CHANCE", "\n{0}几率<style=cIsHealing>闪避</style>受到的伤害。");
+			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\n有几率<style=cIsHealing>闪避</style>受到的伤害。");
 			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(闪避几率不受运气影响)</style>");
 
-			RegisterFragment("PLATING_EFFECT", "\n降低{0}所有<style=cIsDamage>传入伤害</style>。");
-			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(传入伤害不能降低到1以下)</style>");
+			RegisterFragment("PLATING_EFFECT", "\n降低{0}所有<style=cIsDamage>受到的伤害</style>。");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(受到的伤害不能降低到1以下)</style>");
 
 			RegisterFragment("FALL_REDUCTION", "\n减少{0}坠落伤害。");
 			RegisterFragment("FALL_IMMUNE", "\n免疫坠落伤害。");

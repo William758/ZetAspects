@@ -76,18 +76,26 @@ namespace TPDespair.ZetAspects.Compat
 		*/
 		internal static float GetConfigValue(FieldInfo fieldInfo, float defaultValue)
 		{
-			object fieldValue = fieldInfo.GetValue(null);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Flags);
-			if (propInfo != null)
+			if (fieldInfo != null)
 			{
-				return (float)propInfo.GetValue(fieldValue);
+				object fieldValue = fieldInfo.GetValue(null);
+				Type type = fieldValue.GetType();
+				PropertyInfo propInfo = type.GetProperty("Value", Flags);
+				if (propInfo != null)
+				{
+					return (float)propInfo.GetValue(fieldValue);
+				}
+				else
+				{
+					Logger.Warn(identifier + " - Could Not Get Value For : " + fieldInfo.Name);
+				}
 			}
-			else 
+			else
 			{
-				Logger.Warn(identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
+				Logger.Error(identifier + " - Tried To Get Config Value But fieldInfo is null!");
 			}
+
+			return defaultValue;
 		}
 
 

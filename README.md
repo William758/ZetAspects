@@ -110,9 +110,13 @@ Brazilian Portuguese translation by SpookyGabe#9476.
 
 Korean translation by 깽비#8221.
 
-Chinese translation by BTP-G.
+Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
+
+v2.7.38 - Update Chinese translation with more mod support by MushroomEl.
+
+v2.7.37 - Fixed for latest update.
 
 v2.7.36 - Added support for MoreElites. Some bugfixes.
 
