@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using HarmonyLib;
 using RoR2;
 using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
@@ -20,6 +21,8 @@ namespace TPDespair.ZetAspects
 		public static bool setupIntermediate = false;
 		public static bool setupCompat = false;
 		public static bool setupInitialize = false;
+
+		public static BindingFlags Flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance;
 
 
 
@@ -965,7 +968,7 @@ namespace TPDespair.ZetAspects
 
 		private static void OnTransmuteManagerInit()
 		{
-			On.RoR2.PickupTransmutationManager.Init += (orig) =>
+			On.RoR2.PickupTransmutationManager.RebuildPickupGroups += (orig) =>
 			{
 				try
 				{
@@ -999,7 +1002,7 @@ namespace TPDespair.ZetAspects
 
 		private static void OnLogBookInit()
 		{
-			On.RoR2.UI.LogBook.LogBookController.Init += (orig) =>
+			On.RoR2.UI.LogBook.LogBookController.BuildStaticData += (orig) =>
 			{
 				try
 				{

@@ -10,6 +10,7 @@ using RoR2.Orbs;
 using RoR2.Projectile;
 using RoR2.UI;
 using TMPro;
+using HarmonyLib;
 
 namespace TPDespair.ZetAspects
 {
@@ -20,7 +21,9 @@ namespace TPDespair.ZetAspects
 		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
 		internal static Dictionary<NetworkInstanceId, float> ShieldRegenAccumulator = new Dictionary<NetworkInstanceId, float>();
 
+		public static BindingFlags Flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance;
 		private static FieldInfo DamageInfoRejectedField;
+		private static FieldInfo AffixLunarAvailibilityField;
 
 		internal const float BuffCycleDuration = 5f;
 		private static float FixedUpdateStopwatch = 0f;
@@ -78,6 +81,16 @@ namespace TPDespair.ZetAspects
 			OnDestroyHook();
 
 			DamageInfoRejectedField = typeof(DamageInfo).GetField("rejected");
+			Type type = typeof(CharacterBody).GetNestedType("ItemAvailability", Flags);
+			if (type != null)
+			{
+				AffixLunarAvailibilityField = type.GetField("hasAffixLunar", Flags);
+			}
+			else
+			{
+				Logger.Warn("Failed to find type : CharacterBody.ItemAvailability");
+			}
+
 			EffectManagerHook();
 			DodgeHook();
 
@@ -92,7 +105,7 @@ namespace TPDespair.ZetAspects
 			PreventAspectBurnHook();
 			PoisonBallHook();
 			NullDurationHook();
-			LunarProjectileHook();
+			if (AffixLunarAvailibilityField != null) LunarProjectileHook();
 			PreventAspectCrippleHook();
 			PreventAspectCollapseHook();
 			DamageTakenHook();
@@ -203,7 +216,7 @@ namespace TPDespair.ZetAspects
 
 		private static void DodgeHook()
 		{
-			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -341,17 +354,17 @@ namespace TPDespair.ZetAspects
 
 		private static void PlatingHook()
 		{
-			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
-					x => x.MatchLdloc(6),
-					x => x.MatchLdloc(35),
+					x => x.MatchLdloc(7),
+					x => x.MatchLdloc(39),
 					x => x.MatchMul(),
 					x => x.MatchCall<Mathf>("Max"),
-					x => x.MatchStloc(6)
+					x => x.MatchStloc(7)
 				);
 
 				if (found)
@@ -359,7 +372,7 @@ namespace TPDespair.ZetAspects
 					c.Index += 6;
 
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 6);
+					c.Emit(OpCodes.Ldloc, 7);
 					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, damage) =>
 					{
 						float plating = 0f;
@@ -386,7 +399,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, 6);
+					c.Emit(OpCodes.Stloc, 7);
 				}
 				else
 				{
@@ -436,7 +449,7 @@ namespace TPDespair.ZetAspects
 
 		private static void KnockBackHook()
 		{
-			On.RoR2.HealthComponent.TakeDamage += (orig, self, damageInfo) =>
+			On.RoR2.HealthComponent.TakeDamageProcess += (orig, self, damageInfo) =>
 			{
 				if (self)
 				{
@@ -513,6 +526,7 @@ namespace TPDespair.ZetAspects
 		private static void PreventAspectChillHook()
 		{
 			// still applies a 0 duration chill, another hook prevents it from going through
+			/*
 			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
@@ -536,11 +550,35 @@ namespace TPDespair.ZetAspects
 					Logger.Warn("PreventAspectChillHook Failed");
 				}
 			};
+			*/
+
+			IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(10),
+					x => x.MatchLdcI4(0),
+					x => x.MatchBle(out _)
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Pop);
+					c.Emit(OpCodes.Ldc_I4, 999);
+				}
+				else
+				{
+					Logger.Warn("PreventAspectChillHook Failed");
+				}
+			};
 		}
 
 		private static void PreventOverloadingBombHook()
 		{
-			IL.RoR2.GlobalEventManager.OnHitAll += (il) =>
+			IL.RoR2.GlobalEventManager.OnHitAllProcess += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -600,7 +638,7 @@ namespace TPDespair.ZetAspects
 
 		private static void PreventAspectBurnHook()
 		{
-			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -663,7 +701,7 @@ namespace TPDespair.ZetAspects
 
 		private static void NullDurationHook()
 		{
-			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -705,7 +743,7 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchCall<CharacterBody>("HasBuff")
+					x => x.MatchLdfld(AffixLunarAvailibilityField)
 				);
 
 				if (found)
@@ -729,7 +767,7 @@ namespace TPDespair.ZetAspects
 
 		private static void PreventAspectCrippleHook()
 		{
-			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -758,7 +796,7 @@ namespace TPDespair.ZetAspects
 
 		private static void PreventAspectCollapseHook()
 		{
-			IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+			IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
 
@@ -789,22 +827,24 @@ namespace TPDespair.ZetAspects
 
 		private static void DamageTakenHook()
 		{
-			IL.RoR2.HealthComponent.TakeDamage += (il) =>
+			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
 				ILCursor c = new ILCursor(il);
+
+				const int damageValue = 7;
 
 				// find : store damageinfo.damage into variable
 				bool found = c.TryGotoNext(
 					x => x.MatchLdarg(1),
 					x => x.MatchLdfld<DamageInfo>("damage"),
-					x => x.MatchStloc(6)
+					x => x.MatchStloc(damageValue)
 				);
 
 				if (found)
 				{
 					c.Index += 3;
 
-					c.Emit(OpCodes.Ldloc, 6);
+					c.Emit(OpCodes.Ldloc, damageValue);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Func<float, HealthComponent, DamageInfo, float>>((damage, healthComponent, damageInfo) =>
@@ -899,7 +939,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, 6);
+					c.Emit(OpCodes.Stloc, damageValue);
 				}
 				else
 				{
@@ -972,11 +1012,11 @@ namespace TPDespair.ZetAspects
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(3f),
 					x => x.MatchLdcR4(5f),
-					x => x.MatchLdloc(69),
+					x => x.MatchLdloc(75),
 					x => x.MatchConvR4(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(71)
+					x => x.MatchStloc(77)
 				);
 
 				if (found)
@@ -984,7 +1024,7 @@ namespace TPDespair.ZetAspects
 					c.Index += 6;
 
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 69);
+					c.Emit(OpCodes.Ldloc, 75);
 					c.EmitDelegate<Func<int, float>>((count) =>
 					{
 						return Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
@@ -1147,8 +1187,7 @@ namespace TPDespair.ZetAspects
 				damageColorIndex = DamageColorIndex.Item,
 				target = null,
 				speedOverride = -1f,
-				fuseOverride = Configuration.AspectBlueBombDuration.Value,
-				damageTypeOverride = null
+				fuseOverride = Configuration.AspectBlueBombDuration.Value
 			};
 			ProjectileManager.instance.FireProjectile(fireProjectileInfo);
 		}
@@ -1263,30 +1302,33 @@ namespace TPDespair.ZetAspects
 			float duration = Configuration.AspectWhiteSlowDuration.Value;
 			if (self.teamComponent.teamIndex != TeamIndex.Player) duration *= damageInfo.procCoefficient;
 
-			ChillApplication(victim, duration);
+			if (duration > 0.1f)
+			{
+				EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteImpactEffect"), damageInfo.position, Vector3.up, true);
+				ChillApplication(victim, duration);
+			}
 		}
 
 		private static void ChillApplication(CharacterBody victim, float duration)
 		{
-			if (duration > 0.1f)
-			{
-				if (Catalog.ChillCanStack)
-				{
-					int chillStacks = victim.GetBuffCount(RoR2Content.Buffs.Slow80);
+			if (duration < 0.25f) duration = 0.25f;
 
-					if (chillStacks > 0)
-					{
-						RefreshChillStacks(victim, duration);
-					}
-					else
-					{
-						victim.AddTimedBuff(RoR2Content.Buffs.Slow80, duration);
-					}
+			if (Catalog.ChillCanStack)
+			{
+				int chillStacks = victim.GetBuffCount(RoR2Content.Buffs.Slow80);
+
+				if (chillStacks > 0)
+				{
+					RefreshChillStacks(victim, duration);
 				}
 				else
 				{
 					victim.AddTimedBuff(RoR2Content.Buffs.Slow80, duration);
 				}
+			}
+			else
+			{
+				victim.AddTimedBuff(RoR2Content.Buffs.Slow80, duration);
 			}
 		}
 
@@ -1818,15 +1860,15 @@ namespace TPDespair.ZetAspects
 
 		private static void ShieldRegenHook()
 		{
-			On.RoR2.HealthComponent.ServerFixedUpdate += (orig, self) =>
+			On.RoR2.HealthComponent.ServerFixedUpdate += (orig, self, deltaTime) =>
 			{
-				HandleShieldRegen(self);
+				HandleShieldRegen(self, deltaTime);
 
-				orig(self);
+				orig(self, deltaTime);
 			};
 		}
 
-		private static void HandleShieldRegen(HealthComponent self)
+		private static void HandleShieldRegen(HealthComponent self, float deltaTime)
 		{
 			if (self.alive)
 			{
@@ -1856,7 +1898,8 @@ namespace TPDespair.ZetAspects
 						float accumulator = ShieldRegenAccumulator[body.netId];
 
 						shieldRegen *= body.regen;
-						accumulator += shieldRegen * Time.fixedDeltaTime;
+						//accumulator += shieldRegen * Time.fixedDeltaTime;
+						accumulator += shieldRegen * deltaTime;
 
 						if (accumulator > 1f)
 						{
@@ -2242,6 +2285,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (buffIndex == Catalog.altSlow80)
 					{
+						if (duration < 0.1f) return;
 						ChillApplication(self, duration);
 						return;
 					}

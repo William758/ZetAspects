@@ -1092,11 +1092,11 @@ namespace TPDespair.ZetAspects
 				"Fall damage reduction gained per stack."
 			);
 			AspectWarpedBaseForceResistGain = Config.Bind(
-				"2bb-AspectWarped", "warpedBaseForceResist", 0.5f,
+				"2bb-AspectWarped", "warpedBaseForceResist", 1000f,
 				"Knockback resistance gained. Set to 0 to disable. Set to 1000 to become immune."
 			);
 			AspectWarpedStackForceResistGain = Config.Bind(
-				"2bb-AspectWarped", "warpedAddedForceResist", 0.25f,
+				"2bb-AspectWarped", "warpedAddedForceResist", 0f,
 				"Knockback resistance gained per stack."
 			);
 

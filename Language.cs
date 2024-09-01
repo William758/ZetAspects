@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using SimpleJSON;
 
 namespace TPDespair.ZetAspects
 {
@@ -12,6 +15,85 @@ namespace TPDespair.ZetAspects
 
 		public static Dictionary<string, Dictionary<string, string>> tokens = new Dictionary<string, Dictionary<string, string>>();
 		public static Dictionary<string, Dictionary<string, string>> fragments = new Dictionary<string, Dictionary<string, string>>();
+
+
+
+		private static void LoadLanguageFiles()
+		{
+			var languagePaths = Directory.GetFiles(Assembly.GetAssembly(typeof(ZetAspectsPlugin)).Location, "*.zetlang", SearchOption.AllDirectories);
+			foreach (var path in languagePaths)
+			{
+				if (path != null)
+				{
+					var textFile = File.ReadAllText(path);
+					if (textFile != null)
+					{
+						var langDict = LoadFile(textFile);
+						if (langDict != null)
+						{
+							AddFromFileContent(langDict);
+						}
+					}
+				}
+			}
+		}
+
+		private static void AddFromFileContent(Dictionary<string, Dictionary<string, string>> langDict)
+		{
+			foreach (var lang in langDict)
+			{
+				targetLanguage = lang.Key;
+				var tokenDict = lang.Value;
+
+				foreach (var item in tokenDict)
+				{
+					if (item.Value == null) continue;
+
+					RegisterFragment(item.Key, item.Value);
+				}
+			}
+		}
+
+		private static Dictionary<string, Dictionary<string, string>> LoadFile(string fileContent)
+		{
+			Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
+			try
+			{
+				JSONNode jsonNode = JSON.Parse(fileContent);
+				if (jsonNode == null) return null;
+
+				var languages = jsonNode.Keys;
+				foreach (var language in languages)
+				{
+					JSONNode languageTokens = jsonNode[language];
+					if (languageTokens == null) continue;
+
+					var languagename = language;
+					if (languagename == "strings") languagename = "default";
+
+					if (!dict.ContainsKey(languagename))
+					{
+						dict.Add(languagename, new Dictionary<string, string>());
+					}
+					var languagedict = dict[languagename];
+
+					foreach (var key in languageTokens.Keys)
+					{
+						languagedict.Add(key, languageTokens[key].Value);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.LogFormat("Parsing error in zetlang file , Error: {0}", ex);
+				return null;
+			}
+			if (dict.Count == 0)
+			{
+				return null;
+			}
+			return dict;
+		}
 
 
 

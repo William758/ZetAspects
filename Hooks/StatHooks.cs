@@ -34,9 +34,9 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 74;
-				const int multValue = 75;
-				const int divValue = 76;
+				const int baseValue = 84;
+				const int multValue = 85;
+				const int divValue = 86;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -209,8 +209,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 78;
-				const int multValue = 79;
+				const int baseValue = 88;
+				const int multValue = 89;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -324,20 +324,28 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int shieldValue = 64;
+				int shieldValue = -1;
+
+				if (c.TryGotoNext(x => x.MatchLdfld<Inventory>("beadAppliedShield")))
+				{
+					c.TryGotoNext(x => x.MatchStloc(out shieldValue));
+				}
+				else
+				{
+					Logger.Warn("ShieldHook Failed - Could not find shield index");
+					return;
+				}
+
+
 
 				bool found = c.TryGotoNext(
-					x => x.MatchMul(),
-					x => x.MatchAdd(),
-					x => x.MatchStloc(shieldValue)
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("EngiShield")),
+					x => x.MatchCallOrCallvirt<CharacterBody>("HasBuff")
 				);
 
 				if (found)
 				{
-					c.Index += 3;
-
 					// add
-					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, shieldValue);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
@@ -361,6 +369,8 @@ namespace TPDespair.ZetAspects
 						return shield;
 					});
 					c.Emit(OpCodes.Stloc, shieldValue);
+
+					c.Emit(OpCodes.Ldarg, 0);
 				}
 				else
 				{
@@ -375,8 +385,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 62;
-				const int multValue = 63;
+				const int baseValue = 70;
+				const int multValue = 71;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -498,8 +508,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 82;
-				const int multValue = 83;
+				const int baseValue = 94;
+				const int multValue = 95;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),
@@ -601,10 +611,10 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int lvlScaling = 66;
-				const int knurlValue = 67;
-				const int crocoValue = 70;
-				const int multValue = 72;
+				const int lvlScaling = 75;
+				const int knurlValue = 76;
+				const int crocoValue = 79;
+				const int multValue = 82;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
@@ -1042,7 +1052,7 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchStloc(66)
+					x => x.MatchStloc(75)// this is the level regen scaling value
 				);
 
 				if (found)
@@ -1101,7 +1111,7 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int shieldValue = 64;
+				const int shieldValue = 72;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(0.25f),
