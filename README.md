@@ -114,6 +114,8 @@ Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
 
+v2.8.1 - Made T2 Elites less spooky (Fixed audio issue).
+
 v2.8.0 - Fixed for SotV.
 
 v2.7.38 - Update Chinese translation with more mod support by MushroomEl.

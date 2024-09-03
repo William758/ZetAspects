@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using Mono.Cecil.Cil;
@@ -7,6 +8,11 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Stats;
 using RoR2.UI;
+using HarmonyLib;
+using System.Reflection;
+
+using MonoOpCodes = Mono.Cecil.Cil.OpCodes;
+using SysOpCodes = System.Reflection.Emit.OpCodes;
 
 namespace TPDespair.ZetAspects
 {
@@ -42,6 +48,9 @@ namespace TPDespair.ZetAspects
 
 		internal static void Init()
 		{
+			//ZetAspectsPlugin.harmony.Patch(AccessTools.Method(typeof(CharacterModel), nameof(CharacterModel.UpdateOverlays)), transpiler: new HarmonyMethod(typeof(DisplayHooks), nameof(OverlayTranspiler)));
+
+			CharacterOverlayStateHook();
 			CharacterOverlayHook();
 			EquipmentDisplayHook();
 			UpdateItemDisplayHook();
@@ -309,6 +318,70 @@ namespace TPDespair.ZetAspects
 		}
 
 
+		/*
+		public static IEnumerable<CodeInstruction> OverlayTranspiler(IEnumerable<CodeInstruction> instructions)
+		{
+			List<CodeInstruction> instructionList = instructions.ToList();
+
+			for (int i = 0; i < instructionList.Count; i++)
+			{
+				CodeInstruction instruction = instructionList[i];
+				yield return instruction;
+
+				if (i + 1 < instructionList.Count)
+				{
+					CodeInstruction nextInst = instructionList[i + 1];
+					string instring = nextInst.ToString();
+					if (instring.Contains("stfld") && instring.Contains("RtpcSetter") && instring.Contains("value"))
+					{
+						Logger.Warn("[OverlayTranspiler] IL Match Found!");
+						yield return new CodeInstruction(SysOpCodes.Pop);
+						yield return new CodeInstruction(SysOpCodes.Ldc_R4, 0f);
+					}
+				}
+			}
+		}
+		*/
+
+
+		private static void CharacterOverlayStateHook()
+		{
+			IL.RoR2.CharacterModel.UpdateOverlayStates += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterModel>("inventoryEquipmentIndex"),
+					x => x.MatchCall("RoR2.EquipmentCatalog", "GetEquipmentDef"),
+					x => x.MatchStloc(2)
+				);
+
+				if (found)
+				{
+					c.Index += 3;
+
+					c.Emit(MonoOpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<EquipmentDef, CharacterModel, EquipmentDef>>((equipDef, model) =>
+					{
+						CharacterBody body = model.body;
+						if (body)
+						{
+							EquipmentDef equipDefFromBody = GetBodyEliteDisplay(body);
+
+							//if (equipDef && !equipDefFromBody && equipDef == Catalog.Equip.AffixVoid) return null;
+							if (equipDefFromBody) return equipDefFromBody;
+						}
+
+						return equipDef;
+					});
+				}
+				else
+				{
+					Logger.Warn("Character OverlayStates Hook Failed");
+				}
+			};
+		}
 
 		private static void CharacterOverlayHook()
 		{
@@ -327,7 +400,7 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 3;
 
-					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(MonoOpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<EquipmentDef, CharacterModel, EquipmentDef>>((equipDef, model) =>
 					{
 						CharacterBody body = model.body;
