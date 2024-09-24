@@ -52,6 +52,8 @@ namespace TPDespair.ZetAspects
 
 
 
+		public static int barrierDecayMode = 0;
+
 		public static bool limitChillStacks = false;
 		public static bool borboFrostBlade = false;
 		public static bool shieldJump = false;
@@ -138,6 +140,13 @@ namespace TPDespair.ZetAspects
 			public static Sprite ZetSepiaBlind;
 			public static Sprite ZetElusive;
 			public static Sprite ZetWarped;
+
+			public static Sprite AffixArmored;
+			public static Sprite AffixBuffing_EV;
+			public static Sprite AffixImpPlane;
+			public static Sprite AffixPillaging;
+			public static Sprite AffixSandstorm;
+			public static Sprite AffixTinkerer;
 
 
 
@@ -233,6 +242,16 @@ namespace TPDespair.ZetAspects
 					AffixEcho = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEcho.png");
 				}
 
+				if (EliteVariety.Enabled)
+				{
+					AffixArmored = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixArmored.png");
+					AffixBuffing_EV = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBuffing.png");
+					AffixImpPlane = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixImpPlane.png");
+					AffixPillaging = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillaging.png");
+					AffixSandstorm = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSandstorm.png");
+					AffixTinkerer = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixTinkerer.png");
+				}
+
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -300,6 +319,7 @@ namespace TPDespair.ZetAspects
 			public static BuffDef BackupDebuff;
 			public static BuffDef NightSpeed;
 			public static BuffDef NightBlind;
+			public static BuffDef SandBlind;
 
 
 
@@ -346,6 +366,13 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixFrenzied;
 			public static BuffDef AffixVolatile;
 			public static BuffDef AffixEcho;
+
+			public static BuffDef AffixArmored;
+			public static BuffDef AffixBuffing;
+			public static BuffDef AffixImpPlane;
+			public static BuffDef AffixPillaging;
+			public static BuffDef AffixSandstorm;
+			public static BuffDef AffixTinkerer;
 		}
 
 		public static class Equip
@@ -393,6 +420,13 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixFrenzied;
 			public static EquipmentDef AffixVolatile;
 			public static EquipmentDef AffixEcho;
+
+			public static EquipmentDef AffixArmored;
+			public static EquipmentDef AffixBuffing;
+			public static EquipmentDef AffixImpPlane;
+			public static EquipmentDef AffixPillaging;
+			public static EquipmentDef AffixSandstorm;
+			public static EquipmentDef AffixTinkerer;
 		}
 
 		public static class Item
@@ -445,6 +479,13 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectFrenzied;
 			public static ItemDef ZetAspectVolatile;
 			public static ItemDef ZetAspectEcho;
+
+			public static ItemDef ZetAspectArmor;
+			public static ItemDef ZetAspectBanner;
+			public static ItemDef ZetAspectImpale;
+			public static ItemDef ZetAspectGolden;
+			public static ItemDef ZetAspectCyclone;
+			public static ItemDef ZetAspectTinker;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -458,6 +499,7 @@ namespace TPDespair.ZetAspects
 		public static BodyIndex healOrbBodyIndex = BodyIndex.None;
 		public static BodyIndex artifactShellBodyIndex = BodyIndex.None;
 		public static BodyIndex goldenTitanBodyIndex = BodyIndex.None;
+		public static BodyIndex tinkerDroneBodyIndex = BodyIndex.None;
 
 		public static BuffIndex altSlow80 = BuffIndex.None;
 		public static BuffIndex antiGrav = BuffIndex.None;
@@ -470,6 +512,9 @@ namespace TPDespair.ZetAspects
 		public static ItemIndex summonedEcho = ItemIndex.None;
 
 		public static ItemTier lunarVoidTier = ItemTier.AssignedAtRuntime;
+
+		public static DeployableSlot tinkerDeploySlot = DeployableSlot.EngiMine;
+		public static DotController.DotIndex impaleDotIndex = DotController.DotIndex.None;
 
 
 
@@ -927,6 +972,39 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectEcho);
 				transformableAspectItemDefs.Add(ZetAspectEcho);
 			}
+
+			if (EliteVariety.Enabled)
+			{
+				ItemDef ZetAspectArmor = Items.ZetAspectArmor.DefineItem();
+				Item.ZetAspectArmor = ZetAspectArmor;
+				ZetAspectsContent.itemDefs.Add(ZetAspectArmor);
+				transformableAspectItemDefs.Add(ZetAspectArmor);
+
+				ItemDef ZetAspectBanner = Items.ZetAspectBanner.DefineItem();
+				Item.ZetAspectBanner = ZetAspectBanner;
+				ZetAspectsContent.itemDefs.Add(ZetAspectBanner);
+				transformableAspectItemDefs.Add(ZetAspectBanner);
+
+				ItemDef ZetAspectImpale = Items.ZetAspectImpale.DefineItem();
+				Item.ZetAspectImpale = ZetAspectImpale;
+				ZetAspectsContent.itemDefs.Add(ZetAspectImpale);
+				transformableAspectItemDefs.Add(ZetAspectImpale);
+
+				ItemDef ZetAspectGolden = Items.ZetAspectGolden.DefineItem();
+				Item.ZetAspectGolden = ZetAspectGolden;
+				ZetAspectsContent.itemDefs.Add(ZetAspectGolden);
+				transformableAspectItemDefs.Add(ZetAspectGolden);
+
+				ItemDef ZetAspectCyclone = Items.ZetAspectCyclone.DefineItem();
+				Item.ZetAspectCyclone = ZetAspectCyclone;
+				ZetAspectsContent.itemDefs.Add(ZetAspectCyclone);
+				transformableAspectItemDefs.Add(ZetAspectCyclone);
+
+				ItemDef ZetAspectTinker = Items.ZetAspectTinker.DefineItem();
+				Item.ZetAspectTinker = ZetAspectTinker;
+				ZetAspectsContent.itemDefs.Add(ZetAspectTinker);
+				transformableAspectItemDefs.Add(ZetAspectTinker);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -1101,6 +1179,7 @@ namespace TPDespair.ZetAspects
 			RisingTides.PreInit();
 			NemRisingTides.PreInit();
 			MoreElites.PreInit();
+			EliteVariety.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -1110,6 +1189,13 @@ namespace TPDespair.ZetAspects
 			Logger.Info("Catalog Setup Initialized");
 
 			setupInitialize = true;
+
+			EffectHooks.LateSetup();
+
+			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats
+			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 1; // character fixedupdate
+			else if (PluginLoaded("com.RiskyLives.RiskyMod")) barrierDecayMode = 1; // server fixedupdate override
+			else if (PluginLoaded("com.TPDespair.StatAdjustment")) barrierDecayMode = 1; // server fixedupdate override
 
 			if (PluginLoaded("com.Borbo.ArtificerExtended")) limitChillStacks = true;
 			if (PluginLoaded("com.Borbo.BORBO")) borboFrostBlade = true;
@@ -1213,6 +1299,8 @@ namespace TPDespair.ZetAspects
 
 			if (PluginLoaded("com.themysticsword.aspectabilities")) Compat.AspectAbilities.LateSetup();
 
+			if (PluginLoaded("com.themysticsword.elitevariety") && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.LateSetup();
+
 			setupCompat = true;
 		}
 
@@ -1239,6 +1327,7 @@ namespace TPDespair.ZetAspects
 			RisingTides.Init();
 			NemRisingTides.Init();
 			MoreElites.Init();
+			EliteVariety.Init();
 
 			Language.ChangeText();
 
@@ -1407,6 +1496,12 @@ namespace TPDespair.ZetAspects
 			{
 				MoreElites.ItemEntries(true);
 				MoreElites.EquipmentEntries(false);
+			}
+
+			if (EliteVariety.populated)
+			{
+				EliteVariety.ItemEntries(true);
+				EliteVariety.EquipmentEntries(false);
 			}
 		}
 

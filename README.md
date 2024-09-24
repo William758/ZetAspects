@@ -98,6 +98,20 @@ Monster Frenzied attack speed multiplier : x1.75
 
 Monster Frenzied cooldown reduction multiplier : x1.25
 
+## Elite Variety Aspect Effects:
+
+![effects](https://i.imgur.com/z5rHysk.png)
+
+Impale Dot Damage : Damage multiplied by x0.75 to counteract effect of aspect DotAmp.
+
+bannerTweaks (disabled by default) : Aura will only provide warbanner buff and not warcry buff.
+
+impaleTweaks (disabled by default) : Scale impale damage and duration based on ambient level. Default effect at lvl 90.
+
+cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s -> 0.5s, Prevent Crit(remove constant luck sound effect).
+
+tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts and increase health and damage(configurable).
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -113,6 +127,12 @@ Korean translation by 깽비#8221.
 Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
+
+v2.8.4 - EliteVariety Support.
+
+v2.8.3 - Fixed for latest patch.
+
+v2.8.2 - Support for GoldenCoastPlusRevived.
 
 v2.8.1 - Made T2 Elites less spooky (Fixed audio issue).
 

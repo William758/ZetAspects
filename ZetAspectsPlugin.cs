@@ -18,6 +18,7 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.groovesalad.GrooveSaladSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.Skell.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.Phreel.GoldenCoastPlusRevived", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.KomradeSpectre.Aetherium", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("bubbet.bubbetsitems", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.PopcornFactory.WispMod", BepInDependency.DependencyFlags.SoftDependency)]
@@ -29,10 +30,11 @@ namespace TPDespair.ZetAspects
 	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	//[BepInDependency("prodzpod.NemesisRisingTides", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.Nuxlar.MoreElites", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.8.1";
+		public const string ModVer = "2.8.4";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -77,6 +79,8 @@ namespace TPDespair.ZetAspects
 			// - NemRisingTides
 
 			if (Catalog.MoreElites.Enabled && Configuration.MoreElitesHooks.Value) Compat.MoreElites.Init();
+
+			if (Catalog.EliteVariety.Enabled && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.Init();
 
 			Language.Init();
 		}
@@ -139,6 +143,13 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixNight, transform.position + new Vector3(-5f, 5f, -5f));
 				CreateDroplet(Catalog.Equip.AffixWater, transform.position + new Vector3(0f, 5f, -7.5f));
 				CreateDroplet(Catalog.Equip.AffixRealgar, transform.position + new Vector3(5f, 5f, -5f));
+
+				CreateDroplet(Catalog.Equip.AffixArmored, transform.position + new Vector3(-10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixBuffing, transform.position + new Vector3(0f, 10f, 15f));
+				CreateDroplet(Catalog.Equip.AffixImpPlane, transform.position + new Vector3(10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixPillaging, transform.position + new Vector3(-10f, 10f, -10f));
+				CreateDroplet(Catalog.Equip.AffixSandstorm, transform.position + new Vector3(0f, 10f, -15f));
+				CreateDroplet(Catalog.Equip.AffixTinkerer, transform.position + new Vector3(10f, 10f, -10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F5))

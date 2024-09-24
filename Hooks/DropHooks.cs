@@ -190,6 +190,16 @@ namespace TPDespair.ZetAspects
 				SetDropWeight(Catalog.Equip.AffixVolatile, Configuration.AspectDropWeightVolatile.Value);
 				SetDropWeight(Catalog.Equip.AffixEcho, Configuration.AspectDropWeightEcho.Value);
 			}
+
+			if (Catalog.RisingTides.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixArmored, Configuration.AspectDropWeightArmored.Value);
+				SetDropWeight(Catalog.Equip.AffixBuffing, Configuration.AspectDropWeightBuffing.Value);
+				SetDropWeight(Catalog.Equip.AffixImpPlane, Configuration.AspectDropWeightImpPlane.Value);
+				SetDropWeight(Catalog.Equip.AffixPillaging, Configuration.AspectDropWeightPillaging.Value);
+				SetDropWeight(Catalog.Equip.AffixSandstorm, Configuration.AspectDropWeightSandstorm.Value);
+				SetDropWeight(Catalog.Equip.AffixTinkerer, Configuration.AspectDropWeightTinkerer.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

@@ -443,6 +443,48 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("ASPECT_OF_ECHO", "<style=cDeath>Aspect of Echo</style> :");
 			RegisterFragment("PASSIVE_ECHOCLONE", "\nSpawn 2 clones of yourself.");
 
+			RegisterFragment("AFFIX_ARMOR_NAME", "Service for the Bulwark");
+			RegisterFragment("AFFIX_ARMOR_PICKUP", "Become an aspect of durability.");
+			RegisterFragment("AFFIX_ARMOR_ACTIVE", "Gain temporary armor increase on use.");
+			RegisterFragment("ASPECT_OF_DURABILITY", "<style=cDeath>Aspect of Durability</style> :");
+			RegisterFragment("PASSIVE_BULWARK_BARRIER_STOP", "\nSpawn with full barrier that doesn't decay.");
+			RegisterFragment("PASSIVE_BULWARK_BARRIER_DYNAMIC", "\nSpawn with full barrier that slowly decays.");
+			RegisterFragment("ROOT_ON_HIT", "\nAttacks <style=cIsUtility>root</style> on hit, immobilizing the target.");
+
+			RegisterFragment("AFFIX_BANNER_NAME", "Retaliation of the Planet");
+			RegisterFragment("AFFIX_BANNER_PICKUP", "Become an aspect of battle.");
+			RegisterFragment("AFFIX_BANNER_ACTIVE", "Increase banner radius on use.");
+			RegisterFragment("ASPECT_OF_BATTLE", "<style=cDeath>Aspect of Battle</style> :");
+
+			RegisterFragment("AFFIX_IMPALE_NAME", "Invasion from the Red Plane");
+			RegisterFragment("AFFIX_IMPALE_PICKUP", "Become an aspect of violence.");
+			RegisterFragment("AFFIX_IMPALE_ACTIVE", "Teleport to a target and deal damage on use.");
+			RegisterFragment("ASPECT_OF_VIOLENCE", "<style=cDeath>Aspect of Violence</style> :");
+			RegisterFragment("PASSIVE_IMPSTARE", "\nEnemies looking directly at you are <style=cIsDamage>marked</style>, increasing <style=cIsDamage>damage taken</style>.");
+			RegisterFragment("IMPALE_ON_HIT", "\nAttacks <style=cIsDamage>impale</style> on hit, periodically dealing heavy damage.");
+
+			RegisterFragment("AFFIX_GOLDEN_NAME", "Curse of Greed");
+			RegisterFragment("AFFIX_GOLDEN_PICKUP", "Become an aspect of theft.");
+			RegisterFragment("AFFIX_GOLDEN_ACTIVE", "Spend all of your gold for a random item. The more gold spent, the higher chance of getting a rarer item.");
+			RegisterFragment("ASPECT_OF_THEFT", "<style=cDeath>Aspect of Theft</style> :");
+			RegisterFragment("STEALGOLD_ON_HIT", "\nAttacks steal gold on hit.");
+
+			RegisterFragment("AFFIX_CYCLONE_NAME", "The Third Wish");
+			RegisterFragment("AFFIX_CYCLONE_PICKUP", "Become an aspect of sand.");
+			RegisterFragment("AFFIX_CYCLONE_ACTIVE", "Dash on use, knocking nearby enemies up.");
+			RegisterFragment("ASPECT_OF_SAND", "<style=cDeath>Aspect of Sand</style> :");
+			RegisterFragment("PASSIVE_SANDSTORM", "\nSurrounded by a sandstorm that damages enemies on contact.");
+			RegisterFragment("SANDBLIND_ON_HIT", "\nAttacks <style=cIsUtility>blind</style> on hit {0}, reducing hit chance by {1}.");
+
+			RegisterFragment("AFFIX_TINKER_NAME", "Neural Link");
+			RegisterFragment("AFFIX_TINKER_PICKUP", "Become an aspect of automatization.");
+			RegisterFragment("AFFIX_TINKER_ACTIVE", "Heal drones on use.");
+			RegisterFragment("ASPECT_OF_AUTOMATIZATION", "<style=cDeath>Aspect of Automatization</style> :");
+			RegisterFragment("PASSIVE_TINKERDRONE", "\nSpawn upto {0} Tinkerer's Drones that become stronger with scrap.");
+			RegisterFragment("PASSIVE_TINKERDRONE_SINGLE", "\nSpawn a Tinkerer's Drone that become stronger with scrap.");
+			RegisterFragment("TINKER_SCRAPSTEAL_DETAIL", "\n<style=cStack>(Tinker's Drones steal scrap on hit.)</style>");
+
+
 
 
 
@@ -464,8 +506,10 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("STAT_HEALTH_REDUCTION", "\nReduces <style=cIsHealth>maximum health</style> by {0}.");
 			RegisterFragment("STAT_REGENERATION", "\nIncreases <style=cIsHealing>health regeneration</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE", "\nIncreases <style=cIsDamage>damage</style> by {0}.");
+			RegisterFragment("STAT_DAMAGE_DRONE", "\nDrones deal {0} increased <style=cIsDamage>damage</style>.");
 			RegisterFragment("STAT_COOLDOWN", "\nReduces <style=cIsUtility>skill cooldowns</style> by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN", "\nReduces <style=cIsHealing>damage taken</style> by {0}.");
+			RegisterFragment("STAT_DAMAGE_TAKEN_DRONE", "\nYour drones have <style=cIsHealing>damage taken</style> reduced by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN_MINION", "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.");
 			RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\nReduces <style=cIsHealing>damage taken</style> by {0} while <style=cIsHealing>barrier</style> is active.");
 

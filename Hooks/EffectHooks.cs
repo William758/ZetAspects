@@ -16,7 +16,7 @@ namespace TPDespair.ZetAspects
 {
 	internal static class EffectHooks
 	{
-		//public static List<string> dronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
+		public static List<string> dronesList = new List<string> { "Drone", "Droid", "Robo", "Turret", "Missile", "Laser", "Beam" };
 
 		internal static Dictionary<NetworkInstanceId, float> DestroyedBodies = new Dictionary<NetworkInstanceId, float>();
 		internal static Dictionary<NetworkInstanceId, float> ShieldRegenAccumulator = new Dictionary<NetworkInstanceId, float>();
@@ -130,7 +130,16 @@ namespace TPDespair.ZetAspects
 			CharacterBody.onBodyInventoryChangedGlobal += HandleEliteBuffManager;
 		}
 
-		
+		internal static void LateSetup()
+		{
+			if (Catalog.EliteVariety.Enabled)
+			{
+				ModifyDot();
+				ModifyDeploySlot();
+			}
+		}
+
+
 
 		internal static void ApplyVoidBearCooldownFix()
 		{
@@ -276,6 +285,14 @@ namespace TPDespair.ZetAspects
 										avoidChance += Configuration.AspectNightBlindDodgeEffect.Value;
 									}
 								}
+
+								if (atkBody.HasBuff(Catalog.Buff.SandBlind))
+								{
+									if (Configuration.AspectCycloneBlindDodgeEffect.Value > 0f)
+									{
+										avoidChance += Configuration.AspectCycloneBlindDodgeEffect.Value;
+									}
+								}
 							}
 						}
 
@@ -313,6 +330,12 @@ namespace TPDespair.ZetAspects
 									float count = Mathf.Max(5f, vicBody.GetBuffCount(Catalog.Buff.ZetElusive));
 									avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / (nemCloak ? 40f : 20f));
 								}
+							}
+
+							if (vicBody.HasBuff(Catalog.Buff.AffixSandstorm) && Configuration.AspectCycloneBaseDodgeGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(vicBody, Catalog.Buff.AffixSandstorm);
+								avoidChance += Configuration.AspectCycloneBaseDodgeGain.Value + Configuration.AspectCycloneStackDodgeGain.Value * (count - 1f);
 							}
 
 							if (vicBody.bodyIndex == Catalog.mithrixBodyIndex || vicBody.bodyIndex == Catalog.voidlingBodyIndex) dodgeMultiplier *= 0.65f;
@@ -422,7 +445,7 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 1;
 
-					c.Emit(OpCodes.Ldloc, 7);
+					c.Emit(OpCodes.Ldloc, 6);
 					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Func<float, CharacterBody, float>>((damage, body) =>
 					{
@@ -438,7 +461,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, 7);
+					c.Emit(OpCodes.Stloc, 6);
 				}
 				else
 				{
@@ -914,22 +937,41 @@ namespace TPDespair.ZetAspects
 								}
 							}
 
-							if (Catalog.MoreElites.Enabled && Configuration.AspectEchoBaseMinionDamageResistGain.Value > 0f)
+							bool echoEnabled = Catalog.MoreElites.Enabled && Configuration.AspectEchoBaseMinionDamageResistGain.Value > 0f;
+							bool tinkerEnabled = Catalog.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageResistGain.Value > 0f;
+
+							// should we check minion owners for damage reduction sources?
+							if (echoEnabled || tinkerEnabled)
 							{
 								CharacterMaster master = vicBody.master;
 								if (master)
 								{
-									CharacterBody ownerBody = GetMinionOwnerBody(master);
-									if (ownerBody && ownerBody.HasBuff(Catalog.Buff.AffixEcho))
+									// echo will check all minions , if tinker only ; only check drones
+									bool isDrone = tinkerEnabled && IsValidDrone(master);
+									if (echoEnabled || isDrone)
 									{
-										float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixEcho);
-										float effectValue = Configuration.AspectEchoBaseMinionDamageResistGain.Value + Configuration.AspectEchoStackMinionDamageResistGain.Value * (count - 1f);
+										CharacterBody ownerBody = GetMinionOwnerBody(master);
+										if (ownerBody)
+										{
+											if (ownerBody.HasBuff(Catalog.Buff.AffixEcho))
+											{
+												float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixEcho);
+												float effectValue = Configuration.AspectEchoBaseMinionDamageResistGain.Value + Configuration.AspectEchoStackMinionDamageResistGain.Value * (count - 1f);
 
-										reduction += effectValue;
+												reduction += effectValue;
+											}
+
+											if (isDrone && ownerBody.HasBuff(Catalog.Buff.AffixTinkerer))
+											{
+												float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixTinkerer);
+												float effectValue = Configuration.AspectTinkerBaseMinionDamageResistGain.Value + Configuration.AspectTinkerStackMinionDamageResistGain.Value * (count - 1f);
+
+												reduction += effectValue;
+											}
+										}
 									}
 								}
 							}
-
 
 							if (reduction > 0f)
 							{
@@ -947,14 +989,12 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		/*
+		
 		internal static bool IsValidDrone(CharacterMaster minionMaster)
 		{
-			bool result = dronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
-			//Debug.LogWarning("Checking Master Name : " + minionMaster.name + " - " + result);
-			return result;
+			return dronesList.Exists((droneSubstring) => { return minionMaster.name.Contains(droneSubstring); });
 		}
-		*/
+		
 		internal static CharacterBody GetMinionOwnerBody(CharacterMaster minionMaster)
 		{
 			MinionOwnership minionOwnership = minionMaster.minionOwnership;
@@ -1042,12 +1082,12 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		/*
+		
 		private static void ModifyDot()
 		{
-			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float += (orig, attacker, victim, index, duration, damage) =>
+			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float_Nullable1 += (orig, attacker, victim, index, duration, damage, wat) =>
 			{
-				DotController.DotIndex dotIndex = Catalog.EliteVariety.impaleDotIndex;
+				DotController.DotIndex dotIndex = Catalog.impaleDotIndex;
 				if (dotIndex != DotController.DotIndex.None && index == dotIndex)
 				{
 					damage *= Configuration.AspectImpaleDamageMult.Value;
@@ -1073,7 +1113,7 @@ namespace TPDespair.ZetAspects
 					}
 				}
 
-				orig(attacker, victim, index, duration, damage);
+				orig(attacker, victim, index, duration, damage, wat);
 			};
 		}
 
@@ -1081,7 +1121,7 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.CharacterMaster.GetDeployableSameSlotLimit += (orig, self, slot) =>
 			{
-				DeployableSlot deploySlot = Catalog.EliteVariety.tinkerDeploySlot;
+				DeployableSlot deploySlot = Catalog.tinkerDeploySlot;
 				if (deploySlot != DeployableSlot.EngiMine && slot == deploySlot)
 				{
 					int output;
@@ -1099,7 +1139,6 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		*/
 		
 		private static void DotAmpHook()
 		{
@@ -1125,6 +1164,12 @@ namespace TPDespair.ZetAspects
 					{
 						float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixSanguine);
 						mult += Configuration.AspectSanguineBaseDotAmp.Value + Configuration.AspectSanguineStackDotAmp.Value * (count - 1f);
+					}
+
+					if (atkBody.HasBuff(Catalog.Buff.AffixImpPlane) && Configuration.AspectImpaleBaseDotAmp.Value > 0f)
+					{
+						float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixImpPlane);
+						mult += Configuration.AspectImpaleBaseDotAmp.Value + Configuration.AspectImpaleStackDotAmp.Value * (count - 1f);
 					}
 
 					inflictDotInfo.damageMultiplier *= mult;
@@ -2242,6 +2287,19 @@ namespace TPDespair.ZetAspects
 					}
 				}
 			}
+
+			if (Catalog.EliteVariety.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixArmored, Catalog.Item.ZetAspectArmor, Catalog.Equip.AffixArmored);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixBuffing, Catalog.Item.ZetAspectBanner, Catalog.Equip.AffixBuffing);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixImpPlane, Catalog.Item.ZetAspectImpale, Catalog.Equip.AffixImpPlane);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixPillaging, Catalog.Item.ZetAspectGolden, Catalog.Equip.AffixPillaging);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixSandstorm, Catalog.Item.ZetAspectCyclone, Catalog.Equip.AffixSandstorm);
+				if (self.bodyIndex != Catalog.tinkerDroneBodyIndex)
+				{
+					ApplyAspectBuff(self, inventory, Catalog.Buff.AffixTinkerer, Catalog.Item.ZetAspectTinker, Catalog.Equip.AffixTinkerer);
+				}
+			}
 		}
 
 		private static void ApplyAspectBuff(CharacterBody body, Inventory inventory, BuffDef buffDef, ItemDef itemDef, EquipmentDef equipDef)
@@ -2258,6 +2316,7 @@ namespace TPDespair.ZetAspects
 
 			if ((bodyIndex == Catalog.urchinTurretBodyIndex || bodyIndex == Catalog.urchinOrbitalBodyIndex) && buffDef == Catalog.Buff.AffixPoison) return false;
 			if (bodyIndex == Catalog.healOrbBodyIndex && buffDef == Catalog.Buff.AffixEarth) return false;
+			if (bodyIndex == Catalog.tinkerDroneBodyIndex && buffDef == Catalog.Buff.AffixTinkerer) return false;
 
 			Inventory inventory = body.inventory;
 			if (inventory != null)

@@ -152,6 +152,12 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixSandstorm) && Configuration.AspectCycloneBaseMovementGain.Value > 0f)
+						{
+							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSandstorm);
+							value += Configuration.AspectCycloneBaseMovementGain.Value + Configuration.AspectCycloneStackMovementGain.Value * (count - 1f);
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -190,6 +196,8 @@ namespace TPDespair.ZetAspects
 							if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedExtraJump.Value) value++;
 
 							if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveExtraJump.Value) value++;
+
+							if (self.HasBuff(Catalog.Buff.AffixBuffing) && Configuration.AspectBannerExtraJump.Value) value++;
 						}
 
 						return value;
@@ -290,6 +298,26 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixBuffing) && Configuration.AspectBannerBaseDamageGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBuffing);
+							value += Configuration.AspectBannerBaseDamageGain.Value + Configuration.AspectBannerStackDamageGain.Value * (count - 1f);
+						}
+
+						if (Catalog.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f)
+						{
+							CharacterMaster master = self.master;
+							if (master && EffectHooks.IsValidDrone(master))
+							{
+								CharacterBody ownerBody = EffectHooks.GetMinionOwnerBody(master);
+								if (ownerBody && ownerBody.HasBuff(Catalog.Buff.AffixTinkerer))
+								{
+									float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixTinkerer);
+									value += Configuration.AspectTinkerBaseMinionDamageGain.Value + Configuration.AspectTinkerStackMinionDamageGain.Value * (count - 1f);
+								}
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -305,6 +333,12 @@ namespace TPDespair.ZetAspects
 						{
 							float delta = Mathf.Abs(Configuration.AspectBlueSappedDamage.Value);
 							value *= 1f - Mathf.Min(0.9f, delta);
+						}
+
+						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
+						{
+							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterDamageMult.Value;
+							else value *= Configuration.AspectTinkerPlayerDamageMult.Value;
 						}
 
 						return value;
@@ -491,6 +525,12 @@ namespace TPDespair.ZetAspects
 							value /= 1f - cfgValue / 100f;
 						}
 
+						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
+						{
+							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterHealthMult.Value;
+							else value *= Configuration.AspectTinkerPlayerHealthMult.Value;
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, baseValue);
@@ -577,6 +617,12 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(Catalog.Buff.AffixSandstorm) && Configuration.AspectCycloneBaseAtkSpdGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSandstorm);
+							value += Configuration.AspectCycloneBaseAtkSpdGain.Value + Configuration.AspectCycloneStackAtkSpdGain.Value * (count - 1f);
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, multValue);
@@ -631,54 +677,45 @@ namespace TPDespair.ZetAspects
 					{
 						float amount = 0f;
 
+						Inventory inventory = self.inventory;
+						if (inventory)
+						{
+							bool goldEnabled = self.HasBuff(Catalog.Buff.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
+							bool pillageEnabled = self.HasBuff(Catalog.Buff.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
+
+							if (goldEnabled || pillageEnabled)
+							{
+								float itemScore = GetItemScore(inventory);
+
+								if (goldEnabled)
+								{
+									float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixGold);
+
+									float scoredRegen = itemScore * Configuration.AspectGoldItemScoreFactor.Value;
+									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldItemScoreExponent.Value);
+									scoredRegen *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
+
+									// itemscore regen does not benefit from lvl scaling
+									value += scoredRegen * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
+								}
+
+								if (pillageEnabled)
+								{
+									float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPillaging);
+
+									float scoredRegen = itemScore * Configuration.AspectGoldenItemScoreFactor.Value;
+									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldenItemScoreExponent.Value);
+									scoredRegen *= Configuration.AspectGoldenBaseScoredRegenGain.Value + Configuration.AspectGoldenStackScoredRegenGain.Value * (count - 1f);
+
+									// itemscore regen does not benefit from lvl scaling
+									value += scoredRegen * (1f + (Configuration.AspectGoldenItemScoreLevelScaling.Value * (self.level - 1f)));
+								}
+							}
+						}
+
 						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
 						{
 							amount += 1.6f;
-						}
-
-						if (self.HasBuff(Catalog.Buff.AffixGold))
-						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixGold);
-
-							if (Configuration.AspectGoldBaseRegenGain.Value > 0f)
-							{
-								amount += Configuration.AspectGoldBaseRegenGain.Value + Configuration.AspectGoldStackRegenGain.Value * (count - 1f);
-							}
-
-							if (Configuration.AspectGoldBaseScoredRegenGain.Value > 0f)
-							{
-								Inventory inventory = self.inventory;
-								if (inventory)
-								{
-									float itemScore = 0f;
-
-									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
-									itemScore += inventory.GetTotalItemCountOfTier(ItemTier.VoidTier1);
-									itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
-									itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier2);
-									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
-									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier3);
-									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
-									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
-									itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
-									ItemTier lunarVoidTier = Catalog.lunarVoidTier;
-									if (lunarVoidTier != ItemTier.AssignedAtRuntime)
-									{
-										itemScore += 9f * inventory.GetTotalItemCountOfTier(lunarVoidTier);
-									}
-
-									float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-									if (Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
-									if (Catalog.ItemizeEliteEquipment(inventory.alternateEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
-
-									itemScore *= Configuration.AspectGoldItemScoreFactor.Value;
-									itemScore = Mathf.Pow(itemScore, Configuration.AspectGoldItemScoreExponent.Value);
-									itemScore *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
-
-									// itemscore regen does not benefit from lvl scaling
-									value += itemScore * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
-								}
-							}
 						}
 
 						if (self.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
@@ -745,6 +782,32 @@ namespace TPDespair.ZetAspects
 					Logger.Warn("RegenHook Failed");
 				}
 			};
+		}
+
+		public static float GetItemScore(Inventory inventory)
+		{
+			float itemScore = 0f;
+
+			itemScore += inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
+			itemScore += inventory.GetTotalItemCountOfTier(ItemTier.VoidTier1);
+			itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
+			itemScore += 3f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier2);
+			itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
+			itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidTier3);
+			itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Boss);
+			itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
+			itemScore += 9f * inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
+			ItemTier lunarVoidTier = Catalog.lunarVoidTier;
+			if (lunarVoidTier != ItemTier.AssignedAtRuntime)
+			{
+				itemScore += 9f * inventory.GetTotalItemCountOfTier(lunarVoidTier);
+			}
+
+			float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+			if (Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+			if (Catalog.ItemizeEliteEquipment(inventory.alternateEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+
+			return itemScore;
 		}
 
 		private static bool AllowPercentHealthRegen(CharacterBody body)
@@ -882,6 +945,12 @@ namespace TPDespair.ZetAspects
 			if (self.HasBuff(Catalog.Buff.ZetShredded))
 			{
 				addedArmor -= Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixArmored) && Configuration.AspectArmorBaseArmorGain.Value > 0f)
+			{
+				count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixArmored);
+				addedArmor += Configuration.AspectArmorBaseArmorGain.Value + Configuration.AspectArmorStackArmorGain.Value * (count - 1f);
 			}
 
 			return addedArmor;

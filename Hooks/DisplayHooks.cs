@@ -94,6 +94,11 @@ namespace TPDespair.ZetAspects
 				AddAspectRender(Catalog.Equip.AffixBlackHole);
 			}
 
+			if (Catalog.EliteVariety.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixImpPlane);
+			}
+
 			if (Catalog.SpikeStrip.populated)
 			{
 				AddAspectRender(Catalog.Equip.AffixAragonite);
@@ -116,6 +121,15 @@ namespace TPDespair.ZetAspects
 			if (Catalog.WarWisp.populated)
 			{
 				AddAspectRender(Catalog.Equip.AffixNullifier);
+			}
+
+			if (Catalog.EliteVariety.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixTinkerer);
+				AddAspectRender(Catalog.Equip.AffixSandstorm);
+				AddAspectRender(Catalog.Equip.AffixBuffing);
+				AddAspectRender(Catalog.Equip.AffixArmored);
+				AddAspectRender(Catalog.Equip.AffixPillaging);
 			}
 
 			if (Catalog.RisingTides.populated)

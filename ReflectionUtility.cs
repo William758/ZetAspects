@@ -132,6 +132,91 @@ namespace TPDespair.ZetAspects
 
 
 
+		public static MethodInfo GetMethod(this Reflector reflector, string typeName, string methodName)
+		{
+			Type type = reflector.GetType(typeName);
+			if (type != null)
+			{
+				return reflector.GetMethod(type, methodName);
+			}
+
+			return null;
+		}
+
+		public static MethodInfo GetMethod(this Reflector reflector, Type type, string methodName)
+		{
+			MethodInfo methodInfo = type.GetMethod(methodName, Reflector.Flags);
+			if (methodInfo != null)
+			{
+				return methodInfo;
+			}
+			else
+			{
+				Logger.Warn(reflector.identifier + " - Could Not Find Method : " + type.Name + "." + methodName);
+				return null;
+			}
+		}
+
+		public static MethodInfo GetMethod(this Reflector reflector, string typeName, string nestedTypeName, string methodName)
+		{
+			Type type = reflector.GetType(typeName, nestedTypeName);
+			if (type != null)
+			{
+				return reflector.GetMethod(type, methodName);
+			}
+
+			return null;
+		}
+
+
+
+		public static MethodInfo GetMatchingMethod(this Reflector reflector, Type type, Type[] par)
+		{
+			MethodInfo[] methodInfos = type.GetMethods(Reflector.Flags);
+			for (int i = 0; i < methodInfos.Length; i++)
+			{
+				MethodInfo methodInfo = methodInfos[i];
+				ParameterInfo[] pars = methodInfo.GetParameters();
+				if (pars.Length == par.Length)
+				{
+					for (int j = 0; j < par.Length; j++)
+					{
+						if (pars[j].ParameterType != par[j]) break;
+
+						if (j == par.Length - 1)
+						{
+							return methodInfo;
+						}
+					}
+				}
+			}
+
+			Logger.Warn(reflector.identifier + " - Could Not Find Any Method In : " + type.FullName + " With Parameters : " + ParameterNames(par));
+
+			return null;
+		}
+
+		private static string ParameterNames(Type[] par)
+		{
+			string result = "";
+
+			for (int i = 0; i < par.Length; i++)
+			{
+				result += par[i].Name;
+
+				if (i < par.Length - 1)
+				{
+					result += ", ";
+				}
+			}
+
+			return result;
+		}
+
+
+
+
+		/*
 		public static bool GetConfigValue(this Reflector reflector, FieldInfo fieldInfo, bool defaultValue)
 		{
 			object fieldValue = fieldInfo.GetValue(null);
@@ -227,5 +312,6 @@ namespace TPDespair.ZetAspects
 				return defaultValue;
 			}
 		}
+		*/
 	}
 }

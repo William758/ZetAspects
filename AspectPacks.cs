@@ -410,7 +410,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (state == -1)
 					{
-						if (PluginLoaded("com.Skell.GoldenCoastPlus")) state = 1;
+						if (PluginLoaded("com.Skell.GoldenCoastPlus") || PluginLoaded("com.Phreel.GoldenCoastPlusRevived")) state = 1;
 						else state = 0;
 					}
 					return state == 1;
@@ -2004,6 +2004,231 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixFrenzied, Buff.AffixFrenzied, Item.ZetAspectFrenzied);
 				CreateEquality(Equip.AffixVolatile, Buff.AffixVolatile, Item.ZetAspectVolatile);
 				CreateEquality(Equip.AffixEcho, Buff.AffixEcho, Item.ZetAspectEcho);
+			}
+		}
+
+
+
+		public static class EliteVariety
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.themysticsword.elitevariety")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
+
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixArmored");
+				if (index != EquipmentIndex.None) Equip.AffixArmored = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixBuffing");
+				if (index != EquipmentIndex.None) Equip.AffixBuffing = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixImpPlane");
+				if (index != EquipmentIndex.None) Equip.AffixImpPlane = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixPillaging");
+				if (index != EquipmentIndex.None) Equip.AffixPillaging = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixSandstorm");
+				if (index != EquipmentIndex.None) Equip.AffixSandstorm = EquipmentCatalog.GetEquipmentDef(index);
+
+				index = EquipmentCatalog.FindEquipmentIndex("EliteVariety_AffixTinkerer");
+				if (index != EquipmentIndex.None) Equip.AffixTinkerer = EquipmentCatalog.GetEquipmentDef(index);
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixArmored)
+				{
+					Buff.AffixArmored = Equip.AffixArmored.passiveBuffDef;
+				}
+				if (Equip.AffixBuffing)
+				{
+					Buff.AffixBuffing = Equip.AffixBuffing.passiveBuffDef;
+				}
+				if (Equip.AffixImpPlane)
+				{
+					Buff.AffixImpPlane = Equip.AffixImpPlane.passiveBuffDef;
+				}
+				if (Equip.AffixPillaging)
+				{
+					Buff.AffixPillaging = Equip.AffixPillaging.passiveBuffDef;
+				}
+				if (Equip.AffixSandstorm)
+				{
+					Buff.AffixSandstorm = Equip.AffixSandstorm.passiveBuffDef;
+				}
+				if (Equip.AffixTinkerer)
+				{
+					Buff.AffixTinkerer = Equip.AffixTinkerer.passiveBuffDef;
+				}
+
+				BuffIndex index = BuffCatalog.FindBuffIndex("EliteVariety_SandstormBlind");
+				if (index != BuffIndex.None) Buff.SandBlind = BuffCatalog.GetBuffDef(index);
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectArmor, ref Equip.AffixArmored, ref Buff.AffixArmored, state);
+				DisableInactiveItem(Item.ZetAspectBanner, ref Equip.AffixBuffing, ref Buff.AffixBuffing, state);
+				DisableInactiveItem(Item.ZetAspectImpale, ref Equip.AffixImpPlane, ref Buff.AffixImpPlane, state);
+				DisableInactiveItem(Item.ZetAspectGolden, ref Equip.AffixPillaging, ref Buff.AffixPillaging, state);
+				DisableInactiveItem(Item.ZetAspectCyclone, ref Equip.AffixSandstorm, ref Buff.AffixSandstorm, state);
+				DisableInactiveItem(Item.ZetAspectTinker, ref Equip.AffixTinkerer, ref Buff.AffixTinkerer, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectArmor.SetupTokens();
+				Items.ZetAspectBanner.SetupTokens();
+				Items.ZetAspectImpale.SetupTokens();
+				Items.ZetAspectGolden.SetupTokens();
+				Items.ZetAspectCyclone.SetupTokens();
+				Items.ZetAspectTinker.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectArmor, shown);
+				SetItemState(Item.ZetAspectBanner, shown);
+				SetItemState(Item.ZetAspectImpale, shown);
+				SetItemState(Item.ZetAspectGolden, shown);
+				SetItemState(Item.ZetAspectCyclone, shown);
+				SetItemState(Item.ZetAspectTinker, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectArmor, Equip.AffixArmored);
+				CopyExpansion(Item.ZetAspectBanner, Equip.AffixBuffing);
+				CopyExpansion(Item.ZetAspectImpale, Equip.AffixImpPlane);
+				CopyExpansion(Item.ZetAspectGolden, Equip.AffixPillaging);
+				CopyExpansion(Item.ZetAspectCyclone, Equip.AffixSandstorm);
+				CopyExpansion(Item.ZetAspectTinker, Equip.AffixTinkerer);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectArmor, Equip.AffixArmored);
+				CopyEquipmentPrefab(Item.ZetAspectBanner, Equip.AffixBuffing);
+				CopyEquipmentPrefab(Item.ZetAspectImpale, Equip.AffixImpPlane);
+				CopyEquipmentPrefab(Item.ZetAspectGolden, Equip.AffixPillaging);
+				CopyEquipmentPrefab(Item.ZetAspectCyclone, Equip.AffixSandstorm);
+				CopyEquipmentPrefab(Item.ZetAspectTinker, Equip.AffixTinkerer);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixArmored, Sprites.AffixArmored, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixBuffing, Sprites.AffixBuffing_EV, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixImpPlane, Sprites.AffixImpPlane, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixPillaging, Sprites.AffixPillaging, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixSandstorm, Sprites.AffixSandstorm, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixTinkerer, Sprites.AffixTinkerer, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixArmored, shown);
+				SetEquipmentState(Equip.AffixBuffing, shown);
+				SetEquipmentState(Equip.AffixImpPlane, shown);
+				SetEquipmentState(Equip.AffixPillaging, shown);
+				SetEquipmentState(Equip.AffixSandstorm, shown);
+				SetEquipmentState(Equip.AffixTinkerer, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixArmored);
+				ColorEquipmentDroplet(Equip.AffixBuffing);
+				ColorEquipmentDroplet(Equip.AffixImpPlane);
+				ColorEquipmentDroplet(Equip.AffixPillaging);
+				ColorEquipmentDroplet(Equip.AffixSandstorm);
+				ColorEquipmentDroplet(Equip.AffixTinkerer);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixArmored, Buff.AffixArmored, Item.ZetAspectArmor);
+				CreateEquality(Equip.AffixBuffing, Buff.AffixBuffing, Item.ZetAspectBanner);
+				CreateEquality(Equip.AffixImpPlane, Buff.AffixImpPlane, Item.ZetAspectImpale);
+				CreateEquality(Equip.AffixPillaging, Buff.AffixPillaging, Item.ZetAspectGolden);
+				CreateEquality(Equip.AffixSandstorm, Buff.AffixSandstorm, Item.ZetAspectCyclone);
+				CreateEquality(Equip.AffixTinkerer, Buff.AffixTinkerer, Item.ZetAspectTinker);
 			}
 		}
 	}
