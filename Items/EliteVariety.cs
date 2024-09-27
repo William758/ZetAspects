@@ -152,6 +152,11 @@ namespace TPDespair.ZetAspects.Items
 
 			output += TextFragment("PASSIVE_WARBANNER_AURA");
 
+			if (!Compat.EliteVariety.bannerDisableBoostHook)
+			{
+				output += TextFragment("PASSIVE_WARCRY_RALLY_SELF");
+			}
+
 			if (AspectBannerExtraJump.Value)
 			{
 				output += TextFragment("STAT_EXTRA_JUMP");
@@ -497,7 +502,8 @@ namespace TPDespair.ZetAspects.Items
 				output += String.Format(
 					TextFragment("PASSIVE_TINKERDRONE"), 3
 				);
-				output += TextFragment("TINKER_SCRAPSTEAL_DETAIL");
+
+				if (!Compat.EliteVariety.tinkerStealHook) output += TextFragment("TINKER_SCRAPSTEAL_DETAIL");
 			}
 			else
 			{

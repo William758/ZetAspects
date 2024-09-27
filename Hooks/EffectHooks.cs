@@ -2177,17 +2177,26 @@ namespace TPDespair.ZetAspects
 
 						if (inventory)
 						{
+							bool aspectBuff = false;
 							BuffDef buffToCheck = buffDef;
 
 							if (Catalog.Buff.ZetEchoPrimer && buffDef == Catalog.Buff.ZetEchoPrimer) buffToCheck = Catalog.Buff.AffixEcho;
-
-							if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex) && BodyAllowedAffix(self, buffToCheck) && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck))
+							if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex))
 							{
-								self.AddTimedBuff(buffToCheck, BuffCycleDuration);
+								aspectBuff = true;
+
+								if (BodyAllowedAffix(self, buffToCheck) && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck))
+								{
+									self.AddTimedBuff(buffToCheck, BuffCycleDuration);
+								}
 							}
 
 							// update itemBehaviors and itemDisplays
-							inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
+							int updateMode = Configuration.UpdateInventoryFromBuff.Value;
+							if (updateMode > 0 && (updateMode > 1 || aspectBuff))
+							{
+								inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
+							}
 						}
 					}
 				}
@@ -2299,6 +2308,17 @@ namespace TPDespair.ZetAspects
 				{
 					ApplyAspectBuff(self, inventory, Catalog.Buff.AffixTinkerer, Catalog.Item.ZetAspectTinker, Catalog.Equip.AffixTinkerer);
 				}
+			}
+
+			if (Catalog.Augmentum.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixAdaptive, Catalog.Item.ZetAspectAdaptive, Catalog.Equip.AffixAdaptive);
+			}
+
+			if (Catalog.Sandswept.populated)
+			{
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixMotivator, Catalog.Item.ZetAspectMotivator, Catalog.Equip.AffixMotivator);
+				ApplyAspectBuff(self, inventory, Catalog.Buff.AffixOsmium, Catalog.Item.ZetAspectOsmium, Catalog.Equip.AffixOsmium);
 			}
 		}
 

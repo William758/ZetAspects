@@ -132,6 +132,18 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixVolatile;
 			public static Sprite AffixEcho;
 
+			public static Sprite AffixArmored;
+			public static Sprite AffixBuffing_EV;
+			public static Sprite AffixImpPlane;
+			public static Sprite AffixPillaging;
+			public static Sprite AffixSandstorm;
+			public static Sprite AffixTinkerer;
+
+			public static Sprite AffixAdaptive;
+
+			public static Sprite AffixMotivator;
+			public static Sprite AffixOsmium;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
@@ -140,13 +152,6 @@ namespace TPDespair.ZetAspects
 			public static Sprite ZetSepiaBlind;
 			public static Sprite ZetElusive;
 			public static Sprite ZetWarped;
-
-			public static Sprite AffixArmored;
-			public static Sprite AffixBuffing_EV;
-			public static Sprite AffixImpPlane;
-			public static Sprite AffixPillaging;
-			public static Sprite AffixSandstorm;
-			public static Sprite AffixTinkerer;
 
 
 
@@ -250,6 +255,17 @@ namespace TPDespair.ZetAspects
 					AffixPillaging = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixPillaging.png");
 					AffixSandstorm = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixSandstorm.png");
 					AffixTinkerer = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixTinkerer.png");
+				}
+
+				if (Augmentum.Enabled)
+				{
+					AffixAdaptive = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixAdaptive.png");
+				}
+
+				if (Sandswept.Enabled)
+				{
+					AffixMotivator = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixMotivator.png");
+					AffixOsmium = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixOsmium.png");
 				}
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
@@ -373,6 +389,11 @@ namespace TPDespair.ZetAspects
 			public static BuffDef AffixPillaging;
 			public static BuffDef AffixSandstorm;
 			public static BuffDef AffixTinkerer;
+
+			public static BuffDef AffixAdaptive;
+
+			public static BuffDef AffixMotivator;
+			public static BuffDef AffixOsmium;
 		}
 
 		public static class Equip
@@ -427,6 +448,11 @@ namespace TPDespair.ZetAspects
 			public static EquipmentDef AffixPillaging;
 			public static EquipmentDef AffixSandstorm;
 			public static EquipmentDef AffixTinkerer;
+
+			public static EquipmentDef AffixAdaptive;
+
+			public static EquipmentDef AffixMotivator;
+			public static EquipmentDef AffixOsmium;
 		}
 
 		public static class Item
@@ -486,6 +512,11 @@ namespace TPDespair.ZetAspects
 			public static ItemDef ZetAspectGolden;
 			public static ItemDef ZetAspectCyclone;
 			public static ItemDef ZetAspectTinker;
+
+			public static ItemDef ZetAspectAdaptive;
+
+			public static ItemDef ZetAspectMotivator;
+			public static ItemDef ZetAspectOsmium;
 		}
 
 		public static EffectDef RejectTextDef;
@@ -1005,6 +1036,27 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectTinker);
 				transformableAspectItemDefs.Add(ZetAspectTinker);
 			}
+
+			if (Augmentum.Enabled)
+			{
+				ItemDef ZetAspectAdaptive = Items.ZetAspectAdaptive.DefineItem();
+				Item.ZetAspectAdaptive = ZetAspectAdaptive;
+				ZetAspectsContent.itemDefs.Add(ZetAspectAdaptive);
+				transformableAspectItemDefs.Add(ZetAspectAdaptive);
+			}
+
+			if (Sandswept.Enabled)
+			{
+				ItemDef ZetAspectMotivator = Items.ZetAspectMotivator.DefineItem();
+				Item.ZetAspectMotivator = ZetAspectMotivator;
+				ZetAspectsContent.itemDefs.Add(ZetAspectMotivator);
+				transformableAspectItemDefs.Add(ZetAspectMotivator);
+
+				ItemDef ZetAspectOsmium = Items.ZetAspectOsmium.DefineItem();
+				Item.ZetAspectOsmium = ZetAspectOsmium;
+				ZetAspectsContent.itemDefs.Add(ZetAspectOsmium);
+				transformableAspectItemDefs.Add(ZetAspectOsmium);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -1180,6 +1232,8 @@ namespace TPDespair.ZetAspects
 			NemRisingTides.PreInit();
 			MoreElites.PreInit();
 			EliteVariety.PreInit();
+			Augmentum.PreInit();
+			Sandswept.PreInit();
 		}
 
 		private static void SetupCatalog()
@@ -1301,6 +1355,8 @@ namespace TPDespair.ZetAspects
 
 			if (PluginLoaded("com.themysticsword.elitevariety") && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.LateSetup();
 
+			if (PluginLoaded("com.BrandonRosa.Augmentum") && Configuration.AugmentumHooks.Value) Compat.Augmentum.LateSetup();
+
 			setupCompat = true;
 		}
 
@@ -1328,6 +1384,8 @@ namespace TPDespair.ZetAspects
 			NemRisingTides.Init();
 			MoreElites.Init();
 			EliteVariety.Init();
+			Augmentum.Init();
+			Sandswept.Init();
 
 			Language.ChangeText();
 
@@ -1363,17 +1421,35 @@ namespace TPDespair.ZetAspects
 		private static void DumpInfo()
 		{
 			Logger.Info("Catalog - Dump Info");
-			Logger.Info("-------------------");
-			Logger.Info("buffIndexes: " + aspectBuffIndexes.Count);
 
-			foreach (BuffIndex buffIndex in aspectBuffIndexes)
+			try
 			{
-				BuffDef buffDef = BuffCatalog.GetBuffDef(buffIndex);
-				EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(buffToEquip[buffIndex]);
-				ItemDef itemDef = ItemCatalog.GetItemDef(buffToItem[buffIndex]);
+				Logger.Info("-------------------");
+				Logger.Info("buffIndexes: " + aspectBuffIndexes.Count);
 
-				Logger.Info("[" + buffIndex + "] " + buffDef.name + " - isElite: " + buffDef.isElite);
-				Logger.Info("-- item: " + itemDef.name + " equip: " + equipDef.name);
+				foreach (BuffIndex buffIndex in aspectBuffIndexes)
+				{
+					BuffDef buffDef = BuffCatalog.GetBuffDef(buffIndex);
+					EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(buffToEquip[buffIndex]);
+					ItemDef itemDef = ItemCatalog.GetItemDef(buffToItem[buffIndex]);
+
+					Logger.Info("[" + buffIndex + "] " + buffDef.name + " - isElite: " + buffDef.isElite);
+					Logger.Info("-- item: " + itemDef.name + " equip: " + equipDef.name);
+				}
+
+				Logger.Info("-------------------");
+				Logger.Info("disabledAspects: " + disabledItemIndexes.Count);
+
+				foreach (ItemIndex itemIndex in disabledItemIndexes)
+				{
+					ItemDef itemDef = ItemCatalog.GetItemDef(itemIndex);
+					Logger.Info("[" + itemIndex + "] " + itemDef.name);
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("Failed To Dump Info!");
+				Logger.Error(ex);
 			}
 		}
 
@@ -1503,6 +1579,18 @@ namespace TPDespair.ZetAspects
 				EliteVariety.ItemEntries(true);
 				EliteVariety.EquipmentEntries(false);
 			}
+
+			if (Augmentum.populated)
+			{
+				Augmentum.ItemEntries(true);
+				Augmentum.EquipmentEntries(false);
+			}
+
+			if (Sandswept.populated)
+			{
+				Sandswept.ItemEntries(true);
+				Sandswept.EquipmentEntries(false);
+			}
 		}
 
 
@@ -1540,7 +1628,7 @@ namespace TPDespair.ZetAspects
 
 		private static void DeactivateItem(ItemDef itemDef, EquipmentDef equipDef)
 		{
-			if (disabledItemIndexes.Contains(itemDef.itemIndex)) return;
+			//if (disabledItemIndexes.Contains(itemDef.itemIndex)) return;
 
 			if (!equipDef)
 			{
@@ -1551,18 +1639,26 @@ namespace TPDespair.ZetAspects
 
 		private static void DeactivateItem(ItemDef itemDef, BuffDef buffDeff)
 		{
-			if (disabledItemIndexes.Contains(itemDef.itemIndex)) return;
+			//if (disabledItemIndexes.Contains(itemDef.itemIndex)) return;
 
 			if (!buffDeff)
 			{
 				Logger.Warn(itemDef.name + " : associated buff not found!");
 				DeactivateItem(itemDef);
 			}
+			else if (buffDeff.buffIndex == BuffIndex.None)
+			{
+				Logger.Warn(itemDef.name + " : associated buffIndex is [none]!");
+				DeactivateItem(itemDef);
+			}
 		}
 
 		private static void DeactivateItem(ItemDef itemDef)
 		{
-			if (disabledItemIndexes.Contains(itemDef.itemIndex)) return;
+			if (disabledItemIndexes.Contains(itemDef.itemIndex))
+			{
+				Logger.Warn(itemDef.name + " : is already disabled!");
+			}
 
 			Logger.Warn("Deactivating : " + itemDef.name);
 
@@ -1588,7 +1684,10 @@ namespace TPDespair.ZetAspects
 				itemDef.tags = tags;
 			}
 
-			disabledItemIndexes.Add(itemDef.itemIndex);
+			if (!disabledItemIndexes.Contains(itemDef.itemIndex))
+			{
+				disabledItemIndexes.Add(itemDef.itemIndex);
+			}
 		}
 
 
@@ -1707,6 +1806,21 @@ namespace TPDespair.ZetAspects
 
 		private static void CreateEquality(EquipmentDef equipDef, BuffDef buffDef, ItemDef itemDef)
 		{
+			Logger.Warn("CreateEquality : " + (equipDef ? equipDef.name : "null") + " , " + (buffDef ? ("[" + buffDef.buffIndex + "] " + buffDef.name) : "null") + " , " + (itemDef ? itemDef.name : "null"));
+
+			if (buffDef && buffDef.buffIndex == BuffIndex.None)
+			{
+				Logger.Warn("CreateEquality called for aspect : " + itemDef.name + "but its associated buff has index [none] - Attempting to disable it!");
+				DeactivateItem(itemDef);
+				return;
+			}
+
+			if (itemDef && disabledItemIndexes.Contains(itemDef.itemIndex))
+			{
+				Logger.Warn("CreateEquality called for disabled aspect : " + itemDef.name);
+				return;
+			}
+
 			if (equipDef && buffDef)
 			{
 				if (!aspectBuffIndexes.Contains(buffDef.buffIndex))
@@ -1722,7 +1836,8 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Logger.Warn("buffToItem already contains key for : " + buffDef.name);
+					Logger.Warn("buffToItem already contains key for : [" + buffDef.buffIndex + "] - " + buffDef.name);
+					Logger.Warn("-- associated item : " + itemDef.name);
 				}
 
 				if (!buffToEquip.ContainsKey(buffDef.buffIndex))
@@ -1731,7 +1846,8 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Logger.Warn("buffToEquip already contains key for : " + buffDef.name);
+					Logger.Warn("buffToEquip already contains key for : [" + buffDef.buffIndex + "] - " + buffDef.name);
+					Logger.Warn("-- associated item : " + itemDef.name);
 				}
 
 				if (!equipToItem.ContainsKey(equipDef.equipmentIndex))
@@ -1741,6 +1857,7 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Logger.Warn("equipToItem already contains key for : " + equipDef.name);
+					Logger.Warn("-- associated item : " + itemDef.name);
 				}
 			}
 		}

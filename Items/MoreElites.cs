@@ -69,6 +69,11 @@ namespace TPDespair.ZetAspects.Items
 
 			output += TextFragment("PASSIVE_WARBANNER_AURA");
 
+			if (AspectEmpoweringExtraJump.Value)
+			{
+				output += TextFragment("STAT_EXTRA_JUMP");
+			}
+
 			if (AspectEmpoweringBaseDamageGain.Value > 0f)
 			{
 				output += String.Format(

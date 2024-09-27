@@ -112,6 +112,14 @@ cycloneTweaks (disabled by default) : Visibility: 15m -> 240m, ProcRate: 0.1s ->
 
 tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts and increase health and damage(configurable).
 
+## Augmentum:
+
+![effects](https://i.imgur.com/88Z6eIM.png)
+
+## Sandswept:
+
+![effects](https://i.imgur.com/GVK7yBS.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -127,6 +135,8 @@ Korean translation by 깽비#8221.
 Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
+
+v2.8.5 - Support for Augmentum and Sandswept.
 
 v2.8.4 - EliteVariety Support.
 

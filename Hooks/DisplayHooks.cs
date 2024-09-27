@@ -86,6 +86,11 @@ namespace TPDespair.ZetAspects
 				AddAspectRender(Catalog.Equip.AffixOppressive);
 			}
 
+			if (Catalog.Sandswept.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixOsmium);
+			}
+
 			if (Catalog.RisingTides.populated)
 			{
 				AddAspectRender(Catalog.Equip.AffixBarrier);
@@ -118,9 +123,19 @@ namespace TPDespair.ZetAspects
 				AddAspectRender(Catalog.Equip.AffixSanguine);
 			}
 
+			if (Catalog.Augmentum.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixAdaptive);
+			}
+
 			if (Catalog.WarWisp.populated)
 			{
 				AddAspectRender(Catalog.Equip.AffixNullifier);
+			}
+
+			if (Catalog.Sandswept.populated)
+			{
+				AddAspectRender(Catalog.Equip.AffixMotivator);
 			}
 
 			if (Catalog.EliteVariety.populated)

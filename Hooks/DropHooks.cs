@@ -200,6 +200,17 @@ namespace TPDespair.ZetAspects
 				SetDropWeight(Catalog.Equip.AffixSandstorm, Configuration.AspectDropWeightSandstorm.Value);
 				SetDropWeight(Catalog.Equip.AffixTinkerer, Configuration.AspectDropWeightTinkerer.Value);
 			}
+
+			if (Catalog.Augmentum.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixAdaptive, Configuration.AspectDropWeightAdaptive.Value);
+			}
+
+			if (Catalog.Sandswept.Enabled)
+			{
+				SetDropWeight(Catalog.Equip.AffixMotivator, Configuration.AspectDropWeightMotivator.Value);
+				SetDropWeight(Catalog.Equip.AffixOsmium, Configuration.AspectDropWeightOsmium.Value);
+			}
 		}
 
 		private static void SetDropWeight(EquipmentDef equipDef, float value)

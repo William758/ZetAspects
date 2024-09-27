@@ -423,7 +423,11 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_EMPOWERING_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_EMPOWERING", "<style=cDeath>Aspect of Empowering</style> :");
 			RegisterFragment("PASSIVE_WARBANNER_AURA", "\nEmit an aura that empowers you and nearby allies.");
+			RegisterFragment("PASSIVE_WARCRY_RALLY", "\nAttacks <style=cIsDamage>rally</style> nearby allies.");
+			RegisterFragment("PASSIVE_WARCRY_RALLY_SELF", "\nAttacks <style=cIsDamage>rally</style> you and nearby allies.");
 			RegisterFragment("AURA_WARBANNER", "\nGrants you and nearby allies {0} increased <style=cIsUtility>movement speed</style> and <style=cIsDamage>attack speed</style>.");
+			RegisterFragment("AURA_WARBANNER_ATKSPD", "\nGrants you and nearby allies {0} increased <style=cIsUtility>movement speed</style>.");
+			RegisterFragment("AURA_WARBANNER_MOVSPD", "\nGrants you and nearby allies {0} increased <style=cIsDamage>attack speed</style>.");
 
 			RegisterFragment("AFFIX_FRENZIED_NAME", "Frenzied Aspect");
 			RegisterFragment("AFFIX_FRENZIED_PICKUP", "Become an aspect of frenzy.");
@@ -484,6 +488,27 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("PASSIVE_TINKERDRONE_SINGLE", "\nSpawn a Tinkerer's Drone that become stronger with scrap.");
 			RegisterFragment("TINKER_SCRAPSTEAL_DETAIL", "\n<style=cStack>(Tinker's Drones steal scrap on hit.)</style>");
 
+			RegisterFragment("AFFIX_ADAPTIVE_NAME", "Its Whispered Secrets");
+			RegisterFragment("AFFIX_ADAPTIVE_PICKUP", "Become an aspect of evolution.");
+			RegisterFragment("AFFIX_ADAPTIVE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_EVOLUTION", "<style=cDeath>Aspect of Evolution</style> :");
+			RegisterFragment("ADAPTIVE_DEFENSE", "\nIncreases <style=cIsHealing>armor</style> by {0} if you haven't been hit recently.");
+			RegisterFragment("ADAPTIVE_REACT", "\nTaking damage grants a <style=cIsUtility>speed boost</style> {0}.");
+			RegisterFragment("ADAPTIVE_REACT_INVIS", "\nTaking damage causes you to go <style=cIsUtility>invisible</style> {0} and grants a <style=cIsUtility>speed boost</style> {1}.");
+			RegisterFragment("LACERATION_ON_HIT", "\nAttacks apply {0} <style=cIsDamage>laceration</style> on hit {1}, increasing <style=cIsDamage>damage taken</style> by {2}.");
+
+			RegisterFragment("AFFIX_MOTIVATOR_NAME", "John Hopoo");
+			RegisterFragment("AFFIX_MOTIVATOR_PICKUP", "Become an aspect of game design.\nOmg OwO <3 hiii :3 x3 hiiii heyyy :3 :3 :3 UwU meow mrrraow OwO");
+			RegisterFragment("AFFIX_MOTIVATOR_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_INSPIRATION", "<style=cDeath>Aspect of Inspiration</style> :");
+
+			RegisterFragment("AFFIX_OSMIUM_NAME", "Artificial Void");
+			RegisterFragment("AFFIX_OSMIUM_PICKUP", "Become an aspect of singularity.\nhttps://www.youtube.com/watch?v=3yd4myHf81E");
+			RegisterFragment("AFFIX_OSMIUM_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_SINGULARITY", "<style=cDeath>Aspect of Singularity</style> :");
+			RegisterFragment("PASSIVE_OSMIUM", "\nReduce the effectiveness of attacks from far away enemies.");
+			RegisterFragment("PASSIVE_OSMIUM_DRAWBACK", "\nReduce the effectiveness of attacks from far away enemies, however nearby enemies deal more damage to you.");
+			RegisterFragment("OSMIUM_DAMAGE_DETAIL", "\n<style=cStack>(Incoming Damage factor: {0})</style>");
 
 
 
@@ -1586,6 +1611,74 @@ namespace TPDespair.ZetAspects
 			return output;
 		}
 
+		public static string HasteAuraText(float allyMS, float allyAS, bool self)
+		{
+			string output = "";
+
+			if (!self)
+			{
+				if (allyMS == allyAS)
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_BOTHSPD"),
+							ScalingText(allyMS, "percent", "cIsDamage")
+						);
+					}
+				}
+				else
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_MOVSPD"),
+							ScalingText(allyMS, "percent", "cIsUtility")
+						);
+					}
+					if (allyAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("ANGRY_ATKSPD"),
+							ScalingText(allyAS, "percent", "cIsDamage")
+						);
+					}
+				}
+			}
+			else
+			{
+				if (allyMS == allyAS)
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("AURA_WARBANNER"),
+							ScalingText(allyMS, "percent", "cIsDamage")
+						);
+					}
+				}
+				else
+				{
+					if (allyMS > 0f)
+					{
+						output += String.Format(
+							TextFragment("AURA_WARBANNER_MOVSPD"),
+							ScalingText(allyMS, "percent", "cIsUtility")
+						);
+					}
+					if (allyAS > 0f)
+					{
+						output += String.Format(
+							TextFragment("AURA_WARBANNER_ATKSPD"),
+							ScalingText(allyAS, "percent", "cIsDamage")
+						);
+					}
+				}
+			}
+
+			return output;
+		}
+		/*
 		public static string HasteText(float baseMS, float stackMS, float baseAS, float stackAS, float allyMS, float allyAS, bool combine = false)
 		{
 			string output = "";
@@ -1689,7 +1782,7 @@ namespace TPDespair.ZetAspects
 
 			return output;
 		}
-
+		*/
 
 
 		internal static void Init()

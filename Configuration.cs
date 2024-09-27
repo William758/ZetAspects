@@ -62,6 +62,9 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropWeightPillaging { get; set; }
 		public static ConfigEntry<float> AspectDropWeightSandstorm { get; set; }
 		public static ConfigEntry<float> AspectDropWeightTinkerer { get; set; }
+		public static ConfigEntry<float> AspectDropWeightAdaptive { get; set; }
+		public static ConfigEntry<float> AspectDropWeightMotivator { get; set; }
+		public static ConfigEntry<float> AspectDropWeightOsmium { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -88,6 +91,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> HeadHunterBuffAttackSpeed { get; set; }
 		public static ConfigEntry<float> HeadHunterBuffCritChance { get; set; }
 
+		public static ConfigEntry<int> UpdateInventoryFromBuff { get; set; }
 		public static ConfigEntry<bool> AetheriumHooks { get; set; }
 		public static ConfigEntry<bool> EliteReworksHooks { get; set; }
 		public static ConfigEntry<bool> SpikeStripHooks { get; set; }
@@ -97,6 +101,8 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> RisingTidesHooks { get; set; }
 		public static ConfigEntry<bool> MoreElitesHooks { get; set; }
 		public static ConfigEntry<bool> EliteVarietyHooks { get; set; }
+		public static ConfigEntry<bool> AugmentumHooks { get; set; }
+		public static ConfigEntry<bool> SandsweptHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -320,6 +326,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBufferedBaseBarrierDamageReductionGain { get; set; }
 		public static ConfigEntry<float> AspectBufferedStackBarrierDamageReductionGain { get; set; }
 
+		public static ConfigEntry<bool> AspectEmpoweringExtraJump { get; set; }
 		public static ConfigEntry<float> AspectEmpoweringBaseDamageGain { get; set; }
 		public static ConfigEntry<float> AspectEmpoweringStackDamageGain { get; set; }
 
@@ -350,6 +357,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBannerStackDamageGain { get; set; }
 		public static ConfigEntry<bool> AspectBannerExtraJump { get; set; }
 		public static ConfigEntry<bool> AspectBannerTweaks { get; set; }
+		public static ConfigEntry<bool> AspectBannerBoth { get; set; }
 
 		public static ConfigEntry<float> AspectImpaleDamageMult { get; set; }
 		public static ConfigEntry<float> AspectImpaleBaseDotAmp { get; set; }
@@ -385,6 +393,16 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<int> AspectTinkerPlayerLimit { get; set; }
 		public static ConfigEntry<float> AspectTinkerPlayerDamageMult { get; set; }
 		public static ConfigEntry<float> AspectTinkerPlayerHealthMult { get; set; }
+
+		public static ConfigEntry<float> AspectMotivatorBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectMotivatorStackDamageGain { get; set; }
+		public static ConfigEntry<bool> AspectMotivatorExtraJump { get; set; }
+		public static ConfigEntry<bool> AspectMotivatorTweaks { get; set; }
+		public static ConfigEntry<bool> AspectMotivatorEmpowerSelf { get; set; }
+
+		public static ConfigEntry<float> AspectOsmiumBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectOsmiumStackCooldownGain { get; set; }
+		public static ConfigEntry<bool> AspectOsmiumPlayerNearbyNormal { get; set; }
 
 
 
@@ -736,6 +754,11 @@ namespace TPDespair.ZetAspects
 
 		private static void AspectConfigs(ConfigFile Config)
 		{
+			UpdateInventoryFromBuff = Config.Bind(
+				"21-Mod Compatibility", "updateInventoryFromBuff", 2,
+				"Adds a hidden item whenever a buff expires. 2 = all buffs, 1 = only aspect buffs, 0 = none"
+			);
+
 			AetheriumHooks = Config.Bind(
 				"21-Mod Compatibility", "aetheriumHooks", true,
 				"Allows for the reading and modification of functions and values within the Aetherium mod."
@@ -772,6 +795,14 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "eliteVarietyHooks", true,
 				"Allows for the reading and modification of functions and values within the EliteVariety mod."
 			);
+			AugmentumHooks = Config.Bind(
+				"21-Mod Compatibility", "augmentumHooks", true,
+				"Allows for the reading and modification of functions and values within the Augmentum mod. Must be enabled to allow itemized aspect to function."
+			);
+			SandsweptHooks = Config.Bind(
+				"21-Mod Compatibility", "sandsweptHooks", true,
+				"Allows for the reading and modification of functions and values within the Sandswept mod."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -786,6 +817,8 @@ namespace TPDespair.ZetAspects
 			NemRisingTidesConfigs(Config);
 			MoreElitesConfigs(Config);
 			EliteVarietyConfigs(Config);
+
+			SandsweptConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1664,6 +1697,10 @@ namespace TPDespair.ZetAspects
 
 		private static void MoreElitesConfigs(ConfigFile Config)
 		{
+			AspectEmpoweringExtraJump = Config.Bind(
+				"2la-AspectEmpowering", "empoweringExtraJump", false,
+				"Extra jump. Player Only"
+			);
 			AspectEmpoweringBaseDamageGain = Config.Bind(
 				"2la-AspectEmpowering", "empoweringBaseDamageGained", 0.20f,
 				"Damage gained. Set to 0 to disable."
@@ -1773,6 +1810,10 @@ namespace TPDespair.ZetAspects
 			AspectBannerTweaks = Config.Bind(
 				"2mb-Banner Aspect", "bannerTweaks", false,
 				"Prevents buffward type from changing. Will only provide warbanner buff."
+			);
+			AspectBannerBoth = Config.Bind(
+				"2mb-Banner Aspect", "bannerBoth", false,
+				"Allows both buffwards to be active simultaneously if buff changing not disabled."
 			);
 
 
@@ -1909,6 +1950,45 @@ namespace TPDespair.ZetAspects
 			AspectTinkerPlayerHealthMult = Config.Bind(
 				"2mf-Tinker Aspect", "tinkerPlayerHealth", 2f,
 				"Health multiplier for player tinkerer drones."
+			);
+		}
+
+		private static void SandsweptConfigs(ConfigFile Config)
+		{
+			AspectMotivatorBaseDamageGain = Config.Bind(
+				"2oa-Motivator Aspect", "motivatorBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectMotivatorStackDamageGain = Config.Bind(
+				"2oa-Motivator Aspect", "motivatorAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+			AspectMotivatorExtraJump = Config.Bind(
+				"2oa-Motivator Aspect", "motivatorExtraJump", false,
+				"Extra jump. Player Only"
+			);
+			AspectMotivatorTweaks = Config.Bind(
+				"2oa-Motivator Aspect", "motivatorTweaks", false,
+				"Prevents extra empower on-hit."
+			);
+			AspectMotivatorEmpowerSelf = Config.Bind(
+				"2oa-Motivator Aspect", "motivatorEmpowerSelf", false,
+				"Apply empower to self if on-hit is enabled."
+			);
+
+
+
+			AspectOsmiumBaseCooldownGain = Config.Bind(
+				"2ob-Osmium Aspect", "osmiumBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectOsmiumStackCooldownGain = Config.Bind(
+				"2ob-Osmium Aspect", "osmiumAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectOsmiumPlayerNearbyNormal = Config.Bind(
+				"2ob-Osmium Aspect", "osmiumPlayerNearbyNormal", true,
+				"Players don't take increased damage from enemies inside an aura."
 			);
 		}
 

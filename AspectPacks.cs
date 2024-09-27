@@ -2231,5 +2231,331 @@ namespace TPDespair.ZetAspects
 				CreateEquality(Equip.AffixTinkerer, Buff.AffixTinkerer, Item.ZetAspectTinker);
 			}
 		}
+
+
+
+		public static class Augmentum
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.BrandonRosa.Augmentum")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("BRANS_ELITE_EQUIPMENT_AFFIX_ADAPTIVE");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixAdaptive = EquipmentCatalog.GetEquipmentDef(index);
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixAdaptive)
+				{
+					Buff.AffixAdaptive = Equip.AffixAdaptive.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectAdaptive, ref Equip.AffixAdaptive, ref Buff.AffixAdaptive, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectAdaptive.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectAdaptive, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectAdaptive, Equip.AffixAdaptive);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectAdaptive, Equip.AffixAdaptive);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixAdaptive, Sprites.AffixAdaptive, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixAdaptive, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixAdaptive);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixAdaptive, Buff.AffixAdaptive, Item.ZetAspectAdaptive);
+			}
+		}
+
+
+
+		public static class Sandswept
+		{
+			private static bool equipDefPopulated = false;
+			private static bool buffDefPopulated = false;
+			private static bool iconsReplaced = false;
+
+			public static bool populated = false;
+
+			private static int state = -1;
+			public static bool Enabled
+			{
+				get
+				{
+					if (state == -1)
+					{
+						if (PluginLoaded("com.TeamSandswept.Sandswept")) state = 1;
+						else state = 0;
+					}
+					return state == 1;
+				}
+			}
+
+
+
+			internal static void PreInit()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+					ApplyEquipmentIcons();
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+			internal static void Init()
+			{
+				if (Enabled)
+				{
+					PopulateEquipment();
+					PopulateBuffs();
+
+					DisableInactiveItems();
+					SetupText();
+					ItemEntries(DropHooks.CanObtainItem());
+
+					CopyExpansionReq();
+					CopyModelPrefabs();
+
+					ApplyEquipmentIcons();
+					if (DropHooks.CanObtainEquipment()) EquipmentEntries(true);
+					EquipmentColor();
+
+					FillEqualities();
+
+					populated = true;
+				}
+				else
+				{
+					PopulateEquipment();
+					DisableInactiveItems();
+				}
+			}
+
+
+
+			private static void PopulateEquipment()
+			{
+				if (equipDefPopulated) return;
+
+				EquipmentIndex index;
+
+				index = EquipmentCatalog.FindEquipmentIndex("ELITE_EQUIPMENT_MOTIVATING");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixMotivator = EquipmentCatalog.GetEquipmentDef(index);
+				}
+
+				index = EquipmentCatalog.FindEquipmentIndex("ELITE_EQUIPMENT_OSMIUM");
+				if (index != EquipmentIndex.None)
+				{
+					Equip.AffixOsmium = EquipmentCatalog.GetEquipmentDef(index);
+				}
+
+				equipDefPopulated = true;
+			}
+
+			private static void PopulateBuffs()
+			{
+				if (buffDefPopulated) return;
+
+				if (Equip.AffixMotivator)
+				{
+					Buff.AffixMotivator = Equip.AffixMotivator.passiveBuffDef;
+				}
+
+				if (Equip.AffixOsmium)
+				{
+					Buff.AffixOsmium = Equip.AffixOsmium.passiveBuffDef;
+				}
+
+				buffDefPopulated = true;
+			}
+
+
+
+			private static void DisableInactiveItems()
+			{
+				int state = GetPopulatedState(equipDefPopulated, buffDefPopulated);
+
+				DisableInactiveItem(Item.ZetAspectMotivator, ref Equip.AffixMotivator, ref Buff.AffixMotivator, state);
+				DisableInactiveItem(Item.ZetAspectOsmium, ref Equip.AffixOsmium, ref Buff.AffixOsmium, state);
+			}
+
+			private static void SetupText()
+			{
+				Items.ZetAspectMotivator.SetupTokens();
+				Items.ZetAspectOsmium.SetupTokens();
+			}
+
+			internal static void ItemEntries(bool shown)
+			{
+				SetItemState(Item.ZetAspectMotivator, shown);
+				SetItemState(Item.ZetAspectOsmium, shown);
+			}
+
+			private static void CopyExpansionReq()
+			{
+				CopyExpansion(Item.ZetAspectMotivator, Equip.AffixMotivator);
+				CopyExpansion(Item.ZetAspectOsmium, Equip.AffixOsmium);
+			}
+
+			private static void CopyModelPrefabs()
+			{
+				CopyEquipmentPrefab(Item.ZetAspectMotivator, Equip.AffixMotivator);
+				CopyEquipmentPrefab(Item.ZetAspectOsmium, Equip.AffixOsmium);
+			}
+
+			private static void ApplyEquipmentIcons()
+			{
+				if (iconsReplaced) return;
+
+				ReplaceEquipmentIcon(Equip.AffixMotivator, Sprites.AffixMotivator, Sprites.OutlineOrange);
+				ReplaceEquipmentIcon(Equip.AffixOsmium, Sprites.AffixOsmium, Sprites.OutlineOrange);
+
+				iconsReplaced = true;
+			}
+
+			internal static void EquipmentEntries(bool shown)
+			{
+				SetEquipmentState(Equip.AffixMotivator, shown);
+				SetEquipmentState(Equip.AffixOsmium, shown);
+			}
+
+			internal static void EquipmentColor()
+			{
+				ColorEquipmentDroplet(Equip.AffixMotivator);
+				ColorEquipmentDroplet(Equip.AffixOsmium);
+			}
+
+			internal static void FillEqualities()
+			{
+				CreateEquality(Equip.AffixMotivator, Buff.AffixMotivator, Item.ZetAspectMotivator);
+				CreateEquality(Equip.AffixOsmium, Buff.AffixOsmium, Item.ZetAspectOsmium);
+			}
+		}
 	}
 }

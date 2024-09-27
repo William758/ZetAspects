@@ -31,10 +31,12 @@ namespace TPDespair.ZetAspects
 	//[BepInDependency("prodzpod.NemesisRisingTides", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.Nuxlar.MoreElites", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("com.BrandonRosa.Augmentum", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
+	[BepInDependency("com.TeamSandswept.Sandswept", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.8.4";
+		public const string ModVer = "2.8.5";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -81,6 +83,10 @@ namespace TPDespair.ZetAspects
 			if (Catalog.MoreElites.Enabled && Configuration.MoreElitesHooks.Value) Compat.MoreElites.Init();
 
 			if (Catalog.EliteVariety.Enabled && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.Init();
+
+			// - Augmentum is LateSetup only
+
+			if (Catalog.Sandswept.Enabled && Configuration.SandsweptHooks.Value) Compat.Sandswept.Init();
 
 			Language.Init();
 		}
@@ -164,6 +170,9 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(Catalog.Equip.AffixBackup, transform.position + new Vector3(5f, 5f, -5f));
 
 				CreateDroplet(Catalog.Equip.AffixPurity, transform.position + new Vector3(-10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixAdaptive, transform.position + new Vector3(0f, 10f, 15f));
+				CreateDroplet(Catalog.Equip.AffixMotivator, transform.position + new Vector3(10f, 10f, 10f));
+				CreateDroplet(Catalog.Equip.AffixOsmium, transform.position + new Vector3(-10f, 10f, -10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F6))

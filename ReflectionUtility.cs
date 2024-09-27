@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Bootstrap;
+using BepInEx.Configuration;
 using System;
 using System.Reflection;
 
@@ -170,20 +171,20 @@ namespace TPDespair.ZetAspects
 
 
 
-		public static MethodInfo GetMatchingMethod(this Reflector reflector, Type type, Type[] par)
+		public static MethodInfo GetMatchingMethod(this Reflector reflector, Type type, Type[] pars)
 		{
 			MethodInfo[] methodInfos = type.GetMethods(Reflector.Flags);
 			for (int i = 0; i < methodInfos.Length; i++)
 			{
 				MethodInfo methodInfo = methodInfos[i];
-				ParameterInfo[] pars = methodInfo.GetParameters();
-				if (pars.Length == par.Length)
+				ParameterInfo[] parInfos = methodInfo.GetParameters();
+				if (parInfos.Length == pars.Length)
 				{
-					for (int j = 0; j < par.Length; j++)
+					for (int j = 0; j < pars.Length; j++)
 					{
-						if (pars[j].ParameterType != par[j]) break;
+						if (pars[j] != null && parInfos[j].ParameterType != pars[j]) break;
 
-						if (j == par.Length - 1)
+						if (j == pars.Length - 1)
 						{
 							return methodInfo;
 						}
@@ -191,20 +192,27 @@ namespace TPDespair.ZetAspects
 				}
 			}
 
-			Logger.Warn(reflector.identifier + " - Could Not Find Any Method In : " + type.FullName + " With Parameters : " + ParameterNames(par));
+			Logger.Warn(reflector.identifier + " - Could Not Find Any Method In : " + type.FullName + " With Parameters : " + ParameterNames(pars));
 
 			return null;
 		}
 
-		private static string ParameterNames(Type[] par)
+		private static string ParameterNames(Type[] pars)
 		{
 			string result = "";
 
-			for (int i = 0; i < par.Length; i++)
+			for (int i = 0; i < pars.Length; i++)
 			{
-				result += par[i].Name;
+				if (pars[i] == null)
+				{
+					result += "*any*";
+				}
+				else
+				{
+					result += pars[i].Name;
+				}
 
-				if (i < par.Length - 1)
+				if (i < pars.Length - 1)
 				{
 					result += ", ";
 				}
@@ -216,102 +224,100 @@ namespace TPDespair.ZetAspects
 
 
 
-		/*
-		public static bool GetConfigValue(this Reflector reflector, FieldInfo fieldInfo, bool defaultValue)
+		public class FieldRefer<T>
 		{
-			object fieldValue = fieldInfo.GetValue(null);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
-			{
-				return (bool)propInfo.GetValue(fieldValue);
-			}
-			else
-			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
-			}
-		}
+			public FieldInfo fieldInfo;
+			public object instance;
+			public T defaultValue;
+			public bool valid = false;
 
-		public static bool GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, bool defaultValue)
-		{
-			object fieldValue = fieldInfo.GetValue(instance);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
-			{
-				return (bool)propInfo.GetValue(fieldValue);
-			}
-			else
-			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
-			}
-		}
 
-		public static int GetConfigValue(this Reflector reflector, FieldInfo fieldInfo, int defaultValue)
-		{
-			object fieldValue = fieldInfo.GetValue(null);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
-			{
-				return (int)propInfo.GetValue(fieldValue);
-			}
-			else
-			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
-			}
-		}
 
-		public static int GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, int defaultValue)
-		{
-			object fieldValue = fieldInfo.GetValue(instance);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
+			public FieldRefer(T defaultValue)
 			{
-				return (int)propInfo.GetValue(fieldValue);
-			}
-			else
-			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
-			}
-		}
+				this.defaultValue = defaultValue;
 
-		public static float GetConfigValue(this Reflector reflector, FieldInfo fieldInfo, float defaultValue)
-		{
-			object fieldValue = fieldInfo.GetValue(null);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
-			{
-				return (float)propInfo.GetValue(fieldValue);
+				valid = false;
 			}
-			else
-			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
-			}
-		}
 
-		public static float GetConfigValue(this Reflector reflector, object instance, FieldInfo fieldInfo, float defaultValue)
-		{
-			object fieldValue = fieldInfo.GetValue(instance);
-			Type type = fieldValue.GetType();
-			PropertyInfo propInfo = type.GetProperty("Value", Reflector.Flags);
-			if (propInfo != null)
+			public FieldRefer(FieldInfo fieldInfo, object instance, T defaultValue)
 			{
-				return (float)propInfo.GetValue(fieldValue);
+				this.fieldInfo = fieldInfo;
+				this.instance = instance;
+				this.defaultValue = defaultValue;
+
+				valid = true;
+
+				if (fieldInfo == null)
+				{
+					valid = false;
+
+					Logger.Warn("FieldRefer - Assigned null FieldInfo!");
+				}
+				else
+				{
+					try
+					{
+						T test = (T)this.fieldInfo.GetValue(this.instance);
+					}
+					catch (Exception e)
+					{
+						Logger.Warn(e);
+
+						valid = false;
+					}
+				}
 			}
-			else
+
+
+
+			public static implicit operator T(FieldRefer<T> fieldRefer)
 			{
-				Logger.Warn(reflector.identifier + " - Could Not Get Value For : " + fieldInfo.Name);
-				return defaultValue;
+				if (!fieldRefer.valid) return fieldRefer.defaultValue;
+
+				return (T)fieldRefer.fieldInfo.GetValue(fieldRefer.instance);
+			}
+
+
+
+			public void SetInfo(FieldInfo fieldInfo, object instance)
+			{
+				this.fieldInfo = fieldInfo;
+				this.instance = instance;
+
+				valid = true;
+
+				if (fieldInfo == null)
+				{
+					valid = false;
+
+					Logger.Warn("FieldRefer - Assigned null FieldInfo!");
+				}
+				else
+				{
+					try
+					{
+						T test = (T)this.fieldInfo.GetValue(this.instance);
+					}
+					catch (Exception e)
+					{
+						Logger.Warn(e);
+
+						valid = false;
+					}
+				}
+			}
+
+			public void SetValue(T value)
+			{
+				if (!valid)
+				{
+					Logger.Warn("FieldRefer - Tried to assign value to Invalid!");
+					return;
+				}
+
+				fieldInfo.SetValue(instance, value);
 			}
 		}
-		*/
 	}
 }

@@ -510,7 +510,8 @@ namespace TPDespair.ZetAspects.Items
 				allyAS = 0f;
 			}
 
-			output += HasteText(baseMS, stackMS, baseAS, stackAS, allyMS, allyAS, combine);
+			output += HasteText(baseMS, stackMS, baseAS, stackAS, combine);
+			output += HasteAuraText(allyMS, allyAS, false);
 
 			if (Compat.PlasmaSpikeStrip.rageStatHook)
 			{

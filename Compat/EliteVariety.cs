@@ -22,6 +22,7 @@ namespace TPDespair.ZetAspects.Compat
 		private static Type ImpPlaneImpaledType;
 		private static Type SandstormBlindType;
 		private static Type AffixTinkererType;
+		private static Type AffixBuffingType;
 
 		private static MethodInfo ImpaleDotBehaviorMethod;
 
@@ -31,6 +32,7 @@ namespace TPDespair.ZetAspects.Compat
 		private static MethodInfo TinkerScrapMethod;
 
 		private static MethodInfo BannerBoostMethod;
+		private static MethodInfo BannerWardMethod;
 
 		private static FieldInfo ImpaleDotIndexField;
 
@@ -47,6 +49,9 @@ namespace TPDespair.ZetAspects.Compat
 
 		internal static bool tinkerStealHook = false;
 		internal static bool tinkerLimitHook = false;
+
+		internal static bool bannerDisableBoostHook = false;
+		internal static bool bannerBothHook = false;
 
 
 
@@ -127,6 +132,7 @@ namespace TPDespair.ZetAspects.Compat
 			}
 
 			AffixTinkererType = Reflector.GetType("EliteVariety.Buffs.AffixTinkerer");
+			AffixBuffingType = Reflector.GetType("EliteVariety.Buffs.AffixBuffing");
 
 			Reflector mysticUtilReflector = new Reflector("com.themysticsword.mysticsrisky2utils", identifier);
 			if (mysticUtilReflector.FindPluginAssembly())
@@ -141,16 +147,24 @@ namespace TPDespair.ZetAspects.Compat
 						if (TinkerScrapMethod == null) Logger.Warn(identifier + " - Could Not Find TinkerScrapStealMethod");
 					}
 
-					type = Reflector.GetType("EliteVariety.Buffs.AffixBuffing");
-					if (type != null)
+					if (AffixBuffingType != null)
 					{
-						BannerBoostMethod = Reflector.GetMatchingMethod(Reflector.GetType(type, "<>c__DisplayClass6_0"), new Type[] { typeof(DamageInfo), charInfoType, charInfoType });
+						BannerBoostMethod = Reflector.GetMatchingMethod(Reflector.GetType(AffixBuffingType, "<>c__DisplayClass6_0"), new Type[] { typeof(DamageInfo), charInfoType, charInfoType });
 						if (TinkerScrapMethod == null) Logger.Warn(identifier + " - Could Not Find BannerWardBoostMethod");
 					}
 				}
 			}
 
 			if (AffixTinkererType != null) TinkerDeploySlotField = Reflector.GetField(AffixTinkererType, "deployableSlot");
+
+			if (AffixBuffingType != null)
+			{
+				type = Reflector.GetType(AffixBuffingType, "EliteVarietyAffixBuffingAura");
+				if (type != null)
+				{
+					BannerWardMethod = Reflector.GetMethod(type, "SpecialWardToggle");
+				}
+			}
 		}
 
 		private static void HookMethods()
@@ -190,6 +204,16 @@ namespace TPDespair.ZetAspects.Compat
 				if (BannerBoostMethod != null)
 				{
 					HookEndpointManager.Modify(BannerBoostMethod, (ILContext.Manipulator)GenericReturnHook);
+					bannerDisableBoostHook = true;
+				}
+			}
+
+			if (!bannerDisableBoostHook && Configuration.AspectBannerBoth.Value)
+			{
+				if (BannerWardMethod != null)
+				{
+					HookEndpointManager.Modify(BannerWardMethod, (ILContext.Manipulator)WardActiveHook);
+					bannerBothHook = true;
 				}
 			}
 		}
@@ -217,6 +241,8 @@ namespace TPDespair.ZetAspects.Compat
 					rampFog.fogHeightEnd.Override(visionRange * 0.5f);
 
 					BlindCameraEffectField.SetValue(SandstormBlindType, cameraEffect);
+
+					cycloneBlindHook = true;
 				}
 				else
 				{
@@ -296,6 +322,25 @@ namespace TPDespair.ZetAspects.Compat
 			else
 			{
 				Logger.Warn(identifier + " - TickCritHook Failed");
+			}
+		}
+
+		private static void WardActiveHook(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			bool found = c.TryGotoNext(
+				x => x.MatchCallOrCallvirt<Behaviour>("set_enabled")
+			);
+
+			if (found)
+			{
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldc_I4, 1);
+			}
+			else
+			{
+				Logger.Warn(identifier + " - WardActiveHook Failed");
 			}
 		}
 

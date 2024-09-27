@@ -197,7 +197,11 @@ namespace TPDespair.ZetAspects
 
 							if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveExtraJump.Value) value++;
 
+							if (self.HasBuff(Catalog.Buff.AffixEmpowering) && Configuration.AspectEmpoweringExtraJump.Value) value++;
+
 							if (self.HasBuff(Catalog.Buff.AffixBuffing) && Configuration.AspectBannerExtraJump.Value) value++;
+
+							if (self.HasBuff(Catalog.Buff.AffixMotivator) && Configuration.AspectMotivatorExtraJump.Value) value++;
 						}
 
 						return value;
@@ -316,6 +320,12 @@ namespace TPDespair.ZetAspects
 									value += Configuration.AspectTinkerBaseMinionDamageGain.Value + Configuration.AspectTinkerStackMinionDamageGain.Value * (count - 1f);
 								}
 							}
+						}
+
+						if (self.HasBuff(Catalog.Buff.AffixMotivator) && Configuration.AspectMotivatorBaseDamageGain.Value > 0f)
+						{
+							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixMotivator);
+							value += Configuration.AspectMotivatorBaseDamageGain.Value + Configuration.AspectMotivatorStackDamageGain.Value * (count - 1f);
 						}
 
 						return value;
@@ -1045,6 +1055,12 @@ namespace TPDespair.ZetAspects
 				float effectValue = Configuration.AspectEchoBaseCooldownGain.Value + Configuration.AspectEchoStackCooldownGain.Value * (count - 1f);
 				if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectEchoMonsterCooldownMult.Value;
 				additiveReduction += effectValue;
+			}
+
+			if (self.HasBuff(Catalog.Buff.AffixOsmium) && Configuration.AspectOsmiumBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixOsmium);
+				additiveReduction += Configuration.AspectOsmiumBaseCooldownGain.Value + Configuration.AspectOsmiumStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (additiveReduction > 0f)
