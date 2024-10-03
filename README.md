@@ -136,6 +136,8 @@ Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
 
+v2.8.6 - Fixed lag related to Wayfarer from SS2.
+
 v2.8.5 - Support for Augmentum and Sandswept.
 
 v2.8.4 - EliteVariety Support.

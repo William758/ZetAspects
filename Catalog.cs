@@ -539,6 +539,7 @@ namespace TPDespair.ZetAspects
 		public static BuffIndex nullifierRecipient = BuffIndex.None;
 		public static BuffIndex waterInvuln = BuffIndex.None;
 		public static BuffIndex reactorInvuln = BuffIndex.None;
+		public static BuffIndex lampBuff = BuffIndex.None;
 
 		public static ItemIndex summonedEcho = ItemIndex.None;
 
@@ -1279,9 +1280,10 @@ namespace TPDespair.ZetAspects
 				nullifierRecipient = BuffCatalog.FindBuffIndex("Nullifier Armour Buff");
 			}
 
-			if (PluginLoaded("com.TeamMoonstorm.Starstorm2-Nightly"))
+			if (PluginLoaded("com.TeamMoonstorm.Starstorm2-Nightly") || PluginLoaded("com.TeamMoonstorm") || PluginLoaded("com.TeamMoonstorm.Starstorm2"))
 			{
 				reactorInvuln = BuffCatalog.FindBuffIndex("BuffReactor");
+				lampBuff = BuffCatalog.FindBuffIndex("bdLampBuff");
 			}
 
 			if (PluginLoaded("com.themysticsword.risingtides"))

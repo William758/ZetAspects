@@ -2169,34 +2169,36 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self, buffDef);
 
-				if (NetworkServer.active && Run.instance && self)
+				if (!self || buffDef.buffIndex == BuffIndex.None || !NetworkServer.active || !Run.instance) return;
+
+				if (!DestroyedBodies.ContainsKey(self.netId))
 				{
-					if (!DestroyedBodies.ContainsKey(self.netId))
+					Inventory inventory = self.inventory;
+					if (inventory)
 					{
-						Inventory inventory = self.inventory;
+						bool aspectBuff = false;
+						BuffDef buffToCheck = buffDef;
 
-						if (inventory)
+						if (Catalog.Buff.ZetEchoPrimer && buffDef == Catalog.Buff.ZetEchoPrimer) buffToCheck = Catalog.Buff.AffixEcho;
+
+						if (buffToCheck.buffIndex == Catalog.lampBuff) return;
+
+						if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex))
 						{
-							bool aspectBuff = false;
-							BuffDef buffToCheck = buffDef;
+							aspectBuff = true;
 
-							if (Catalog.Buff.ZetEchoPrimer && buffDef == Catalog.Buff.ZetEchoPrimer) buffToCheck = Catalog.Buff.AffixEcho;
-							if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex))
+							if (BodyAllowedAffix(self, buffToCheck) && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck))
 							{
-								aspectBuff = true;
-
-								if (BodyAllowedAffix(self, buffToCheck) && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck))
-								{
-									self.AddTimedBuff(buffToCheck, BuffCycleDuration);
-								}
+								self.AddTimedBuff(buffToCheck, BuffCycleDuration);
 							}
+						}
 
-							// update itemBehaviors and itemDisplays
-							int updateMode = Configuration.UpdateInventoryFromBuff.Value;
-							if (updateMode > 0 && (updateMode > 1 || aspectBuff))
-							{
-								inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
-							}
+						// update itemBehaviors and itemDisplays
+						int updateMode = Configuration.UpdateInventoryFromBuff.Value;
+						if (updateMode > 0 && (updateMode > 1 || aspectBuff))
+						{
+							//Logger.Warn("UpdateInventory : [" + buffDef.buffIndex + "] " + buffDef.name);
+							inventory.GiveItem(Catalog.Item.ZetAspectsUpdateInventory);
 						}
 					}
 				}
