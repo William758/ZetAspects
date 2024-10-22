@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +7,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.UI;
+using HarmonyLib;
 
 namespace TPDespair.ZetAspects
 {
@@ -47,10 +46,15 @@ namespace TPDespair.ZetAspects
 			InterceptAspectDropHook();
 			EquipmentAbsorbHook();
 			DiscoverAspectHook();
-			//EquipmentConvertHook();
-			UserChatHook();
 			EquipmentIconHook();
 		}
+
+		internal static void LateSetup()
+		{
+			UserChatHook();
+		}
+
+
 
 		private static void OnScenePopulated(SceneDirector sceneDirector)
 		{
@@ -86,7 +90,7 @@ namespace TPDespair.ZetAspects
 				if (master)
 				{
 					Inventory inventory = master.inventory;
-					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(Catalog.Item.ZetAspectsDropCountTracker));
+					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ItemDefOf.ZetAspectsDropCountTracker));
 				}
 			}
 
@@ -103,10 +107,10 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						int trackerCount = inventory.GetItemCount(Catalog.Item.ZetAspectsDropCountTracker);
+						int trackerCount = inventory.GetItemCount(ItemDefOf.ZetAspectsDropCountTracker);
 						int dropCount = runDropCount;
 
-						if (trackerCount < dropCount) inventory.GiveItem(Catalog.Item.ZetAspectsDropCountTracker, dropCount - trackerCount);
+						if (trackerCount < dropCount) inventory.GiveItem(ItemDefOf.ZetAspectsDropCountTracker, dropCount - trackerCount);
 					}
 				}
 			}
@@ -114,102 +118,12 @@ namespace TPDespair.ZetAspects
 
 		private static void UpdateDropWeights()
 		{
-			SetDropWeight(Catalog.Equip.AffixWhite, Configuration.AspectDropWeightWhite.Value);
-			SetDropWeight(Catalog.Equip.AffixBlue, Configuration.AspectDropWeightBlue.Value);
-			SetDropWeight(Catalog.Equip.AffixRed, Configuration.AspectDropWeightRed.Value);
-			SetDropWeight(Catalog.Equip.AffixHaunted, Configuration.AspectDropWeightHaunted.Value);
-			SetDropWeight(Catalog.Equip.AffixPoison, Configuration.AspectDropWeightPoison.Value);
-			SetDropWeight(Catalog.Equip.AffixLunar, Configuration.AspectDropWeightLunar.Value);
-
-			SetDropWeight(Catalog.Equip.AffixEarth, Configuration.AspectDropWeightEarth.Value);
-			SetDropWeight(Catalog.Equip.AffixVoid, Configuration.AspectDropWeightVoid.Value);
-
-			if (Catalog.SpikeStrip.Enabled)
+			foreach (AspectDef aspectDef in Catalog.aspectDefs)
 			{
-				SetDropWeight(Catalog.Equip.AffixAragonite, Configuration.AspectDropWeightAragonite.Value);
-				SetDropWeight(Catalog.Equip.AffixVeiled, Configuration.AspectDropWeightVeiled.Value);
-				SetDropWeight(Catalog.Equip.AffixWarped, Configuration.AspectDropWeightWarped.Value);
-				SetDropWeight(Catalog.Equip.AffixPlated, Configuration.AspectDropWeightPlated.Value);
-			}
-
-			if (Catalog.GoldenCoastPlus.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixGold, Configuration.AspectDropWeightGold.Value);
-			}
-
-			if (Catalog.Aetherium.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixSanguine, Configuration.AspectDropWeightSanguine.Value);
-			}
-
-			if (Catalog.Bubbet.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixSepia, Configuration.AspectDropWeightSepia.Value);
-			}
-
-			if (Catalog.WarWisp.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixNullifier, Configuration.AspectDropWeightNullifier.Value);
-			}
-
-			if (Catalog.Blighted.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixBlighted, Configuration.AspectDropWeightBlighted.Value);
-			}
-			
-			if (Catalog.GOTCE.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixBackup, Configuration.AspectDropWeightBackup.Value);
-			}
-			
-			if (Catalog.Thalasso.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixPurity, Configuration.AspectDropWeightPurity.Value);
-			}
-
-			if (Catalog.RisingTides.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixBarrier, Configuration.AspectDropWeightBarrier.Value);
-				SetDropWeight(Catalog.Equip.AffixBlackHole, Configuration.AspectDropWeightBlackHole.Value);
-				SetDropWeight(Catalog.Equip.AffixMoney, Configuration.AspectDropWeightMoney.Value);
-				SetDropWeight(Catalog.Equip.AffixNight, Configuration.AspectDropWeightNight.Value);
-				SetDropWeight(Catalog.Equip.AffixWater, Configuration.AspectDropWeightWater.Value);
-				SetDropWeight(Catalog.Equip.AffixRealgar, Configuration.AspectDropWeightRealgar.Value);
-			}
-
-			if (Catalog.NemRisingTides.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixBuffered, Configuration.AspectDropWeightBuffered.Value);
-				SetDropWeight(Catalog.Equip.AffixOppressive, Configuration.AspectDropWeightOppressive.Value);
-			}
-
-			if (Catalog.MoreElites.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixEmpowering, Configuration.AspectDropWeightEmpowering.Value);
-				SetDropWeight(Catalog.Equip.AffixFrenzied, Configuration.AspectDropWeightFrenzied.Value);
-				SetDropWeight(Catalog.Equip.AffixVolatile, Configuration.AspectDropWeightVolatile.Value);
-				SetDropWeight(Catalog.Equip.AffixEcho, Configuration.AspectDropWeightEcho.Value);
-			}
-
-			if (Catalog.RisingTides.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixArmored, Configuration.AspectDropWeightArmored.Value);
-				SetDropWeight(Catalog.Equip.AffixBuffing, Configuration.AspectDropWeightBuffing.Value);
-				SetDropWeight(Catalog.Equip.AffixImpPlane, Configuration.AspectDropWeightImpPlane.Value);
-				SetDropWeight(Catalog.Equip.AffixPillaging, Configuration.AspectDropWeightPillaging.Value);
-				SetDropWeight(Catalog.Equip.AffixSandstorm, Configuration.AspectDropWeightSandstorm.Value);
-				SetDropWeight(Catalog.Equip.AffixTinkerer, Configuration.AspectDropWeightTinkerer.Value);
-			}
-
-			if (Catalog.Augmentum.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixAdaptive, Configuration.AspectDropWeightAdaptive.Value);
-			}
-
-			if (Catalog.Sandswept.Enabled)
-			{
-				SetDropWeight(Catalog.Equip.AffixMotivator, Configuration.AspectDropWeightMotivator.Value);
-				SetDropWeight(Catalog.Equip.AffixOsmium, Configuration.AspectDropWeightOsmium.Value);
+				if (!aspectDef.invalid && aspectDef.PackEnabled)
+				{
+					SetDropWeight(aspectDef.equipmentDef, aspectDef.DropWeight.Value);
+				}
 			}
 		}
 
@@ -234,42 +148,6 @@ namespace TPDespair.ZetAspects
 				Logger.Info("SceneExit : Drops Disabled");
 			}
 		}
-
-
-		/*
-		private static void CommandGroupInterceptHook(On.RoR2.Artifacts.CommandArtifactManager.orig_OnDropletHitGroundServer orig, ref GenericPickupController.CreatePickupInfo createPickupInfo, ref bool shouldSpawn)
-		{
-			if (!shouldSpawn) return;
-
-			PickupIndex pickupIndex = createPickupInfo.pickupIndex;
-			if (pickupIndex != PickupIndex.none)
-			{
-				PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
-				if (pickupDef != null)
-				{
-					if (pickupDef.itemIndex != ItemIndex.None && Catalog.aspectItemIndexes.Contains(pickupDef.itemIndex))
-					{
-						if (Configuration.AspectWorldUnique.Value && Configuration.AspectCommandGroupItems.Value)
-						{
-							AspectCommandDroplet(pickupDef, createPickupInfo.position, createPickupInfo.rotation, ref shouldSpawn);
-						}
-					}
-
-					if (pickupDef.equipmentIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(pickupDef.equipmentIndex))
-					{
-						if (Configuration.AspectCommandGroupEquip.Value)
-						{
-							AspectCommandDroplet(pickupDef, createPickupInfo.position, createPickupInfo.rotation, ref shouldSpawn);
-						}
-					}
-				}
-			}
-
-			if (!shouldSpawn) return;
-
-			orig(ref createPickupInfo, ref shouldSpawn);
-		}
-		*/
 
 		private static void PickupDropletController_CreateCommandCube(On.RoR2.PickupDropletController.orig_CreateCommandCube orig, PickupDropletController self)
 		{
@@ -738,67 +616,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		/*
-		private static void EquipmentConvertHook()
-		{
-			Chat.onChatChanged += delegate ()
-			{
-				if (!NetworkServer.active) return;
-
-				if (!Configuration.AspectEquipmentConversion.Value) return;
-
-				string message = Chat.readOnlyLog.DefaultIfEmpty(null).Last();
-				if (message == null) return;
-				Chat.UserChatMessage userChatMessage = ReconstructMessage(message);
-				if (userChatMessage == null) return;
-
-				if (userChatMessage.text.ToLower() == "convertaspect")
-				{
-					CharacterMaster master = userChatMessage.sender.GetComponent<NetworkUser>().master;
-					if (!master) return;
-
-					Inventory inventory = master.inventory;
-					if (inventory)
-					{
-						ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
-						if (itemIndex != ItemIndex.None)
-						{
-							inventory.GiveItem(itemIndex);
-							inventory.SetEquipmentIndex(EquipmentIndex.None);
-						}
-					}
-				}
-			};
-		}
 		
-		private static Chat.UserChatMessage ReconstructMessage(string message)
-		{
-			Match match = Regex.Match(message, "<color=#e5eefc><noparse>(.+?)<\\/noparse>: <noparse>(.+?)<\\/noparse><\\/color>", RegexOptions.Compiled);
-			if (!match.Success || match.Groups.Count < 3)
-			{
-				match = Regex.Match(message, "<color=#e5eefc>(.+?): (.+?)<\\/color>", RegexOptions.Compiled);
-				if (!match.Success || match.Groups.Count < 3) return null;
-			}
-
-			GameObject gameObject = null;
-			foreach (NetworkUser networkUser in NetworkUser.readOnlyInstancesList)
-			{
-				if (networkUser.userName == match.Groups[1].Value.Trim())
-				{
-					gameObject = networkUser.gameObject;
-					break;
-				}
-			}
-
-			if (gameObject == null) return null;
-
-			return new Chat.UserChatMessage
-			{
-				sender = gameObject,
-				text = match.Groups[2].Value.Trim()
-			};
-		}
-		*/
 		private static void UserChatHook()
 		{
 			On.RoR2.Chat.UserChatMessage.ConstructChatString += (orig, self) =>
@@ -807,7 +625,7 @@ namespace TPDespair.ZetAspects
 
 				if (NetworkServer.active && Configuration.AspectEquipmentConversion.Value)
 				{
-					if (self.sender && self.text.ToLowerInvariant() == "convertaspect")
+					if (self.sender && self.text.ToLowerInvariant().Contains("convertaspect"))
 					{
 						NetworkUser user = self.sender.GetComponent<NetworkUser>();
 						if (user)
@@ -824,16 +642,30 @@ namespace TPDespair.ZetAspects
 		private static void AttemptEquipmentConversion(NetworkUser user)
 		{
 			CharacterMaster master = user.master;
-			if (!master) return;
+			if (!master)
+			{
+				Logger.Warn("AttemptConversion - Master is null!");
+
+				return;
+			}
 
 			Inventory inventory = master.inventory;
-			if (!inventory) return;
+			if (!inventory)
+			{
+				Logger.Warn("AttemptConversion - Inventory is null!");
+
+				return;
+			}
 
 			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
 			if (itemIndex != ItemIndex.None)
 			{
 				inventory.GiveItem(itemIndex);
 				inventory.SetEquipmentIndex(EquipmentIndex.None);
+			}
+			else
+			{
+				Logger.Warn("AttemptConversion - Equipment is not an aspect!");
 			}
 		}
 

@@ -20,16 +20,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixPure;
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixPurity, outlineSprite);
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -51,7 +47,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixPurity;
+				EquipmentDef equipDef = EquipDefOf.AffixPurity;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));

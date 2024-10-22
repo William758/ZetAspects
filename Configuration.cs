@@ -25,46 +25,6 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectDropChanceCompensation { get; set; }
 		public static ConfigEntry<bool> AspectDropWeightMaster { get; set; }
 		public static ConfigEntry<int> AspectDropWeightLimit { get; set; }
-		public static ConfigEntry<float> AspectDropWeightWhite { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBlue { get; set; }
-		public static ConfigEntry<float> AspectDropWeightRed { get; set; }
-		public static ConfigEntry<float> AspectDropWeightHaunted { get; set; }
-		public static ConfigEntry<float> AspectDropWeightPoison { get; set; }
-		public static ConfigEntry<float> AspectDropWeightLunar { get; set; }
-		public static ConfigEntry<float> AspectDropWeightEarth { get; set; }
-		public static ConfigEntry<float> AspectDropWeightVoid { get; set; }
-		public static ConfigEntry<float> AspectDropWeightWarped { get; set; }
-		public static ConfigEntry<float> AspectDropWeightPlated { get; set; }
-		public static ConfigEntry<float> AspectDropWeightVeiled { get; set; }
-		public static ConfigEntry<float> AspectDropWeightAragonite { get; set; }
-		public static ConfigEntry<float> AspectDropWeightGold { get; set; }
-		public static ConfigEntry<float> AspectDropWeightSanguine { get; set; }
-		public static ConfigEntry<float> AspectDropWeightSepia { get; set; }
-		public static ConfigEntry<float> AspectDropWeightNullifier { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBlighted { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBackup { get; set; }
-		public static ConfigEntry<float> AspectDropWeightPurity { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBarrier { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBlackHole { get; set; }
-		public static ConfigEntry<float> AspectDropWeightMoney { get; set; }
-		public static ConfigEntry<float> AspectDropWeightNight { get; set; }
-		public static ConfigEntry<float> AspectDropWeightWater { get; set; }
-		public static ConfigEntry<float> AspectDropWeightRealgar { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBuffered { get; set; }
-		public static ConfigEntry<float> AspectDropWeightOppressive { get; set; }
-		public static ConfigEntry<float> AspectDropWeightEmpowering { get; set; }
-		public static ConfigEntry<float> AspectDropWeightFrenzied { get; set; }
-		public static ConfigEntry<float> AspectDropWeightVolatile { get; set; }
-		public static ConfigEntry<float> AspectDropWeightEcho { get; set; }
-		public static ConfigEntry<float> AspectDropWeightArmored { get; set; }
-		public static ConfigEntry<float> AspectDropWeightBuffing { get; set; }
-		public static ConfigEntry<float> AspectDropWeightImpPlane { get; set; }
-		public static ConfigEntry<float> AspectDropWeightPillaging { get; set; }
-		public static ConfigEntry<float> AspectDropWeightSandstorm { get; set; }
-		public static ConfigEntry<float> AspectDropWeightTinkerer { get; set; }
-		public static ConfigEntry<float> AspectDropWeightAdaptive { get; set; }
-		public static ConfigEntry<float> AspectDropWeightMotivator { get; set; }
-		public static ConfigEntry<float> AspectDropWeightOsmium { get; set; }
 
 		public static ConfigEntry<bool> AspectEliteEquipment { get; set; }
 		public static ConfigEntry<bool> AspectAbilitiesEliteEquipment { get; set; }
@@ -209,6 +169,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectVeiledBaseMovementGain { get; set; }
 		public static ConfigEntry<float> AspectVeiledStackMovementGain { get; set; }
 		public static ConfigEntry<bool> AspectVeiledCloakOnSpawn { get; set; }
+		public static ConfigEntry<bool> AspectVeiledCloakPassive { get; set; }
 		public static ConfigEntry<bool> AspectVeiledCloakOnly { get; set; }
 		public static ConfigEntry<float> AspectVeiledElusiveDuration { get; set; }
 		public static ConfigEntry<bool> AspectVeiledElusiveDecay { get; set; }
@@ -502,154 +463,10 @@ namespace TPDespair.ZetAspects
 					"Last stage to apply drop weights. 0 to always apply."
 				);
 
-				AspectDropWeightWhite = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightWhite", 1f,
-					"Drop chance multiplier for AffixWhite"
-				);
-				AspectDropWeightBlue = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBlue", 1f,
-					"Drop chance multiplier for AffixBlue"
-				);
-				AspectDropWeightRed = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightRed", 1f,
-					"Drop chance multiplier for AffixRed"
-				);
-				AspectDropWeightHaunted = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightHaunted", 1f,
-					"Drop chance multiplier for AffixHaunted"
-				);
-				AspectDropWeightPoison = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightPoison", 1f,
-					"Drop chance multiplier for AffixPoison"
-				);
-				AspectDropWeightLunar = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightLunar", 1f,
-					"Drop chance multiplier for AffixLunar"
-				);
-				AspectDropWeightEarth = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightEarth", 1f,
-					"Drop chance multiplier for AffixEarth"
-				);
-				AspectDropWeightVoid = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightVoid", 1f,
-					"Drop chance multiplier for AffixVoid"
-				);
-				AspectDropWeightWarped = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightWarped", 1f,
-					"Drop chance multiplier for AffixWarped"
-				);
-				AspectDropWeightPlated = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightPlated", 1f,
-					"Drop chance multiplier for AffixPlated"
-				);
-				AspectDropWeightVeiled = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightVeiled", 1f,
-					"Drop chance multiplier for AffixVeiled"
-				);
-				AspectDropWeightAragonite = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightAragonite", 1f,
-					"Drop chance multiplier for AffixAragonite"
-				);
-				AspectDropWeightGold = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightGold", 1f,
-					"Drop chance multiplier for AffixGold"
-				);
-				AspectDropWeightSanguine = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightSanguine", 1f,
-					"Drop chance multiplier for AffixSanguine"
-				);
-				AspectDropWeightSepia = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightSepia", 1f,
-					"Drop chance multiplier for AffixSepia"
-				);
-				AspectDropWeightNullifier = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightNullifier", 1f,
-					"Drop chance multiplier for AffixNullifier"
-				);
-				AspectDropWeightBlighted = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBlighted", 1f,
-					"Drop chance multiplier for AffixBlighted"
-				);
-				AspectDropWeightBackup = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBackup", 1f,
-					"Drop chance multiplier for AffixBackup"
-				);
-				AspectDropWeightPurity = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightPurity", 1f,
-					"Drop chance multiplier for AffixPurity"
-				);
-				AspectDropWeightBarrier = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBarrier", 1f,
-					"Drop chance multiplier for AffixBarrier"
-				);
-				AspectDropWeightBlackHole = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBlackHole", 1f,
-					"Drop chance multiplier for AffixBlackHole"
-				);
-				AspectDropWeightMoney = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightMoney", 1f,
-					"Drop chance multiplier for AffixMoney"
-				);
-				AspectDropWeightNight = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightNight", 1f,
-					"Drop chance multiplier for AffixNight"
-				);
-				AspectDropWeightWater = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightWater", 1f,
-					"Drop chance multiplier for AffixWater"
-				);
-				AspectDropWeightRealgar = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightRealgar", 1f,
-					"Drop chance multiplier for AffixRealgar"
-				);
-				AspectDropWeightBuffered = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBuffered", 1f,
-					"Drop chance multiplier for AffixBuffered"
-				);
-				AspectDropWeightOppressive = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightOppressive", 1f,
-					"Drop chance multiplier for AffixOppressive"
-				);
-				AspectDropWeightEmpowering = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightEmpowering", 1f,
-					"Drop chance multiplier for AffixEmpowering"
-				);
-				AspectDropWeightFrenzied = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightFrenzied", 1f,
-					"Drop chance multiplier for AffixFrenzied"
-				);
-				AspectDropWeightVolatile = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightVolatile", 1f,
-					"Drop chance multiplier for AffixVolatile"
-				);
-				AspectDropWeightEcho = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightEcho", 1f,
-					"Drop chance multiplier for AffixEcho"
-				);
-				AspectDropWeightArmored = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightArmored", 1f,
-					"Drop chance multiplier for AffixArmored"
-				);
-				AspectDropWeightBuffing = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightBuffing", 1f,
-					"Drop chance multiplier for AffixBuffing"
-				);
-				AspectDropWeightImpPlane = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightImpPlane", 1f,
-					"Drop chance multiplier for AffixImpPlane"
-				);
-				AspectDropWeightPillaging = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightPillaging", 1f,
-					"Drop chance multiplier for AffixPillaging"
-				);
-				AspectDropWeightSandstorm = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightSandstorm", 1f,
-					"Drop chance multiplier for AffixSandstorm"
-				);
-				AspectDropWeightTinkerer = Config.Bind(
-					"0b-DropWeight", "aspectDropWeightTinkerer", 1f,
-					"Drop chance multiplier for AffixTinkerer"
-				);
+				foreach (AspectDef aspectDef in Catalog.aspectDefs)
+				{
+					aspectDef.CreateDropWeightConfig(Config);
+				}
 
 				Catalog.dropWeightsAvailable = true;
 			}
@@ -1232,7 +1049,11 @@ namespace TPDespair.ZetAspects
 			);
 			AspectVeiledCloakOnSpawn = Config.Bind(
 				"2bc-AspectVeiled", "veiledCloakOnSpawn", true,
-				"Allow Veiled elites to cloak for 20 seconds whenever they spawn."
+				"Allow Veiled elites to cloak for 30 seconds whenever they spawn."
+			);
+			AspectVeiledCloakPassive = Config.Bind(
+				"2bc-AspectVeiled", "veiledCloakPassive", true,
+				"Allow Veiled elites to passively cloak."
 			);
 			AspectVeiledCloakOnly = Config.Bind(
 				"2bc-AspectVeiled", "veiledCloakOnly", false,

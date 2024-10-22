@@ -30,7 +30,7 @@ namespace TPDespair.ZetAspects
 
 			public bool FindPluginAssembly()
 			{
-				Logger.Warn(identifier + " - Find Assembly for : " + GUID);
+				Logger.Info(identifier + " - Find Assembly for : " + GUID);
 
 				if (!Chainloader.PluginInfos.ContainsKey(GUID))
 				{

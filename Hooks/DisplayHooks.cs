@@ -8,11 +8,6 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Stats;
 using RoR2.UI;
-using HarmonyLib;
-using System.Reflection;
-
-using MonoOpCodes = Mono.Cecil.Cil.OpCodes;
-using SysOpCodes = System.Reflection.Emit.OpCodes;
 
 namespace TPDespair.ZetAspects
 {
@@ -48,8 +43,6 @@ namespace TPDespair.ZetAspects
 
 		internal static void Init()
 		{
-			//ZetAspectsPlugin.harmony.Patch(AccessTools.Method(typeof(CharacterModel), nameof(CharacterModel.UpdateOverlays)), transpiler: new HarmonyMethod(typeof(DisplayHooks), nameof(OverlayTranspiler)));
-
 			CharacterOverlayStateHook();
 			CharacterOverlayHook();
 			EquipmentDisplayHook();
@@ -61,7 +54,10 @@ namespace TPDespair.ZetAspects
 			FixDamageDealtStatHook();
 
 			if (Configuration.RecolorHpBar.Value) HPBarColorHook();
+		}
 
+		internal static void LateSetup()
+		{
 			BuffIconDisplayHook();
 		}
 
@@ -74,127 +70,14 @@ namespace TPDespair.ZetAspects
 			AspectRenderEquipment.Clear();
 			AspectRenders.Clear();
 
-			if (Catalog.Blighted.populated)
+			List<AspectDef> sortedList = Catalog.aspectDefs.OrderByDescending(d => d.displayPriority).ToList();
+
+			foreach (AspectDef aspectDef in sortedList)
 			{
-				AddAspectRender(Catalog.Equip.AffixBlighted);
-			}
-
-			AddAspectRender(Catalog.Equip.AffixVoid);
-
-			if (Catalog.NemRisingTides.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixOppressive);
-			}
-
-			if (Catalog.Sandswept.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixOsmium);
-			}
-
-			if (Catalog.RisingTides.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixBarrier);
-				AddAspectRender(Catalog.Equip.AffixRealgar);
-				AddAspectRender(Catalog.Equip.AffixWater);
-				AddAspectRender(Catalog.Equip.AffixBlackHole);
-			}
-
-			if (Catalog.EliteVariety.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixImpPlane);
-			}
-
-			if (Catalog.SpikeStrip.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixAragonite);
-			}
-
-			if (Catalog.MoreElites.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixEcho);
-			}
-
-			AddAspectRender(Catalog.Equip.AffixLunar);
-			AddAspectRender(Catalog.Equip.AffixPoison);
-			AddAspectRender(Catalog.Equip.AffixHaunted);
-
-			if (Catalog.Aetherium.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixSanguine);
-			}
-
-			if (Catalog.Augmentum.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixAdaptive);
-			}
-
-			if (Catalog.WarWisp.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixNullifier);
-			}
-
-			if (Catalog.Sandswept.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixMotivator);
-			}
-
-			if (Catalog.EliteVariety.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixTinkerer);
-				AddAspectRender(Catalog.Equip.AffixSandstorm);
-				AddAspectRender(Catalog.Equip.AffixBuffing);
-				AddAspectRender(Catalog.Equip.AffixArmored);
-				AddAspectRender(Catalog.Equip.AffixPillaging);
-			}
-
-			if (Catalog.RisingTides.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixMoney);
-				AddAspectRender(Catalog.Equip.AffixNight);
-			}
-
-			if (Catalog.NemRisingTides.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixBuffered);
-			}
-
-			if (Catalog.Thalasso.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixPurity);
-			}
-
-			if (Catalog.SpikeStrip.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixVeiled);
-				AddAspectRender(Catalog.Equip.AffixWarped);
-				AddAspectRender(Catalog.Equip.AffixPlated);
-			}
-
-			AddAspectRender(Catalog.Equip.AffixEarth);
-			AddAspectRender(Catalog.Equip.AffixRed);
-			AddAspectRender(Catalog.Equip.AffixBlue);
-			AddAspectRender(Catalog.Equip.AffixWhite);
-
-			if (Catalog.MoreElites.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixVolatile);
-				AddAspectRender(Catalog.Equip.AffixEmpowering);
-				AddAspectRender(Catalog.Equip.AffixFrenzied);
-			}
-
-			if (Catalog.GOTCE.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixBackup);
-			}
-
-			if (Catalog.Bubbet.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixSepia);
-			}
-
-			if (Catalog.GoldenCoastPlus.populated)
-			{
-				AddAspectRender(Catalog.Equip.AffixGold);
+				if (aspectDef.PackPopulated)
+				{
+					AddAspectRender(aspectDef.equipmentDef);
+				}
 			}
 
 			Logger.Info("Aspect Render Count : " + AspectRenders.Count);
@@ -224,7 +107,7 @@ namespace TPDespair.ZetAspects
 
 		internal static void OnBodyDeath(CharacterBody body)
 		{
-			if (GetBodyEliteDisplay(body) == Catalog.Equip.AffixVoid)
+			if (GetBodyEliteDisplay(body) == EquipDefOf.AffixVoid)
 			{
 				ModelLocator locator = body.GetComponent<ModelLocator>();
 				if (locator && locator.modelTransform)
@@ -304,7 +187,7 @@ namespace TPDespair.ZetAspects
 			{
 				EquipmentDef targetEquipDef = kvp.Key;
 
-				if (isDead && targetEquipDef == Catalog.Equip.AffixVoid) continue;
+				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
 				if (inventory.GetItemCount(kvp.Value) > 0) return targetEquipDef;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
@@ -323,7 +206,7 @@ namespace TPDespair.ZetAspects
 			{
 				EquipmentDef targetEquipDef = kvp.Key;
 
-				if (isDead && targetEquipDef == Catalog.Equip.AffixVoid) continue;
+				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
@@ -338,40 +221,13 @@ namespace TPDespair.ZetAspects
 			{
 				EquipmentDef targetEquipDef = kvp.Key;
 
-				if (isDead && targetEquipDef == Catalog.Equip.AffixVoid) continue;
+				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
 				if (inventory.GetItemCount(kvp.Value) > 0) return targetEquipDef;
 			}
 
 			return null;
 		}
-
-
-		/*
-		public static IEnumerable<CodeInstruction> OverlayTranspiler(IEnumerable<CodeInstruction> instructions)
-		{
-			List<CodeInstruction> instructionList = instructions.ToList();
-
-			for (int i = 0; i < instructionList.Count; i++)
-			{
-				CodeInstruction instruction = instructionList[i];
-				yield return instruction;
-
-				if (i + 1 < instructionList.Count)
-				{
-					CodeInstruction nextInst = instructionList[i + 1];
-					string instring = nextInst.ToString();
-					if (instring.Contains("stfld") && instring.Contains("RtpcSetter") && instring.Contains("value"))
-					{
-						Logger.Warn("[OverlayTranspiler] IL Match Found!");
-						yield return new CodeInstruction(SysOpCodes.Pop);
-						yield return new CodeInstruction(SysOpCodes.Ldc_R4, 0f);
-					}
-				}
-			}
-		}
-		*/
-
 
 		private static void CharacterOverlayStateHook()
 		{
@@ -390,7 +246,7 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 3;
 
-					c.Emit(MonoOpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<EquipmentDef, CharacterModel, EquipmentDef>>((equipDef, model) =>
 					{
 						CharacterBody body = model.body;
@@ -429,7 +285,7 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 3;
 
-					c.Emit(MonoOpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<EquipmentDef, CharacterModel, EquipmentDef>>((equipDef, model) =>
 					{
 						CharacterBody body = model.body;
@@ -666,9 +522,9 @@ namespace TPDespair.ZetAspects
 				{
 					if (HasInvulnBuff(body)) immune = true;
 
-					if (body.HasBuff(RoR2Content.Buffs.AffixLunar)) convertShield = true;
+					if (body.HasBuff(BuffDefOf.AffixLunar)) convertShield = true;
 
-					if (body.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierRegen.Value > 0.001f) convertShield = true;
+					if (body.HasBuff(BuffDefOf.AffixNullifier) && Configuration.AspectNullifierRegen.Value > 0.001f) convertShield = true;
 
 					Inventory inventory = body.inventory;
 					if (inventory)
@@ -732,7 +588,7 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self);
 
-				BuffDef elusiveBuff = Catalog.Buff.ZetElusive;
+				BuffDef elusiveBuff = BuffDefOf.ZetElusive;
 				if (self.buffDef && elusiveBuff != null && self.buffDef == elusiveBuff)
 				{
 					BuffIcon.sharedStringBuilder.Clear();

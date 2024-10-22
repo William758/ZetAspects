@@ -20,16 +20,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBarrier, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -51,7 +47,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixBarrier;
+				EquipmentDef equipDef = EquipDefOf.AffixBarrier;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -117,16 +113,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixBlackHole, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -148,7 +140,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixBlackHole;
+				EquipmentDef equipDef = EquipDefOf.AffixBlackHole;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -196,16 +188,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixMoney, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -227,7 +215,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixMoney;
+				EquipmentDef equipDef = EquipDefOf.AffixMoney;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -282,16 +270,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixNight, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -313,7 +297,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixNight;
+				EquipmentDef equipDef = EquipDefOf.AffixNight;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -440,16 +424,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixWater, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -471,7 +451,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixWater;
+				EquipmentDef equipDef = EquipDefOf.AffixWater;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
@@ -515,16 +495,12 @@ namespace TPDespair.ZetAspects.Items
 				tags[2] = ItemTag.WorldUnique;
 			}
 
-			Sprite outlineSprite;
-			if (AspectRedTier.Value) outlineSprite = Catalog.Sprites.OutlineRed;
-			else outlineSprite = Catalog.Sprites.OutlineYellow;
-
 			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
 			itemDef.name = identifier;
 			itemDef.tags = tags;
 			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/PickupModels/PickupAffixWhite");
-			itemDef.pickupIconSprite = Catalog.CreateAspectSprite(Catalog.Sprites.AffixRealgar, outlineSprite);
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
 
 			itemDef.AutoPopulateTokens();
 
@@ -546,7 +522,7 @@ namespace TPDespair.ZetAspects.Items
 				RegisterToken("ITEM_" + locToken + "_DESC", desc);
 				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
 
-				EquipmentDef equipDef = Catalog.Equip.AffixRealgar;
+				EquipmentDef equipDef = EquipDefOf.AffixRealgar;
 				if (equipDef)
 				{
 					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));

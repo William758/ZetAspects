@@ -20,7 +20,6 @@ namespace TPDespair.ZetAspects
 
 			DirectStatHook();
 
-			//IL.RoR2.CharacterBody.RecalculateStats += RecalculateStatsEmpyreanIL;
 			DisableOverloadingShieldConversionHook();
 			ShieldConversionHook();
 			FullShieldConversionHook();
@@ -60,50 +59,50 @@ namespace TPDespair.ZetAspects
 					{
 						float count;
 
-						if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedBaseMovementGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixRed) && Configuration.AspectRedBaseMovementGain.Value > 0f)
 						{
-							count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixRed);
+							count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixRed);
 							value += Configuration.AspectRedBaseMovementGain.Value + Configuration.AspectRedStackMovementGain.Value * (count - 1f);
 						}
 
-						if (self.HasBuff(RoR2Content.Buffs.AffixLunar))
+						if (self.HasBuff(BuffDefOf.AffixLunar))
 						{
 							value -= 0.3f;
 
 							if (Configuration.AspectLunarBaseMovementGain.Value > 0f)
 							{
-								count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
+								count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixLunar);
 								value += Configuration.AspectLunarBaseMovementGain.Value + Configuration.AspectLunarStackMovementGain.Value * (count - 1f);
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 						{
-							value += Configuration.HeadHunterBuffMovementSpeed.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+							value += Configuration.HeadHunterBuffMovementSpeed.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixVeiled))
+						if (self.HasBuff(BuffDefOf.AffixVeiled))
 						{
 							if (Configuration.AspectVeiledBaseMovementGain.Value > 0f)
 							{
-								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVeiled);
+								count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixVeiled);
 								value += Configuration.AspectVeiledBaseMovementGain.Value + Configuration.AspectVeiledStackMovementGain.Value * (count - 1f);
 							}
 
-							if (self.HasBuff(Catalog.Buff.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.ZetElusive) && Configuration.AspectVeiledElusiveMovementGain.Value > 0f)
 							{
 								bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
 
-								count = Mathf.Max(5f, self.GetBuffCount(Catalog.Buff.ZetElusive));
+								count = Mathf.Max(5f, self.GetBuffCount(BuffDefOf.ZetElusive));
 								value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / (nemCloak ? 40f : 20f));
 							}
 						}
 
 						if (Compat.PlasmaSpikeStrip.rageStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseMovementGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.AffixAragonite) && Configuration.AspectAragoniteBaseMovementGain.Value > 0f)
 							{
-								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+								count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAragonite);
 								float effectValue = Configuration.AspectAragoniteBaseMovementGain.Value + Configuration.AspectAragoniteStackMovementGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterMovementMult.Value;
 								value += effectValue;
@@ -116,9 +115,9 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixNight) && Configuration.AspectNightBaseMovementGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixNight) && Configuration.AspectNightBaseMovementGain.Value > 0f)
 						{
-							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+							count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNight);
 							float effectValue = Configuration.AspectNightBaseMovementGain.Value + Configuration.AspectNightStackMovementGain.Value * (count - 1f);
 							if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterMovementMult.Value;
 							value += effectValue;
@@ -126,35 +125,35 @@ namespace TPDespair.ZetAspects
 
 						if (Compat.RisingTides.nightSpeedStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.NightSpeed) && Configuration.AspectNightBaseSafeMovementGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.NightSpeed) && Configuration.AspectNightBaseSafeMovementGain.Value > 0f)
 							{
-								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+								count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNight);
 								float effectValue = Configuration.AspectNightBaseSafeMovementGain.Value + Configuration.AspectNightStackSafeMovementGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterSafeMovementMult.Value;
 								value += effectValue;
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveBaseMovementGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixOppressive) && Configuration.AspectOppressiveBaseMovementGain.Value > 0f)
 						{
-							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixOppressive);
+							count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixOppressive);
 							value += Configuration.AspectOppressiveBaseMovementGain.Value + Configuration.AspectOppressiveStackMovementGain.Value * (count - 1f);
 						}
 
 						if (Compat.MoreElites.frenzyStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseMovementGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.AffixFrenzied) && Configuration.AspectFrenziedBaseMovementGain.Value > 0f)
 							{
-								count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+								count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixFrenzied);
 								float effectValue = Configuration.AspectFrenziedBaseMovementGain.Value + Configuration.AspectFrenziedStackMovementGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterMovementMult.Value;
 								value += effectValue;
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixSandstorm) && Configuration.AspectCycloneBaseMovementGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixSandstorm) && Configuration.AspectCycloneBaseMovementGain.Value > 0f)
 						{
-							count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSandstorm);
+							count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSandstorm);
 							value += Configuration.AspectCycloneBaseMovementGain.Value + Configuration.AspectCycloneStackMovementGain.Value * (count - 1f);
 						}
 
@@ -193,15 +192,15 @@ namespace TPDespair.ZetAspects
 					{
 						if (self.teamComponent.teamIndex == TeamIndex.Player)
 						{
-							if (self.HasBuff(RoR2Content.Buffs.AffixRed) && Configuration.AspectRedExtraJump.Value) value++;
+							if (self.HasBuff(BuffDefOf.AffixRed) && Configuration.AspectRedExtraJump.Value) value++;
 
-							if (self.HasBuff(Catalog.Buff.AffixOppressive) && Configuration.AspectOppressiveExtraJump.Value) value++;
+							if (self.HasBuff(BuffDefOf.AffixOppressive) && Configuration.AspectOppressiveExtraJump.Value) value++;
 
-							if (self.HasBuff(Catalog.Buff.AffixEmpowering) && Configuration.AspectEmpoweringExtraJump.Value) value++;
+							if (self.HasBuff(BuffDefOf.AffixEmpowering) && Configuration.AspectEmpoweringExtraJump.Value) value++;
 
-							if (self.HasBuff(Catalog.Buff.AffixBuffing) && Configuration.AspectBannerExtraJump.Value) value++;
+							if (self.HasBuff(BuffDefOf.AffixBuffing) && Configuration.AspectBannerExtraJump.Value) value++;
 
-							if (self.HasBuff(Catalog.Buff.AffixMotivator) && Configuration.AspectMotivatorExtraJump.Value) value++;
+							if (self.HasBuff(BuffDefOf.AffixMotivator) && Configuration.AspectMotivatorExtraJump.Value) value++;
 						}
 
 						return value;
@@ -238,12 +237,12 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, multValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 						{
-							value += Configuration.HeadHunterBuffDamage.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+							value += Configuration.HeadHunterBuffDamage.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixVoid))
+						if (self.HasBuff(BuffDefOf.AffixVoid))
 						{
 							bool onPrimaryEquipment = false;
 
@@ -273,58 +272,58 @@ namespace TPDespair.ZetAspects
 
 							if (Configuration.AspectVoidBaseDamageGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixVoid);
 								value += Configuration.AspectVoidBaseDamageGain.Value + Configuration.AspectVoidStackDamageGain.Value * (count - 1f);
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixBlighted))
+						if (self.HasBuff(BuffDefOf.AffixBlighted))
 						{
 							if (Configuration.AspectBlightedBaseDamageGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBlighted);
 								value += Configuration.AspectBlightedBaseDamageGain.Value + Configuration.AspectBlightedStackDamageGain.Value * (count - 1f);
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixBlackHole) && Configuration.AspectBlackHoleBaseDamageGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixBlackHole) && Configuration.AspectBlackHoleBaseDamageGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlackHole);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBlackHole);
 							value += Configuration.AspectBlackHoleBaseDamageGain.Value + Configuration.AspectBlackHoleStackDamageGain.Value * (count - 1f);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixEmpowering))
+						if (self.HasBuff(BuffDefOf.AffixEmpowering))
 						{
 							if (Configuration.AspectEmpoweringBaseDamageGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEmpowering);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEmpowering);
 								value += Configuration.AspectEmpoweringBaseDamageGain.Value + Configuration.AspectEmpoweringStackDamageGain.Value * (count - 1f);
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixBuffing) && Configuration.AspectBannerBaseDamageGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixBuffing) && Configuration.AspectBannerBaseDamageGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBuffing);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBuffing);
 							value += Configuration.AspectBannerBaseDamageGain.Value + Configuration.AspectBannerStackDamageGain.Value * (count - 1f);
 						}
 
-						if (Catalog.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f)
+						if (AspectPackDefOf.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f)
 						{
 							CharacterMaster master = self.master;
 							if (master && EffectHooks.IsValidDrone(master))
 							{
 								CharacterBody ownerBody = EffectHooks.GetMinionOwnerBody(master);
-								if (ownerBody && ownerBody.HasBuff(Catalog.Buff.AffixTinkerer))
+								if (ownerBody && ownerBody.HasBuff(BuffDefOf.AffixTinkerer))
 								{
-									float count = Catalog.GetStackMagnitude(ownerBody, Catalog.Buff.AffixTinkerer);
+									float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixTinkerer);
 									value += Configuration.AspectTinkerBaseMinionDamageGain.Value + Configuration.AspectTinkerStackMinionDamageGain.Value * (count - 1f);
 								}
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixMotivator) && Configuration.AspectMotivatorBaseDamageGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixMotivator) && Configuration.AspectMotivatorBaseDamageGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixMotivator);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixMotivator);
 							value += Configuration.AspectMotivatorBaseDamageGain.Value + Configuration.AspectMotivatorStackDamageGain.Value * (count - 1f);
 						}
 
@@ -339,13 +338,13 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, baseValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.ZetSapped))
+						if (self.HasBuff(BuffDefOf.ZetSapped))
 						{
 							float delta = Mathf.Abs(Configuration.AspectBlueSappedDamage.Value);
 							value *= 1f - Mathf.Min(0.9f, delta);
 						}
 
-						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
+						if (AspectPackDefOf.EliteVariety.Populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
 						{
 							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterDamageMult.Value;
 							else value *= Configuration.AspectTinkerPlayerDamageMult.Value;
@@ -395,17 +394,17 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, shield, health) =>
 					{
-						if (self.HasBuff(RoR2Content.Buffs.AffixBlue) && Configuration.AspectBlueBaseShieldGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixBlue) && Configuration.AspectBlueBaseShieldGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixBlue);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBlue);
 							shield += health * (Configuration.AspectBlueBaseShieldGain.Value + Configuration.AspectBlueStackShieldGain.Value * (count - 1f));
 						}
 
 						if (Compat.WarWisp.shieldOverrideHook)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierBaseShieldGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.AffixNullifier) && Configuration.AspectNullifierBaseShieldGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNullifier);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNullifier);
 								shield += health * (Configuration.AspectNullifierBaseShieldGain.Value + Configuration.AspectNullifierStackShieldGain.Value * (count - 1f));
 							}
 						}
@@ -446,15 +445,15 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, baseValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(RoR2Content.Buffs.AffixPoison) && Configuration.AspectPoisonBaseHealthGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixPoison) && Configuration.AspectPoisonBaseHealthGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixPoison);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPoison);
 							value += Configuration.AspectPoisonBaseHealthGain.Value + Configuration.AspectPoisonStackHealthGain.Value * (count - 1f);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixPurity) && Configuration.AspectPurityBaseHealthGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixPurity) && Configuration.AspectPurityBaseHealthGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPurity);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPurity);
 							value += Configuration.AspectPurityBaseHealthGain.Value + Configuration.AspectPurityStackHealthGain.Value * (count - 1f);
 						}
 
@@ -467,12 +466,12 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, multValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 						{
-							value += Configuration.HeadHunterBuffHealth.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+							value += Configuration.HeadHunterBuffHealth.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixVoid))
+						if (self.HasBuff(BuffDefOf.AffixVoid))
 						{
 							bool onPrimaryEquipment = false;
 
@@ -492,21 +491,21 @@ namespace TPDespair.ZetAspects
 
 							if (Configuration.AspectVoidBaseHealthGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixVoid);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixVoid);
 								value += Configuration.AspectVoidBaseHealthGain.Value + Configuration.AspectVoidStackHealthGain.Value * (count - 1f);
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixBlighted))
+						if (self.HasBuff(BuffDefOf.AffixBlighted))
 						{
 							if (Configuration.AspectBlightedBaseHealthGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBlighted);
 								value += Configuration.AspectBlightedBaseHealthGain.Value + Configuration.AspectBlightedStackHealthGain.Value * (count - 1f);
 							}
 						}
 
-						if (Compat.NemSpikeStrip.PlatedEnabled && self.HasBuff(Catalog.Buff.AffixPlated) && !Configuration.AspectPlatedPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
+						if (Compat.NemSpikeStrip.PlatedEnabled && self.HasBuff(BuffDefOf.AffixPlated) && !Configuration.AspectPlatedPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
 						{
 							float cfgValue = Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.PlatedHealthField, 0.2f);
 							if (cfgValue != 1f)
@@ -527,7 +526,7 @@ namespace TPDespair.ZetAspects
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						//BuffDef targetBuff = Catalog.nemBarrier ? Catalog.Buff.AffixBuffered : Catalog.Buff.AffixBarrier;
-						BuffDef targetBuff = Catalog.Buff.AffixBarrier;
+						BuffDef targetBuff = BuffDefOf.AffixBarrier;
 						if (self.HasBuff(targetBuff) && !Configuration.AspectBarrierPlayerHealthReduction.Value && self.teamComponent.teamIndex == TeamIndex.Player)
 						{
 							float cfgValue = Compat.RisingTides.GetConfigValue(Compat.RisingTides.BarrierHealthReduction, 50f);
@@ -535,7 +534,7 @@ namespace TPDespair.ZetAspects
 							value /= 1f - cfgValue / 100f;
 						}
 
-						if (Catalog.EliteVariety.populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
+						if (AspectPackDefOf.EliteVariety.Populated && Configuration.AspectTinkerTweaks.Value && self.bodyIndex == Catalog.tinkerDroneBodyIndex)
 						{
 							if (self.teamComponent.teamIndex != TeamIndex.Player) value *= Configuration.AspectTinkerMonsterHealthMult.Value;
 							else value *= Configuration.AspectTinkerPlayerHealthMult.Value;
@@ -575,16 +574,16 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, multValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 						{
-							value += Configuration.HeadHunterBuffAttackSpeed.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+							value += Configuration.HeadHunterBuffAttackSpeed.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 						}
 
 						if (Compat.PlasmaSpikeStrip.rageStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseAtkSpdGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.AffixAragonite) && Configuration.AspectAragoniteBaseAtkSpdGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAragonite);
 								float effectValue = Configuration.AspectAragoniteBaseAtkSpdGain.Value + Configuration.AspectAragoniteStackAtkSpdGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterAtkSpdMult.Value;
 								value += effectValue;
@@ -597,9 +596,9 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixNight) && Configuration.AspectNightBaseAtkSpdGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixNight) && Configuration.AspectNightBaseAtkSpdGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNight);
 							float effectValue = Configuration.AspectNightBaseAtkSpdGain.Value + Configuration.AspectNightStackAtkSpdGain.Value * (count - 1f);
 							if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterAtkSpdMult.Value;
 							value += effectValue;
@@ -607,9 +606,9 @@ namespace TPDespair.ZetAspects
 
 						if (Compat.RisingTides.nightSpeedStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.NightSpeed) && Configuration.AspectNightBaseSafeAtkSpdGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.NightSpeed) && Configuration.AspectNightBaseSafeAtkSpdGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNight);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNight);
 								float effectValue = Configuration.AspectNightBaseSafeAtkSpdGain.Value + Configuration.AspectNightStackSafeAtkSpdGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectNightMonsterSafeAtkSpdMult.Value;
 								value += effectValue;
@@ -618,18 +617,18 @@ namespace TPDespair.ZetAspects
 
 						if (Compat.MoreElites.frenzyStatHook)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseAtkSpdGain.Value > 0f)
+							if (self.HasBuff(BuffDefOf.AffixFrenzied) && Configuration.AspectFrenziedBaseAtkSpdGain.Value > 0f)
 							{
-								float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixFrenzied);
 								float effectValue = Configuration.AspectFrenziedBaseAtkSpdGain.Value + Configuration.AspectFrenziedStackAtkSpdGain.Value * (count - 1f);
 								if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterAtkSpdMult.Value;
 								value += effectValue;
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixSandstorm) && Configuration.AspectCycloneBaseAtkSpdGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixSandstorm) && Configuration.AspectCycloneBaseAtkSpdGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSandstorm);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSandstorm);
 							value += Configuration.AspectCycloneBaseAtkSpdGain.Value + Configuration.AspectCycloneStackAtkSpdGain.Value * (count - 1f);
 						}
 
@@ -644,7 +643,7 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, baseValue);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
-						if (self.HasBuff(Catalog.Buff.ZetPoached))
+						if (self.HasBuff(BuffDefOf.ZetPoached))
 						{
 							float delta = Mathf.Abs(Configuration.AspectEarthPoachedAttackSpeed.Value);
 							value *= 1f - Mathf.Min(0.9f, delta);
@@ -690,8 +689,8 @@ namespace TPDespair.ZetAspects
 						Inventory inventory = self.inventory;
 						if (inventory)
 						{
-							bool goldEnabled = self.HasBuff(Catalog.Buff.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
-							bool pillageEnabled = self.HasBuff(Catalog.Buff.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
+							bool goldEnabled = self.HasBuff(BuffDefOf.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
+							bool pillageEnabled = self.HasBuff(BuffDefOf.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
 
 							if (goldEnabled || pillageEnabled)
 							{
@@ -699,7 +698,7 @@ namespace TPDespair.ZetAspects
 
 								if (goldEnabled)
 								{
-									float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixGold);
+									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixGold);
 
 									float scoredRegen = itemScore * Configuration.AspectGoldItemScoreFactor.Value;
 									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldItemScoreExponent.Value);
@@ -711,7 +710,7 @@ namespace TPDespair.ZetAspects
 
 								if (pillageEnabled)
 								{
-									float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPillaging);
+									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPillaging);
 
 									float scoredRegen = itemScore * Configuration.AspectGoldenItemScoreFactor.Value;
 									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldenItemScoreExponent.Value);
@@ -723,26 +722,26 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
 						{
 							amount += 1.6f;
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSepia);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSepia);
 							amount += Configuration.AspectSepiaBaseRegenGain.Value + Configuration.AspectSepiaStackRegenGain.Value * (count - 1f);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixPurity) && Configuration.AspectPurityBaseRegenGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixPurity) && Configuration.AspectPurityBaseRegenGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPurity);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPurity);
 							amount += Configuration.AspectPurityBaseRegenGain.Value + Configuration.AspectPurityStackRegenGain.Value * (count - 1f);
 						}
 
-						if (self.HasBuff(Catalog.Buff.AffixMoney) && Configuration.AspectMoneyBaseRegenGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixMoney) && Configuration.AspectMoneyBaseRegenGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixMoney);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixMoney);
 							amount += Configuration.AspectMoneyBaseRegenGain.Value + Configuration.AspectMoneyStackRegenGain.Value * (count - 1f);
 						}
 
@@ -773,7 +772,7 @@ namespace TPDespair.ZetAspects
 					{
 						float amount = 0f;
 
-						if (self.HasBuff(Catalog.Buff.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
 						{
 							amount += Configuration.AspectEarthRegeneration.Value;
 						}
@@ -848,7 +847,7 @@ namespace TPDespair.ZetAspects
 
 				if (self)
 				{
-					if (self.HasBuff(Catalog.Buff.ZetWarped))
+					if (self.HasBuff(BuffDefOf.ZetWarped))
 					{
 						self.moveSpeed *= Configuration.AspectWarpedAltSpeedMult.Value;
 						self.jumpPower *= Configuration.AspectWarpedAltJumpMult.Value;
@@ -873,13 +872,13 @@ namespace TPDespair.ZetAspects
 
 						if (skillLocator.secondary)
 						{
-							if (self.HasBuff(Catalog.Buff.AffixBackup))
+							if (self.HasBuff(BuffDefOf.AffixBackup))
 							{
 								if (Compat.GOTCE.backupStatHook)
 								{
 									if (Configuration.AspectBackupBaseCooldownGain.Value > 0f)
 									{
-										float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBackup);
+										float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBackup);
 										float coeff = Configuration.AspectBackupBaseCooldownGain.Value + Configuration.AspectBackupStackCooldownGain.Value * (count - 1f);
 
 										coeff = 1f - (Util.ConvertAmplificationPercentageIntoReductionPercentage(coeff * 100f) / 100f);
@@ -892,7 +891,7 @@ namespace TPDespair.ZetAspects
 								{
 									if (Configuration.AspectBackupBaseChargesGain.Value > 0)
 									{
-										float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBackup);
+										float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBackup);
 										int charges = Mathf.RoundToInt(Configuration.AspectBackupBaseChargesGain.Value + Configuration.AspectBackupStackChargesGain.Value * (count - 1f));
 
 										//Logger.Warn("Backup Bonus Charges : " + charges);
@@ -911,9 +910,9 @@ namespace TPDespair.ZetAspects
 			float addedArmor = 0f;
 			float count;
 
-			if (self.HasBuff(RoR2Content.Buffs.AffixHaunted) && Configuration.AspectHauntedBaseArmorGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixHaunted) && Configuration.AspectHauntedBaseArmorGain.Value > 0f)
 			{
-				count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixHaunted);
+				count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixHaunted);
 				addedArmor += Configuration.AspectHauntedBaseArmorGain.Value + Configuration.AspectHauntedStackArmorGain.Value * (count - 1f);
 			}
 			else if (self.HasBuff(RoR2Content.Buffs.AffixHauntedRecipient) && Configuration.AspectHauntedAllyArmorGain.Value > 0f)
@@ -923,18 +922,18 @@ namespace TPDespair.ZetAspects
 
 			if (!Compat.NemSpikeStrip.PlatedEnabled || Configuration.AspectPlatedAllowDefenceWithNem.Value)
 			{
-				if (self.HasBuff(Catalog.Buff.AffixPlated) && Configuration.AspectPlatedBaseArmorGain.Value > 0f)
+				if (self.HasBuff(BuffDefOf.AffixPlated) && Configuration.AspectPlatedBaseArmorGain.Value > 0f)
 				{
-					count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixPlated);
+					count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPlated);
 					addedArmor += Configuration.AspectPlatedBaseArmorGain.Value + Configuration.AspectPlatedStackArmorGain.Value * (count - 1f);
 				}
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixNullifier))
+			if (self.HasBuff(BuffDefOf.AffixNullifier))
 			{
 				if (Configuration.AspectNullifierBaseArmorGain.Value > 0f)
 				{
-					count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixNullifier);
+					count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixNullifier);
 					addedArmor += Configuration.AspectNullifierBaseArmorGain.Value + Configuration.AspectNullifierStackArmorGain.Value * (count - 1f);
 				}
 			}
@@ -947,19 +946,19 @@ namespace TPDespair.ZetAspects
 				}
 			}
 
-			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+			if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 			{
-				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+				addedArmor += Configuration.HeadHunterBuffArmor.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 			}
 
-			if (self.HasBuff(Catalog.Buff.ZetShredded))
+			if (self.HasBuff(BuffDefOf.ZetShredded))
 			{
 				addedArmor -= Mathf.Abs(Configuration.AspectHauntedShredArmor.Value);
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixArmored) && Configuration.AspectArmorBaseArmorGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixArmored) && Configuration.AspectArmorBaseArmorGain.Value > 0f)
 			{
-				count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixArmored);
+				count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixArmored);
 				addedArmor += Configuration.AspectArmorBaseArmorGain.Value + Configuration.AspectArmorStackArmorGain.Value * (count - 1f);
 			}
 
@@ -970,9 +969,9 @@ namespace TPDespair.ZetAspects
 		{
 			float addedCrit = 0f;
 
-			if (self.HasBuff(Catalog.Buff.ZetHeadHunter))
+			if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 			{
-				addedCrit += Configuration.HeadHunterBuffCritChance.Value * self.GetBuffCount(Catalog.Buff.ZetHeadHunter);
+				addedCrit += Configuration.HeadHunterBuffCritChance.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
 			}
 
 			if (addedCrit > 0f)
@@ -997,23 +996,23 @@ namespace TPDespair.ZetAspects
 			float mult = 1f;
 			float additiveReduction = 0f;
 
-			if (self.HasBuff(Catalog.Buff.AffixWarped) && Configuration.AspectWarpedBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixWarped) && Configuration.AspectWarpedBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWarped);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixWarped);
 				additiveReduction += Configuration.AspectWarpedBaseCooldownGain.Value + Configuration.AspectWarpedStackCooldownGain.Value * (count - 1f);
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixSepia) && Configuration.AspectSepiaBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixSepia) && Configuration.AspectSepiaBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixSepia);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSepia);
 				additiveReduction += Configuration.AspectSepiaBaseCooldownGain.Value + Configuration.AspectSepiaStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (Compat.PlasmaSpikeStrip.rageStatHook)
 			{
-				if (self.HasBuff(Catalog.Buff.AffixAragonite) && Configuration.AspectAragoniteBaseCooldownGain.Value > 0f)
+				if (self.HasBuff(BuffDefOf.AffixAragonite) && Configuration.AspectAragoniteBaseCooldownGain.Value > 0f)
 				{
-					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixAragonite);
+					float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAragonite);
 					float effectValue = Configuration.AspectAragoniteBaseCooldownGain.Value + Configuration.AspectAragoniteStackCooldownGain.Value * (count - 1f);
 					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectAragoniteMonsterCooldownMult.Value;
 					additiveReduction += effectValue;
@@ -1026,40 +1025,40 @@ namespace TPDespair.ZetAspects
 				}
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixBlighted) && Configuration.AspectBlightedBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixBlighted) && Configuration.AspectBlightedBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixBlighted);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBlighted);
 				additiveReduction += Configuration.AspectBlightedBaseCooldownGain.Value + Configuration.AspectBlightedStackCooldownGain.Value * (count - 1f);
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixWater) && Configuration.AspectWaterBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixWater) && Configuration.AspectWaterBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixWater);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixWater);
 				additiveReduction += Configuration.AspectWaterBaseCooldownGain.Value + Configuration.AspectWaterStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (Compat.MoreElites.frenzyStatHook)
 			{
-				if (self.HasBuff(Catalog.Buff.AffixFrenzied) && Configuration.AspectFrenziedBaseCooldownGain.Value > 0f)
+				if (self.HasBuff(BuffDefOf.AffixFrenzied) && Configuration.AspectFrenziedBaseCooldownGain.Value > 0f)
 				{
-					float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixFrenzied);
+					float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixFrenzied);
 					float effectValue = Configuration.AspectFrenziedBaseCooldownGain.Value + Configuration.AspectFrenziedStackCooldownGain.Value * (count - 1f);
 					if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectFrenziedMonsterCooldownMult.Value;
 					additiveReduction += effectValue;
 				}
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixEcho) && Configuration.AspectEchoBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixEcho) && Configuration.AspectEchoBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixEcho);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEcho);
 				float effectValue = Configuration.AspectEchoBaseCooldownGain.Value + Configuration.AspectEchoStackCooldownGain.Value * (count - 1f);
 				if (self.teamComponent.teamIndex != TeamIndex.Player) effectValue *= Configuration.AspectEchoMonsterCooldownMult.Value;
 				additiveReduction += effectValue;
 			}
 
-			if (self.HasBuff(Catalog.Buff.AffixOsmium) && Configuration.AspectOsmiumBaseCooldownGain.Value > 0f)
+			if (self.HasBuff(BuffDefOf.AffixOsmium) && Configuration.AspectOsmiumBaseCooldownGain.Value > 0f)
 			{
-				float count = Catalog.GetStackMagnitude(self, Catalog.Buff.AffixOsmium);
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixOsmium);
 				additiveReduction += Configuration.AspectOsmiumBaseCooldownGain.Value + Configuration.AspectOsmiumStackCooldownGain.Value * (count - 1f);
 			}
 
@@ -1072,39 +1071,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
-		/*
-		private static void RecalculateStatsEmpyreanIL(ILContext il)
-		{
-			ILCursor c = new ILCursor(il);
 
-			bool ILFound = c.TryGotoNext(MoveType.After,
-				x => x.MatchLdsfld(typeof(RoR2Content.Buffs), nameof(RoR2Content.Buffs.AffixBlue)),
-				x => x.MatchCallOrCallvirt<CharacterBody>(nameof(CharacterBody.HasBuff)),
-				x => x.MatchBrfalse(out _),
-				x => x.MatchLdarg(0),
-				x => x.MatchCallOrCallvirt<CharacterBody>("get_maxHealth"),
-				x => x.MatchLdcR4(0.5f)
-			);
-
-			if (ILFound)
-			{
-				c.Emit(OpCodes.Ldarg_0);
-				c.EmitDelegate<Func<float, CharacterBody, float>>((defaultPercentage, body) =>
-				{
-					if (body.HasBuff(JunkContent.Buffs.MeatRegenBoost))
-					{
-						return 0.1f;
-					}
-					return defaultPercentage;
-				});
-				Debug.Log(il);
-			}
-			else
-			{
-				Debug.Log("Failed to find IL match for Empyrean hook 1!");
-			}
-		}
-		*/
 		private static void DisableOverloadingShieldConversionHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
@@ -1155,7 +1122,7 @@ namespace TPDespair.ZetAspects
 
 							if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
 							{
-								if (body.HasBuff(Catalog.Buff.AffixBlue) && Configuration.AspectBlueHealthConverted.Value > 0f)
+								if (body.HasBuff(BuffDefOf.AffixBlue) && Configuration.AspectBlueHealthConverted.Value > 0f)
 								{
 									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectBlueHealthConverted.Value, 0f, 1f);
 								}
@@ -1163,7 +1130,7 @@ namespace TPDespair.ZetAspects
 
 							if (Compat.WarWisp.shieldOverrideHook)
 							{
-								if (body.HasBuff(Catalog.Buff.AffixNullifier) && Configuration.AspectNullifierHealthConverted.Value > 0f)
+								if (body.HasBuff(BuffDefOf.AffixNullifier) && Configuration.AspectNullifierHealthConverted.Value > 0f)
 								{
 									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 1f);
 								}
@@ -1221,9 +1188,9 @@ namespace TPDespair.ZetAspects
 					{
 						float mult = 1f;
 						if (so > 0) mult += 0.25f + (0.25f * so);
-						if (self.HasBuff(RoR2Content.Buffs.AffixLunar) && Configuration.AspectLunarBaseShieldGain.Value > 0f)
+						if (self.HasBuff(BuffDefOf.AffixLunar) && Configuration.AspectLunarBaseShieldGain.Value > 0f)
 						{
-							float count = Catalog.GetStackMagnitude(self, RoR2Content.Buffs.AffixLunar);
+							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixLunar);
 							mult += Configuration.AspectLunarBaseShieldGain.Value + Configuration.AspectLunarStackShieldGain.Value * (count - 1f);
 						}
 						shield += health * mult;

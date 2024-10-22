@@ -1,5 +1,4 @@
 ﻿using BepInEx.Logging;
-using System.Reflection;
 
 namespace TPDespair.ZetAspects
 {
@@ -9,7 +8,7 @@ namespace TPDespair.ZetAspects
 
 		internal static void Info(object data)
 		{
-			logSource.LogWarning(data);
+			logSource.LogInfo(data);
 		}
 
 		internal static void Warn(object data)

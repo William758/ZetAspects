@@ -20,15 +20,22 @@ namespace TPDespair.ZetAspects.Compat
 		internal static object OppressiveEliteInstance;
 		internal static FieldInfo OppressiveEliteDef;
 
+		private static bool Prepared = false;
+
 
 
 		internal static void PrepareEquipmentCheck()
 		{
-			Reflector = new Reflector(GUID, identifier);
+			if (!Prepared)
+			{
+				Reflector = new Reflector(GUID, identifier);
 
-			if (!Reflector.FindPluginAssembly()) return;
+				if (!Reflector.FindPluginAssembly()) return;
 
-			GatherEquipmentInfos();
+				GatherEquipmentInfos();
+
+				Prepared = true;
+			}
 		}
 
 

@@ -52,9 +52,19 @@ namespace TPDespair.ZetAspects
 					CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
 					BuffIndex buffIndex = timedBuff.buffIndex;
 
-					if (Catalog.aspectBuffIndexes.Contains(buffIndex))
+					if (timedBuff.timer <= refreshThreshold)
 					{
-						if (timedBuff.timer <= refreshThreshold)
+						if (buffIndex == RoR2Content.Buffs.Cloak.buffIndex && body.HasBuff(BuffDefOf.AffixVeiled))
+						{
+							BuffIndex veiledBuff = BuffDefOf.AffixVeiled.buffIndex;
+
+							if (!buffsToRefresh.Contains(veiledBuff))
+							{
+								buffsToRefresh.Add(veiledBuff);
+							}
+						}
+
+						if (Catalog.aspectBuffIndexes.Contains(buffIndex))
 						{
 							//if (logInfo) Logger.Info("EBM - " + timedBuff.buffIndex + " : " + timedBuff.timer);
 
@@ -77,6 +87,11 @@ namespace TPDespair.ZetAspects
 					{
 						//if (logInfo) Logger.Info("EBM Refresh - " + buffIndex);
 
+						if (BuffDefOf.AffixVeiled != null && buffIndex == BuffDefOf.AffixVeiled.buffIndex && body.HasBuff(Catalog.veiledBuffer))
+						{
+							body.AddTimedBuff(RoR2Content.Buffs.Cloak, refreshDuration);
+						}
+
 						body.AddTimedBuff(buffIndex, refreshDuration);
 					}
 				}
@@ -96,8 +111,8 @@ namespace TPDespair.ZetAspects
 
 		internal static void Activated(CharacterBody body, BuffIndex firstBuff, BuffIndex secondBuff)
 		{
-			//Logger.Warn("ZetAspects - BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
-			//Logger.Warn("Setting EliteBuffs : [" + BuffCatalog.GetBuffDef(firstBuff).name + "] - [" + BuffCatalog.GetBuffDef(secondBuff).name + "]");
+			//Logger.Info("BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
+			//Logger.Info("Setting EliteBuffs : [" + BuffCatalog.GetBuffDef(firstBuff).name + "] - [" + BuffCatalog.GetBuffDef(secondBuff).name + "]");
 
 			NetworkInstanceId netId = body.netId;
 
@@ -210,12 +225,12 @@ namespace TPDespair.ZetAspects
 				targetBuff = Affixes[netId][0];
 				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
 				{
-					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);
+					body.AddTimedBuff(targetBuff, BuffHooks.BuffCycleDuration);
 				}
 				targetBuff = Affixes[netId][1];
 				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
 				{
-					body.AddTimedBuff(targetBuff, EffectHooks.BuffCycleDuration);
+					body.AddTimedBuff(targetBuff, BuffHooks.BuffCycleDuration);
 				}
 			}
 		}

@@ -24,8 +24,6 @@ namespace TPDespair.ZetAspects.Compat
 		private static readonly string GUID = "com.Nuxlar.MoreElites";
 		private static readonly string identifier = "[MoreElitesCompat]";
 
-		private static readonly BindingFlags Flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-
 		private static MethodInfo FrenzyStatMethod;
 		private static MethodInfo VolatileExplosionMethod;
 
@@ -43,13 +41,13 @@ namespace TPDespair.ZetAspects.Compat
 			Type type = Reflector.GetType("MoreElites.Frenzied");
 			if (type != null)
 			{
-				FrenzyStatMethod = type.GetMethod("Frenzy", Flags);
+				FrenzyStatMethod = Reflector.GetMethod(type, "Frenzy");
 			}
 
 			type = Reflector.GetType("MoreElites.Volatile");
 			if (type != null)
 			{
-				VolatileExplosionMethod = type.GetMethod("AddBehemoExplosion", Flags);
+				VolatileExplosionMethod = Reflector.GetMethod(type, "AddBehemoExplosion");
 			}
 
 			HookMethods();
@@ -232,7 +230,7 @@ namespace TPDespair.ZetAspects.Compat
 		public static float ExplosionDamage(DamageInfo damageInfo, CharacterBody atkBody)
 		{
 			float damage = damageInfo.damage;
-			float count = Catalog.GetStackMagnitude(atkBody, Catalog.Buff.AffixVolatile);
+			float count = Catalog.GetStackMagnitude(atkBody, BuffDefOf.AffixVolatile);
 
 			damage *= Configuration.AspectVolatileBaseDamage.Value + Configuration.AspectVolatileStackDamage.Value * (count - 1f);
 			if (atkBody.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectVolatileMonsterDamageMult.Value;
