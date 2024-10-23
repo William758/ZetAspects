@@ -512,7 +512,7 @@ namespace TPDespair.ZetAspects
 							EquipmentIndex index = EquipmentCatalog.FindEquipmentIndex("NemesisRisingTides_AffixOppressive");
 							if (index != EquipmentIndex.None)
 							{
-								if (Compat.NemRisingTides.GetBufferedEnabled())
+								if (Compat.NemRisingTides.GetOppressiveEnabled())
 								{
 									return EquipmentCatalog.GetEquipmentDef(index);
 								}

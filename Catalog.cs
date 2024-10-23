@@ -19,7 +19,6 @@ namespace TPDespair.ZetAspects
 		public static bool setupComplete = false;
 		public static bool setupIntermediate = false;
 		public static bool setupCompat = false;
-		public static bool setupInitialize = false;
 
 		public static BindingFlags Flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance;
 
@@ -60,6 +59,8 @@ namespace TPDespair.ZetAspects
 
 		public static int barrierDecayMode = 0;
 
+		public static bool lateHooksDone = false;
+		public static bool appliedVoidBearFix = false;
 		public static bool limitChillStacks = false;
 		public static bool borboFrostBlade = false;
 		public static bool shieldJump = false;
@@ -1164,7 +1165,14 @@ namespace TPDespair.ZetAspects
 		{
 			foreach (AspectPack aspectPack in aspectPacks)
 			{
-				aspectPack.Entrada();
+				try
+				{
+					aspectPack.Entrada();
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(ex);
+				}
 			}
 		}
 
@@ -1174,11 +1182,14 @@ namespace TPDespair.ZetAspects
 
 			Logger.Info("Catalog Setup Initialized");
 
-			setupInitialize = true;
+			if (!lateHooksDone)
+			{
+				lateHooksDone = true;
 
-			EffectHooks.LateSetup();
-			DropHooks.LateSetup();
-			DisplayHooks.LateSetup();
+				EffectHooks.LateSetup();
+				DropHooks.LateSetup();
+				DisplayHooks.LateSetup();
+			}
 
 			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats
 			if (PluginLoaded("com.zombieseatflesh7.dynamicbarrierdecay")) barrierDecayMode = 1; // character fixedupdate
@@ -1306,12 +1317,23 @@ namespace TPDespair.ZetAspects
 				return;
 			}
 
-			DLC1Content.Buffs.BearVoidCooldown.canStack = true;
-			EffectHooks.ApplyVoidBearCooldownFix();
+			if (!appliedVoidBearFix)
+			{
+				appliedVoidBearFix = true;
+				DLC1Content.Buffs.BearVoidCooldown.canStack = true;
+				EffectHooks.ApplyVoidBearCooldownFix();
+			}
 
 			foreach (AspectPack aspectPack in aspectPacks)
 			{
-				aspectPack.Init();
+				try
+				{
+					aspectPack.Init();
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(ex);
+				}
 			}
 			
 			Language.ChangeText();
