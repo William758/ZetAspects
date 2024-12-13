@@ -176,18 +176,20 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int featherCountIndex = -1;
+
 				bool found = c.TryGotoNext(
 					x => x.MatchLdarg(0),
 					x => x.MatchLdarg(0),
 					x => x.MatchLdfld<CharacterBody>("baseJumpCount"),
-					x => x.MatchLdloc(8)
+					x => x.MatchLdloc(out featherCountIndex)
 				);
 
 				if (found)
 				{
 					// add
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 8);
+					c.Emit(OpCodes.Ldloc, featherCountIndex);
 					c.EmitDelegate<Func<CharacterBody, int, int>>((self, value) =>
 					{
 						if (self.teamComponent.teamIndex == TeamIndex.Player)
@@ -205,7 +207,7 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, 8);
+					c.Emit(OpCodes.Stloc, featherCountIndex);
 				}
 				else
 				{
@@ -557,8 +559,8 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 94;
-				const int multValue = 95;
+				const int baseValue = 96;
+				const int multValue = 97;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(baseValue),

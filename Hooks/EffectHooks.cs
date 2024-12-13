@@ -23,6 +23,7 @@ namespace TPDespair.ZetAspects
 
 		public static BindingFlags Flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance;
 		private static FieldInfo DamageInfoRejectedField;
+		private static FieldInfo HealthComponentItemCountsField;
 		private static FieldInfo AffixLunarAvailibilityField;
 
 		private static float FixedUpdateStopwatch = 0f;
@@ -80,6 +81,8 @@ namespace TPDespair.ZetAspects
 			OnDestroyHook();
 
 			DamageInfoRejectedField = typeof(DamageInfo).GetField("rejected");
+			HealthComponentItemCountsField = typeof(HealthComponent).GetField("itemCounts", Flags);
+
 			Type type = typeof(CharacterBody).GetNestedType("ItemAvailability", Flags);
 			if (type != null)
 			{
@@ -219,7 +222,6 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(1),
 					x => x.MatchLdfld<DamageInfo>("rejected"),
 					x => x.MatchBrtrue(out _),
 					x => x.MatchLdarg(0),
@@ -229,11 +231,11 @@ namespace TPDespair.ZetAspects
 
 				if (found)
 				{
-					c.Index += 1;
-
+					// loc.1 DamageInfo on stack
+					c.Emit(OpCodes.Dup);
+					c.Emit(OpCodes.Dup);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<HealthComponent, DamageInfo, bool>>((healthComponent, damageInfo) =>
+					c.EmitDelegate<Func<DamageInfo, HealthComponent, bool>>((damageInfo, healthComponent) =>
 					{
 						if (damageInfo.rejected) return true;
 
@@ -352,8 +354,6 @@ namespace TPDespair.ZetAspects
 						return false;
 					});
 					c.Emit(OpCodes.Stfld, DamageInfoRejectedField);
-
-					c.Emit(OpCodes.Ldarg, 1);
 				}
 				else
 				{
@@ -371,18 +371,12 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdcR4(1f),
-					x => x.MatchLdloc(7),
-					x => x.MatchLdloc(39),
-					x => x.MatchMul(),
-					x => x.MatchCall<Mathf>("Max"),
-					x => x.MatchStloc(7)
+					x => x.MatchLdflda(HealthComponentItemCountsField),
+					x => x.MatchLdfld<HealthComponent.ItemCounts>("armorPlate")
 				);
 
 				if (found)
 				{
-					c.Index += 6;
-
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, 7);
 					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, damage) =>
@@ -541,22 +535,59 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int cursorIndex = -1;
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(10),
-					x => x.MatchLdcI4(0),
-					x => x.MatchBle(out _)
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("Slow80"))
 				);
 
 				if (found)
 				{
-					c.Index += 2;
+					int slowDurIndex = -1;
+					cursorIndex = c.Index;
 
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldc_I4, 999);
+					found = c.TryGotoNext(
+						x => x.MatchLdfld<DamageInfo>("procCoefficient"),
+						x => x.MatchMul(),
+						x => x.MatchLdloc(out slowDurIndex)
+					);
+
+					if (found && c.Index - cursorIndex < 15)
+					{
+						c.Index = 0;
+
+						found = c.TryGotoNext(
+							x => x.MatchLdloc(slowDurIndex),
+							x => x.MatchLdcI4(0),
+							x => x.MatchBle(out _)
+						);
+
+						if (found)
+						{
+							c.Index += 2;
+
+							c.Emit(OpCodes.Pop);
+							c.Emit(OpCodes.Ldc_I4, 999);
+						}
+						else
+						{
+							Logger.Warn("PreventAspectChillHook Failed - Could not find duration check");
+						}
+					}
+					else
+					{
+						if (found)
+						{
+							Logger.Warn("PreventAspectChillHook Failed - loc finder advanced too far");
+						}
+						else
+						{
+							Logger.Warn("PreventAspectChillHook Failed - Could not find loc index");
+						}
+					}
 				}
 				else
 				{
-					Logger.Warn("PreventAspectChillHook Failed");
+					Logger.Warn("PreventAspectChillHook Failed - Could not find Slow80");
 				}
 			};
 		}
@@ -757,14 +788,13 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(1),
 					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixLunar")),
 					x => x.MatchCallvirt<CharacterBody>("HasBuff")
 				);
 
 				if (found)
 				{
-					c.Index += 3;
+					c.Index += 2;
 
 					// prevent default
 					c.Emit(OpCodes.Pop);
@@ -818,21 +848,19 @@ namespace TPDespair.ZetAspects
 
 				const int damageValue = 7;
 
-				// find : store damageinfo.damage into variable
+				// find : store loc.0 damageinfo.damage into variable
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(1),
 					x => x.MatchLdfld<DamageInfo>("damage"),
 					x => x.MatchStloc(damageValue)
 				);
 
 				if (found)
 				{
-					c.Index += 3;
+					c.Index += 2;
 
 					c.Emit(OpCodes.Ldloc, damageValue);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<float, HealthComponent, DamageInfo, float>>((damage, healthComponent, damageInfo) =>
+					c.EmitDelegate<Func<float, HealthComponent, float>>((damage, healthComponent) =>
 					{
 						CharacterBody vicBody = healthComponent.body;
 						if (vicBody)
@@ -1014,11 +1042,11 @@ namespace TPDespair.ZetAspects
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(3f),
 					x => x.MatchLdcR4(5f),
-					x => x.MatchLdloc(75),
+					x => x.MatchLdloc(76),
 					x => x.MatchConvR4(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(77)
+					x => x.MatchStloc(78)
 				);
 
 				if (found)
@@ -1026,7 +1054,7 @@ namespace TPDespair.ZetAspects
 					c.Index += 6;
 
 					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 75);
+					c.Emit(OpCodes.Ldloc, 76);
 					c.EmitDelegate<Func<int, float>>((count) =>
 					{
 						return Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);

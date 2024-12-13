@@ -76,7 +76,7 @@ namespace TPDespair.ZetAspects
 		/// <summary>Called during setup or when associated configs are changed.</summary>
 		public Action SetupTokens;
 
-		public Action<AspectDef> PostInit;
+		//public Action<AspectDef> PostInit;
 
 		/// <summary>Prevent elite buff from being applied to blacklisted bodies.</summary>
 		public List<string> bodyBlacklist = new List<string>();
@@ -144,6 +144,7 @@ namespace TPDespair.ZetAspects
 		/// <summary>Used when target plugin has dependency on current plugin. AspectPack will always go through validation steps.</summary>
 		public bool alwaysValidate = false;
 
+		public Action PreInit;
 		public Action PostInit;
 
 
@@ -258,8 +259,6 @@ namespace TPDespair.ZetAspects
 				ItemEntries(DropHooks.CanObtainItem());
 
 				FillEqualities();
-
-				DoPostInit();
 
 				PopState.SetFlag(PopState.Populated);
 			}
@@ -404,7 +403,7 @@ namespace TPDespair.ZetAspects
 
 					if (!itemDef)
 					{
-						Logger.Warn("Failed to find BuffDef named : " + aspectDef.buffName);
+						Logger.Warn("Failed to find ItemDef named : " + aspectDef.itemName);
 					}
 				}
 
@@ -616,19 +615,6 @@ namespace TPDespair.ZetAspects
 				Logger.Warn("---- PopState: " + PopState);
 			}
 		}
-
-
-
-		internal void DoPostInit()
-		{
-			foreach (AspectDef aspectDef in aspectDefs)
-			{
-				aspectDef.PostInit?.Invoke(aspectDef);
-			}
-
-			PostInit?.Invoke();
-		}
-
 
 
 
@@ -847,7 +833,7 @@ namespace TPDespair.ZetAspects
 					else itemDef._itemTierDef = Configuration.AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
 				}
 
-				if (Catalog.AsHighlander && Catalog.highlanderTier != ItemTier.AssignedAtRuntime && itemDef._itemTierDef == Catalog.BossItemTier || itemDef._itemTierDef == Catalog.RedItemTier)
+				if (Catalog.AsHighlander && Catalog.highlanderTier != ItemTier.AssignedAtRuntime && (itemDef._itemTierDef == Catalog.BossItemTier || itemDef._itemTierDef == Catalog.RedItemTier))
 				{
 					itemDef._itemTierDef = Catalog.HighlanderItemTier;
 				}

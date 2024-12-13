@@ -136,6 +136,8 @@ Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
 
+v2.9.2 - Fixed for latest patch.
+
 v2.9.1 - Fixed content loader breaking whenever an elite is disabled.
 
 v2.9.0 - Rewrote content loader. Updated Veiled compatibility. Fixed EquipmentConversion while using SS2.

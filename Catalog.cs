@@ -1290,6 +1290,20 @@ namespace TPDespair.ZetAspects
 				return;
 			}
 
+			setupCompat = true;
+
+			foreach (AspectPack aspectPack in aspectPacks)
+			{
+				try
+				{
+					if (aspectPack.Enabled) aspectPack.PreInit?.Invoke();
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(ex);
+				}
+			}
+
 			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
 
 			if (PluginLoaded("com.Moffein.BlightedElites") && Configuration.BlightedHooks.Value) Compat.Blighted.LateSetup();
@@ -1305,8 +1319,6 @@ namespace TPDespair.ZetAspects
 			if (PluginLoaded("com.themysticsword.elitevariety") && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.LateSetup();
 
 			if (PluginLoaded("com.BrandonRosa.Augmentum") && Configuration.AugmentumHooks.Value) Compat.Augmentum.LateSetup();
-
-			setupCompat = true;
 		}
 
 		private static void SetupIntermediate()
@@ -1324,11 +1336,15 @@ namespace TPDespair.ZetAspects
 				EffectHooks.ApplyVoidBearCooldownFix();
 			}
 
+			setupIntermediate = true;
+
 			foreach (AspectPack aspectPack in aspectPacks)
 			{
 				try
 				{
 					aspectPack.Init();
+
+					if (aspectPack.Enabled) aspectPack.PostInit?.Invoke();
 				}
 				catch (Exception ex)
 				{
@@ -1339,8 +1355,6 @@ namespace TPDespair.ZetAspects
 			Language.ChangeText();
 
 			RuleCatalogExcludeItemChoices();
-
-			setupIntermediate = true;
 		}
 
 		private static void RuleCatalogExcludeItemChoices()
@@ -1382,7 +1396,7 @@ namespace TPDespair.ZetAspects
 					EquipmentDef equipDef = EquipmentCatalog.GetEquipmentDef(buffToEquip[buffIndex]);
 					ItemDef itemDef = ItemCatalog.GetItemDef(buffToItem[buffIndex]);
 
-					Logger.Info("[" + buffIndex + "] " + buffDef.name + " - isElite: " + buffDef.isElite);
+					Logger.Info("[" + buffIndex + "] " + buffDef.name);
 					Logger.Info("-- item: " + itemDef.name + " equip: " + equipDef.name);
 				}
 
@@ -1420,6 +1434,14 @@ namespace TPDespair.ZetAspects
 					Logger.Warn("Failed To Setup Catalog!");
 					Logger.Error(ex);
 				}
+			}
+
+			int jankBuff = Configuration.UpdateInventoryFromBuff.Value;
+			if (jankBuff < 2)
+			{
+				Logger.Info("UpdateInventoryFromBuff : " + jankBuff);
+
+				if (jankBuff == 0) Logger.Warn(" -- Setting this to 0 may cause some elite buff effects to linger after they expire.");
 			}
 
 			bool obtainEquip = DropHooks.CanObtainEquipment();

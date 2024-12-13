@@ -35,7 +35,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.9.1";
+		public const string ModVer = "2.9.2";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 

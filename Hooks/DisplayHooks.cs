@@ -72,19 +72,23 @@ namespace TPDespair.ZetAspects
 
 			List<AspectDef> sortedList = Catalog.aspectDefs.OrderByDescending(d => d.displayPriority).ToList();
 
+			Logger.Info("-------------------");
+
 			foreach (AspectDef aspectDef in sortedList)
 			{
 				if (aspectDef.PackPopulated)
 				{
-					AddAspectRender(aspectDef.equipmentDef);
+					AddAspectRender(aspectDef);
 				}
 			}
 
+			Logger.Info("-------------------");
 			Logger.Info("Aspect Render Count : " + AspectRenders.Count);
 		}
 
-		public static void AddAspectRender(EquipmentDef equipDef)
+		public static void AddAspectRender(AspectDef aspectDef)
 		{
+			EquipmentDef equipDef = aspectDef.equipmentDef;
 			if (equipDef != null)
 			{
 				ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(equipDef.equipmentIndex);
@@ -95,7 +99,7 @@ namespace TPDespair.ZetAspects
 					{
 						if (!AspectRenderEquipment.Contains(equipDef))
 						{
-							Logger.Info("Adding Aspect Render : " + equipDef.nameToken + " , " + itemDef.nameToken);
+							Logger.Info("Adding Aspect Render : [" + aspectDef.displayPriority + "] " + aspectDef.identifier);
 							AspectRenders.Add(new KeyValuePair<EquipmentDef, ItemDef>(equipDef, itemDef));
 						}
 					}
