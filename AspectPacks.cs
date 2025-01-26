@@ -536,7 +536,7 @@ namespace TPDespair.ZetAspects
 			AspectPackDefOf.MoreElites = new AspectPack
 			{
 				identifier = "MoreElites",
-				dependency = "com.Nuxlar.MoreElites",
+				CustomDependency = () => { return PluginLoaded("com.Nuxlar.MoreElites") || PluginLoaded("com.score.MoreElites"); },
 				aspectDefs = new List<AspectDef>()
 				{
 					new AspectDef()

@@ -36,7 +36,12 @@ namespace TPDespair.ZetAspects.Compat
 		{
 			Reflector = new Reflector(GUID, identifier);
 
-			if (!Reflector.FindPluginAssembly()) return;
+			if (!Reflector.FindPluginAssembly())
+			{
+				Reflector.GUID = "com.score.MoreElites";
+
+				if (!Reflector.FindPluginAssembly()) return;
+			}
 
 			Type type = Reflector.GetType("MoreElites.Frenzied");
 			if (type != null)

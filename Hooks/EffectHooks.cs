@@ -994,7 +994,7 @@ namespace TPDespair.ZetAspects
 
 			return ownerMaster.GetBody();
 		}
-		
+
 
 		/*
 		private static void HealMultHook()
@@ -1039,6 +1039,145 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int AtkBodyLocIndex = -1;
+				int VicBodyLocIndex = -1;
+
+
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdarg(out _),
+					x => x.MatchLdfld(typeof(DamageReport).GetField("attackerBody")),
+					x => x.MatchStloc(out AtkBodyLocIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("HeadHunterBuffHook:Find AtkBodyLocIndex Failed");
+
+					return;
+				}
+
+
+
+				c.Index = 0;
+
+				found = c.TryGotoNext(
+					x => x.MatchLdarg(out _),
+					x => x.MatchLdfld(typeof(DamageReport).GetField("victimBody")),
+					x => x.MatchStloc(out VicBodyLocIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("HeadHunterBuffHook:Find VicBodyLocIndex Failed");
+
+					return;
+				}
+
+
+
+				found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("HeadHunter")),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount")
+				);
+
+				if (found)
+				{
+					c.Index += 2;
+
+					c.Emit(OpCodes.Ldloc, AtkBodyLocIndex);
+					c.Emit(OpCodes.Ldloc, VicBodyLocIndex);
+					c.EmitDelegate<Action<int, CharacterBody, CharacterBody>>((count, atkBody, vicBody) =>
+					{
+						float duration = Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
+
+						for (int k = 0; k < BuffCatalog.eliteBuffIndices.Length; k++)
+						{
+							BuffIndex buffIndex = BuffCatalog.eliteBuffIndices[k];
+							if (vicBody.HasBuff(buffIndex))
+							{
+								atkBody.AddTimedBuff(buffIndex, duration);
+							}
+						}
+
+						if (Configuration.HeadHunterBuffEnable.Value)
+						{
+							atkBody.AddTimedBuff(BuffDefOf.ZetHeadHunter, duration);
+						}
+					});
+					c.Emit(OpCodes.Ldc_I4, 0);
+
+					return;
+				}
+
+
+
+				if (!Configuration.HeadHunterBuffEnable.Value)
+				{
+					Logger.Warn("HeadHunterBuffHook Failed");
+
+					return;
+				}
+				else
+				{
+					Logger.Warn("HeadHunterBuffHook Failed - Attempting Fallback");
+				}
+
+
+
+				c.Index = 0;
+
+				found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(BuffCatalog).GetField("eliteBuffIndices"))
+				);
+
+				if (!found)
+				{
+					Logger.Warn("HeadHunterBuffHookFallback:Find eliteBuffIndices Failed");
+
+					return;
+				}
+
+
+
+				found = c.TryGotoPrev(MoveType.After,
+					x => x.MatchLdfld(typeof(DamageReport).GetField("victimIsElite"))
+				);
+
+				if (!found)
+				{
+					Logger.Warn("HeadHunterBuffHookFallback:Find victimIsElite Failed");
+
+					return;
+				}
+
+
+
+				c.Emit(OpCodes.Ldloc, AtkBodyLocIndex);
+				c.EmitDelegate<Func<bool, CharacterBody, bool>>((eliteVictim, atkBody) =>
+				{
+					if (eliteVictim)
+					{
+						int count = atkBody.inventory.GetItemCount(RoR2Content.Items.HeadHunter);
+						if (count > 0)
+						{
+							float duration = Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
+
+							atkBody.AddTimedBuff(BuffDefOf.ZetHeadHunter, duration);
+						}
+					}
+
+					return eliteVictim;
+				});
+			};
+		}
+		/*
+		private static void HeadHunterBuffHook()
+		{
+			IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
 				bool found = c.TryGotoNext(
 					x => x.MatchLdcR4(3f),
 					x => x.MatchLdcR4(5f),
@@ -1072,7 +1211,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		
+		*/
 		private static void ModifyDot()
 		{
 			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float_Nullable1 += (orig, attacker, victim, index, duration, damage, wat) =>

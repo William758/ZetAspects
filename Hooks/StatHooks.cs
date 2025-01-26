@@ -8,6 +8,10 @@ namespace TPDespair.ZetAspects
 {
 	internal static class StatHooks
 	{
+		public static int ShieldLocIndex = -1;
+
+
+
 		internal static void Init()
 		{
 			MovementSpeedHook();
@@ -22,7 +26,14 @@ namespace TPDespair.ZetAspects
 
 			DisableOverloadingShieldConversionHook();
 			ShieldConversionHook();
-			FullShieldConversionHook();
+			if (ShieldLocIndex != -1)
+			{
+				FullShieldConversionHook();
+			}
+			else
+			{
+				Logger.Warn("ShieldLocIndex Not Found - FullShieldConversionHook Aborted");
+			}
 		}
 
 
@@ -369,11 +380,9 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				int shieldValue = -1;
-
 				if (c.TryGotoNext(x => x.MatchLdfld<Inventory>("beadAppliedShield")))
 				{
-					c.TryGotoNext(x => x.MatchStloc(out shieldValue));
+					c.TryGotoNext(x => x.MatchStloc(out ShieldLocIndex));
 				}
 				else
 				{
@@ -391,7 +400,7 @@ namespace TPDespair.ZetAspects
 				if (found)
 				{
 					// add
-					c.Emit(OpCodes.Ldloc, shieldValue);
+					c.Emit(OpCodes.Ldloc, ShieldLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, shield, health) =>
@@ -413,7 +422,7 @@ namespace TPDespair.ZetAspects
 
 						return shield;
 					});
-					c.Emit(OpCodes.Stloc, shieldValue);
+					c.Emit(OpCodes.Stloc, ShieldLocIndex);
 
 					c.Emit(OpCodes.Ldarg, 0);
 				}
@@ -1165,15 +1174,30 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int shieldValue = 72;
+				int ShieldOnlyIndex = -1;
 
 				bool found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("ShieldOnly")),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount"),
+					x => x.MatchStloc(out ShieldOnlyIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("FullShieldConversionHook: Find ShieldOnlyIndex Failed");
+
+					return;
+				}
+
+
+
+				found = c.TryGotoNext(
 					x => x.MatchLdcR4(0.25f),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(shieldValue)
+					x => x.MatchStloc(ShieldLocIndex)
 				);
 
 				if (found)
@@ -1182,10 +1206,10 @@ namespace TPDespair.ZetAspects
 
 					c.Emit(OpCodes.Pop);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, shieldValue);
+					c.Emit(OpCodes.Ldloc, ShieldLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
-					c.Emit(OpCodes.Ldloc, 14);
+					c.Emit(OpCodes.Ldloc, ShieldOnlyIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float, int, float>>((self, shield, health, so) =>
 					{
 						float mult = 1f;
