@@ -136,6 +136,10 @@ Chinese translation by BTP-G and MushroomEl.
 
 ## Changelog:
 
+v2.9.5 - Fixed for latest patch.
+
+v2.9.4 - Fix Headhunter count check.
+
 v2.9.3 - Fix Transcendence shield gain. Rewrote Headhunter buff hook.
 
 v2.9.2 - Fixed for latest patch.

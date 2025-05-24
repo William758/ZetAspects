@@ -1494,12 +1494,12 @@ namespace TPDespair.ZetAspects
 				baseString = TextFragment("PERCENTREGEN_VALUE");
 				stackString = TextFragment("PERCENTREGEN_STACK_" + sign);
 			}
-			else if (modifier == "duration")
+			else if (modifier == "second" || modifier == "duration" || modifier == "timer")
 			{
 				baseString = TextFragment("DURATION_VALUE");
 				stackString = TextFragment("DURATION_STACK_" + sign);
 			}
-			else if (modifier == "meter")
+			else if (modifier == "distance" || modifier == "range" || modifier == "meter")
 			{
 				baseString = TextFragment("METER_VALUE");
 				stackString = TextFragment("METER_STACK_" + sign);
@@ -1515,7 +1515,7 @@ namespace TPDespair.ZetAspects
 			baseString = String.Format(baseString, baseValue * mult);
 			stackString = String.Format(stackString, Mathf.Abs(stackValue * mult));
 
-			if (style != "") baseString = "<style=" + style + ">" + baseString + "</style>";
+			if (style != "") baseString = ApplyStyle(baseString, style);
 
 			string output = String.Format(formatString, baseString, stackString);
 
@@ -1530,28 +1530,45 @@ namespace TPDespair.ZetAspects
 			if (modifier == "percent" || modifier == "chance") baseString = TextFragment("PERCENT_VALUE");
 			else if (modifier == "flatregen") baseString = TextFragment("FLATREGEN_VALUE");
 			else if (modifier == "percentregen") baseString = TextFragment("PERCENTREGEN_VALUE");
-			else if (modifier == "duration") baseString = TextFragment("DURATION_VALUE");
-			else if (modifier == "meter") baseString = TextFragment("METER_VALUE");
+			else if (modifier == "second" || modifier == "duration" || modifier == "timer") baseString = TextFragment("DURATION_VALUE");
+			else if (modifier == "distance" || modifier == "range" || modifier == "meter") baseString = TextFragment("METER_VALUE");
 			else baseString = TextFragment("FLAT_VALUE");
 
 			string output = String.Format(baseString, value);
 
-			if (style != "") output = "<style=" + style + ">" + output + "</style>";
+			if (style != "") output = ApplyStyle(output, style);
 
 			return output;
 		}
 		
-		public static string SecondText(float sec, string modifier = "")
+		public static string SecondText(float sec, string modifier = "", string style = "")
 		{
+			string secText = sec.ToString();
+
 			string targetString;
 			if (modifier == "for") targetString = "FOR_SECOND";
 			else if (modifier == "over") targetString = "OVER_SECOND";
 			else if (modifier == "after") targetString = "AFTER_SECOND";
+			else if (modifier == "every") targetString = "EVERY_SECOND";
 			else targetString = "SECOND";
 
 			if (sec != 1f) targetString += "S";
 
-			return String.Format(TextFragment(targetString), sec);
+			if (style != "") secText = ApplyStyle(secText, style);
+
+			return String.Format(TextFragment(targetString), secText);
+		}
+
+		public static string ApplyStyle(string text, string style)
+		{
+			if (style.Length > 1 && style.Substring(0, 1) == "#")
+			{
+				return "<color=" + style + ">" + text + "</color>";
+			}
+			else
+			{
+				return "<style=" + style + ">" + text + "</style>";
+			}
 		}
 
 		public static string EquipmentStackText(float stack)

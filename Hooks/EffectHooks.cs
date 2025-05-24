@@ -599,9 +599,9 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(0),
+					x => x.MatchLdloc(out _),
 					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixBlue")),
-					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+					x => x.MatchCallOrCallvirt<CharacterBody>("HasBuff")
 				);
 
 				if (found)
@@ -659,9 +659,9 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(1),
+					x => x.MatchLdloc(out _),
 					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixRed")),
-					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+					x => x.MatchCallOrCallvirt<CharacterBody>("HasBuff")
 				);
 
 				if (found)
@@ -722,33 +722,49 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(2),
+					x => x.MatchLdloc(out _),
 					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("HealingDisabled")),
-					x => x.MatchLdcR4(8f),
+					x => x.MatchLdcR4(out _),
 					x => x.MatchLdarg(1),
 					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
 					x => x.MatchMul()
 				);
 
-				if (found)
+				if (!found)
 				{
-					c.Index += 6;
-
-					c.Emit(OpCodes.Pop);
-					c.Emit(OpCodes.Ldloc, 1);
-					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
-					{
-						float duration = Configuration.AspectPoisonNullDuration.Value;
-						if (self.teamComponent.teamIndex != TeamIndex.Player) duration = 8f * damageInfo.procCoefficient;
-
-						return duration;
-					});
+					Logger.Warn("NullDurationHook Failed - Could not find BuffApplication");
+					return;
 				}
-				else
+
+				int cursorIndex = c.Index += 6;
+
+				int AtkBodyLocIndex = -1;
+
+				found = c.TryGotoPrev(
+					x => x.MatchLdloc(out AtkBodyLocIndex),
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("AffixPoison"))
+				);
+
+				if (!found)
 				{
-					Logger.Warn("NullDurationHook Failed");
+					Logger.Warn("NullDurationHook Failed - Could not find AtkBodyLocIndex");
+					return;
 				}
+
+
+
+				c.Index = cursorIndex;
+
+				c.Emit(OpCodes.Pop);
+				c.Emit(OpCodes.Ldloc, AtkBodyLocIndex);
+				c.Emit(OpCodes.Ldarg, 1);
+				c.EmitDelegate<Func<CharacterBody, DamageInfo, float>>((self, damageInfo) =>
+				{
+					float duration = Configuration.AspectPoisonNullDuration.Value;
+					if (self.teamComponent.teamIndex != TeamIndex.Player) duration = 8f * damageInfo.procCoefficient;
+
+					return duration;
+				});
 			};
 		}
 
@@ -816,9 +832,9 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(1),
+					x => x.MatchLdloc(out _),
 					x => x.MatchLdsfld(typeof(DLC1Content.Buffs).GetField("EliteVoid")),
-					x => x.MatchCallvirt<CharacterBody>("HasBuff")
+					x => x.MatchCallOrCallvirt<CharacterBody>("HasBuff")
 				);
 
 				if (found)
@@ -1089,20 +1105,23 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, VicBodyLocIndex);
 					c.EmitDelegate<Action<int, CharacterBody, CharacterBody>>((count, atkBody, vicBody) =>
 					{
-						float duration = Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
-
-						for (int k = 0; k < BuffCatalog.eliteBuffIndices.Length; k++)
+						if (count > 0)
 						{
-							BuffIndex buffIndex = BuffCatalog.eliteBuffIndices[k];
-							if (vicBody.HasBuff(buffIndex))
+							float duration = Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
+
+							for (int k = 0; k < BuffCatalog.eliteBuffIndices.Length; k++)
 							{
-								atkBody.AddTimedBuff(buffIndex, duration);
+								BuffIndex buffIndex = BuffCatalog.eliteBuffIndices[k];
+								if (vicBody.HasBuff(buffIndex))
+								{
+									atkBody.AddTimedBuff(buffIndex, duration);
+								}
 							}
-						}
 
-						if (Configuration.HeadHunterBuffEnable.Value)
-						{
-							atkBody.AddTimedBuff(BuffDefOf.ZetHeadHunter, duration);
+							if (Configuration.HeadHunterBuffEnable.Value)
+							{
+								atkBody.AddTimedBuff(BuffDefOf.ZetHeadHunter, duration);
+							}
 						}
 					});
 					c.Emit(OpCodes.Ldc_I4, 0);

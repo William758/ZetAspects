@@ -8,7 +8,8 @@ namespace TPDespair.ZetAspects
 {
 	internal static class StatHooks
 	{
-		public static int ShieldLocIndex = -1;
+		public static int BaseShieldLocIndex = -1;
+		public static int LevelRegenScaleLocIndex = -1;
 
 
 
@@ -25,14 +26,25 @@ namespace TPDespair.ZetAspects
 			DirectStatHook();
 
 			DisableOverloadingShieldConversionHook();
-			ShieldConversionHook();
-			if (ShieldLocIndex != -1)
+
+
+
+			if (LevelRegenScaleLocIndex != -1)
+			{
+				ShieldConversionHook();
+			}
+			else
+			{
+				Logger.Warn("LevelRegenScaleLocIndex Not Found - ShieldConversionHook Aborted");
+			}
+
+			if (BaseShieldLocIndex != -1)
 			{
 				FullShieldConversionHook();
 			}
 			else
 			{
-				Logger.Warn("ShieldLocIndex Not Found - FullShieldConversionHook Aborted");
+				Logger.Warn("BaseShieldLocIndex Not Found - FullShieldConversionHook Aborted");
 			}
 		}
 
@@ -44,17 +56,33 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 84;
-				const int multValue = 85;
-				const int divValue = 86;
+				int BaseSpeedLocIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseMoveSpeed"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelMoveSpeed")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseSpeedLocIndex)))
+					{
+						Logger.Warn("MovementSpeedHook Failed - Could not find BaseSpeedLocIndex");
+						return;
+					}
+				}
+
+
+
+				int MultSpeedLocIndex = -1;
+				int DivSpeedLocIndex = -1;
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(baseValue),
-					x => x.MatchLdloc(multValue),
-					x => x.MatchLdloc(divValue),
+					x => x.MatchLdloc(BaseSpeedLocIndex),
+					x => x.MatchLdloc(out MultSpeedLocIndex),
+					x => x.MatchLdloc(out DivSpeedLocIndex),
 					x => x.MatchDiv(),
 					x => x.MatchMul(),
-					x => x.MatchStloc(baseValue)
+					x => x.MatchStloc(BaseSpeedLocIndex)
 				);
 
 				if (found)
@@ -65,7 +93,7 @@ namespace TPDespair.ZetAspects
 
 					// increase
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, multValue);
+					c.Emit(OpCodes.Ldloc, MultSpeedLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						float count;
@@ -170,9 +198,9 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, multValue);
+					c.Emit(OpCodes.Stloc, MultSpeedLocIndex);
 
-					c.Emit(OpCodes.Ldloc, baseValue);
+					c.Emit(OpCodes.Ldloc, BaseSpeedLocIndex);
 				}
 				else
 				{
@@ -233,21 +261,37 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 88;
-				const int multValue = 89;
+				int BaseDamageLocIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseDamage"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelDamage")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseDamageLocIndex)))
+					{
+						Logger.Warn("DamageHook Failed - Could not find BaseDamageLocIndex");
+						return;
+					}
+				}
+
+
+
+				int MultDamageLocIndex = -1;
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(baseValue),
-					x => x.MatchLdloc(multValue),
+					x => x.MatchLdloc(BaseDamageLocIndex),
+					x => x.MatchLdloc(out MultDamageLocIndex),
 					x => x.MatchMul(),
-					x => x.MatchStloc(baseValue)
+					x => x.MatchStloc(BaseDamageLocIndex)
 				);
 
 				if (found)
 				{
 					// increase
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, multValue);
+					c.Emit(OpCodes.Ldloc, MultDamageLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
@@ -342,13 +386,13 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, multValue);
+					c.Emit(OpCodes.Stloc, MultDamageLocIndex);
 
 					c.Index += 4;
 
 					// multiplier
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, baseValue);
+					c.Emit(OpCodes.Ldloc, BaseDamageLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.ZetSapped))
@@ -365,7 +409,7 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, baseValue);
+					c.Emit(OpCodes.Stloc, BaseDamageLocIndex);
 				}
 				else
 				{
@@ -380,14 +424,17 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				if (c.TryGotoNext(x => x.MatchLdfld<Inventory>("beadAppliedShield")))
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseMaxShield"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelMaxShield")
+				))
 				{
-					c.TryGotoNext(x => x.MatchStloc(out ShieldLocIndex));
-				}
-				else
-				{
-					Logger.Warn("ShieldHook Failed - Could not find shield index");
-					return;
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseShieldLocIndex)))
+					{
+						Logger.Warn("ShieldHook Failed - Could not find BaseShieldLocIndex");
+						return;
+					}
 				}
 
 
@@ -400,7 +447,7 @@ namespace TPDespair.ZetAspects
 				if (found)
 				{
 					// add
-					c.Emit(OpCodes.Ldloc, ShieldLocIndex);
+					c.Emit(OpCodes.Ldloc, BaseShieldLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, shield, health) =>
@@ -422,7 +469,7 @@ namespace TPDespair.ZetAspects
 
 						return shield;
 					});
-					c.Emit(OpCodes.Stloc, ShieldLocIndex);
+					c.Emit(OpCodes.Stloc, BaseShieldLocIndex);
 
 					c.Emit(OpCodes.Ldarg, 0);
 				}
@@ -439,21 +486,37 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 70;
-				const int multValue = 71;
+				int BaseHealthLocIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseMaxHealth"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelMaxHealth")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseHealthLocIndex)))
+					{
+						Logger.Warn("HealthHook Failed - Could not find BaseHealthLocIndex");
+						return;
+					}
+				}
+
+
+
+				int MultHealthLocIndex = -1;
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(baseValue),
-					x => x.MatchLdloc(multValue),
+					x => x.MatchLdloc(BaseHealthLocIndex),
+					x => x.MatchLdloc(out MultHealthLocIndex),
 					x => x.MatchMul(),
-					x => x.MatchStloc(baseValue)
+					x => x.MatchStloc(BaseHealthLocIndex)
 				);
 
 				if (found)
 				{
 					// add
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, baseValue);
+					c.Emit(OpCodes.Ldloc, BaseHealthLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.AffixPoison) && Configuration.AspectPoisonBaseHealthGain.Value > 0f)
@@ -470,11 +533,11 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, baseValue);
+					c.Emit(OpCodes.Stloc, BaseHealthLocIndex);
 
 					// increase
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, multValue);
+					c.Emit(OpCodes.Ldloc, MultHealthLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
@@ -527,13 +590,13 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, multValue);
+					c.Emit(OpCodes.Stloc, MultHealthLocIndex);
 					
 					c.Index += 4;
 
 					// multiplier
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, baseValue);
+					c.Emit(OpCodes.Ldloc, BaseHealthLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						//BuffDef targetBuff = Catalog.nemBarrier ? Catalog.Buff.AffixBuffered : Catalog.Buff.AffixBarrier;
@@ -553,7 +616,7 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, baseValue);
+					c.Emit(OpCodes.Stloc, BaseHealthLocIndex);
 				}
 				else
 				{
@@ -568,21 +631,37 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int baseValue = 96;
-				const int multValue = 97;
+				int BaseAtkSpdLocIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseAttackSpeed"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelAttackSpeed")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseAtkSpdLocIndex)))
+					{
+						Logger.Warn("AttackSpeedHook Failed - Could not find BaseAtkSpdLocIndex");
+						return;
+					}
+				}
+
+
+
+				int MultAtkSpdLocIndex = -1;
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(baseValue),
-					x => x.MatchLdloc(multValue),
+					x => x.MatchLdloc(BaseAtkSpdLocIndex),
+					x => x.MatchLdloc(out MultAtkSpdLocIndex),
 					x => x.MatchMul(),
-					x => x.MatchStloc(baseValue)
+					x => x.MatchStloc(BaseAtkSpdLocIndex)
 				);
 
 				if (found)
 				{
 					// increase
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, multValue);
+					c.Emit(OpCodes.Ldloc, MultAtkSpdLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.ZetHeadHunter))
@@ -645,13 +724,13 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, multValue);
+					c.Emit(OpCodes.Stloc, MultAtkSpdLocIndex);
 
 					c.Index += 4;
 
 					// multiplier
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, baseValue);
+					c.Emit(OpCodes.Ldloc, BaseAtkSpdLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						if (self.HasBuff(BuffDefOf.ZetPoached))
@@ -662,7 +741,7 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, baseValue);
+					c.Emit(OpCodes.Stloc, BaseAtkSpdLocIndex);
 				}
 				else
 				{
@@ -677,22 +756,77 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int lvlScaling = 75;
-				const int knurlValue = 76;
-				const int crocoValue = 79;
-				const int multValue = 82;
+				int KnurlCountLocIndex = -1;
+
+				if (!c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Knurl")),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount"),
+					x => x.MatchStloc(out KnurlCountLocIndex)
+				))
+				{
+					Logger.Warn("RegenHook Failed - Cound not find KnurlCountLocIndex");
+					return;
+				}
+
+				if (!c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseRegen"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelRegen")
+				))
+				{
+					Logger.Warn("RegenHook Failed - Cound not navigate to regen");
+					return;
+				}
+
+
+
+				int KnurlRegenLocIndex = -1;
 
 				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(KnurlCountLocIndex),
+					x => x.MatchConvR4(),
+					x => x.MatchLdcR4(out _),
+					x => x.MatchMul(),
+					x => x.MatchLdloc(out LevelRegenScaleLocIndex),
+					x => x.MatchMul(),
+					x => x.MatchStloc(out KnurlRegenLocIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("RegenHook Failed - Phase1");
+					return;
+				}
+
+
+
+				int CrocoRegenLocIndex = -1;
+
+				found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("CrocoRegen")),
+					x => x.MatchCallOrCallvirt<CharacterBody>("GetBuffCount")
+				) && c.TryGotoNext(
+					x => x.MatchStloc(out CrocoRegenLocIndex));
+
+				if (!found)
+				{
+					Logger.Warn("RegenHook Failed - Phase2");
+					return;
+				}
+
+
+
+				found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
-					x => x.MatchStloc(multValue)
+					x => x.MatchStloc(out _)
 				);
 
 				if (found)
 				{
 					// add (affected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, knurlValue);
-					c.Emit(OpCodes.Ldloc, lvlScaling);
+					c.Emit(OpCodes.Ldloc, KnurlRegenLocIndex);
+					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, value, scaling) =>
 					{
 						float amount = 0f;
@@ -774,11 +908,11 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, knurlValue);
+					c.Emit(OpCodes.Stloc, KnurlRegenLocIndex);
 
 					// add percent (unaffected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, crocoValue);
+					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
 					{
 						float amount = 0f;
@@ -795,7 +929,7 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, crocoValue);
+					c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
 				}
 				else
 				{
@@ -1115,55 +1249,56 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchStloc(75)// this is the level regen scaling value
+					x => x.MatchStloc(LevelRegenScaleLocIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("ShieldConversionHook - FindRegenScaleVar Failed");
+					return;
+				}
+
+
+
+				found = c.TryGotoPrev(MoveType.After,
+					x => x.MatchCallOrCallvirt<CharacterBody>("set_maxShield")
 				);
 
 				if (found)
 				{
-					found = c.TryGotoPrev(MoveType.After,
-						x => x.MatchCallOrCallvirt<CharacterBody>("set_maxShield")
-					);
-
-					if (found)
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Action<CharacterBody>>((body) =>
 					{
-						c.Emit(OpCodes.Ldarg, 0);
-						c.EmitDelegate<Action<CharacterBody>>((body) =>
+						float healthRemaining = 1f;
+
+						if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
 						{
-							float healthRemaining = 1f;
-
-							if (!Compat.EliteReworks.affixBlueEnabled || !Compat.EliteReworks.affixBlueRemoveShield)
+							if (body.HasBuff(BuffDefOf.AffixBlue) && Configuration.AspectBlueHealthConverted.Value > 0f)
 							{
-								if (body.HasBuff(BuffDefOf.AffixBlue) && Configuration.AspectBlueHealthConverted.Value > 0f)
-								{
-									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectBlueHealthConverted.Value, 0f, 1f);
-								}
+								healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectBlueHealthConverted.Value, 0f, 1f);
 							}
+						}
 
-							if (Compat.WarWisp.shieldOverrideHook)
+						if (Compat.WarWisp.shieldOverrideHook)
+						{
+							if (body.HasBuff(BuffDefOf.AffixNullifier) && Configuration.AspectNullifierHealthConverted.Value > 0f)
 							{
-								if (body.HasBuff(BuffDefOf.AffixNullifier) && Configuration.AspectNullifierHealthConverted.Value > 0f)
-								{
-									healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 1f);
-								}
+								healthRemaining *= 1f - Mathf.Clamp(Configuration.AspectNullifierHealthConverted.Value, 0f, 1f);
 							}
+						}
 
-							if (healthRemaining < 1f)
-							{
-								float converted = body.maxHealth * (1f - healthRemaining);
+						if (healthRemaining < 1f)
+						{
+							float converted = body.maxHealth * (1f - healthRemaining);
 
-								body.maxHealth = Mathf.Max(1f, body.maxHealth - converted);
-								body.maxShield += converted;
-							}
-						});
-					}
-					else
-					{
-						Logger.Warn("ShieldConversionHook:FindSetShield Failed");
-					}
+							body.maxHealth = Mathf.Max(1f, body.maxHealth - converted);
+							body.maxShield += converted;
+						}
+					});
 				}
 				else
 				{
-					Logger.Warn("ShieldConversionHook:FindRegenScaleVar Failed");
+					Logger.Warn("ShieldConversionHook - FindSetShield Failed");
 				}
 			};
 		}
@@ -1174,17 +1309,17 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				int ShieldOnlyIndex = -1;
+				int ShieldOnlyCountLocIndex = -1;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("ShieldOnly")),
 					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount"),
-					x => x.MatchStloc(out ShieldOnlyIndex)
+					x => x.MatchStloc(out ShieldOnlyCountLocIndex)
 				);
 
 				if (!found)
 				{
-					Logger.Warn("FullShieldConversionHook: Find ShieldOnlyIndex Failed");
+					Logger.Warn("FullShieldConversionHook - Find ShieldOnlyCountLocIndex Failed");
 
 					return;
 				}
@@ -1197,7 +1332,7 @@ namespace TPDespair.ZetAspects
 					x => x.MatchAdd(),
 					x => x.MatchMul(),
 					x => x.MatchAdd(),
-					x => x.MatchStloc(ShieldLocIndex)
+					x => x.MatchStloc(BaseShieldLocIndex)
 				);
 
 				if (found)
@@ -1206,10 +1341,10 @@ namespace TPDespair.ZetAspects
 
 					c.Emit(OpCodes.Pop);
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, ShieldLocIndex);
+					c.Emit(OpCodes.Ldloc, BaseShieldLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Callvirt, typeof(CharacterBody).GetMethod("get_maxHealth"));
-					c.Emit(OpCodes.Ldloc, ShieldOnlyIndex);
+					c.Emit(OpCodes.Ldloc, ShieldOnlyCountLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float, int, float>>((self, shield, health, so) =>
 					{
 						float mult = 1f;

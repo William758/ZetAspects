@@ -243,7 +243,7 @@ namespace TPDespair.ZetAspects
 					x => x.MatchLdarg(0),
 					x => x.MatchLdfld<CharacterModel>("inventoryEquipmentIndex"),
 					x => x.MatchCall("RoR2.EquipmentCatalog", "GetEquipmentDef"),
-					x => x.MatchStloc(2)
+					x => x.MatchStloc(out _)
 				);
 
 				if (found)
@@ -282,7 +282,7 @@ namespace TPDespair.ZetAspects
 					x => x.MatchLdarg(0),
 					x => x.MatchLdfld<CharacterModel>("inventoryEquipmentIndex"),
 					x => x.MatchCall("RoR2.EquipmentCatalog", "GetEquipmentDef"),
-					x => x.MatchStloc(0)
+					x => x.MatchStloc(out _)
 				);
 
 				if (found)
