@@ -134,7 +134,11 @@ Korean translation by 깽비#8221.
 
 Chinese translation by BTP-G and MushroomEl.
 
+Japanese translation by WakefulSpect.
+
 ## Changelog:
+
+v2.9.6 - Added Japanese translation by WakefulSpect.
 
 v2.9.5 - Fixed for latest patch.
 

@@ -1422,6 +1422,427 @@ namespace TPDespair.ZetAspects
 
 
 
+			targetLanguage = "ja";
+
+			RegisterFragment("EQUIPMENT_STACK_EFFECT", "\n\n{0} スタックとして数える");
+			RegisterFragment("HOW_TO_CONVERT", "\n右下の装備アイコンをクリックして変換");
+
+			RegisterFragment("BASE_STACK_FORMAT", "{0} {1}");
+
+			RegisterFragment("FLAT_VALUE", "{0}");
+			RegisterFragment("PERCENT_VALUE", "{0}%");
+			RegisterFragment("FLATREGEN_VALUE", "{0} hp/秒");
+			RegisterFragment("PERCENTREGEN_VALUE", "{0}% hp/秒");
+			RegisterFragment("DURATION_VALUE", "{0} 秒");
+			RegisterFragment("METER_VALUE", "{0}m");
+
+			RegisterFragment("FLAT_STACK_INC", "<style=cStack>(スタック毎に +{0})</style>");
+			RegisterFragment("PERCENT_STACK_INC", "<style=cStack>(スタック毎に +{0}%)</style>");
+			RegisterFragment("FLATREGEN_STACK_INC", "<style=cStack>(スタック毎に +{0}hp/秒)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_INC", "<style=cStack>(スタック毎に +{0}% hp/秒)</style>");
+			RegisterFragment("DURATION_STACK_INC", "<style=cStack>(スタック毎に+ {0}秒)</style>");
+			RegisterFragment("METER_STACK_INC", "<style=cStack>(スタック毎に +{0}m)</style>");
+			RegisterFragment("FLAT_STACK_DEC", "<style=cStack>(スタック毎に -{0})</style>");
+			RegisterFragment("PERCENT_STACK_DEC", "<style=cStack>(スタック毎に -{0}%)</style>");
+			RegisterFragment("FLATREGEN_STACK_DEC", "<style=cStack>(スタック毎に -{0} hp/秒)</style>");
+			RegisterFragment("PERCENTREGEN_STACK_DEC", "<style=cStack>(スタック毎に -{0}% hp/秒)</style>");
+			RegisterFragment("DURATION_STACK_DEC", "<style=cStack>(スタック毎に -{0}秒)</style>");
+			RegisterFragment("METER_STACK_DEC", "<style=cStack>(スタック毎に -{0}m)</style>");
+
+			RegisterFragment("BASE_DAMAGE", "基礎");
+			RegisterFragment("TOTAL_DAMAGE", "トータルで");
+
+			RegisterFragment("FOR_SECOND", "{0} 秒間");
+			RegisterFragment("FOR_SECONDS", "{0} 秒間");
+			RegisterFragment("OVER_SECOND", "{0} 秒間で");
+			RegisterFragment("OVER_SECONDS", "{0} 秒間で");
+			RegisterFragment("AFTER_SECOND", "{0} 秒後に");
+			RegisterFragment("AFTER_SECONDS", "{0} 秒後に");
+			RegisterFragment("EVERY_SECOND", "毎秒ごとに");
+			RegisterFragment("EVERY_SECONDS", "{0} 秒ごとに");
+			RegisterFragment("SECOND", "{0} 秒");
+			RegisterFragment("SECONDS", "{0} 秒");
+
+
+
+			RegisterFragment("AFFIX_WHITE_NAME", "彼女の痛烈な祝福");
+			RegisterFragment("AFFIX_WHITE_PICKUP", "氷の相になる。");
+			RegisterFragment("AFFIX_WHITE_ACTIVE", "スキルを無効化する氷の結晶を展開する。");
+			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "ヘルスを吸収する氷の結晶を展開する。");
+			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Iceの相</style> :");
+			RegisterFragment("CHILL_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>悪寒</style>を {0}与え、<style=cIsUtility>移動速度</style>を <style=cIsUtility>80%</style> 減らす。");
+			RegisterFragment("CHANCE_TO_FREEZE", "\n攻撃がヒットすると {0} の確率で<style=cIsUtility>凍結</style>を{1}与える。");
+			RegisterFragment("FROST_BLADE", "\n攻撃がヒットすると<style=cIsDamage>刃</style>を放ち、トータルで {0} のダメージを与える。");
+
+			RegisterFragment("AFFIX_BLUE_NAME", "2人の沈黙がぶつかる");
+			RegisterFragment("AFFIX_BLUE_PICKUP", "稲妻の相になる。");
+			RegisterFragment("AFFIX_BLUE_ACTIVE", "使用するとテレポートする。");
+			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>稲妻の相</style> :");
+			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n時折周囲に爆弾を落とす。");
+			RegisterFragment("SAP_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>漿液</style>を {0}与え、<style=cIsUtility>与ダメージ</style>を {1} 減らす。");
+			RegisterFragment("SCATTER_BOMB", "\n攻撃すると爆弾を落とし、トータルで {0} のダメージを与える爆発を起こす。");
+			RegisterFragment("LIGHTNING_BOMB", "\n攻撃すると<style=cIsDamage>オーブ</style>を付着する。{1}に爆発しトータルで {0} のダメージを与える。");
+
+			RegisterFragment("AFFIX_RED_NAME", "イフリートの底力");
+			RegisterFragment("AFFIX_RED_PICKUP", "火の相になる。");
+			RegisterFragment("AFFIX_RED_ACTIVE", "炎の誘導ミサイルを放つ。");
+			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>火の相</style> :");
+			RegisterFragment("PASSIVE_FIRE_TRAIL", "\n触れた敵にダメージを与える炎の軌跡を残す。");
+			RegisterFragment("BURN_DOT", "\n攻撃がヒットすると<style=cIsDamage>炎上</style>を与え、{2}で {0} {1}のダメージを与える。");
+
+			RegisterFragment("AFFIX_HAUNTED_NAME", "幽霊のサークレット");
+			RegisterFragment("AFFIX_HAUNTED_PICKUP", "非実体の相になる。");
+			RegisterFragment("AFFIX_HAUNTED_ACTIVE", "近くの味方に一時的に攻撃を回避するチャンスを与える。");
+			RegisterFragment("ASPECT_OF_INCORPOREALITY", "<style=cDeath>非実体の相</style> :");
+			RegisterFragment("PASSIVE_GHOST_AURA", "\n近くの味方を透明化するオーラを放つ。");
+			RegisterFragment("PASSIVE_POSSESS", "\n近くの味方に取り憑き、憑依する。");
+			RegisterFragment("SHRED_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>細断</style>を {0}与え、<style=cIsDamage>アーマー</style>を {1} 減らす。");
+			RegisterFragment("GHOST_ARMOR", "\n近くの味方に {0} の追加<style=cIsHealing>アーマー</style>を与える。");
+			RegisterFragment("GHOST_DODGE", "\n近くの味方に {0} の確率で<style=cIsHealing>回避</style>するチャンスを与える。");
+
+			RegisterFragment("AFFIX_POISON_NAME", "ンクハラの反論");
+			RegisterFragment("AFFIX_POISON_PICKUP", "堕落の相になる。");
+			RegisterFragment("AFFIX_POISON_ACTIVE", "全アイテムを継承する味方のクジャク石のウニを召喚する。");
+			RegisterFragment("ASPECT_OF_CORRUPTION", "<style=cDeath>堕落の相</style> :");
+			RegisterFragment("PASSIVE_SPIKEBALL", "\n着地点からトゲが生えるトゲ玉を定期的に放つ。");
+			RegisterFragment("PASSIVE_RUIN_AURA", "\n近くの敵に<style=cIsDamage>破滅</style>を与えるオーラを放つ。");
+			RegisterFragment("RUIN_ON_HIT_BASIC", "\n攻撃がヒットすると<style=cIsDamage>破滅</style>を {0}与え、ヘルスの回復を無効化する。");
+			RegisterFragment("RUIN_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>破滅</style>を {0}与え、<style=cIsDamage>受けるダメージ</style>を {1} 増やす。");
+			RegisterFragment("RUIN_DETAIL", "\n<style=cStack>(破滅効果はヘルスの回復を無効化する)</style>");
+			RegisterFragment("WEAKEN_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>弱体化</style>を {0}与え、<style=cIsDamage>アーマー</style>を <style=cIsDamage>30</style> 、<style=cIsUtility>移動速度</style>を <style=cIsUtility>40%</style> 、<style=cIsDamage>ダメージ</style>を <style=cIsDamage>40%</style> 減らす。");
+
+			RegisterFragment("AFFIX_LUNAR_NAME", "共有された造形");
+			RegisterFragment("AFFIX_LUNAR_PICKUP", "完成の相になる。");
+			RegisterFragment("AFFIX_LUNAR_ACTIVE", "強力なダメージから一時的に身を守る。");
+			RegisterFragment("ASPECT_OF_PERFECTION", "<style=cDeath>完成の相</style> :");
+			RegisterFragment("PASSIVE_LUNAR_PROJ", "\n戦闘中、定期的に弾丸を発射する。");
+			RegisterFragment("CRIPPLE_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>障害</style>を {0}与え、<style=cIsDamage>アーマー</style>を <style=cIsDamage>20</style> 、<style=cIsUtility>移動速度</style>を <style=cIsUtility>50%</style> 減らす。");
+
+			RegisterFragment("AFFIX_EARTH_NAME", "安心材料");
+			RegisterFragment("AFFIX_EARTH_PICKUP", "地の相になる。");
+			RegisterFragment("AFFIX_EARTH_ACTIVE", "少しの間、ヘルスを再生する。");
+			RegisterFragment("ASPECT_OF_EARTH", "<style=cDeath>地の相</style> :");
+			RegisterFragment("PASSIVE_HEAL_ALLY", "\n近くの味方を回復する。");
+			RegisterFragment("POACH_ON_HIT_BASIC", "\n攻撃がヒットすると<style=cIsUtility>略奪</style>を {0}与え、更に攻撃がヒットした際に与えた<style=cIsDamage>ダメージ</style>の {1} を<style=cIsHealing>回復</style>する。");
+			RegisterFragment("POACH_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>略奪</style>を {0}与え、<style=cIsUtility>攻撃速度</style>を {1} 減らす。");
+			RegisterFragment("POACH_DETAIL", "\n<style=cStack>(略奪効果を受けた敵に攻撃をヒットさせると、与えたダメージの {0} 分ヘルスを回復する)</style>");
+			RegisterFragment("HEAL_PERCENT_ON_HIT", "\n与えた<style=cIsDamage>ダメージ</style>の {0} 分<style=cIsHealing>ヘルスを回復</style>する。");
+			RegisterFragment("LEECH_MODIFIER_FORMULA", "\n<style=cStack>吸収係数 =>\n  {0}{1}( [dmg] * [bl]{2} , {3} ){4}</style>");
+
+			RegisterFragment("AFFIX_VOID_NAME", "無秩序の崩壊");
+			RegisterFragment("AFFIX_VOID_PICKUP", "空虚の相になる。");
+			RegisterFragment("AFFIX_VOID_ACTIVE", "すべてのクールダウンをリセットする。");
+			RegisterFragment("ASPECT_OF_VOID", "<style=cDeath>空虚の相</style> :");
+			RegisterFragment("PASSIVE_BLOCK", "\n次のダメージを<style=cIsHealing>ブロック</style>する。一定時間後に再チャージされる。");
+			RegisterFragment("NULLIFY_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>無効</style>を {0}与える。");
+			RegisterFragment("NULLIFY_DETAIL", "\n<style=cStack>(無効効果を 3 つスタックした敵は 3 秒間根が張られる。)</style>");
+			RegisterFragment("COLLAPSE_DOT", "\n攻撃がヒットすると<style=cIsDamage>卒倒</style>を与え、{2} {0} {1}与える。");
+			RegisterFragment("COLLAPSE_DEFAULT", "\n<style=cIsDamage>100%</style> の確率で敵に<style=cIsDamage>卒倒</style>を与え、 <style=cIsDamage>400%</style> の基本ダメージを与える。");
+			RegisterFragment("CORRUPT_ASPECT_ITEM", "\n<style=cIsVoid>全ての相を破損する</style>。");
+
+			RegisterFragment("AFFIX_PLATED_NAME", "服従の合金");
+			RegisterFragment("AFFIX_PLATED_PICKUP", "忍耐の相になる。");
+			RegisterFragment("AFFIX_PLATED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ENDURANCE", "<style=cDeath>忍耐の相</style> :");
+			RegisterFragment("PASSIVE_DEFENSE_PLATING", "\n大ダメージを軽減する防護メッキを得る。");
+			RegisterFragment("DAMAGEREDUCTION_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>鎮圧</style>を {0}与え、与えるダメージを減らす。");
+
+			RegisterFragment("AFFIX_WARPED_NAME", "的外れな信仰");
+			RegisterFragment("AFFIX_WARPED_PICKUP", "重力の相になる。");
+			RegisterFragment("AFFIX_WARPED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_GRAVITY", "<style=cDeath>重力の相</style> :");
+			RegisterFragment("PASSIVE_DEFLECT_PROJ", "\n時々近くの飛翔体を逸らす。");
+			RegisterFragment("LEVITATE_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>浮遊</style>を {0}与える。");
+			RegisterFragment("WARPED_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>歪み</style>を {0}与え、移動を妨げる。");
+
+			RegisterFragment("AFFIX_VEILED_NAME", "曖昧の呪い");
+			RegisterFragment("AFFIX_VEILED_PICKUP", "難読化の相になる。");
+			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>難読化の相</style> :");
+			RegisterFragment("CLOAK_ON_HIT", "\n攻撃がヒットすると自分に<style=cIsUtility>透明</style>を与える。");
+			RegisterFragment("CLOAK_ON_HIT_TIMED", "\n攻撃がヒットすると自分に<style=cIsUtility>透明</style>を {0}与える。");
+			RegisterFragment("CLOAKING_PASSIVE", "\n動かないでいると透明になる。");
+			RegisterFragment("DECLOAK_WHEN_HIT", "\nダメージを受けると透明化が解除される。");
+			RegisterFragment("ELUSIVE_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>神出鬼没</style>を得る。");
+			RegisterFragment("ELUSIVE_EFFECT_MOVE_DETAIL", "\n<style=cStack>(神出鬼没効果は移動速度を {0} 増やす。)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_DODGE_DETAIL", "\n<style=cStack>(神出鬼没効果は {0} の確率で回避するチャンスを得る)</style>");
+			RegisterFragment("ELUSIVE_EFFECT_BOTH_DETAIL", "\n<style=cStack>(神出鬼没効果は移動速度を {0} 増やし、{1} の確率で回避するチャンスを与える)</style>");
+			RegisterFragment("ELUSIVE_DECAY_DETAIL", "\n<style=cStack>(神出鬼没効果は毎秒 {0} ずつ減衰する)</style>");
+			RegisterFragment("ELUSIVE_EFFECT", "\n神出鬼没の効果量 {0}。");
+
+			RegisterFragment("AFFIX_ARAGONITE_NAME", "彼女の気性");
+			RegisterFragment("AFFIX_ARAGONITE_PICKUP", "激怒の相になる。");
+			RegisterFragment("AFFIX_ARAGONITE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FURY", "<style=cDeath>激怒の相</style> :");
+			RegisterFragment("PASSIVE_ANGRY_HIT", "\nヒットすると時々怒りを爆発させる。");
+			RegisterFragment("PASSIVE_ANGRY_AURA", "\n近くの味方に力を与えるオーラを放つ。");
+			RegisterFragment("ANGRY_ATKSPD", "\n近くの味方の<style=cIsUtility>移動速度</style>を {0} 増やす。");
+			RegisterFragment("ANGRY_MOVSPD", "\n近くの味方の<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("ANGRY_BOTHSPD", "\n近くの味方の<style=cIsUtility>移動速度</style>と<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("ANGRY_COOLDOWN", "\n近くの味方の<style=cIsUtility>スキルのクールダウン</style>を {0} 減らす。");
+
+			RegisterFragment("AFFIX_GOLD_NAME", "黄金の魔女団");
+			RegisterFragment("AFFIX_GOLD_PICKUP", "幸運の相になる。");
+			RegisterFragment("AFFIX_GOLD_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_FORTUNE", "<style=cDeath>幸運の相</style> :");
+			RegisterFragment("GOLD_ON_HIT", "\n攻撃がヒットするとゴールドを得る。");
+			RegisterFragment("ITEMSCORE_REGEN", "\n入手したアイテムの量とレア度に応じて<style=cIsHealing>基本ヘルス回復量</style>にボーナスを得る。");
+			RegisterFragment("ITEMSCORE_REGEN_MULT", "\nアイテムスコアの回復量倍率 {0}。");
+
+			RegisterFragment("AFFIX_SEPIA_NAME", "消えゆく投影");
+			RegisterFragment("AFFIX_SEPIA_PICKUP", "幻影の相になる。");
+			RegisterFragment("AFFIX_SEPIA_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ILLUSION", "<style=cDeath>幻影の相</style> :");
+			RegisterFragment("SEPIABLIND_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>歪視</style>効果を {0}受け、攻撃がヒットしたときの効果が発動する確率を {1} 減らす。");
+
+			RegisterFragment("AFFIX_SANGUINE_NAME", "血に塗れた忠誠");
+			RegisterFragment("AFFIX_SANGUINE_PICKUP", "レッド プレーンの相になる。");
+			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "テレポートダッシュを行い、短時間の無敵を得る。");
+			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>レッド プレーンの相</style> :");
+			RegisterFragment("BLEED_DOT", "\n攻撃がヒットすると<style=cIsDamage>出血</style>を {0}与え、{1} の基本ダメージを与える。");
+			RegisterFragment("DOT_AMP", "\n<style=cIsDamage>時間経過によるダメージ倍率</style>を {0} 増やす。");
+
+			RegisterFragment("AFFIX_NULLIFIER_NAME", "Parvosの恩恵");
+			RegisterFragment("AFFIX_NULLIFIER_PICKUP", "無効の相になる。");
+			RegisterFragment("AFFIX_NULLIFIER_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_NULL", "<style=cDeath>無効の相</style> :");
+			RegisterFragment("PASSIVE_NULL_AURA", "\n近くの味方を守り敵にデバフを与えるオーラを放つ。");
+			RegisterFragment("NULL_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>無効</style>を与える。");
+			RegisterFragment("NULL_ON_HIT_SPD", "\n攻撃がヒットすると<style=cIsUtility>無効</style>を与え、<style=cIsUtility>移動速度</style>を {0} 減らす。");
+
+			RegisterFragment("AFFIX_BLIGHTED_NAME", "砦の背信行為");
+			RegisterFragment("AFFIX_BLIGHTED_PICKUP", "衰退の相になる。");
+			RegisterFragment("AFFIX_BLIGHTED_ACTIVE", "ランダムに得たエリート接頭辞を異なるものに変える。");
+			RegisterFragment("ASPECT_OF_DECAY", "<style=cDeath>衰退の相</style> :");
+			RegisterFragment("PASSIVE_BLIGHT", "\nランダムな 2 つのエリート接頭辞を得る。");
+
+			RegisterFragment("AFFIX_BACKUP_NAME", "秘密の区画");
+			RegisterFragment("AFFIX_BACKUP_PICKUP", "替え玉の相になる。");
+			RegisterFragment("AFFIX_BACKUP_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_BACKUP", "<style=cDeath>替え玉の相</style> :");
+			RegisterFragment("BACKUPED_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>渋滞</style>を {0}与える。");
+			RegisterFragment("BACKUPED_DETAIL", "\n<style=cStack>(渋滞効果はセカンダリー スキルを使用できなくする)</style>");
+
+			RegisterFragment("AFFIX_PURITY_NAME", "浄化の光");
+			RegisterFragment("AFFIX_PURITY_PICKUP", "浄化の相になる。");
+			RegisterFragment("AFFIX_PURITY_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_PURITY", "<style=cDeath>浄化の相</style> :");
+			RegisterFragment("PASSIVE_PURITY", "\nデバフ、DOTダメージ、スタンを受けなくなる。");
+			RegisterFragment("CLEANSE_ON_HIT", "\n攻撃がヒットした敵の<style=cIsUtility>バフ</style>を<style=cIsUtility>消去</style>する。");
+
+			RegisterFragment("AFFIX_BARRIER_NAME", "複合努力");
+			RegisterFragment("AFFIX_BARRIER_PICKUP", "団結の相になる。");
+			RegisterFragment("AFFIX_BARRIER_ACTIVE", "バリアを張る。");
+			RegisterFragment("ASPECT_OF_UNITY", "<style=cDeath>団結の相</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP", "\nバリアが時間経過で自然減少しなくなる。");
+			RegisterFragment("FORCE_IMMUNE_BARRIER", "\n<style=cIsHealing>バリア</style>を張っている間、ノックバックを無効化する。");
+			RegisterFragment("RANDOM_DEBUFF_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>ランダムなデバフ</style>を与える。");
+
+			RegisterFragment("AFFIX_BLACKHOLE_NAME", "もうひとつの心");
+			RegisterFragment("AFFIX_BLACKHOLE_PICKUP", "侵略の相になる。");
+			RegisterFragment("AFFIX_BLACKHOLE_ACTIVE", "マークしたすべての敵に追尾攻撃を放つ。");
+			RegisterFragment("ASPECT_OF_INVASION", "<style=cDeath>侵略の相</style> :");
+			RegisterFragment("BLACKMARK_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>マーク</style>を付与し、<style=cIsDamage>7</style> つストックした敵を爆破して <style=cIsDamage>{0}</style> <style=cStack>(レベル毎に +{1}) ダメージを与える。");
+
+			RegisterFragment("AFFIX_MONEY_NAME", "岩塊の怒り");
+			RegisterFragment("AFFIX_MONEY_PICKUP", "極性の相になる。");
+			RegisterFragment("AFFIX_MONEY_ACTIVE", "飛んできた全ての飛翔体を一時的に停止させる。");
+			RegisterFragment("ASPECT_OF_POLARITY", "<style=cDeath>極性の相</style> :");
+			RegisterFragment("PASSIVE_DRAIN_MONEY", "\n近くにいる敵からゴールドを盗む。");
+			RegisterFragment("GOLD_FROM_KILL", "\n敵を倒したときに得られるゴールドが {0} 増える。");
+			RegisterFragment("PULLDOWN_ON_HIT", "\n攻撃がヒットすると空中の敵を<style=cIsUtility>引きずり落とす</style>。");
+
+			RegisterFragment("AFFIX_NIGHT_NAME", "砦の欠如");
+			RegisterFragment("AFFIX_NIGHT_PICKUP", "闇の相になる。");
+			RegisterFragment("AFFIX_NIGHT_ACTIVE", "一時的に透明化する。");
+			RegisterFragment("ASPECT_OF_DARKNESS", "<style=cDeath>闇の相</style> :");
+			RegisterFragment("NIGHTBLIND_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>暗闇</style>を {0}与え、攻撃がヒットしたときの効果が発動する確率を {1} 減らす。");
+			RegisterFragment("NIGHTBLIND_DETAIL", "\n<style=cStack>(視野範囲が {0} に減る)</style>");
+			RegisterFragment("OOD_NIGHT_ATKSPD", "\n戦闘終了後、<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("OOD_NIGHT_MOVSPD", "\n戦闘終了後、<style=cIsUtility>移動速度</style>を {1}、<style=cIsDamage>攻撃速度</style>を {1} 増やす。");
+			RegisterFragment("OOD_NIGHT_BOTHSAMESPD", "\n戦闘終了後、<style=cIsUtility>移動速度</style>と<style=cIsDamage>攻撃速度</style>を {1} 増やす。");
+			RegisterFragment("OOD_NIGHT_BOTHDIFFSPD", "\n戦闘終了後、<style=cIsUtility>移動速度</style>を {1}、<style=cIsDamage>攻撃速度</style>を {1} 増やす。");
+
+			RegisterFragment("AFFIX_WATER_NAME", "アラシウミツバメの初観測");
+			RegisterFragment("AFFIX_WATER_PICKUP", "変容可能性の相になる。");
+			RegisterFragment("AFFIX_WATER_ACTIVE", "全てのデバフを解除し、ヘルスを回復する。");
+			RegisterFragment("ASPECT_OF_ALTERABILITY", "<style=cDeath>変容可能性の相</style> :");
+			RegisterFragment("PASSIVE_IDLE_INVULN", "\nスキルを使用していない間、無敵になる。");
+			RegisterFragment("BUBBLE_ON_HIT", "\n攻撃がヒットすると敵を泡の中に<style=cIsUtility>閉じ込める</style>。");
+
+			RegisterFragment("AFFIX_REALGAR_NAME", "次元の衝突");
+			RegisterFragment("AFFIX_REALGAR_PICKUP", "外在性の相になる。");
+			RegisterFragment("AFFIX_REALGAR_ACTIVE", "全てのDOTダメージに対して一時的に無敵になる。");
+			RegisterFragment("ASPECT_OF_EXTRINSICALITY", "<style=cDeath>外在性の相</style> :");
+			RegisterFragment("PASSIVE_RED_FISSURE", "\n弾丸を放つ赤い亀裂を生み出す。");
+			RegisterFragment("SCAR_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>傷</style>を与え、 DOTダメージを与える。");
+
+			RegisterFragment("AFFIX_BUFFERED_NAME", "複合努力");
+			RegisterFragment("AFFIX_BUFFERED_PICKUP", "団結の相になる。");
+			RegisterFragment("AFFIX_BUFFERED_ACTIVE", "バリアを張る。");
+			RegisterFragment("ASPECT_OF_UNITY_NEM", "<style=cDeath>団結の相</style> :");
+			RegisterFragment("PASSIVE_BARRIER_STOP_NEM", "\nバリアが時間経過で自然減少しなくなる。");
+			RegisterFragment("FORCE_IMMUNE_BARRIER_NEM", "\n<style=cIsHealing>バリア</style>を張っている間、ノックバックを無効化する。");
+
+			RegisterFragment("AFFIX_OPPRESSIVE_NAME", "巨神的一時停止");
+			RegisterFragment("AFFIX_OPPRESSIVE_PICKUP", "制圧の相になる。");
+			RegisterFragment("AFFIX_OPPRESSIVE_ACTIVE", "近くにいる敵を強制的に叩き落とす");
+			RegisterFragment("ASPECT_OF_DOMINATION", "<style=cDeath>制圧の相</style> :");
+			RegisterFragment("PASSIVE_GRAVITY_ZONE", "\n近くの敵に対し<style=cIsUtility>重力を増幅させる</style>オーラを放つ。");
+			RegisterFragment("PULLDOWN_ON_HIT_NEM", "\n攻撃がヒットすると空中の敵を<style=cIsUtility>引きずり落とす</style>。");
+			RegisterFragment("PULLDOWN_NOJUMP_DETAIL", "\n<style=cStack>(引きずり落とされた敵はジャンプできなくなる)</style>");
+
+			RegisterFragment("AFFIX_EMPOWERING_NAME", "活性の相");
+			RegisterFragment("AFFIX_EMPOWERING_PICKUP", "活性の相になる。");
+			RegisterFragment("AFFIX_EMPOWERING_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_EMPOWERING", "<style=cDeath>活性化の相</style> :");
+			RegisterFragment("PASSIVE_WARBANNER_AURA", "\n自分と近くの味方を活性化させるオーラを放つ。");
+			RegisterFragment("PASSIVE_WARCRY_RALLY", "\n攻撃すると近くの味方を<style=cIsDamage>活気づける</style>。");
+			RegisterFragment("PASSIVE_WARCRY_RALLY_SELF", "\n攻撃すると自分と近くの味方を<style=cIsDamage>活気づける</style>。");
+			RegisterFragment("AURA_WARBANNER", "\n自分と近くの味方の<style=cIsUtility>移動速度</style>と<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("AURA_WARBANNER_ATKSPD", "\n自分と近くの味方の<style=cIsUtility>移動速度</style>を {0} 増やす。");
+			RegisterFragment("AURA_WARBANNER_MOVSPD", "\n自分と近くの味方の<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+
+			RegisterFragment("AFFIX_FRENZIED_NAME", "狂乱の相");
+			RegisterFragment("AFFIX_FRENZIED_PICKUP", "狂乱の相になる。");
+			RegisterFragment("AFFIX_FRENZIED_ACTIVE", "近くの敵の位置にテレポートする。");
+			RegisterFragment("ASPECT_OF_FRENZIED", "<style=cDeath>狂乱の相</style> :");
+
+			RegisterFragment("AFFIX_VOLATILE_NAME", "揮発性の相");
+			RegisterFragment("AFFIX_VOLATILE_PICKUP", "揮発性の相になる。");
+			RegisterFragment("AFFIX_VOLATILE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_VOLATILE", "<style=cDeath>揮発性の相</style> :");
+			RegisterFragment("PASSIVE_VOLMISSILE", "\n時々誘導ミサイルを放つ。");
+			RegisterFragment("EXPLODE_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>爆発</style>し、トータルで {0} のダメージを与える。");
+
+			RegisterFragment("AFFIX_ECHO_NAME", "反響の相");
+			RegisterFragment("AFFIX_ECHO_PICKUP", "反響の相になる。");
+			RegisterFragment("AFFIX_ECHO_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_ECHO", "<style=cDeath>反響の相</style> :");
+			RegisterFragment("PASSIVE_ECHOCLONE", "\n自分のクローンを 2 体作る。");
+
+			RegisterFragment("AFFIX_ARMOR_NAME", "砦のための奉仕");
+			RegisterFragment("AFFIX_ARMOR_PICKUP", "耐久の相になる。");
+			RegisterFragment("AFFIX_ARMOR_ACTIVE", "一時的にアーマーを増やす。");
+			RegisterFragment("ASPECT_OF_DURABILITY", "<style=cDeath>耐久の相</style> :");
+			RegisterFragment("PASSIVE_BULWARK_BARRIER_STOP", "\n時間経過で自然減少しないバリアを最大値得る。");
+			RegisterFragment("PASSIVE_BULWARK_BARRIER_DYNAMIC", "\nゆっくりと自然現象するバリアを最大値得る。");
+			RegisterFragment("ROOT_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>根</style>を張り、相手を動けなくする。");
+
+			RegisterFragment("AFFIX_BANNER_NAME", "星の報復");
+			RegisterFragment("AFFIX_BANNER_PICKUP", "戦いの相になる。");
+			RegisterFragment("AFFIX_BANNER_ACTIVE", "戦旗の範囲が拡大する。");
+			RegisterFragment("ASPECT_OF_BATTLE", "<style=cDeath>戦いの相</style> :");
+
+			RegisterFragment("AFFIX_IMPALE_NAME", "レッド プレーンからの侵略");
+			RegisterFragment("AFFIX_IMPALE_PICKUP", "暴力の相になる。");
+			RegisterFragment("AFFIX_IMPALE_ACTIVE", "ターゲットした敵の位置にテレポートし、ダメージを与える。");
+			RegisterFragment("ASPECT_OF_VIOLENCE", "<style=cDeath>暴力の相</style> :");
+			RegisterFragment("PASSIVE_IMPSTARE", "\nあなたを直視した敵に<style=cIsDamage>マーク</style>を付与し、<style=cIsDamage>受けるダメージ</style>を増やす。");
+			RegisterFragment("IMPALE_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>串刺し</style>を与え、定期的に大ダメージを与える。");
+
+			RegisterFragment("AFFIX_GOLDEN_NAME", "強欲の呪い");
+			RegisterFragment("AFFIX_GOLDEN_PICKUP", "盗難の相になる。");
+			RegisterFragment("AFFIX_GOLDEN_ACTIVE", "全てのゴールドを消費してランダムなアイテムを手に入れる。消費したゴールドが多いほど、高レアリティなアイテムを手に入れる確率が上がる。");
+			RegisterFragment("ASPECT_OF_THEFT", "<style=cDeath>盗難の相</style> :");
+			RegisterFragment("STEALGOLD_ON_HIT", "\n攻撃がヒットするとゴールドを盗む。");
+
+			RegisterFragment("AFFIX_CYCLONE_NAME", "第三の願い");
+			RegisterFragment("AFFIX_CYCLONE_PICKUP", "砂の相になる。");
+			RegisterFragment("AFFIX_CYCLONE_ACTIVE", "前方にダッシュし、近くの敵を打ち上げる。");
+			RegisterFragment("ASPECT_OF_SAND", "<style=cDeath>砂の相</style> :");
+			RegisterFragment("PASSIVE_SANDSTORM", "\n敵に触れるとダメージを与える砂嵐に囲まれる。");
+			RegisterFragment("SANDBLIND_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>盲目</style>を {0}与え、攻撃がヒットしたときの効果が発動する確率を {1} 減らす。");
+
+			RegisterFragment("AFFIX_TINKER_NAME", "ニューロリンク");
+			RegisterFragment("AFFIX_TINKER_PICKUP", "自動化の相になる。");
+			RegisterFragment("AFFIX_TINKER_ACTIVE", "ドローンを回復する。");
+			RegisterFragment("ASPECT_OF_AUTOMATIZATION", "<style=cDeath>自動化の相</style> :");
+			RegisterFragment("PASSIVE_TINKERDRONE", "\nアイテム スクラップによって強くなるティンカラーズ ドローンを {0} 体まで召喚する。");
+			RegisterFragment("PASSIVE_TINKERDRONE_SINGLE", "\nアイテム スクラップによって強くなるティンカラーズ ドローンを召喚する。");
+			RegisterFragment("TINKER_SCRAPSTEAL_DETAIL", "\n<style=cStack>(ティンカラーズ ドローンは攻撃がヒットするとアイテム スクラップを盗み取る)</style>");
+
+			RegisterFragment("AFFIX_ADAPTIVE_NAME", "その囁かれし秘密");
+			RegisterFragment("AFFIX_ADAPTIVE_PICKUP", "進化の相になる。");
+			RegisterFragment("AFFIX_ADAPTIVE_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_EVOLUTION", "<style=cDeath>進化の相</style> :");
+			RegisterFragment("ADAPTIVE_DEFENSE", "\nしばらくダメージを受けていない間、<style=cIsHealing>アーマー</style>が {0} 増える。");
+			RegisterFragment("ADAPTIVE_REACT", "\nダメージを受けると<style=cIsUtility>スピードブースト</style>を {0}得る。");
+			RegisterFragment("ADAPTIVE_REACT_INVIS", "\nダメージを受けると {0}<style=cIsUtility>透明</style>になり、<style=cIsUtility>スピードブースト</style>を {1}得る。");
+			RegisterFragment("LACERATION_ON_HIT", "\n攻撃がヒットすると {0} の<style=cIsDamage>裂傷</style>を {1}与え、<style=cIsDamage>受けるダメージ</style>を {2} 増やす。");
+
+			RegisterFragment("AFFIX_MOTIVATOR_NAME", "名無しの Hopoo");
+			RegisterFragment("AFFIX_MOTIVATOR_PICKUP", "ゲームの相になる。デザイン。\nOmg OwO <3 hiii :3 x3 hiiii heyyy :3 :3 :3 UwU meow mrrraow OwO");
+			RegisterFragment("AFFIX_MOTIVATOR_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_INSPIRATION", "<style=cDeath>直感の相</style> :");
+
+			RegisterFragment("AFFIX_OSMIUM_NAME", "人口空虚");
+			RegisterFragment("AFFIX_OSMIUM_PICKUP", "特異点の相になる。\nhttps://www.youtube.com/watch?v=3yd4myHf81E");
+			RegisterFragment("AFFIX_OSMIUM_ACTIVE", "<style=cStack>(???)</style>");
+			RegisterFragment("ASPECT_OF_SINGULARITY", "<style=cDeath>特異点の相</style> :");
+			RegisterFragment("PASSIVE_OSMIUM", "\n遠くの敵から受けるダメージを減衰する。");
+			RegisterFragment("PASSIVE_OSMIUM_DRAWBACK", "\n遠くの敵から受けるダメージを減衰するが、近くの敵から受けるダメージを増幅する。");
+			RegisterFragment("OSMIUM_DAMAGE_DETAIL", "\n<style=cStack>(被ダメージ係数: {0})</style>");
+
+
+
+
+			RegisterFragment("NEARBY_ARMOR", "\n近くの味方に追加の<style=cIsHealing>アーマー</style>を {0} 与える。");
+			RegisterFragment("NEARBY_ARMOR_UNKNOWN", "\n近くの味方に追加の<style=cIsHealing>アーマー</style>を与える。");
+
+			RegisterFragment("CONVERT_SHIELD", "\nヘルスの {0} を<style=cIsHealing>シールド</style>に変換する。");
+			RegisterFragment("EXTRA_SHIELD_CONVERT", "\n変換した<style=cIsHealing>シールド</style>の {0} に等しい量の追加<style=cIsHealing>シールド</style>を得る。");
+			RegisterFragment("CONVERT_SHIELD_REGEN", "\n少なくとも<style=cIsHealing>ヘルス回復</style>の {0} が<style=cIsHealing>シールド</style>に適用される。");
+			RegisterFragment("DISABLE_OOD_SHIELD_RECOVERY", "\n<style=cStack>(シールドの自然回復は無効化されている)</style>");
+
+			RegisterFragment("STAT_HEALTH_EXTRA_SHIELD", "\nヘルスの {0} と等しい追加<style=cIsHealing>シールド</style>を得る。");
+			RegisterFragment("STAT_EXTRA_JUMP", "\n<style=cIsUtility>+1</style> 、最大<style=cIsUtility>ジャンプ数</style>を増やす。");
+			RegisterFragment("STAT_MOVESPEED", "\n<style=cIsUtility>移動速度</style>を {0} 増やす。");
+			RegisterFragment("STAT_ATTACKSPEED", "\n<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("STAT_BOTHSPEED", "\n<style=cIsUtility>移動速度</style>と<style=cIsDamage>攻撃速度</style>を {0} 増やす。");
+			RegisterFragment("STAT_ARMOR", "\n<style=cIsHealing>アーマー</style>を {0} 増やす。");
+			RegisterFragment("STAT_HEALTH", "\n<style=cIsHealing>最大ヘルス</style>を {0} 増やす。");
+			RegisterFragment("STAT_HEALTH_REDUCTION", "\n<style=cIsHealth>最大ヘルス</style>を {0} 減らす。");
+			RegisterFragment("STAT_REGENERATION", "\n<style=cIsHealing>ヘルス回復量</style>を {0} 増やす。");
+			RegisterFragment("STAT_DAMAGE", "\n<style=cIsDamage>ダメージ</style>を {0} 増やす。");
+			RegisterFragment("STAT_DAMAGE_DRONE", "\nドローンが与える<style=cIsDamage>ダメージ</style>を {0} 増やす。");
+			RegisterFragment("STAT_COOLDOWN", "\n<style=cIsUtility>スキルのクールダウン</style>を {0} 減らす。");
+			RegisterFragment("STAT_DAMAGE_TAKEN", "\n<style=cIsHealing>受けるダメージ</style>を {0} 減らす。");
+			RegisterFragment("STAT_DAMAGE_TAKEN_DRONE", "\nあなたのドローンが<style=cIsHealing>受けるダメージ</style>を {0} 減らす。");
+			RegisterFragment("STAT_DAMAGE_TAKEN_MINION", "\nあなたのミニオンが<style=cIsHealing>受けるダメージ</style>を {0} 減らす。");
+			RegisterFragment("STAT_DAMAGE_TAKEN_BARRIER", "\n<style=cIsHealing>バリア</style>を張っている間、<style=cIsHealing>受けるダメージ</style>を {0} 減らす。");
+
+			RegisterFragment("STAT_SECONDARY_COOLDOWN", "\n<style=cIsUtility>セカンダリー スキル</style>の<style=cIsUtility>クールダウン</style>を {0} 減らす。");
+			RegisterFragment("STAT_SECONDARY_CHARGE", "\n<style=cIsUtility>+{0}</style> の追加チャージを <style=cIsUtility>セカンダリー スキル</style>に加える。");
+
+			RegisterFragment("LARGE_SHIELD_UNKNOWN", "\n大量の<style=cIsHealing>シールド</style>を得る。");
+
+			RegisterFragment("BLOCK_CHANCE", "\n{0} の確率で、受けるダメージを<style=cIsHealing>ブロック</style>する。");
+			RegisterFragment("BLOCK_CHANCE_UNKNOWN", "\n確率で受けるダメージを<style=cIsHealing>ブロック</style>する。");
+			RegisterFragment("BLOCK_DETAIL", "\n<style=cStack>(ブロックする確率は運の影響を受けない)</style>");
+
+			RegisterFragment("DODGE_CHANCE", "\n{0} の確率で、受けるダメージを<style=cIsHealing>回避</style>する。");
+			RegisterFragment("DODGE_CHANCE_UNKNOWN", "\n確率で受けるダメージを<style=cIsHealing>回避</style>する。");
+			RegisterFragment("DODGE_DETAIL", "\n<style=cStack>(回避する確率は運の影響を受けない)</style>");
+
+			RegisterFragment("PLATING_EFFECT", "\n全ての<style=cIsDamage>受けるダメージ</style>を {0} 減らす。");
+			RegisterFragment("PLATING_DETAIL", "\n<style=cStack>(受けるダメージを1未満にすることはできない)</style>");
+
+			RegisterFragment("FALL_REDUCTION", "\n落下ダメージを {0} 減らす。");
+			RegisterFragment("FALL_IMMUNE", "\n落下ダメージを無効化する。");
+
+			RegisterFragment("FORCE_REDUCTION", "\nノックバックを {0} 減らす。");
+			RegisterFragment("FORCE_IMMUNE", "\nノックバックを無効化する。");
+
+
+
+			RegisterFragment("PASSIVE_UNKNOWN_AURA", "\n<style=cStack>(???)</style>のオーラを放つ。");
+
+			RegisterFragment("HEADHUNTER", "倒したエリート モンスターの<style=cIsDamage>パワー</style>を {0}手に入れられる。");
+
+
+
+
 			targetLanguage = "";
 		}
 
