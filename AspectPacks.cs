@@ -250,6 +250,7 @@ namespace TPDespair.ZetAspects
 						identifier = "ZetAspectSepia",
 						equipmentName = "EquipmentDefSepiaElite",
 						itemName = "ZetAspectSepia",
+						buffName = "BuffDefSepia",
 						displayPriority = 750,
 						copyEquipmentPrefab = false,
 						BaseIcon = () => Sprites.AffixSepia,

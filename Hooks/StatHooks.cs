@@ -9,7 +9,7 @@ namespace TPDespair.ZetAspects
 	internal static class StatHooks
 	{
 		public static int BaseShieldLocIndex = -1;
-		public static int LevelRegenScaleLocIndex = -1;
+		public static int BaseRegenLocIndex = -1;
 
 
 
@@ -29,13 +29,13 @@ namespace TPDespair.ZetAspects
 
 
 
-			if (LevelRegenScaleLocIndex != -1)
+			if (BaseRegenLocIndex != -1)
 			{
 				ShieldConversionHook();
 			}
 			else
 			{
-				Logger.Warn("LevelRegenScaleLocIndex Not Found - ShieldConversionHook Aborted");
+				Logger.Warn("BaseRegenLocIndex Not Found - ShieldConversionHook Aborted");
 			}
 
 			if (BaseShieldLocIndex != -1)
@@ -756,6 +756,27 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int findIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseRegen"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelRegen")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseRegenLocIndex)))
+					{
+						Logger.Warn("RegenHook Failed - Could not find BaseRegenLocIndex");
+						return;
+					}
+				}
+
+				findIndex = c.Index;
+
+
+
+				c.Index = 0;
+
 				int KnurlCountLocIndex = -1;
 
 				if (!c.TryGotoNext(
@@ -768,19 +789,12 @@ namespace TPDespair.ZetAspects
 					return;
 				}
 
-				if (!c.TryGotoNext(
-					x => x.MatchLdfld<CharacterBody>("baseRegen"),
-					x => x.MatchLdarg(0),
-					x => x.MatchLdfld<CharacterBody>("levelRegen")
-				))
-				{
-					Logger.Warn("RegenHook Failed - Cound not navigate to regen");
-					return;
-				}
 
 
+				c.Index = findIndex;
 
 				int KnurlRegenLocIndex = -1;
+				int LevelRegenScaleLocIndex = -1;
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdloc(KnurlCountLocIndex),
@@ -794,8 +808,19 @@ namespace TPDespair.ZetAspects
 
 				if (!found)
 				{
-					Logger.Warn("RegenHook Failed - Phase1");
-					return;
+					Logger.Warn("RegenHook - Could not find KnurlRegen region! , assuming indexes...");
+                    LevelRegenScaleLocIndex = BaseRegenLocIndex + 1;
+					KnurlRegenLocIndex = -1;
+				}
+				else
+				{
+					Logger.Info("RegenHook - KnurlRegenLocIndex: " + KnurlRegenLocIndex + ", LevelRegenScaleLocIndex: " + LevelRegenScaleLocIndex);
+
+					if (KnurlRegenLocIndex - LevelRegenScaleLocIndex > 1)
+					{
+						Logger.Warn("RegenHook - These indexes probably shouldnt be this far apart?");
+					}
+
 				}
 
 
@@ -810,9 +835,16 @@ namespace TPDespair.ZetAspects
 
 				if (!found)
 				{
-					Logger.Warn("RegenHook Failed - Phase2");
+					Logger.Warn("RegenHook Failed - Could not find CrocoRegen Region!");
 					return;
 				}
+
+
+
+				if (KnurlRegenLocIndex == -1)
+				{
+                    KnurlRegenLocIndex = CrocoRegenLocIndex + 1;
+                }
 
 
 
@@ -1249,12 +1281,12 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchStloc(LevelRegenScaleLocIndex)
+					x => x.MatchStloc(BaseRegenLocIndex)
 				);
 
 				if (!found)
 				{
-					Logger.Warn("ShieldConversionHook - FindRegenScaleVar Failed");
+					Logger.Warn("ShieldConversionHook - BaseRegenLocIndex Failed");
 					return;
 				}
 

@@ -862,19 +862,63 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				const int damageValue = 7;
-
-				// find : store loc.0 damageinfo.damage into variable
 				bool found = c.TryGotoNext(
-					x => x.MatchLdfld<DamageInfo>("damage"),
-					x => x.MatchStloc(damageValue)
+					x => x.MatchLdfld<TeamDef>("friendlyFireScaling")
+				);
+
+				if (!found)
+				{
+					Logger.Warn("DamageTakenHook - cound not find TeamDef.friendlyFireScaling");
+				}
+				else
+				{
+					goto findStloc;
+				}
+
+
+
+				found = c.TryGotoNext(
+					x => x.MatchCallOrCallvirt<CharacterBody>("get_critMultiplier")
+				);
+
+                if (!found)
+                {
+                    Logger.Warn("DamageTakenHook - cound not find CharacterBody.get_critMultiplier");
+                    return;
+                }
+
+
+
+
+				findStloc:
+
+				int damageLocIndex = -1;
+                int findIndex = c.Index;
+
+                found = c.TryGotoNext(
+                    x => x.MatchStloc(out damageLocIndex)
+                );
+
+				if (!found || (found && c.Index - findIndex > 12))
+				{
+                    Logger.Error("DamageTakenHook - could not reliably find damage loc");
+                    if (found) Logger.Error("FindOffset:" + (c.Index - findIndex));
+                    return;
+                }
+
+
+
+				c.Index = 0;
+
+				found = c.TryGotoNext(
+					x => x.MatchStloc(damageLocIndex)
 				);
 
 				if (found)
 				{
-					c.Index += 2;
+					c.Index += 1;
 
-					c.Emit(OpCodes.Ldloc, damageValue);
+					c.Emit(OpCodes.Ldloc, damageLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<float, HealthComponent, float>>((damage, healthComponent) =>
 					{
@@ -987,7 +1031,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, damageValue);
+					c.Emit(OpCodes.Stloc, damageLocIndex);
 				}
 				else
 				{

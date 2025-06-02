@@ -366,6 +366,11 @@ namespace TPDespair.ZetAspects
 				if (!buffDef && aspectDef.equipmentDef != null)
 				{
 					buffDef = aspectDef.equipmentDef.passiveBuffDef;
+
+					if (!buffDef)
+					{
+						Logger.Error("EquipmentDef of " + aspectDef.identifier + " does not have a passiveBuffDef!");
+					}
 				}
 
 				if (buffDef)

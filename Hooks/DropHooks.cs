@@ -429,7 +429,8 @@ namespace TPDespair.ZetAspects
 
 			if (disableDrops) return false;
 
-			if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
+			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(index);
+			if (itemIndex == ItemIndex.None || Catalog.disabledItemIndexes.Contains(itemIndex)) return false;
 			if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
 
 			if (!vicBody.HasBuff(equipDef.passiveBuffDef))
