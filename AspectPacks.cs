@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using RoR2;
+﻿using RoR2;
+using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 using static TPDespair.ZetAspects.Catalog;
 
 namespace TPDespair.ZetAspects
@@ -712,6 +712,40 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectAdaptive.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixAdaptive = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixAdaptive = buffDef
+					}
+				},
+				PostInit = () =>
+				{
+					if (Compat.Augmentum.DeactivateAdaptiveDrop)
+					{
+						ItemIndex itemIndex = ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE");
+						ItemDef itemDef = ItemCatalog.GetItemDef(itemIndex);
+						if (itemDef != null)
+						{
+							Logger.Warn("Augmentum AspectPack PostInit - Deactivating : " + itemDef.name);
+
+							if (itemDef._itemTierDef == Catalog.BossItemTier)
+							{
+								if (ItemCatalog.tier3ItemList.Contains(itemDef.itemIndex))
+								{
+									ItemCatalog.tier3ItemList.Remove(itemDef.itemIndex);
+								}
+							}
+
+							itemDef.tier = ItemTier.NoTier;
+							Catalog.AssignDepricatedTier(itemDef, ItemTier.NoTier);
+							itemDef.hidden = true;
+							if (itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+							{
+								ItemTag[] tags = itemDef.tags;
+								int index = tags.Length;
+
+								Array.Resize(ref tags, index + 1);
+								tags[index] = ItemTag.WorldUnique;
+
+								itemDef.tags = tags;
+							}
+						}
 					}
 				}
 			}.Register();

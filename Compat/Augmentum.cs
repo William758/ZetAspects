@@ -25,6 +25,8 @@ namespace TPDespair.ZetAspects.Compat
 		internal static FieldRefer<float> AdaptiveBoostDuration = new FieldRefer<float>(12f);
 		internal static FieldRefer<float> AdaptiveLacerationDuration = new FieldRefer<float>(7.5f);
 
+		internal static bool DeactivateAdaptiveDrop;
+
 
 		internal static void LateSetup()
 		{
@@ -32,7 +34,7 @@ namespace TPDespair.ZetAspects.Compat
 
 			if (!Reflector.FindPluginAssembly()) return;
 
-			Type type = Reflector.GetType("BransItems.Modules.Pickups.EliteEquipments.AffixAdaptive");
+			Type type = Reflector.GetType("Augmentum.Modules.Pickups.EliteEquipments.AffixAdaptive");
 			if (type != null)
 			{
 				FieldInfo fieldInfo = Reflector.GetField(type, "PreHitArmorAdd");
@@ -70,9 +72,9 @@ namespace TPDespair.ZetAspects.Compat
 
 
 
-			AdaptiveCompatUpdateMethod = Reflector.GetMethod("BransItems.Modules.Pickups.EliteEquipments.ZetAdaptiveDrop", "CharacterBody_FixedUpdate");
+			AdaptiveCompatUpdateMethod = Reflector.GetMethod("Augmentum.Modules.Pickups.EliteEquipments.ZetAdaptiveDrop", "CharacterBody_FixedUpdate");
 
-			type = Reflector.GetType("BransItems.Modules.Compatability.ModCompatability", "ZetAspectsCompat");
+			type = Reflector.GetType("Augmentum.Modules.Compatability.ModCompatability", "ZetAspectsCompat");
 			if (type != null)
 			{
 				AdaptiveCompatDropletInterceptMethod = Reflector.GetMatchingMethod(Reflector.GetType(type, "<>c"), new Type[] { null, typeof(PickupIndex), typeof(Vector3), typeof(Vector3) });
@@ -104,7 +106,7 @@ namespace TPDespair.ZetAspects.Compat
 			ILCursor c = new ILCursor(il);
 
 			bool found = c.TryGotoNext(
-				x => x.MatchStloc(1)
+				x => x.MatchStloc(0)
 			);
 
 			if (found)
@@ -112,7 +114,7 @@ namespace TPDespair.ZetAspects.Compat
 				c.Index += 1;
 
 				c.Emit(OpCodes.Ldc_I4, 0);
-				c.Emit(OpCodes.Stloc, 1);
+				c.Emit(OpCodes.Stloc, 0);
 			}
 			else
 			{
@@ -134,6 +136,8 @@ namespace TPDespair.ZetAspects.Compat
 
 				c.Emit(OpCodes.Ldc_I4, 0);
 				c.Emit(OpCodes.Stloc, 0);
+
+				DeactivateAdaptiveDrop = true;
 			}
 			else
 			{

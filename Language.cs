@@ -1471,7 +1471,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_WHITE_ACTIVE_ALT", "ヘルスを吸収する氷の結晶を展開する。");
 			RegisterFragment("ASPECT_OF_ICE", "<style=cDeath>Iceの相</style> :");
 			RegisterFragment("CHILL_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>悪寒</style>を {0}与え、<style=cIsUtility>移動速度</style>を <style=cIsUtility>80%</style> 減らす。");
-			RegisterFragment("CHANCE_TO_FREEZE", "\n攻撃がヒットすると {0} の確率で<style=cIsUtility>凍結</style>を{1}与える。");
+			RegisterFragment("CHANCE_TO_FREEZE", "\n攻撃がヒットすると {0} の確率で<style=cIsUtility>凍結</style>を {1}与える。");
 			RegisterFragment("FROST_BLADE", "\n攻撃がヒットすると<style=cIsDamage>刃</style>を放ち、トータルで {0} のダメージを与える。");
 
 			RegisterFragment("AFFIX_BLUE_NAME", "2人の沈黙がぶつかる");
@@ -1479,16 +1479,16 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_BLUE_ACTIVE", "使用するとテレポートする。");
 			RegisterFragment("ASPECT_OF_LIGHTNING", "<style=cDeath>稲妻の相</style> :");
 			RegisterFragment("PASSIVE_SCATTER_BOMB", "\n時折周囲に爆弾を落とす。");
-			RegisterFragment("SAP_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>漿液</style>を {0}与え、<style=cIsUtility>与ダメージ</style>を {1} 減らす。");
+			RegisterFragment("SAP_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>樹液</style>を {0}与え、<style=cIsUtility>与ダメージ</style>を {1} 減らす。");
 			RegisterFragment("SCATTER_BOMB", "\n攻撃すると爆弾を落とし、トータルで {0} のダメージを与える爆発を起こす。");
-			RegisterFragment("LIGHTNING_BOMB", "\n攻撃すると<style=cIsDamage>オーブ</style>を付着する。{1}に爆発しトータルで {0} のダメージを与える。");
+			RegisterFragment("LIGHTNING_BOMB", "\n攻撃すると<style=cIsDamage>オーブ</style>を付着する。{1}爆発しトータルで {0} のダメージを与える。");
 
 			RegisterFragment("AFFIX_RED_NAME", "イフリートの底力");
 			RegisterFragment("AFFIX_RED_PICKUP", "火の相になる。");
-			RegisterFragment("AFFIX_RED_ACTIVE", "炎の誘導ミサイルを放つ。");
+			RegisterFragment("AFFIX_RED_ACTIVE", "炎の追尾ミサイルを放つ。");
 			RegisterFragment("ASPECT_OF_FIRE", "<style=cDeath>火の相</style> :");
 			RegisterFragment("PASSIVE_FIRE_TRAIL", "\n触れた敵にダメージを与える炎の軌跡を残す。");
-			RegisterFragment("BURN_DOT", "\n攻撃がヒットすると<style=cIsDamage>炎上</style>を与え、{2}で {0} {1}のダメージを与える。");
+			RegisterFragment("BURN_DOT", "\n攻撃がヒットすると<style=cIsDamage>炎上</style>を与え、{2} {0} {1}のダメージを与える。");
 
 			RegisterFragment("AFFIX_HAUNTED_NAME", "幽霊のサークレット");
 			RegisterFragment("AFFIX_HAUNTED_PICKUP", "非実体の相になる。");
@@ -1555,7 +1555,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("LEVITATE_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>浮遊</style>を {0}与える。");
 			RegisterFragment("WARPED_ON_HIT", "\n攻撃がヒットすると<style=cIsUtility>歪み</style>を {0}与え、移動を妨げる。");
 
-			RegisterFragment("AFFIX_VEILED_NAME", "曖昧の呪い");
+			RegisterFragment("AFFIX_VEILED_NAME", "漠然の呪い");
 			RegisterFragment("AFFIX_VEILED_PICKUP", "難読化の相になる。");
 			RegisterFragment("AFFIX_VEILED_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_OBFUSCATION", "<style=cDeath>難読化の相</style> :");
@@ -1599,7 +1599,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_SANGUINE_PICKUP", "レッド プレーンの相になる。");
 			RegisterFragment("AFFIX_SANGUINE_ACTIVE", "テレポートダッシュを行い、短時間の無敵を得る。");
 			RegisterFragment("ASPECT_OF_REDPLANE", "<style=cDeath>レッド プレーンの相</style> :");
-			RegisterFragment("BLEED_DOT", "\n攻撃がヒットすると<style=cIsDamage>出血</style>を {0}与え、{1} の基本ダメージを与える。");
+			RegisterFragment("BLEED_DOT", "\n攻撃がヒットすると<style=cIsDamage>出血</style>を {1}与え、{0} の基本ダメージを与える。");
 			RegisterFragment("DOT_AMP", "\n<style=cIsDamage>時間経過によるダメージ倍率</style>を {0} 増やす。");
 
 			RegisterFragment("AFFIX_NULLIFIER_NAME", "Parvosの恩恵");
@@ -1712,7 +1712,7 @@ namespace TPDespair.ZetAspects
 			RegisterFragment("AFFIX_VOLATILE_PICKUP", "揮発性の相になる。");
 			RegisterFragment("AFFIX_VOLATILE_ACTIVE", "<style=cStack>(???)</style>");
 			RegisterFragment("ASPECT_OF_VOLATILE", "<style=cDeath>揮発性の相</style> :");
-			RegisterFragment("PASSIVE_VOLMISSILE", "\n時々誘導ミサイルを放つ。");
+			RegisterFragment("PASSIVE_VOLMISSILE", "\n時々追尾ミサイルを放つ。");
 			RegisterFragment("EXPLODE_ON_HIT", "\n攻撃がヒットすると<style=cIsDamage>爆発</style>し、トータルで {0} のダメージを与える。");
 
 			RegisterFragment("AFFIX_ECHO_NAME", "反響の相");

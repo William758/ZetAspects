@@ -36,7 +36,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.9.7";
+		public const string ModVer = "2.9.8";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -201,7 +201,8 @@ namespace TPDespair.ZetAspects
                 var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
                 CreateDroplet(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite")), transform.position + new Vector3(-5f, 5f, 5f));
-            }
+				CreateDroplet(ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE")), transform.position + new Vector3(0f, 5f, 7.5f));
+			}
         }
 
 		private static void CreateDroplet(EquipmentDef def, Vector3 pos)

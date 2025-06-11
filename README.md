@@ -138,6 +138,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.9.8 - Updated Japanese translation. Fixed Augmentum compatibility.
+
 v2.9.7 - Fixed Fading Reflection from BubbetsItems not loading properly.
 
 v2.9.6 - Added Japanese translation by WakefulSpect.
