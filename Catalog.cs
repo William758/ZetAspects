@@ -158,6 +158,8 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixMotivator;
 			public static Sprite AffixOsmium;
 
+			public static Sprite AffixEmpyrean;
+
 			public static Sprite HauntCloak;
 			public static Sprite ZetHeadHunter;
 			public static Sprite ZetSapped;
@@ -292,6 +294,11 @@ namespace TPDespair.ZetAspects
 					AffixOsmium = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixOsmium.png");
 				}
 
+				if (AspectPackDefOf.Starstorm.Enabled)
+				{
+					AffixEmpyrean = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEmpyrean.png");
+				}
+
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
 				ZetSapped = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffSapped.png");
@@ -364,6 +371,35 @@ namespace TPDespair.ZetAspects
 			newTexture.Apply();
 
 			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+		}
+
+		public static Sprite TryUseSprite(Sprite sprite)
+		{
+			if (sprite.texture.isReadable) return sprite;
+
+			Texture2D newTexture = DuplicateTexture(sprite.texture);
+			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+		}
+
+		public static Texture2D DuplicateTexture(Texture2D source)
+		{
+			RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+			Graphics.Blit(source, renderTex);
+
+			RenderTexture previous = RenderTexture.active;
+			RenderTexture.active = renderTex;
+
+
+
+			Texture2D readableText = new Texture2D(source.width, source.height);
+
+			readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+			readableText.Apply();
+
+			RenderTexture.active = previous;
+			RenderTexture.ReleaseTemporary(renderTex);
+
+			return readableText;
 		}
 
 
@@ -479,22 +515,45 @@ namespace TPDespair.ZetAspects
 
 		public static float GetStackMagnitude(CharacterBody self, BuffDef buffDef)
 		{
+			float aspect = 0f;
+
 			Inventory inventory = self.inventory;
-			if (!inventory) return 1f;
-
-			float aspect = CountAspectEquipment(inventory, buffDef);
-
-			if (aspect > 0f && self.isPlayerControlled)
+			if (inventory)
 			{
-				aspect *= Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+				aspect = CountAspectEquipment(inventory, buffDef);
+
+				if (aspect > 0f && self.isPlayerControlled)
+				{
+					aspect *= Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
+				}
+
+				aspect += inventory.GetItemCount(GetAspectItemIndex(buffDef.buffIndex));
 			}
 
-			aspect += inventory.GetItemCount(GetAspectItemIndex(buffDef.buffIndex));
+			foreach (IAspectProvider provider in EliteBuffManager.Providers)
+			{
+				float provStack = provider.StackCount();
+
+				if (provStack > 0f && provider.HasAspect(self, buffDef.buffIndex))
+				{
+					aspect += provStack;
+				}
+			}
 
 			return Mathf.Max(1f, aspect);
 		}
 
 
+
+		public static bool HasAspectFromProviders(CharacterBody body, BuffIndex buffIndex)
+		{
+			foreach (IAspectProvider provider in EliteBuffManager.Providers)
+			{
+				if (provider.HasAspect(body, buffIndex)) return true;
+			}
+
+			return false;
+		}
 
 		public static bool HasAspectItemOrEquipment(Inventory inventory, BuffDef buffDef)
 		{
@@ -1001,6 +1060,14 @@ namespace TPDespair.ZetAspects
 				ZetAspectsContent.itemDefs.Add(ZetAspectOsmium);
 				transformableAspectItemDefs.Add(ZetAspectOsmium);
 			}
+
+			if (AspectPackDefOf.Starstorm.Enabled)
+			{
+				ItemDef ZetAspectEmpyrean = Items.ZetAspectEmpyrean.DefineItem();
+				ItemDefOf.ZetAspectEmpyrean = ZetAspectEmpyrean;
+				ZetAspectsContent.itemDefs.Add(ZetAspectEmpyrean);
+				transformableAspectItemDefs.Add(ZetAspectEmpyrean);
+			}
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)
@@ -1254,7 +1321,8 @@ namespace TPDespair.ZetAspects
 				lunarVoidTier = itemTierDef.tier;
 			}
 
-			SetupCompat();
+			//SetupCompat();
+			setupCompat = true;
 
 			if (EffectHooks.preventedDefaultOverloadingBomb)
 			{
@@ -1291,34 +1359,6 @@ namespace TPDespair.ZetAspects
 			}
 
 			setupCompat = true;
-
-			foreach (AspectPack aspectPack in aspectPacks)
-			{
-				try
-				{
-					if (aspectPack.Enabled) aspectPack.PreInit?.Invoke();
-				}
-				catch (Exception ex)
-				{
-					Logger.Error(ex);
-				}
-			}
-
-			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
-
-			if (PluginLoaded("com.Moffein.BlightedElites") && Configuration.BlightedHooks.Value) Compat.Blighted.LateSetup();
-
-			if (PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent")) Compat.PlasmaSpikeStrip.LateSetup();
-
-			if (PluginLoaded("prodzpod.NemesisSpikestrip")) Compat.NemSpikeStrip.LateSetup();
-
-			//if (PluginLoaded("prodzpod.NemesisRisingTides")) Compat.NemRisingTides.LateSetup();
-
-			if (PluginLoaded("com.themysticsword.aspectabilities")) Compat.AspectAbilities.LateSetup();
-
-			if (PluginLoaded("com.themysticsword.elitevariety") && Configuration.EliteVarietyHooks.Value) Compat.EliteVariety.LateSetup();
-
-			if (PluginLoaded("com.BrandonRosa.Augmentum") && Configuration.AugmentumHooks.Value) Compat.Augmentum.LateSetup();
 		}
 
 		private static void SetupIntermediate()
@@ -1337,6 +1377,16 @@ namespace TPDespair.ZetAspects
 			}
 
 			setupIntermediate = true;
+
+			if (PluginLoaded("com.Moffein.EliteReworks") && Configuration.EliteReworksHooks.Value) Compat.EliteReworks.LateSetup();
+
+			if (PluginLoaded("com.plasmacore.PlasmaCoreSpikestripContent")) Compat.PlasmaSpikeStrip.LateSetup();
+
+			if (PluginLoaded("prodzpod.NemesisSpikestrip")) Compat.NemSpikeStrip.LateSetup();
+
+			//if (PluginLoaded("prodzpod.NemesisRisingTides")) Compat.NemRisingTides.LateSetup();
+
+			if (PluginLoaded("com.themysticsword.aspectabilities")) Compat.AspectAbilities.LateSetup();
 
 			foreach (AspectPack aspectPack in aspectPacks)
 			{

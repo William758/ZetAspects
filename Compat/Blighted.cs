@@ -1,12 +1,14 @@
-﻿using System;
-using System.Reflection;
-using UnityEngine;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Bootstrap;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
 using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace TPDespair.ZetAspects.Compat
 {
@@ -29,6 +31,10 @@ namespace TPDespair.ZetAspects.Compat
 		internal static int blightActivationHook = 0;
 		internal static int blightDeactivationHook = 0;
 		internal static bool blightBuffControl = false;
+
+
+
+		public static BlightedAspectProvider BlightedProviderInstance;
 
 
 
@@ -103,6 +109,9 @@ namespace TPDespair.ZetAspects.Compat
 					else
 					{
 						blightBuffControl = true;
+
+						BlightedProviderInstance = new BlightedAspectProvider();
+						EliteBuffManager.AddProvider(BlightedProviderInstance);
 					}
 				}
 				else
@@ -142,7 +151,7 @@ namespace TPDespair.ZetAspects.Compat
 				c.Emit(OpCodes.Ldfld, Buff2Field);
 				c.EmitDelegate<Action<CharacterBody, BuffDef, BuffDef>>((body, firstElite, secondElite) =>
 				{
-					BlightedStateManager.Activated(body, firstElite.buffIndex, secondElite.buffIndex);
+					BlightedAspectProvider.Activated(body, firstElite.buffIndex, secondElite.buffIndex);
 				});
 			}
 			else
@@ -259,13 +268,103 @@ namespace TPDespair.ZetAspects.Compat
 				c.Emit(OpCodes.Ldfld, BodyField);
 				c.EmitDelegate<Action<CharacterBody>>((body) =>
 				{
-					BlightedStateManager.Deactivated(body);
+					BlightedAspectProvider.Deactivated(body);
 				});
 			}
 			else
 			{
 				Logger.Warn("[BlightedCompat] - DeactivateHook : Deactivation Failed!");
 			}
+		}
+	}
+
+
+
+	public class BlightedAspectProvider : IAspectProvider
+	{
+		public static Dictionary<NetworkInstanceId, BuffIndex[]> Affixes = new Dictionary<NetworkInstanceId, BuffIndex[]>();
+
+
+
+		public void OnBodyDiscard(NetworkInstanceId netId)
+		{
+			if (Affixes.ContainsKey(netId))
+			{
+				Affixes.Remove(netId);
+			}
+		}
+
+		public IEnumerable<BuffIndex> Aspects(CharacterBody body)
+		{
+			if (body.HasBuff(BuffDefOf.AffixBlighted))
+			{
+				NetworkInstanceId netId = body.netId;
+
+				if (Affixes.ContainsKey(netId))
+				{
+					return Affixes[netId];
+				}
+			}
+
+			return null;
+		}
+
+
+
+		public static void Activated(CharacterBody body, BuffIndex firstBuff, BuffIndex secondBuff)
+		{
+			NetworkInstanceId netId = body.netId;
+
+			if (!Affixes.ContainsKey(netId)) CreateEntry(netId);
+
+			BuffIndex oldFirstBuff = Affixes[netId][0];
+			BuffIndex oldSecondBuff = Affixes[netId][1];
+
+			Affixes[netId][0] = firstBuff;
+			Affixes[netId][1] = secondBuff;
+
+			if (NetworkServer.active)
+			{
+				if (!EffectHooks.IsBodyDestroyed(netId))
+				{
+					EliteBuffManager.CheckSustain(body, oldFirstBuff);
+					EliteBuffManager.CheckSustain(body, oldSecondBuff);
+
+					EliteBuffManager.ApplyBuff(body, firstBuff);
+					EliteBuffManager.ApplyBuff(body, secondBuff);
+				}
+			}
+		}
+
+		public static void Deactivated(CharacterBody body)
+		{
+			NetworkInstanceId netId = body.netId;
+
+			if (Affixes.ContainsKey(netId))
+			{
+				BuffIndex firstBuff = Affixes[netId][0];
+				BuffIndex secondBuff = Affixes[netId][1];
+
+				Affixes[netId][0] = BuffIndex.None;
+				Affixes[netId][1] = BuffIndex.None;
+
+				if (NetworkServer.active)
+				{
+					if (!EffectHooks.IsBodyDestroyed(netId))
+					{
+						EliteBuffManager.CheckSustain(body, firstBuff);
+						EliteBuffManager.CheckSustain(body, secondBuff);
+					}
+				}
+			}
+		}
+
+
+
+		private static void CreateEntry(NetworkInstanceId netId)
+		{
+			BuffIndex[] buffs = new BuffIndex[] { BuffIndex.None, BuffIndex.None };
+			Affixes.Add(netId, buffs);
 		}
 	}
 }

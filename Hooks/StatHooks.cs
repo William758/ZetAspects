@@ -384,6 +384,15 @@ namespace TPDespair.ZetAspects
 							value += Configuration.AspectMotivatorBaseDamageGain.Value + Configuration.AspectMotivatorStackDamageGain.Value * (count - 1f);
 						}
 
+						if (self.HasBuff(BuffDefOf.AffixEmpyrean))
+						{
+							if (Configuration.AspectEmpyreanBaseDamageGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEmpyrean);
+								value += Configuration.AspectEmpyreanBaseDamageGain.Value + Configuration.AspectEmpyreanStackDamageGain.Value * (count - 1f);
+							}
+						}
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, MultDamageLocIndex);
@@ -585,6 +594,15 @@ namespace TPDespair.ZetAspects
 							if (cfgValue != 1f)
 							{
 								value -= cfgValue - 1f;
+							}
+						}
+
+						if (self.HasBuff(BuffDefOf.AffixEmpyrean))
+						{
+							if (Configuration.AspectEmpyreanBaseHealthGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEmpyrean);
+								value += Configuration.AspectEmpyreanBaseHealthGain.Value + Configuration.AspectEmpyreanStackHealthGain.Value * (count - 1f);
 							}
 						}
 
@@ -809,7 +827,7 @@ namespace TPDespair.ZetAspects
 				if (!found)
 				{
 					Logger.Warn("RegenHook - Could not find KnurlRegen region! , assuming indexes...");
-                    LevelRegenScaleLocIndex = BaseRegenLocIndex + 1;
+					LevelRegenScaleLocIndex = BaseRegenLocIndex + 1;
 					KnurlRegenLocIndex = -1;
 				}
 				else
@@ -843,8 +861,8 @@ namespace TPDespair.ZetAspects
 
 				if (KnurlRegenLocIndex == -1)
 				{
-                    KnurlRegenLocIndex = CrocoRegenLocIndex + 1;
-                }
+					KnurlRegenLocIndex = CrocoRegenLocIndex + 1;
+				}
 
 
 
@@ -1237,6 +1255,12 @@ namespace TPDespair.ZetAspects
 			{
 				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixOsmium);
 				additiveReduction += Configuration.AspectOsmiumBaseCooldownGain.Value + Configuration.AspectOsmiumStackCooldownGain.Value * (count - 1f);
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixEmpyrean) && Configuration.AspectEmpyreanBaseCooldownGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEmpyrean);
+				additiveReduction += Configuration.AspectEmpyreanBaseCooldownGain.Value + Configuration.AspectEmpyreanStackCooldownGain.Value * (count - 1f);
 			}
 
 			if (additiveReduction > 0f)

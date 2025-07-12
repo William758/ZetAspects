@@ -88,6 +88,9 @@ namespace TPDespair.ZetAspects
 		/// <summary>Called before elite buff is granted from : OnEquipmentGained and OnInventoryChanged. Return true to grant the elite buff.</summary>
 		public Func<CharacterBody, Inventory, bool> PreBuffGrant;
 
+		/// <summary>Called whenever EliteBuffManager refreshes buff duration.</summary>
+		public Action<CharacterBody> OnRefresh;
+
 		public bool invalid = false;
 
 		public bool PackPopulated
@@ -144,7 +147,6 @@ namespace TPDespair.ZetAspects
 		/// <summary>Used when target plugin has dependency on current plugin. AspectPack will always go through validation steps.</summary>
 		public bool alwaysValidate = false;
 
-		public Action PreInit;
 		public Action PostInit;
 
 

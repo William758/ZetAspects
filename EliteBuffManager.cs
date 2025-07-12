@@ -1,10 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using RoR2;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using RoR2;
 
 namespace TPDespair.ZetAspects
 {
+	public interface IAspectProvider
+	{
+		void OnBodyDiscard(NetworkInstanceId netId)
+		{
+
+		}
+
+		float StackCount()
+		{
+			return 0f;
+		}
+
+		bool HasAspect(CharacterBody body, BuffIndex buffIndex)
+		{
+			IEnumerable<BuffIndex> aspects = Aspects(body);
+
+			if (aspects == null) return false;
+
+			return aspects.Contains(buffIndex);
+		}
+
+		IEnumerable<BuffIndex> Aspects(CharacterBody body);
+	}
+
+
+
 	// behavior should only be added on the server
 	// primary goal is to prevent OnFinalBuffStackLost being called every buff refresh cycle
 	public class EliteBuffManager : CharacterBody.ItemBehavior
@@ -17,14 +45,22 @@ namespace TPDespair.ZetAspects
 
 		private readonly List<BuffIndex> buffsToRefresh = new List<BuffIndex>();
 
+		public void AddBuffToRefresh(BuffIndex buffIndex)
+		{
+			if (!buffsToRefresh.Contains(buffIndex))
+			{
+				buffsToRefresh.Add(buffIndex);
+			}
+		}
 
 
-		public void Awake()
+
+		private void Awake()
 		{
 			enabled = false;
 		}
 
-		public void FixedUpdate()
+		private void FixedUpdate()
 		{
 			if (body && body.isElite)
 			{
@@ -37,12 +73,9 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		public void RefreshEliteBuffs()
+		internal void RefreshEliteBuffs()
 		{
 			refreshTimer = refreshInterval;
-
-			//bool logInfo = false;
-			//logInfo = body.isPlayerControlled;
 
 			Inventory inventory = body.inventory;
 			if (inventory)
@@ -54,20 +87,17 @@ namespace TPDespair.ZetAspects
 
 					if (timedBuff.timer <= refreshThreshold)
 					{
-						if (buffIndex == RoR2Content.Buffs.Cloak.buffIndex && body.HasBuff(BuffDefOf.AffixVeiled))
+						if (Monitored.Contains(buffIndex))
 						{
-							BuffIndex veiledBuff = BuffDefOf.AffixVeiled.buffIndex;
-
-							if (!buffsToRefresh.Contains(veiledBuff))
+							Action<EliteBuffManager, BuffIndex> action = MonitorTriggered;
+							if (action != null)
 							{
-								buffsToRefresh.Add(veiledBuff);
+								action(this, buffIndex);
 							}
 						}
 
 						if (Catalog.aspectBuffIndexes.Contains(buffIndex))
 						{
-							//if (logInfo) Logger.Info("EBM - " + timedBuff.buffIndex + " : " + timedBuff.timer);
-
 							if (!buffsToRefresh.Contains(buffIndex))
 							{
 								buffsToRefresh.Add(buffIndex);
@@ -75,21 +105,18 @@ namespace TPDespair.ZetAspects
 						}
 					}
 				}
-				/*
-				if (logInfo && buffsToRefresh.Count > 0)
-				{
-					Logger.Info("EBM RefreshCount - " + buffsToRefresh.Count);
-				}
-				*/
+
 				foreach (BuffIndex buffIndex in buffsToRefresh)
 				{
-					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || BlightedStateManager.HasAspectFromBlighted(body, buffIndex))
+					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || Catalog.HasAspectFromProviders(body, buffIndex))
 					{
-						//if (logInfo) Logger.Info("EBM Refresh - " + buffIndex);
-
-						if (BuffDefOf.AffixVeiled != null && buffIndex == BuffDefOf.AffixVeiled.buffIndex && body.HasBuff(Catalog.veiledBuffer))
+						AspectDef aspectDef = Catalog.GetAspectDef(buffIndex);
+						if (aspectDef != null)
 						{
-							body.AddTimedBuff(RoR2Content.Buffs.Cloak, refreshDuration);
+							if (aspectDef.OnRefresh != null)
+							{
+								aspectDef.OnRefresh(body);
+							}
 						}
 
 						body.AddTimedBuff(buffIndex, refreshDuration);
@@ -99,140 +126,80 @@ namespace TPDespair.ZetAspects
 
 			buffsToRefresh.Clear();
 		}
-	}
 
 
 
-	public static class BlightedStateManager
-	{
-		public static Dictionary<NetworkInstanceId, BuffIndex[]> Affixes = new Dictionary<NetworkInstanceId, BuffIndex[]>();
+		internal static HashSet<BuffIndex> Monitored = new HashSet<BuffIndex>();
 
+		public static event Action<EliteBuffManager, BuffIndex> MonitorTriggered;
 
-
-		internal static void Activated(CharacterBody body, BuffIndex firstBuff, BuffIndex secondBuff)
+		public static void MonitorBuff(BuffIndex buffIndex)
 		{
-			//Logger.Info("BlightedStateManager - SetElites : " + body.name + " - " + body.netId);
-			//Logger.Info("Setting EliteBuffs : [" + BuffCatalog.GetBuffDef(firstBuff).name + "] - [" + BuffCatalog.GetBuffDef(secondBuff).name + "]");
-
-			NetworkInstanceId netId = body.netId;
-
-			if (!Affixes.ContainsKey(netId)) CreateEntry(netId);
-
-			BuffIndex oldFirstBuff = Affixes[netId][0];
-			BuffIndex oldSecondBuff = Affixes[netId][1];
-
-			Affixes[netId][0] = firstBuff;
-			Affixes[netId][1] = secondBuff;
-
-			if (NetworkServer.active)
+			if (!Monitored.Contains(buffIndex))
 			{
-				if (!EffectHooks.DestroyedBodies.ContainsKey(netId))
-				{
-					bool clearBuffs = true;
-
-					Inventory inventory = body.inventory;
-					if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-
-					if (clearBuffs)
-					{
-						if (oldFirstBuff != BuffIndex.None) body.ClearTimedBuffs(oldFirstBuff);
-						if (oldSecondBuff != BuffIndex.None) body.ClearTimedBuffs(oldSecondBuff);
-					}
-
-					ApplyBlightedAspectBuffs(body);
-				}
-			}
-		}
-
-		internal static void Deactivated(CharacterBody body)
-		{
-			NetworkInstanceId netId = body.netId;
-
-			if (Affixes.ContainsKey(netId))
-			{
-				BuffIndex firstBuff = Affixes[netId][0];
-				BuffIndex secondBuff = Affixes[netId][1];
-
-				Affixes[netId][0] = BuffIndex.None;
-				Affixes[netId][1] = BuffIndex.None;
-
-				if (NetworkServer.active)
-				{
-					if (!EffectHooks.DestroyedBodies.ContainsKey(netId))
-					{
-						bool clearBuffs = true;
-
-						Inventory inventory = body.inventory;
-						if (inventory && inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) clearBuffs = false;
-
-						if (clearBuffs)
-						{
-							if (firstBuff != BuffIndex.None) body.ClearTimedBuffs(firstBuff);
-							if (secondBuff != BuffIndex.None) body.ClearTimedBuffs(secondBuff);
-						}
-					}
-				}
-			}
-		}
-
-		
-
-		private static void CreateEntry(NetworkInstanceId netId)
-		{
-			BuffIndex[] buffs = new BuffIndex[] { BuffIndex.None, BuffIndex.None };
-			Affixes.Add(netId, buffs);
-		}
-
-		internal static void DestroyEntry(NetworkInstanceId netId)
-		{
-			if (Affixes.ContainsKey(netId))
-			{
-				Affixes.Remove(netId);
+				Monitored.Add(buffIndex);
 			}
 		}
 
 
 
-		public static bool HasAspectFromBlighted(CharacterBody body, BuffDef buffDef)
-		{
-			BuffIndex buffIndex = buffDef.buffIndex;
+		internal static List<IAspectProvider> Providers = new List<IAspectProvider>();
 
-			return HasAspectFromBlighted(body, buffIndex);
+		public static void AddProvider(IAspectProvider provider)
+		{
+			Providers.Add(provider);
 		}
 
-		public static bool HasAspectFromBlighted(CharacterBody body, BuffIndex buffIndex)
+
+
+		public static void ApplyBuffs(CharacterBody body, IEnumerable<BuffIndex> buffs)
 		{
-			NetworkInstanceId netId = body.netId;
+			if (buffs == null) return;
 
-			if (Affixes.ContainsKey(netId))
+			foreach (BuffIndex buffIndex in buffs)
 			{
-				if (buffIndex == BuffIndex.None) return false;
-				if (Affixes[netId][0] == buffIndex) return true;
-				if (Affixes[netId][1] == buffIndex) return true;
+				ApplyBuff(body, buffIndex);
 			}
-
-			return false;
 		}
 
-		internal static void ApplyBlightedAspectBuffs(CharacterBody body)
+		public static void ApplyBuff(CharacterBody body, BuffIndex buffIndex)
 		{
-			NetworkInstanceId netId = body.netId;
-
-			if (Affixes.ContainsKey(netId))
+			if (buffIndex != BuffIndex.None && !body.HasBuff(buffIndex))
 			{
-				BuffIndex targetBuff;
-
-				targetBuff = Affixes[netId][0];
-				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
-				{
-					body.AddTimedBuff(targetBuff, BuffHooks.BuffCycleDuration);
-				}
-				targetBuff = Affixes[netId][1];
-				if (targetBuff != BuffIndex.None && !body.HasBuff(targetBuff))
-				{
-					body.AddTimedBuff(targetBuff, BuffHooks.BuffCycleDuration);
-				}
+				body.AddTimedBuff(buffIndex, BuffHooks.BuffCycleDuration);
 			}
+		}
+
+
+
+		public static void CheckSustains(CharacterBody body, IEnumerable<BuffIndex> buffs)
+		{
+			if (buffs == null) return;
+
+			foreach (BuffIndex buffIndex in buffs)
+			{
+				CheckSustain(body, buffIndex);
+			}
+		}
+
+		public static void CheckSustain(CharacterBody body, BuffIndex buffIndex)
+		{
+			if (buffIndex != BuffIndex.None && !HasSustain(body, buffIndex))
+			{
+				body.ClearTimedBuffs(buffIndex);
+			}
+		}
+
+		private static bool HasSustain(CharacterBody body, BuffIndex buffIndex)
+		{
+			Inventory inventory = body.inventory;
+			if (inventory)
+			{
+				if (inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) return true;
+				if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex)) return true;
+			}
+
+			return Catalog.HasAspectFromProviders(body, buffIndex);
 		}
 	}
 }

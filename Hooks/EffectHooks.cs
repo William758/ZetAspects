@@ -51,9 +51,9 @@ namespace TPDespair.ZetAspects
 					DestroyedBodies[netId] -= FixedUpdateStopwatch;
 					if (DestroyedBodies[netId] <= 0f)
 					{
-						if (BlightedStateManager.Affixes.ContainsKey(netId))
+						foreach (IAspectProvider aspectProvider in EliteBuffManager.Providers)
 						{
-							BlightedStateManager.DestroyEntry(netId);
+							aspectProvider.OnBodyDiscard(netId);
 						}
 
 						DestroyedBodies.Remove(netId);
@@ -154,8 +154,18 @@ namespace TPDespair.ZetAspects
 			};
 		}
 
+		public static bool IsBodyDestroyed(CharacterBody body)
+		{
+			return IsBodyDestroyed(body.netId);
+		}
 
-		
+		public static bool IsBodyDestroyed(NetworkInstanceId netId)
+		{
+			return DestroyedBodies.ContainsKey(netId);
+		}
+
+
+
 		private static void EffectManagerHook()
 		{
 			On.RoR2.EffectManager.SpawnEffect_EffectIndex_EffectData_bool += (orig, index, data, transmit) =>
@@ -881,11 +891,11 @@ namespace TPDespair.ZetAspects
 					x => x.MatchCallOrCallvirt<CharacterBody>("get_critMultiplier")
 				);
 
-                if (!found)
-                {
-                    Logger.Warn("DamageTakenHook - cound not find CharacterBody.get_critMultiplier");
-                    return;
-                }
+				if (!found)
+				{
+					Logger.Warn("DamageTakenHook - cound not find CharacterBody.get_critMultiplier");
+					return;
+				}
 
 
 
@@ -893,18 +903,18 @@ namespace TPDespair.ZetAspects
 				findStloc:
 
 				int damageLocIndex = -1;
-                int findIndex = c.Index;
+				int findIndex = c.Index;
 
-                found = c.TryGotoNext(
-                    x => x.MatchStloc(out damageLocIndex)
-                );
+				found = c.TryGotoNext(
+					x => x.MatchStloc(out damageLocIndex)
+				);
 
 				if (!found || (found && c.Index - findIndex > 12))
 				{
-                    Logger.Error("DamageTakenHook - could not reliably find damage loc");
-                    if (found) Logger.Error("FindOffset:" + (c.Index - findIndex));
-                    return;
-                }
+					Logger.Error("DamageTakenHook - could not reliably find damage loc");
+					if (found) Logger.Error("FindOffset:" + (c.Index - findIndex));
+					return;
+				}
 
 
 

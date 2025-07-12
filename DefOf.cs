@@ -19,6 +19,7 @@ namespace TPDespair.ZetAspects
 		public static AspectPack EliteVariety;
 		public static AspectPack Augmentum;
 		public static AspectPack Sandswept;
+		public static AspectPack Starstorm;
 	}
 
 	public static class EquipDefOf
@@ -78,6 +79,8 @@ namespace TPDespair.ZetAspects
 
 		public static EquipmentDef AffixMotivator;
 		public static EquipmentDef AffixOsmium;
+
+		public static EquipmentDef AffixEmpyrean;
 	}
 
 	public static class BuffDefOf
@@ -153,6 +156,8 @@ namespace TPDespair.ZetAspects
 
 		public static BuffDef AffixMotivator;
 		public static BuffDef AffixOsmium;
+
+		public static BuffDef AffixEmpyrean;
 	}
 
 	public static class ItemDefOf
@@ -217,5 +222,7 @@ namespace TPDespair.ZetAspects
 
 		public static ItemDef ZetAspectMotivator;
 		public static ItemDef ZetAspectOsmium;
+
+		public static ItemDef ZetAspectEmpyrean;
 	}
 }

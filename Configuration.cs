@@ -63,6 +63,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> EliteVarietyHooks { get; set; }
 		public static ConfigEntry<bool> AugmentumHooks { get; set; }
 		public static ConfigEntry<bool> SandsweptHooks { get; set; }
+		public static ConfigEntry<bool> StarstormHooks { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -365,6 +366,13 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectOsmiumStackCooldownGain { get; set; }
 		public static ConfigEntry<bool> AspectOsmiumPlayerNearbyNormal { get; set; }
 
+		public static ConfigEntry<float> AspectEmpyreanBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectEmpyreanStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectEmpyreanBaseHealthGain { get; set; }
+		public static ConfigEntry<float> AspectEmpyreanStackHealthGain { get; set; }
+		public static ConfigEntry<float> AspectEmpyreanBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectEmpyreanStackDamageGain { get; set; }
+
 
 
 		public static bool ValidElusiveModifier = false;
@@ -620,6 +628,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "sandsweptHooks", true,
 				"Allows for the reading and modification of functions and values within the Sandswept mod."
 			);
+			StarstormHooks = Config.Bind(
+				"21-Mod Compatibility", "starstormHooks", true,
+				"Allows for the reading and modification of functions and values within the Starstorm mod."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -636,6 +648,7 @@ namespace TPDespair.ZetAspects
 			EliteVarietyConfigs(Config);
 
 			SandsweptConfigs(Config);
+			StarstormConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)
@@ -1810,6 +1823,36 @@ namespace TPDespair.ZetAspects
 			AspectOsmiumPlayerNearbyNormal = Config.Bind(
 				"2ob-Osmium Aspect", "osmiumPlayerNearbyNormal", true,
 				"Players don't take increased damage from enemies inside an aura."
+			);
+		}
+
+
+
+		private static void StarstormConfigs(ConfigFile Config)
+		{
+			AspectEmpyreanBaseHealthGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanBaseHealthGained", 0.20f,
+				"Health gained. Set to 0 to disable."
+			);
+			AspectEmpyreanStackHealthGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanAddedHealthGained", 0.10f,
+				"Health gained per stack."
+			);
+			AspectEmpyreanBaseDamageGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanBaseDamageGained", 0.20f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectEmpyreanStackDamageGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanAddedDamageGained", 0.10f,
+				"Damage gained per stack."
+			);
+			AspectEmpyreanBaseCooldownGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanBaseCooldown", 0f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectEmpyreanStackCooldownGain = Config.Bind(
+				"2pa-AspectEmpyrean", "empyreanAddedCooldown", 0f,
+				"Cooldown reduction gained per stack."
 			);
 		}
 

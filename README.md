@@ -120,6 +120,10 @@ tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts
 
 ![effects](https://i.imgur.com/GVK7yBS.png)
 
+## Starstorm:
+
+![effects](https://i.imgur.com/1D5WESl.png)
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -137,6 +141,8 @@ Chinese translation by BTP-G and MushroomEl.
 Japanese translation by WakefulSpect.
 
 ## Changelog:
+
+v2.9.9 - Starstorm2 Support. Rewrote buff management. Switch to language files.
 
 v2.9.8 - Updated Japanese translation. Fixed Augmentum compatibility.
 

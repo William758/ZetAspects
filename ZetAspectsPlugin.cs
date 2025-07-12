@@ -33,10 +33,11 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("com.BrandonRosa.Augmentum", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.TeamSandswept.Sandswept", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.TeamMoonstorm", BepInDependency.DependencyFlags.SoftDependency)]
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.9.8";
+		public const string ModVer = "2.9.9";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -90,6 +91,8 @@ namespace TPDespair.ZetAspects
 			// - Augmentum is LateSetup only
 
 			if (AspectPackDefOf.Sandswept.Enabled && Configuration.SandsweptHooks.Value) Compat.Sandswept.Init();
+
+			// - Starstorm is LateSetup only
 
 			Language.Init();
 		}
@@ -176,6 +179,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(EquipDefOf.AffixAdaptive, transform.position + new Vector3(0f, 10f, 15f));
 				CreateDroplet(EquipDefOf.AffixMotivator, transform.position + new Vector3(10f, 10f, 10f));
 				CreateDroplet(EquipDefOf.AffixOsmium, transform.position + new Vector3(-10f, 10f, -10f));
+				CreateDroplet(EquipDefOf.AffixEmpyrean, transform.position + new Vector3(0f, 10f, -15f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F6))
@@ -196,14 +200,14 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(DLC1Content.Items.VoidMegaCrabItem, transform.position + new Vector3(0f, 10f, -15f));
 			}
 
-            if (Input.GetKeyDown(KeyCode.F7))
-            {
-                var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+			if (Input.GetKeyDown(KeyCode.F7))
+			{
+				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
-                CreateDroplet(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite")), transform.position + new Vector3(-5f, 5f, 5f));
+				CreateDroplet(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite")), transform.position + new Vector3(-5f, 5f, 5f));
 				CreateDroplet(ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE")), transform.position + new Vector3(0f, 5f, 7.5f));
 			}
-        }
+		}
 
 		private static void CreateDroplet(EquipmentDef def, Vector3 pos)
 		{

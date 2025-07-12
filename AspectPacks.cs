@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 using static TPDespair.ZetAspects.Catalog;
 
 namespace TPDespair.ZetAspects
@@ -172,8 +173,15 @@ namespace TPDespair.ZetAspects
 						BaseIcon = () => Sprites.AffixVeiled,
 						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = Items.ZetAspectVeiled.SetupTokens,
-						RefEquipmentDef =(equipmentDef) => EquipDefOf.AffixVeiled = equipmentDef,
-						RefBuffDef = (buffDef) => BuffDefOf.AffixVeiled = buffDef
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixVeiled = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixVeiled = buffDef,
+						OnRefresh = (body) =>
+						{
+							if (body.HasBuff(veiledBuffer))
+							{
+								body.AddTimedBuff(RoR2Content.Buffs.Cloak, 5f);
+							}
+						}
 					},
 					new AspectDef()
 					{
@@ -186,6 +194,21 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectAragonite.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixAragonite = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixAragonite = buffDef
+					}
+				},
+				PostInit = () =>
+				{
+					if (EquipDefOf.AffixVeiled != null)
+					{
+						// - if our cloak is expiring and we are veiled, refresh veiled to sync timers ???
+						EliteBuffManager.MonitorBuff(RoR2Content.Buffs.Cloak.buffIndex);
+						EliteBuffManager.MonitorTriggered += (manager, buffIndex) =>
+						{
+							if (buffIndex == RoR2Content.Buffs.Cloak.buffIndex && manager.body.HasBuff(BuffDefOf.AffixVeiled))
+							{
+								manager.AddBuffToRefresh(BuffDefOf.AffixVeiled.buffIndex);
+							}
+						};
 					}
 				}
 			}.Register();
@@ -314,6 +337,13 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectBlighted.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixBlighted = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixBlighted = buffDef
+					}
+				},
+				PostInit = () =>
+				{
+					if (Configuration.BlightedHooks.Value)
+					{
+						Compat.Blighted.LateSetup();
 					}
 				}
 			}.Register();
@@ -685,6 +715,13 @@ namespace TPDespair.ZetAspects
 				},
 				PostInit = () =>
 				{
+					if (Configuration.EliteVarietyHooks.Value)
+					{
+						Compat.EliteVariety.LateSetup();
+					}
+
+
+
 					tinkerDroneBodyIndex = BodyCatalog.FindBodyIndex("EliteVariety_TinkererDroneBody");
 
 					BuffIndex index = BuffCatalog.FindBuffIndex("EliteVariety_SandstormBlind");
@@ -716,6 +753,13 @@ namespace TPDespair.ZetAspects
 				},
 				PostInit = () =>
 				{
+					if (Configuration.AugmentumHooks.Value)
+					{
+						Compat.Augmentum.LateSetup();
+					}
+
+
+
 					if (Compat.Augmentum.DeactivateAdaptiveDrop)
 					{
 						ItemIndex itemIndex = ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE");
@@ -781,6 +825,36 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectOsmium.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixOsmium = equipmentDef,
 						RefBuffDef =(buffDef) => BuffDefOf.AffixOsmium = buffDef
+					}
+				}
+			}.Register();
+
+
+
+			AspectPackDefOf.Starstorm = new AspectPack
+			{
+				identifier = "Starstorm",
+				dependency = "com.TeamMoonstorm",
+				aspectDefs = new List<AspectDef>()
+				{
+					new AspectDef()
+					{
+						identifier = "ZetAspectEmpyrean",
+						equipmentName = "AffixEmpyrean",
+						itemName = "ZetAspectEmpyrean",
+						displayPriority = 18000,
+						BaseIcon = () => Sprites.AffixEmpyrean,
+						OutlineIcon = () => Sprites.OutlineStandard,
+						SetupTokens = Items.ZetAspectEmpyrean.SetupTokens,
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixEmpyrean = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixEmpyrean = buffDef
+					}
+				},
+				PostInit = () =>
+				{
+					if (Configuration.StarstormHooks.Value)
+					{
+						Compat.Starstorm.LateSetup();
 					}
 				}
 			}.Register();

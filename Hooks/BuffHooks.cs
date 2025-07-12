@@ -115,7 +115,10 @@ namespace TPDespair.ZetAspects
 						manager.RefreshEliteBuffs();
 					}
 
-					BlightedStateManager.ApplyBlightedAspectBuffs(self);
+					foreach (IAspectProvider provider in EliteBuffManager.Providers)
+					{
+						EliteBuffManager.ApplyBuffs(self, provider.Aspects(self));
+					}
 
 					ApplyAspectBuffs(self);
 				}
