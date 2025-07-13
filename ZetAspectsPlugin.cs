@@ -33,11 +33,11 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.themysticsword.elitevariety", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("com.BrandonRosa.Augmentum", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.TeamSandswept.Sandswept", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("com.TeamMoonstorm", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("com.TeamMoonstorm", BepInDependency.DependencyFlags.SoftDependency)] ### INFINITE DEPENDIOMI
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.9.9";
+		public const string ModVer = "2.9.10";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 

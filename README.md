@@ -142,6 +142,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.9.10 - Fix Cyclic Dependency.
+
 v2.9.9 - Starstorm2 Support. Rewrote buff management. Switch to language files.
 
 v2.9.8 - Updated Japanese translation. Fixed Augmentum compatibility.

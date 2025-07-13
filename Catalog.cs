@@ -294,10 +294,9 @@ namespace TPDespair.ZetAspects
 					AffixOsmium = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixOsmium.png");
 				}
 
-				if (AspectPackDefOf.Starstorm.Enabled)
-				{
-					AffixEmpyrean = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEmpyrean.png");
-				}
+				AffixEmpyrean = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEmpyrean.png");
+
+
 
 				HauntCloak = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHauntCloak.png");
 				ZetHeadHunter = Assets.LoadAsset<Sprite>("Assets/Icons/texBuffHeadHunter.png");
@@ -1061,13 +1060,10 @@ namespace TPDespair.ZetAspects
 				transformableAspectItemDefs.Add(ZetAspectOsmium);
 			}
 
-			if (AspectPackDefOf.Starstorm.Enabled)
-			{
-				ItemDef ZetAspectEmpyrean = Items.ZetAspectEmpyrean.DefineItem();
-				ItemDefOf.ZetAspectEmpyrean = ZetAspectEmpyrean;
-				ZetAspectsContent.itemDefs.Add(ZetAspectEmpyrean);
-				transformableAspectItemDefs.Add(ZetAspectEmpyrean);
-			}
+			ItemDef ZetAspectEmpyrean = Items.ZetAspectEmpyrean.DefineItem();
+			ItemDefOf.ZetAspectEmpyrean = ZetAspectEmpyrean;
+			ZetAspectsContent.itemDefs.Add(ZetAspectEmpyrean);
+			transformableAspectItemDefs.Add(ZetAspectEmpyrean);
 		}
 
 		internal static void AssignDepricatedTier(ItemDef itemDef, ItemTier itemTier)

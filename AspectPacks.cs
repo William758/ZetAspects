@@ -835,6 +835,7 @@ namespace TPDespair.ZetAspects
 			{
 				identifier = "Starstorm",
 				dependency = "com.TeamMoonstorm",
+				alwaysValidate = true,
 				aspectDefs = new List<AspectDef>()
 				{
 					new AspectDef()
