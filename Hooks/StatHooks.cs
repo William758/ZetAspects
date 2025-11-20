@@ -799,7 +799,7 @@ namespace TPDespair.ZetAspects
 
 				if (!c.TryGotoNext(
 					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Knurl")),
-					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount"),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCountEffective"),
 					x => x.MatchStloc(out KnurlCountLocIndex)
 				))
 				{
@@ -1369,7 +1369,7 @@ namespace TPDespair.ZetAspects
 
 				bool found = c.TryGotoNext(
 					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("ShieldOnly")),
-					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount"),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCountEffective"),
 					x => x.MatchStloc(out ShieldOnlyCountLocIndex)
 				);
 

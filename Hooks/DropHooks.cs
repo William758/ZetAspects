@@ -169,7 +169,7 @@ namespace TPDespair.ZetAspects
 
 					if (pickupDef.equipmentIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(pickupDef.equipmentIndex))
 					{
-						if (Configuration.AspectCommandGroupEquip.Value)
+						if (Configuration.AspectCommandGroupEquip.Value && Catalog.ItemizeEliteEquipment(pickupDef.equipmentIndex) != ItemIndex.None)
 						{
 							AspectCommandDroplet(pickupDef, self.createPickupInfo);
 
@@ -185,7 +185,8 @@ namespace TPDespair.ZetAspects
 		private static void AspectCommandDroplet(PickupDef pickupDef, GenericPickupController.CreatePickupInfo createPickupInfo)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate(Catalog.CommandCubePrefab, createPickupInfo.position, createPickupInfo.rotation);
-			gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupDef.pickupIndex;
+			//gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupDef.pickupIndex;
+			gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupState = createPickupInfo.pickup;
 
 			PickupPickerController controller = gameObject.GetComponent<PickupPickerController>();
 			SetPickupPickerControllerAspectOptions(controller, pickupDef);
@@ -218,9 +219,16 @@ namespace TPDespair.ZetAspects
 			{
 				foreach (EquipmentIndex equipIndex in Catalog.aspectEquipIndexes)
 				{
+					bool valid = false;
 					bool available = !Run.instance.IsEquipmentExpansionLocked(equipIndex);
 
-					if (available)
+					ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(equipIndex);
+					if (itemIndex != ItemIndex.None)
+					{
+						valid = !Catalog.disabledItemIndexes.Contains(itemIndex);
+					}
+
+					if (valid && available)
 					{
 						PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(equipIndex);
 						options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupIndex });
@@ -476,29 +484,31 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int equipDefLocIndex = -1;
+				int dropChanceLocIndex = -1;
+
 				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(out equipDefLocIndex),
 					x => x.MatchLdfld<EquipmentDef>("dropOnDeathChance"),
 					x => x.MatchLdcR4(100f),
 					x => x.MatchMul(),
-					x => x.MatchLdloc(16),
-					x => x.MatchCall("RoR2.Util", "CheckRoll")
+					x => x.MatchStloc(out dropChanceLocIndex)
 				);
 
 				if (found)
 				{
 					c.Index += 5;
 
-					c.Emit(OpCodes.Ldloc, 12);// equipmentDef
-					c.EmitDelegate<Func<bool, EquipmentDef, bool>>((result, equipDef) =>
+					c.Emit(OpCodes.Ldloc, dropChanceLocIndex);
+					c.Emit(OpCodes.Ldloc, equipDefLocIndex);
+					c.EmitDelegate<Func<float, EquipmentDef, float>>((chance, equipDef) =>
 					{
 						EquipmentIndex index = equipDef.equipmentIndex;
+						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return chance;
 
-						//if (index == EquipmentIndex.None) return false;
-						//if (Catalog.GetEquipmentEliteDef(equipDef) == null) return false;
-						if (Catalog.ItemizeEliteEquipment(index) == ItemIndex.None) return false;
-
-						return result;
+						return 0f;
 					});
+					c.Emit(OpCodes.Stloc, dropChanceLocIndex);
 				}
 				else
 				{
@@ -558,20 +568,20 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				int pickupDefLocIndex = -1;
+
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(0),
-					x => x.MatchLdfld<GenericPickupController>("pickupIndex"),
 					x => x.MatchCall("RoR2.PickupCatalog", "GetPickupDef"),
-					x => x.MatchStloc(1)
+					x => x.MatchStloc(out pickupDefLocIndex)
 				);
 
 				if (found)
 				{
-					c.Index += 4;
+					c.Index += 2;
 
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldarg, 1);
-					c.Emit(OpCodes.Ldloc, 1);
+					c.Emit(OpCodes.Ldloc, pickupDefLocIndex);
 					c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((controller, body, pickupDef) =>
 					{
 						if (Configuration.AspectEquipmentAbsorb.Value)
@@ -592,7 +602,7 @@ namespace TPDespair.ZetAspects
 
 						return pickupDef;
 					});
-					c.Emit(OpCodes.Stloc, 1);
+					c.Emit(OpCodes.Stloc, pickupDefLocIndex);
 				}
 				else
 				{

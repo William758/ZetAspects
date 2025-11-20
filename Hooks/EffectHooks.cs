@@ -388,7 +388,7 @@ namespace TPDespair.ZetAspects
 				if (found)
 				{
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 7);
+					c.Emit(OpCodes.Ldloc, 9);
 					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, damage) =>
 					{
 						float plating = 0f;
@@ -415,7 +415,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, 7);
+					c.Emit(OpCodes.Stloc, 9);
 				}
 				else
 				{
@@ -1148,7 +1148,7 @@ namespace TPDespair.ZetAspects
 
 				found = c.TryGotoNext(
 					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("HeadHunter")),
-					x => x.MatchCallOrCallvirt<Inventory>("GetItemCount")
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCountEffective")
 				);
 
 				if (found)
@@ -2017,7 +2017,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					DotController.InflictDot(victim, attacker, dotIndex, tickedDuration, damageMult);
+					DotController.InflictDot(victim, attacker, null, dotIndex, tickedDuration, damageMult);
 				}
 			}
 		}
@@ -2034,7 +2034,7 @@ namespace TPDespair.ZetAspects
 
 			float damageMult = targetDPS / dotBaseDPS;
 
-			DotController.InflictDot(victim, attacker, dotIndex, dotDef.interval, damageMult);
+			DotController.InflictDot(victim, attacker, null, dotIndex, dotDef.interval, damageMult);
 		}
 
 

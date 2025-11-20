@@ -142,6 +142,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.0 - Updated for latest game version. Added valdation check to Aspect Command Menu.
+
 v2.9.10 - Fix Cyclic Dependency.
 
 v2.9.9 - Starstorm2 Support. Rewrote buff management. Switch to language files.

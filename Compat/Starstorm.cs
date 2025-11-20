@@ -193,7 +193,7 @@ namespace TPDespair.ZetAspects.Compat
 
 	public class EmpyreanAspectProvider : IAspectProvider
 	{
-		public float StackCount()
+		public float StackCount(CharacterBody body)
 		{
 			return 1f;
 		}

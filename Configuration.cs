@@ -580,7 +580,7 @@ namespace TPDespair.ZetAspects
 		private static void AspectConfigs(ConfigFile Config)
 		{
 			UpdateInventoryFromBuff = Config.Bind(
-				"21-Mod Compatibility", "updateInventoryFromBuff", 2,
+				"21-Mod Compatibility", "updateInventoryFromBuff", 1,
 				"Adds a hidden item whenever a buff expires. 2 = all buffs, 1 = only aspect buffs, 0 = none"
 			);
 

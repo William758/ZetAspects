@@ -531,7 +531,7 @@ namespace TPDespair.ZetAspects
 
 			foreach (IAspectProvider provider in EliteBuffManager.Providers)
 			{
-				float provStack = provider.StackCount();
+				float provStack = provider.StackCount(self);
 
 				if (provStack > 0f && provider.HasAspect(self, buffDef.buffIndex))
 				{
@@ -1206,7 +1206,7 @@ namespace TPDespair.ZetAspects
 					{
 						ItemIndex itemIndex = ItemizeEliteEquipment(equipDef.equipmentIndex);
 
-						if (!disabledItemIndexes.Contains(itemIndex)) return true;
+						if (itemIndex != ItemIndex.None && !disabledItemIndexes.Contains(itemIndex)) return true;
 					}
 
 					return false;

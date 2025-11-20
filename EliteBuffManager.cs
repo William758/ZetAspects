@@ -14,7 +14,7 @@ namespace TPDespair.ZetAspects
 
 		}
 
-		float StackCount()
+		float StackCount(CharacterBody body)
 		{
 			return 0f;
 		}

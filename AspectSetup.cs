@@ -905,7 +905,8 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Logger.Warn("buffToAspect already contains key for : [" + buffDef.buffIndex + "] - " + buffDef.name);
-					Logger.Warn("---- associated aspect : " + aspectDef.identifier);
+					Logger.Warn("---- current aspect : " + aspectDef.identifier);
+					Logger.Warn("---- associated aspect : " + Catalog.buffToAspect[buffDef.buffIndex].identifier);
 				}
 
 
