@@ -141,6 +141,21 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectVoidStackCollapseDamage { get; set; }
 		public static ConfigEntry<float> AspectVoidMonsterDamageMult { get; set; }
 
+		public static ConfigEntry<float> AspectAurelioniteBaseRegenGain { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteStackRegenGain { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteItemScoreFactor { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteItemScoreExponent { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteItemScoreLevelScaling { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteBaseScoredRegenGain { get; set; }
+		public static ConfigEntry<float> AspectAurelioniteStackScoredRegenGain { get; set; }
+
+		public static ConfigEntry<float> AspectBeadTetherArmor { get; set; }
+		public static ConfigEntry<float> AspectBeadBaseDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBeadStackDamageGain { get; set; }
+		public static ConfigEntry<float> AspectBeadBaseCrit { get; set; }
+		public static ConfigEntry<float> AspectBeadStackCrit { get; set; }
+		public static ConfigEntry<float> AspectBeadMonsterLowCritMult { get; set; }
+
 		public static ConfigEntry<float> AspectPlatedStifleMult { get; set; }
 		public static ConfigEntry<float> AspectPlatedStifleExponent { get; set; }
 		public static ConfigEntry<float> AspectPlatedPlayerPlateCountMult { get; set; }
@@ -945,6 +960,64 @@ namespace TPDespair.ZetAspects
 			AspectVoidMonsterDamageMult = Config.Bind(
 				"2ah-AspectVoid", "voidMonsterDamageMult", 1f,
 				"Monster collapse damage multiplier."
+			);
+
+
+
+			AspectAurelioniteBaseRegenGain = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteBaseRegen", 12f,
+				"Health regeneration gained. Set to 0 to disable."
+			);
+			AspectAurelioniteStackRegenGain = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteAddedRegen", 6f,
+				"Health regeneration gained per stack."
+			);
+			AspectAurelioniteItemScoreFactor = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteItemScoreFactor", 2.0f,
+				"Multiply itemscore by value. Applies before itemscore exponent. white = 1x, green = 3x, other = 9x."
+			);
+			AspectAurelioniteItemScoreExponent = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteItemScoreExponent", 0.65f,
+				"Itemscore exponent. Raise itemscore to the power of value."
+			);
+			AspectAurelioniteItemScoreLevelScaling = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteItemScoreLevelScaling", 0.1f,
+				"Itemscore regeneration level scaling. Vanilla regeneration scaling is 0.2 = +100% every 5 levels."
+			);
+			AspectAurelioniteBaseScoredRegenGain = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteBaseScoredRegen", 1.0f,
+				"ScoredRegen multiplier gained. Applies after itemscore exponent. Set to 0 to disable itemscore regen."
+			);
+			AspectAurelioniteStackScoredRegenGain = Config.Bind(
+				"2ai-Aurelionite Aspect", "aurelioniteAddedScoredRegen", 0.5f,
+				"ScoredRegen multiplier gained per stack."
+			);
+
+
+
+			AspectBeadTetherArmor = Config.Bind(
+				"2aj-Bead Aspect", "beadTetherArmor", 300f,
+				"Armor granted to tethered allies"
+			);
+			AspectBeadBaseDamageGain = Config.Bind(
+				"2aj-Bead Aspect", "beadBaseDamageGained", 0f,
+				"Damage gained. Set to 0 to disable."
+			);
+			AspectBeadStackDamageGain = Config.Bind(
+				"2aj-Bead Aspect", "beadAddedDamageGained", 0f,
+				"Damage gained per stack."
+			);
+			AspectBeadBaseCrit = Config.Bind(
+				"2aj-Bead Aspect", "beadBaseCrit", 20f,
+				"Critical chance gained. Set to 0 to disable."
+			);
+			AspectBeadStackCrit = Config.Bind(
+				"2aj-Bead Aspect", "beadAddedCrit", 10f,
+				"Critical chance gained per stack."
+			);
+			AspectBeadMonsterLowCritMult = Config.Bind(
+				"2aj-Bead Aspect", "beadMonsterLowCritMult", -0.65f,
+				"Offset on critical damage multiplier for monsters with low crit."
 			);
 		}
 

@@ -115,6 +115,19 @@
 		"COLLAPSE_DOT": "\nAtaques <style=cIsDamage>derrubam</style> ao golpear em {0} {1} de dano {2}.",
 		"COLLAPSE_DEFAULT": "\n<style=cIsDamage>100%</style> de chance de <style=cIsDamage>derrubar</style> um inimigo em <style=cIsDamage>400%</style> de dano base.",
 		"CORRUPT_ASPECT_ITEM": "\n<style=cIsVoid>Corrompe todos os Aspectos Itemizados</style>.",
+		
+		"AFFIX_AURELIONITE_NAME": "Aurelionite's Blessing",
+		"AFFIX_AURELIONITE_PICKUP": "Become an aspect of radiance.",
+		"AFFIX_AURELIONITE_ACTIVE": "Deploy an exploding gold cluster.",
+		"ASPECT_OF_RADIANCE": "<style=cDeath>Aspect of Radiance</style> :",
+		"GOLDCHUNK_ON_HIT": "\nAttacks drop a golden nugget on hit.",
+		
+		"AFFIX_BEAD_NAME": "His Spiteful Boon",
+		"AFFIX_BEAD_PICKUP": "Become an aspect of spite.",
+		"AFFIX_BEAD_ACTIVE": "<style=cStack>(???)</style>",
+		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
+		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
+		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
 
 		"AFFIX_PLATED_NAME": "Incorporação da Subserviência",
 		"AFFIX_PLATED_PICKUP": "Torne-se um aspecto da resistência.",
@@ -388,6 +401,8 @@
 		"STAT_DAMAGE": "\nAumenta o <style=cIsDamage>dano</style> em {0}.",
 		"STAT_DAMAGE_DRONE": "\nDrones deal {0} increased <style=cIsDamage>damage</style>.",
 		"STAT_COOLDOWN": "\nReduz os <style=cIsUtility>tempos de recarga das habilidades</style> em {0}.",
+		"STAT_CRIT": "\nAumenta a <style=cIsDamage>chance de acerto crítico</style> em {0}.",
+		"STAT_CRITMULT": "\nAumenta o <style=cIsDamage>multiplicador de acerto crítico</style> em {0}.",
 		"STAT_DAMAGE_TAKEN": "\nReduces <style=cIsHealing>damage taken</style> by {0}.",
 		"STAT_DAMAGE_TAKEN_DRONE": "\nYour drones have <style=cIsHealing>damage taken</style> reduced by {0}.",
 		"STAT_DAMAGE_TAKEN_MINION": "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.",

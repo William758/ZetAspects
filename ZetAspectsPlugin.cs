@@ -37,7 +37,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.10.0";
+		public const string ModVer = "2.10.1";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -125,6 +125,9 @@ namespace TPDespair.ZetAspects
 
 				CreateDroplet(EquipDefOf.AffixEarth, transform.position + new Vector3(-10f, 10f, 10f));
 				CreateDroplet(EquipDefOf.AffixVoid, transform.position + new Vector3(0f, 10f, 15f));
+
+				CreateDroplet(EquipDefOf.AffixAurelionite, transform.position + new Vector3(10f, 10f, 10f));
+				CreateDroplet(EquipDefOf.AffixBead, transform.position + new Vector3(-10f, 10f, -10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F3))

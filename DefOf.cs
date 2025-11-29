@@ -34,6 +34,9 @@ namespace TPDespair.ZetAspects
 		public static EquipmentDef AffixEarth;
 		public static EquipmentDef AffixVoid;
 
+		public static EquipmentDef AffixAurelionite;
+		public static EquipmentDef AffixBead;
+
 		public static EquipmentDef AffixPlated;
 		public static EquipmentDef AffixWarped;
 		public static EquipmentDef AffixVeiled;
@@ -111,6 +114,9 @@ namespace TPDespair.ZetAspects
 		public static BuffDef AffixEarth;
 		public static BuffDef AffixVoid;
 
+		public static BuffDef AffixAurelionite;
+		public static BuffDef AffixBead;
+
 		public static BuffDef AffixPlated;
 		public static BuffDef AffixWarped;
 		public static BuffDef AffixVeiled;
@@ -176,6 +182,9 @@ namespace TPDespair.ZetAspects
 
 		public static ItemDef ZetAspectEarth;
 		public static ItemDef ZetAspectVoid;
+
+		public static ItemDef ZetAspectAurelionite;
+		public static ItemDef ZetAspectBead;
 
 		public static ItemDef ZetAspectPlated;
 		public static ItemDef ZetAspectWarped;

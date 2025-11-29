@@ -115,6 +115,30 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectVoid.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixVoid = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixVoid = buffDef
+					},
+					new AspectDef()
+					{
+						identifier = "ZetAspectAurelionite",
+						FindEquipmentDef = () => { return DLC2Content.Equipment.EliteAurelioniteEquipment; },
+						itemName = "ZetAspectAurelionite",
+						displayPriority = 3750,
+						BaseIcon = () => Sprites.AffixAurelionite,
+						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						SetupTokens = Items.ZetAspectAurelionite.SetupTokens,
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixAurelionite = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixAurelionite = buffDef
+					},
+					new AspectDef()
+					{
+						identifier = "ZetAspectBead",
+						FindEquipmentDef = () => { return DLC2Content.Equipment.EliteBeadEquipment; },
+						itemName = "ZetAspectBead",
+						displayPriority = 7560,
+						BaseIcon = () => Sprites.AffixBead,
+						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						SetupTokens = Items.ZetAspectBead.SetupTokens,
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixBead = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixBead = buffDef
 					}
 				},
 				PostInit = () =>

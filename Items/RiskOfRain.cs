@@ -894,4 +894,167 @@ namespace TPDespair.ZetAspects.Items
 			return output;
 		}
 	}
+
+
+
+	public static class ZetAspectAurelionite
+	{
+		public static string identifier = "ZetAspectAurelionite";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
+			if (AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef._itemTierDef = Catalog.AspectItemTier;
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+			string affix = "AURELIONITE";
+
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
+
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+
+				EquipmentDef equipDef = EquipDefOf.AffixAurelionite;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE"), true));
+				}
+			}
+
+			targetLanguage = "";
+		}
+
+		public static string BuildDescription(bool combine)
+		{
+			string output = TextFragment("ASPECT_OF_RADIANCE");
+			output += TextFragment("GOLDCHUNK_ON_HIT");
+			if (AspectAurelioniteBaseRegenGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_REGENERATION"),
+					ScalingText(AspectAurelioniteBaseRegenGain.Value, AspectAurelioniteStackRegenGain.Value, "flatregen", "cIsHealing", combine)
+				);
+			}
+			if (AspectAurelioniteBaseScoredRegenGain.Value > 0f)
+			{
+				output += TextFragment("ITEMSCORE_REGEN");
+				if (AspectAurelioniteStackScoredRegenGain.Value > 0f)
+				{
+					output += String.Format(
+						TextFragment("ITEMSCORE_REGEN_MULT"),
+						ScalingText(1f, AspectAurelioniteStackScoredRegenGain.Value / AspectAurelioniteBaseScoredRegenGain.Value, "percent", "cIsHealing", combine)
+					);
+				}
+			}
+
+			return output;
+		}
+	}
+
+
+
+	public static class ZetAspectBead
+	{
+		public static string identifier = "ZetAspectBead";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
+			if (AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef._itemTierDef = Catalog.AspectItemTier;
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+			string affix = "BEAD";
+
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
+
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+
+				EquipmentDef equipDef = EquipDefOf.AffixBead;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
+
+			targetLanguage = "";
+		}
+
+		public static string BuildDescription(bool combine)
+		{
+			string output = TextFragment("ASPECT_OF_SPITE");
+			output += String.Format(
+				TextFragment("BEAD_TETHER"),
+				ScalingText(AspectBeadTetherArmor.Value, "flat", "cIsHealing")
+			);
+			output += TextFragment("BEAD_RETALIATION");
+
+			if (AspectBeadBaseDamageGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_DAMAGE"),
+					ScalingText(AspectBeadBaseDamageGain.Value, AspectBeadStackDamageGain.Value, "percent", "cIsDamage", combine)
+				);
+			}
+			if (AspectBeadBaseCrit.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_CRIT"),
+					ScalingText(AspectBeadBaseCrit.Value, AspectBeadStackCrit.Value, "chance", "cIsDamage", combine)
+				);
+			}
+
+			return output;
+		}
+	}
 }

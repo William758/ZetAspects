@@ -115,6 +115,19 @@
 		"COLLAPSE_DOT": "\n攻击叠加<style=cIsDamage>瓦解</style>，{2}{1}造成{0}的伤害。",
 		"COLLAPSE_DEFAULT": "\n攻击有<style=cIsDamage>100%</style>概率<style=cIsDamage>瓦解</style>敌人，造成<style=cIsDamage>400%</style>的基础伤害。",
 		"CORRUPT_ASPECT_ITEM": "\n<style=cIsVoid>腐化其他象征</style>。",
+		
+		"AFFIX_AURELIONITE_NAME": "Aurelionite's Blessing",
+		"AFFIX_AURELIONITE_PICKUP": "Become an aspect of radiance.",
+		"AFFIX_AURELIONITE_ACTIVE": "Deploy an exploding gold cluster.",
+		"ASPECT_OF_RADIANCE": "<style=cDeath>Aspect of Radiance</style> :",
+		"GOLDCHUNK_ON_HIT": "\nAttacks drop a golden nugget on hit.",
+		
+		"AFFIX_BEAD_NAME": "His Spiteful Boon",
+		"AFFIX_BEAD_PICKUP": "Become an aspect of spite.",
+		"AFFIX_BEAD_ACTIVE": "<style=cStack>(???)</style>",
+		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
+		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
+		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
 
 		"AFFIX_PLATED_NAME": "耐腐蚀的合金",
 		"AFFIX_PLATED_PICKUP": "成为耐力的象征",
@@ -388,6 +401,8 @@
 		"STAT_DAMAGE": "\n增加{0}<style=cIsDamage>伤害</style>。",
 		"STAT_DAMAGE_DRONE": "\nDrones deal {0} increased <style=cIsDamage>damage</style>.",
 		"STAT_COOLDOWN": "\n减少{0}<style=cIsUtility>技能冷却</style>。",
+		"STAT_CRIT": "\nIncreases <style=cIsDamage>critical strike chance</style> by {0}.",
+		"STAT_CRITMULT": "\nIncreases <style=cIsDamage>critical strike multiplier</style> by {0}.",
 		"STAT_DAMAGE_TAKEN": "\n减少  {0} <style=cIsHealing>受到的伤害</style> 。",
 		"STAT_DAMAGE_TAKEN_DRONE": "\nYour drones have <style=cIsHealing>damage taken</style> reduced by {0}.",
 		"STAT_DAMAGE_TAKEN_MINION": "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.",

@@ -115,6 +115,19 @@
 		"COLLAPSE_DOT": "\n공격 적중 시 <style=cIsDamage>붕괴</style>를 부여하고 {2}, {0} {1} 피해를 입힙니다.",
 		"COLLAPSE_DEFAULT": "\n<style=cIsDamage>100%</style> 확률로 적에게 <style=cIsDamage>붕괴</style>를 부여하고 <style=cIsDamage>400%</style> 피해를 입힙니다.",
 		"CORRUPT_ASPECT_ITEM": "\n<style=cIsVoid>모든 형태를 오염시킵니다</style>.",
+		
+		"AFFIX_AURELIONITE_NAME": "Aurelionite's Blessing",
+		"AFFIX_AURELIONITE_PICKUP": "Become an aspect of radiance.",
+		"AFFIX_AURELIONITE_ACTIVE": "Deploy an exploding gold cluster.",
+		"ASPECT_OF_RADIANCE": "<style=cDeath>Aspect of Radiance</style> :",
+		"GOLDCHUNK_ON_HIT": "\nAttacks drop a golden nugget on hit.",
+		
+		"AFFIX_BEAD_NAME": "His Spiteful Boon",
+		"AFFIX_BEAD_PICKUP": "Become an aspect of spite.",
+		"AFFIX_BEAD_ACTIVE": "<style=cStack>(???)</style>",
+		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
+		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
+		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
 
 		"AFFIX_PLATED_NAME": "복종의 합금",
 		"AFFIX_PLATED_PICKUP": "인내의 한 형태가  됩니다.",
@@ -388,6 +401,8 @@
 		"STAT_DAMAGE": "\n<style=cIsDamage>피해량</style>을 {0} 증가시킵니다.",
 		"STAT_DAMAGE_DRONE": "\nDrones deal {0} increased <style=cIsDamage>damage</style>.",
 		"STAT_COOLDOWN": "\n<style=cIsUtility>재사용 대기시간</style>을 {0} 감소시킵니다.",
+		"STAT_CRIT": "\nIncreases <style=cIsDamage>critical strike chance</style> by {0}.",
+		"STAT_CRITMULT": "\nIncreases <style=cIsDamage>critical strike multiplier</style> by {0}.",
 		"STAT_DAMAGE_TAKEN": "\nReduces <style=cIsHealing>damage taken</style> by {0}.",
 		"STAT_DAMAGE_TAKEN_DRONE": "\nYour drones have <style=cIsHealing>damage taken</style> reduced by {0}.",
 		"STAT_DAMAGE_TAKEN_MINION": "\nYour minions have <style=cIsHealing>damage taken</style> reduced by {0}.",

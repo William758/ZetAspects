@@ -30,6 +30,12 @@ Fixed VoidBearCooldown buff and made it stack.
 
 Monster leech multiplier : x5
 
+## Seekers of the Storm:
+
+![effects](https://i.imgur.com/0iYHPqp.png)
+
+Monster Bead critical damage multiplier : x1.35 - Only applies if critical chance below 40%
+
 ## SpikeStrip:
 
 ![effects](https://i.imgur.com/c35yqIh.png)
@@ -141,6 +147,8 @@ Chinese translation by BTP-G and MushroomEl.
 Japanese translation by WakefulSpect.
 
 ## Changelog:
+
+v2.10.1 - Seekers of the Storm support.
 
 v2.10.0 - Updated for latest game version. Added valdation check to Aspect Command Menu.
 

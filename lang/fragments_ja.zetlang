@@ -115,6 +115,19 @@
 		"COLLAPSE_DOT": "\n攻撃がヒットすると<style=cIsDamage>卒倒</style>を与え、{2} {0} {1}与える。",
 		"COLLAPSE_DEFAULT": "\n<style=cIsDamage>100%</style> の確率で敵に<style=cIsDamage>卒倒</style>を与え、 <style=cIsDamage>400%</style> の基本ダメージを与える。",
 		"CORRUPT_ASPECT_ITEM": "\n<style=cIsVoid>全ての相を破損する</style>。",
+		
+		"AFFIX_AURELIONITE_NAME": "Aurelionite's Blessing",
+		"AFFIX_AURELIONITE_PICKUP": "Become an aspect of radiance.",
+		"AFFIX_AURELIONITE_ACTIVE": "Deploy an exploding gold cluster.",
+		"ASPECT_OF_RADIANCE": "<style=cDeath>Aspect of Radiance</style> :",
+		"GOLDCHUNK_ON_HIT": "\nAttacks drop a golden nugget on hit.",
+		
+		"AFFIX_BEAD_NAME": "His Spiteful Boon",
+		"AFFIX_BEAD_PICKUP": "Become an aspect of spite.",
+		"AFFIX_BEAD_ACTIVE": "<style=cStack>(???)</style>",
+		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
+		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
+		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
 
 		"AFFIX_PLATED_NAME": "服従の合金",
 		"AFFIX_PLATED_PICKUP": "忍耐の相になる。",
@@ -388,6 +401,8 @@
 		"STAT_DAMAGE": "\n<style=cIsDamage>ダメージ</style>を {0} 増やす。",
 		"STAT_DAMAGE_DRONE": "\nドローンが与える<style=cIsDamage>ダメージ</style>を {0} 増やす。",
 		"STAT_COOLDOWN": "\n<style=cIsUtility>スキルのクールダウン</style>を {0} 減らす。",
+		"STAT_CRIT": "\nIncreases <style=cIsDamage>critical strike chance</style> by {0}.",
+		"STAT_CRITMULT": "\nIncreases <style=cIsDamage>critical strike multiplier</style> by {0}.",
 		"STAT_DAMAGE_TAKEN": "\n<style=cIsHealing>受けるダメージ</style>を {0} 減らす。",
 		"STAT_DAMAGE_TAKEN_DRONE": "\nあなたのドローンが<style=cIsHealing>受けるダメージ</style>を {0} 減らす。",
 		"STAT_DAMAGE_TAKEN_MINION": "\nあなたのミニオンが<style=cIsHealing>受けるダメージ</style>を {0} 減らす。",

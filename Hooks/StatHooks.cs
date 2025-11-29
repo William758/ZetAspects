@@ -334,6 +334,15 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						if (self.HasBuff(BuffDefOf.AffixBead))
+						{
+							if (Configuration.AspectBeadBaseDamageGain.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBead);
+								value += Configuration.AspectBeadBaseDamageGain.Value + Configuration.AspectBeadStackDamageGain.Value * (count - 1f);
+							}
+						}
+
 						if (self.HasBuff(BuffDefOf.AffixBlighted))
 						{
 							if (Configuration.AspectBlightedBaseDamageGain.Value > 0f)
@@ -884,12 +893,25 @@ namespace TPDespair.ZetAspects
 						Inventory inventory = self.inventory;
 						if (inventory)
 						{
+							bool aurelioniteEnabled = self.HasBuff(BuffDefOf.AffixAurelionite) && Configuration.AspectAurelioniteBaseScoredRegenGain.Value > 0f;
 							bool goldEnabled = self.HasBuff(BuffDefOf.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
 							bool pillageEnabled = self.HasBuff(BuffDefOf.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
 
-							if (goldEnabled || pillageEnabled)
+							if (aurelioniteEnabled || goldEnabled || pillageEnabled)
 							{
 								float itemScore = GetItemScore(inventory);
+
+								if (aurelioniteEnabled)
+								{
+									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAurelionite);
+
+									float scoredRegen = itemScore * Configuration.AspectAurelioniteItemScoreFactor.Value;
+									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectAurelioniteItemScoreExponent.Value);
+									scoredRegen *= Configuration.AspectAurelioniteBaseScoredRegenGain.Value + Configuration.AspectAurelioniteStackScoredRegenGain.Value * (count - 1f);
+
+									// itemscore regen does not benefit from lvl scaling
+									value += scoredRegen * (1f + (Configuration.AspectAurelioniteItemScoreLevelScaling.Value * (self.level - 1f)));
+								}
 
 								if (goldEnabled)
 								{
@@ -1157,6 +1179,11 @@ namespace TPDespair.ZetAspects
 				addedArmor += Configuration.AspectArmorBaseArmorGain.Value + Configuration.AspectArmorStackArmorGain.Value * (count - 1f);
 			}
 
+			if (self.HasBuff(DLC2Content.Buffs.BeadArmor))
+			{
+				addedArmor += Configuration.AspectBeadTetherArmor.Value - 300f;
+			}
+
 			return addedArmor;
 		}
 
@@ -1167,6 +1194,12 @@ namespace TPDespair.ZetAspects
 			if (self.HasBuff(BuffDefOf.ZetHeadHunter))
 			{
 				addedCrit += Configuration.HeadHunterBuffCritChance.Value * self.GetBuffCount(BuffDefOf.ZetHeadHunter);
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixBead) && Configuration.AspectBeadBaseCrit.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBead);
+				addedCrit += Configuration.AspectBeadBaseCrit.Value + Configuration.AspectBeadStackCrit.Value * (count - 1f);
 			}
 
 			if (addedCrit > 0f)
@@ -1183,6 +1216,14 @@ namespace TPDespair.ZetAspects
 						self.critMultiplier += addedCrit * 0.01f;
 					}
 				}
+			}
+
+
+
+			if (self.crit < 40f && self.HasBuff(BuffDefOf.AffixBead) && Configuration.AspectBeadBaseCrit.Value > 0f && (self.teamComponent.teamIndex != TeamIndex.Player))
+			{
+				float critOffset = Configuration.AspectBeadMonsterLowCritMult.Value;
+				self.critMultiplier = Mathf.Max(self.critMultiplier + critOffset, 2f + critOffset);
 			}
 		}
 

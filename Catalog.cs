@@ -110,6 +110,9 @@ namespace TPDespair.ZetAspects
 			public static Sprite AffixEarth;
 			public static Sprite AffixVoid;
 
+			public static Sprite AffixAurelionite;
+			public static Sprite AffixBead;
+
 			public static Sprite AffixPlated;
 			public static Sprite AffixWarped;
 			public static Sprite AffixVeiled;
@@ -194,6 +197,9 @@ namespace TPDespair.ZetAspects
 
 				AffixEarth = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixEarth.png");
 				AffixVoid = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixVoid.png");
+
+				AffixAurelionite = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixAurelionite.png");
+				AffixBead = Assets.LoadAsset<Sprite>("Assets/Icons/texAffixBead.png");
 
 				if (AspectPackDefOf.SpikeStrip.Enabled)
 				{
@@ -481,6 +487,24 @@ namespace TPDespair.ZetAspects
 				}
 
 				return _HighlanderState == 1;
+			}
+		}
+
+
+
+		public static ItemTierDef AspectItemTier
+		{
+			get
+			{
+				return Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
+			}
+		}
+
+		public static bool AspectVoidContagious
+		{
+			get
+			{
+				return Configuration.AspectVoidContagiousItem.Value;
 			}
 		}
 
@@ -863,6 +887,16 @@ namespace TPDespair.ZetAspects
 			ItemDef ZetAspectVoid = Items.ZetAspectVoid.DefineItem();
 			ItemDefOf.ZetAspectVoid = ZetAspectVoid;
 			ZetAspectsContent.itemDefs.Add(ZetAspectVoid);
+
+			ItemDef ZetAspectAurelionite = Items.ZetAspectAurelionite.DefineItem();
+			ItemDefOf.ZetAspectAurelionite = ZetAspectAurelionite;
+			ZetAspectsContent.itemDefs.Add(ZetAspectAurelionite);
+			transformableAspectItemDefs.Add(ZetAspectAurelionite);
+
+			ItemDef ZetAspectBead = Items.ZetAspectBead.DefineItem();
+			ItemDefOf.ZetAspectBead = ZetAspectBead;
+			ZetAspectsContent.itemDefs.Add(ZetAspectBead);
+			transformableAspectItemDefs.Add(ZetAspectBead);
 
 			if (AspectPackDefOf.SpikeStrip.Enabled)
 			{
