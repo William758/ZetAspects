@@ -90,7 +90,7 @@ namespace TPDespair.ZetAspects
 				if (master)
 				{
 					Inventory inventory = master.inventory;
-					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCount(ItemDefOf.ZetAspectsDropCountTracker));
+					if (inventory) highestCount = Math.Max(highestCount, inventory.GetItemCountEffective(ItemDefOf.ZetAspectsDropCountTracker));
 				}
 			}
 
@@ -107,10 +107,10 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = master.inventory;
 					if (inventory)
 					{
-						int trackerCount = inventory.GetItemCount(ItemDefOf.ZetAspectsDropCountTracker);
+						int trackerCount = inventory.GetItemCountEffective(ItemDefOf.ZetAspectsDropCountTracker);
 						int dropCount = runDropCount;
 
-						if (trackerCount < dropCount) inventory.GiveItem(ItemDefOf.ZetAspectsDropCountTracker, dropCount - trackerCount);
+						if (trackerCount < dropCount) inventory.GiveItemPermanent(ItemDefOf.ZetAspectsDropCountTracker, dropCount - trackerCount);
 					}
 				}
 			}
@@ -671,8 +671,8 @@ namespace TPDespair.ZetAspects
 			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
 			if (itemIndex != ItemIndex.None)
 			{
-				inventory.GiveItem(itemIndex);
-				inventory.SetEquipmentIndex(EquipmentIndex.None);
+				inventory.GiveItemPermanent(itemIndex);
+				inventory.SetEquipmentIndex(EquipmentIndex.None, true);
 			}
 			else
 			{

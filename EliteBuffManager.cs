@@ -195,7 +195,7 @@ namespace TPDespair.ZetAspects
 			Inventory inventory = body.inventory;
 			if (inventory)
 			{
-				if (inventory.GetItemCount(RoR2Content.Items.HeadHunter) > 0) return true;
+				if (inventory.GetItemCountEffective(RoR2Content.Items.HeadHunter) > 0) return true;
 				if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex)) return true;
 			}
 

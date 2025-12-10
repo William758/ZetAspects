@@ -1207,7 +1207,7 @@ namespace TPDespair.ZetAspects
 				Inventory inventory = self.inventory;
 				if (inventory)
 				{
-					if (inventory.GetItemCount(DLC1Content.Items.ConvertCritChanceToCritDamage) == 0)
+					if (inventory.GetItemCountEffective(DLC1Content.Items.ConvertCritChanceToCritDamage) == 0)
 					{
 						self.crit += addedCrit;
 					}

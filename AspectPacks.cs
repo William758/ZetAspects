@@ -643,7 +643,7 @@ namespace TPDespair.ZetAspects
 						RefBuffDef = (buffDef) => BuffDefOf.AffixEcho = buffDef,
 						AllowAffix = (body, inventory) =>
 						{
-							return inventory != null ? inventory.GetItemCount(summonedEcho) == 0 : false;
+							return inventory != null ? inventory.GetItemCountEffective(summonedEcho) == 0 : false;
 						},
 						PreBuffGrant = (body, inventory) =>
 						{

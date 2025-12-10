@@ -38,6 +38,61 @@ namespace TPDespair.ZetAspects
 
 
 
+		private static int TakeDamageProcess_DamageLocIndex = -1;
+
+		private static void FindDamageLocIndex(ILContext il)
+		{
+			ILCursor c = new ILCursor(il);
+
+			bool found = c.TryGotoNext(
+				x => x.MatchLdfld<TeamDef>("friendlyFireScaling")
+			);
+
+			if (!found)
+			{
+				Logger.Warn("FindDamageLocIndex - cound not find TeamDef.friendlyFireScaling");
+			}
+			else
+			{
+				goto findStloc;
+			}
+
+
+
+			found = c.TryGotoNext(
+				x => x.MatchCallOrCallvirt<CharacterBody>("get_critMultiplier")
+			);
+
+			if (!found)
+			{
+				Logger.Warn("FindDamageLocIndex - cound not find CharacterBody.get_critMultiplier");
+				return;
+			}
+
+
+
+			findStloc:
+
+			int findIndex = c.Index;
+
+			found = c.TryGotoNext(
+				x => x.MatchStloc(out TakeDamageProcess_DamageLocIndex)
+			);
+
+			if (!found || (found && c.Index - findIndex > 12))
+			{
+				Logger.Error("FindDamageLocIndex - could not reliably find DamageLocIndex");
+				if (found) Logger.Error("FindOffset:" + (c.Index - findIndex));
+				return;
+			}
+
+
+
+			Logger.Info("FindDamageLocIndex: " + TakeDamageProcess_DamageLocIndex);
+		}
+
+
+
 		internal static void OnFixedUpdate()
 		{
 			FixedUpdateStopwatch += Time.fixedDeltaTime;
@@ -378,6 +433,19 @@ namespace TPDespair.ZetAspects
 		{
 			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
+				if (TakeDamageProcess_DamageLocIndex == -1)
+				{
+					FindDamageLocIndex(il);
+				}
+
+				if (TakeDamageProcess_DamageLocIndex == -1)
+				{
+					Logger.Warn("PlatingHook Cannot Proceed without DamageLocIndex");
+					return;
+				}
+
+
+
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
@@ -388,7 +456,7 @@ namespace TPDespair.ZetAspects
 				if (found)
 				{
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, 9);
+					c.Emit(OpCodes.Ldloc, TakeDamageProcess_DamageLocIndex);
 					c.EmitDelegate<Func<HealthComponent, float, float>>((healthComponent, damage) =>
 					{
 						float plating = 0f;
@@ -415,7 +483,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, 9);
+					c.Emit(OpCodes.Stloc, TakeDamageProcess_DamageLocIndex);
 				}
 				else
 				{
@@ -870,65 +938,30 @@ namespace TPDespair.ZetAspects
 		{
 			IL.RoR2.HealthComponent.TakeDamageProcess += (il) =>
 			{
+				if (TakeDamageProcess_DamageLocIndex == -1)
+				{
+					FindDamageLocIndex(il);
+				}
+
+				if (TakeDamageProcess_DamageLocIndex == -1)
+				{
+					Logger.Warn("DamageTakenHook Cannot Proceed without DamageLocIndex");
+					return;
+				}
+
+
+
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdfld<TeamDef>("friendlyFireScaling")
-				);
-
-				if (!found)
-				{
-					Logger.Warn("DamageTakenHook - cound not find TeamDef.friendlyFireScaling");
-				}
-				else
-				{
-					goto findStloc;
-				}
-
-
-
-				found = c.TryGotoNext(
-					x => x.MatchCallOrCallvirt<CharacterBody>("get_critMultiplier")
-				);
-
-				if (!found)
-				{
-					Logger.Warn("DamageTakenHook - cound not find CharacterBody.get_critMultiplier");
-					return;
-				}
-
-
-
-
-				findStloc:
-
-				int damageLocIndex = -1;
-				int findIndex = c.Index;
-
-				found = c.TryGotoNext(
-					x => x.MatchStloc(out damageLocIndex)
-				);
-
-				if (!found || (found && c.Index - findIndex > 12))
-				{
-					Logger.Error("DamageTakenHook - could not reliably find damage loc");
-					if (found) Logger.Error("FindOffset:" + (c.Index - findIndex));
-					return;
-				}
-
-
-
-				c.Index = 0;
-
-				found = c.TryGotoNext(
-					x => x.MatchStloc(damageLocIndex)
+					x => x.MatchStloc(TakeDamageProcess_DamageLocIndex)
 				);
 
 				if (found)
 				{
 					c.Index += 1;
 
-					c.Emit(OpCodes.Ldloc, damageLocIndex);
+					c.Emit(OpCodes.Ldloc, TakeDamageProcess_DamageLocIndex);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Func<float, HealthComponent, float>>((damage, healthComponent) =>
 					{
@@ -1041,7 +1074,7 @@ namespace TPDespair.ZetAspects
 
 						return damage;
 					});
-					c.Emit(OpCodes.Stloc, damageLocIndex);
+					c.Emit(OpCodes.Stloc, TakeDamageProcess_DamageLocIndex);
 				}
 				else
 				{
@@ -1231,7 +1264,7 @@ namespace TPDespair.ZetAspects
 				{
 					if (eliteVictim)
 					{
-						int count = atkBody.inventory.GetItemCount(RoR2Content.Items.HeadHunter);
+						int count = atkBody.inventory.GetItemCountEffective(RoR2Content.Items.HeadHunter);
 						if (count > 0)
 						{
 							float duration = Configuration.HeadHunterBaseDuration.Value + Configuration.HeadHunterStackDuration.Value * (count - 1);
@@ -1623,7 +1656,7 @@ namespace TPDespair.ZetAspects
 				Inventory inventory = self.inventory;
 				if (inventory)
 				{
-					count = inventory.GetItemCount(DLC1Content.Items.StrengthenBurn);
+					count = inventory.GetItemCountEffective(DLC1Content.Items.StrengthenBurn);
 					if (count > 0f)
 					{
 						damage *= 1f + (3f * count);
@@ -2111,7 +2144,7 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = body.inventory;
 					if (inventory)
 					{
-						if (inventory.GetItemCount(RoR2Content.Items.ShieldOnly) > 0) shieldRegen = Mathf.Max(shieldRegen, Configuration.TranscendenceRegen.Value);
+						if (inventory.GetItemCountEffective(RoR2Content.Items.ShieldOnly) > 0) shieldRegen = Mathf.Max(shieldRegen, Configuration.TranscendenceRegen.Value);
 
 						//if (inventory.GetItemCount(RoR2Content.Items.PersonalShield) > 0) shieldRegen = Mathf.Max(shieldRegen, 10f);
 					}

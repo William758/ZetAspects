@@ -193,7 +193,7 @@ namespace TPDespair.ZetAspects
 
 				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
-				if (inventory.GetItemCount(kvp.Value) > 0) return targetEquipDef;
+				if (inventory.GetItemCountEffective(kvp.Value) > 0) return targetEquipDef;
 				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
 				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
 			}
@@ -227,7 +227,7 @@ namespace TPDespair.ZetAspects
 
 				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
-				if (inventory.GetItemCount(kvp.Value) > 0) return targetEquipDef;
+				if (inventory.GetItemCountEffective(kvp.Value) > 0) return targetEquipDef;
 			}
 
 			return null;
@@ -533,10 +533,10 @@ namespace TPDespair.ZetAspects
 					Inventory inventory = body.inventory;
 					if (inventory)
 					{
-						int count = inventory.GetItemCount(RoR2Content.Items.ShieldOnly);
+						int count = inventory.GetItemCountEffective(RoR2Content.Items.ShieldOnly);
 						if (count > 0) convertShield = true;
 
-						count = inventory.GetItemCount(DLC1Content.Items.MissileVoid);
+						count = inventory.GetItemCountEffective(DLC1Content.Items.MissileVoid);
 						if (count > 0) voidShield = true;
 					}
 				}

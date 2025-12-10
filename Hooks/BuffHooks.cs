@@ -173,7 +173,7 @@ namespace TPDespair.ZetAspects
 					if (updateMode > 0 && (updateMode > 1 || aspectBuff))
 					{
 						//Logger.Warn("UpdateInventory : [" + buffDef.buffIndex + "] " + buffDef.name);
-						inventory.GiveItem(ItemDefOf.ZetAspectsUpdateInventory);
+						inventory.GiveItemPermanent(ItemDefOf.ZetAspectsUpdateInventory);
 					}
 				}
 			}

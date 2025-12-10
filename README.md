@@ -148,6 +148,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.2 - Fixed for latest patch.
+
 v2.10.1 - Seekers of the Storm support.
 
 v2.10.0 - Updated for latest game version. Added valdation check to Aspect Command Menu.

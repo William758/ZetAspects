@@ -550,7 +550,7 @@ namespace TPDespair.ZetAspects
 					aspect *= Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
 				}
 
-				aspect += inventory.GetItemCount(GetAspectItemIndex(buffDef.buffIndex));
+				aspect += inventory.GetItemCountEffective(GetAspectItemIndex(buffDef.buffIndex));
 			}
 
 			foreach (IAspectProvider provider in EliteBuffManager.Providers)
@@ -596,7 +596,7 @@ namespace TPDespair.ZetAspects
 
 		public static bool HasAspectItemOrEquipment(Inventory inventory, ItemDef itemDef, EquipmentDef equipDef)
 		{
-			if (itemDef && inventory.GetItemCount(itemDef) > 0) return true;
+			if (itemDef && inventory.GetItemCountEffective(itemDef) > 0) return true;
 
 			if (equipDef)
 			{
@@ -639,7 +639,7 @@ namespace TPDespair.ZetAspects
 
 			if (itemIndex == ItemIndex.None) return false;
 
-			if (inventory.GetItemCount(itemIndex) > 0) return true;
+			if (inventory.GetItemCountEffective(itemIndex) > 0) return true;
 
 			return false;
 		}
