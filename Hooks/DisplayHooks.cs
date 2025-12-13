@@ -12,11 +12,12 @@ using RoR2.UI;
 namespace TPDespair.ZetAspects
 {
 	// this is attached to a buff display so that our changes only happens once
+	/*
 	internal class ZetAspectsBuffIconMarker : MonoBehaviour
 	{
 		
 	}
-
+	*/
 
 
 	internal static class DisplayHooks
@@ -55,12 +56,12 @@ namespace TPDespair.ZetAspects
 
 			if (Configuration.RecolorHpBar.Value) HPBarColorHook();
 		}
-
+		/*
 		internal static void LateSetup()
 		{
 			BuffIconDisplayHook();
 		}
-
+		*/
 
 
 		public static void SetupRenderPriority()
@@ -585,7 +586,7 @@ namespace TPDespair.ZetAspects
 		}
 
 
-
+		/*
 		private static void BuffIconDisplayHook()
 		{
 			On.RoR2.UI.BuffIcon.UpdateIcon += (orig, self) =>
@@ -610,5 +611,6 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
+		*/
 	}
 }

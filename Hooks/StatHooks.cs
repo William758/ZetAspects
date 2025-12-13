@@ -132,7 +132,7 @@ namespace TPDespair.ZetAspects
 							{
 								bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
 
-								count = Mathf.Max(5f, self.GetBuffCount(BuffDefOf.ZetElusive));
+								count = Mathf.Max(5f, self.GetBuffCount(BuffDefOf.ZetElusive) / 5);
 								value += Configuration.AspectVeiledElusiveMovementGain.Value * (count / (nemCloak ? 40f : 20f));
 							}
 						}

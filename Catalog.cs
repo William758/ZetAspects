@@ -42,6 +42,8 @@ namespace TPDespair.ZetAspects
 
 		public static Dictionary<BuffIndex, AspectDef> buffToAspect = new Dictionary<BuffIndex, AspectDef>();
 
+		public static List<AspectDef> aspectsWithPromoters = new List<AspectDef>();
+
 
 
 		internal static ItemTierDef BossItemTier;
@@ -568,6 +570,16 @@ namespace TPDespair.ZetAspects
 
 
 
+		public static bool HasAspectFromProviders(CharacterBody body, BuffDef buffDef)
+		{
+			foreach (IAspectProvider provider in EliteBuffManager.Providers)
+			{
+				if (provider.HasAspect(body, buffDef.buffIndex)) return true;
+			}
+
+			return false;
+		}
+
 		public static bool HasAspectFromProviders(CharacterBody body, BuffIndex buffIndex)
 		{
 			foreach (IAspectProvider provider in EliteBuffManager.Providers)
@@ -802,6 +814,7 @@ namespace TPDespair.ZetAspects
 				ZetElusive.canStack = true;
 				ZetElusive.isDebuff = false;
 				ZetElusive.iconSprite = Sprites.ZetElusive;
+				ZetElusive.stackingDisplayMethod = BuffDef.StackingDisplayMethod.Percentage;
 				BuffDefOf.ZetElusive = ZetElusive;
 				ZetAspectsContent.buffDefs.Add(ZetElusive);
 
@@ -1285,7 +1298,9 @@ namespace TPDespair.ZetAspects
 
 				EffectHooks.LateSetup();
 				DropHooks.LateSetup();
-				DisplayHooks.LateSetup();
+				//DisplayHooks.LateSetup();
+
+				BuffDefOf.ZetElusive.stackingDisplayMethod = BuffDef.StackingDisplayMethod.Percentage;
 			}
 
 			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats

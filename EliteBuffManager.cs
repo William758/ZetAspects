@@ -44,6 +44,7 @@ namespace TPDespair.ZetAspects
 		private float refreshTimer = 0f;
 
 		private readonly List<BuffIndex> buffsToRefresh = new List<BuffIndex>();
+		private readonly List<BuffIndex> promotedBuffs = new List<BuffIndex>();
 
 		public void AddBuffToRefresh(BuffIndex buffIndex)
 		{
@@ -80,6 +81,25 @@ namespace TPDespair.ZetAspects
 			Inventory inventory = body.inventory;
 			if (inventory)
 			{
+				// aspectsWithPromoters should only contain valid aspects
+				foreach (AspectDef aspectDef in Catalog.aspectsWithPromoters)
+				{
+					if (body.HasBuff(aspectDef.buffDef))
+					{
+						IEnumerable<BuffIndex> susBuffs = aspectDef.Promoter(body);
+						if (susBuffs != null && susBuffs.Any())
+						{
+							foreach (BuffIndex buffIndex in susBuffs)
+							{
+								if (!promotedBuffs.Contains(buffIndex))
+								{
+									promotedBuffs.Add(buffIndex);
+								}
+							}
+						}
+					}
+				}
+
 				for (int i = body.timedBuffs.Count - 1; i >= 0; i--)
 				{
 					CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
@@ -96,7 +116,7 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
-						if (Catalog.aspectBuffIndexes.Contains(buffIndex))
+						if (Catalog.aspectBuffIndexes.Contains(buffIndex) || promotedBuffs.Contains(buffIndex))
 						{
 							if (!buffsToRefresh.Contains(buffIndex))
 							{
@@ -108,7 +128,7 @@ namespace TPDespair.ZetAspects
 
 				foreach (BuffIndex buffIndex in buffsToRefresh)
 				{
-					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || Catalog.HasAspectFromProviders(body, buffIndex))
+					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || Catalog.HasAspectFromProviders(body, buffIndex) || promotedBuffs.Contains(buffIndex))
 					{
 						AspectDef aspectDef = Catalog.GetAspectDef(buffIndex);
 						if (aspectDef != null)
@@ -125,6 +145,7 @@ namespace TPDespair.ZetAspects
 			}
 
 			buffsToRefresh.Clear();
+			promotedBuffs.Clear();
 		}
 
 

@@ -88,8 +88,14 @@ namespace TPDespair.ZetAspects
 		/// <summary>Called before elite buff is granted from : OnEquipmentGained and OnInventoryChanged. Return true to grant the elite buff.</summary>
 		public Func<CharacterBody, Inventory, bool> PreBuffGrant;
 
+		/// <summary>Allows EliteBuffManager to refresh other buffs.</summary>
+		public Func<CharacterBody, IEnumerable<BuffIndex>> Promoter;
+
 		/// <summary>Called whenever EliteBuffManager refreshes buff duration.</summary>
 		public Action<CharacterBody> OnRefresh;
+
+		/// <summary>Called whenever buff fails to refresh and expires.</summary>
+		public Action<CharacterBody> OnExpire;
 
 		public bool invalid = false;
 
@@ -894,6 +900,18 @@ namespace TPDespair.ZetAspects
 				if (!Catalog.aspectBuffIndexes.Contains(buffDef.buffIndex))
 				{
 					Catalog.aspectBuffIndexes.Add(buffDef.buffIndex);
+				}
+
+
+
+				if (aspectDef.Promoter != null)
+				{
+					if (!Catalog.aspectsWithPromoters.Contains(aspectDef))
+					{
+						Catalog.aspectsWithPromoters.Add(aspectDef);
+
+						Logger.Info("Registered promoter: " + aspectDef.identifier);
+					}
 				}
 
 

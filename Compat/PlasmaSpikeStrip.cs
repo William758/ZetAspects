@@ -272,7 +272,7 @@ namespace TPDespair.ZetAspects.Compat
 
 					if (___body.HasBuff(BuffDefOf.ZetElusive))
 					{
-						___body.ClearTimedBuffs(BuffDefOf.ZetElusive);
+						___body.SetBuffCount(BuffDefOf.ZetElusive.buffIndex, 0);
 					}
 				}
 			}

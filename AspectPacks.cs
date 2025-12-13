@@ -199,11 +199,41 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectVeiled.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixVeiled = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixVeiled = buffDef,
+						Promoter = (body) =>
+						{
+							if (body.HasBuff(veiledBuffer))
+							{
+								BuffIndex[] buffs = { RoR2Content.Buffs.Cloak.buffIndex };
+								return buffs;
+							}
+
+							return null;
+						},
 						OnRefresh = (body) =>
 						{
 							if (body.HasBuff(veiledBuffer))
 							{
 								body.AddTimedBuff(RoR2Content.Buffs.Cloak, 5f);
+							}
+						},
+						OnExpire = (body) =>
+						{
+							for (int i = 0; i < 2; i++)
+							{
+								if (body.HasBuff(veiledBuffer))
+								{
+									body.RemoveBuff(veiledBuffer);
+								}
+							}
+
+							if (body.HasBuff(RoR2Content.Buffs.Cloak))
+							{
+								body.ClearTimedBuffs(RoR2Content.Buffs.Cloak);
+							}
+
+							if (body.HasBuff(BuffDefOf.ZetElusive))
+							{
+								body.SetBuffCount(BuffDefOf.ZetElusive.buffIndex, 0);
 							}
 						}
 					},
@@ -224,7 +254,6 @@ namespace TPDespair.ZetAspects
 				{
 					if (EquipDefOf.AffixVeiled != null)
 					{
-						// - if our cloak is expiring and we are veiled, refresh veiled to sync timers ???
 						EliteBuffManager.MonitorBuff(RoR2Content.Buffs.Cloak.buffIndex);
 						EliteBuffManager.MonitorTriggered += (manager, buffIndex) =>
 						{

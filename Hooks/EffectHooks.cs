@@ -383,7 +383,7 @@ namespace TPDespair.ZetAspects
 								{
 									bool nemCloak = Compat.NemSpikeStrip.VeiledEnabled && Compat.NemSpikeStrip.GetConfigValue(Compat.NemSpikeStrip.VeiledHitToShowField, true);
 
-									float count = Mathf.Max(5f, vicBody.GetBuffCount(BuffDefOf.ZetElusive));
+									float count = Mathf.Max(5f, vicBody.GetBuffCount(BuffDefOf.ZetElusive) / 5);
 									avoidChance += Configuration.AspectVeiledElusiveDodgeGain.Value * (count / (nemCloak ? 40f : 20f));
 								}
 							}
@@ -1904,25 +1904,11 @@ namespace TPDespair.ZetAspects
 				effect = 1f + Configuration.AspectVeiledElusiveStackEffect.Value * (effect - 1f);
 				int count = Mathf.RoundToInt(effect * 20f);
 
-				bool effectDecay = Configuration.AspectVeiledElusiveDecay.Value;
-				float decayInterval = duration / 20f;
-
-				float buffDuration = effectDecay ? (decayInterval * count) : duration;
-				if (buffDuration - GetFirstBuffTimer(self, elusiveBuff) >= 0.5f)
+				if (ElusiveDecayBehavior.SetStacks(self, count * 5))
 				{
-					self.ClearTimedBuffs(elusiveBuff.buffIndex);
-					self.SetBuffCount(elusiveBuff.buffIndex, 0);
-
-					for (int i = 0; i < count; i++)
-					{
-						buffDuration = effectDecay ? (decayInterval * (count - i)) : duration;
-
-						self.AddTimedBuff(elusiveBuff.buffIndex, buffDuration);
-					}
-
 					if (!nemCloak)
 					{
-						float cloakDuration = effectDecay ? (decayInterval * count) : duration;
+						float cloakDuration = Configuration.AspectVeiledElusiveDecay.Value ? ((duration / 20f) * count) : duration;
 
 						ApplyCloak(self, damageInfo, cloakDuration);
 					}
@@ -1930,19 +1916,6 @@ namespace TPDespair.ZetAspects
 			}
 		}
 
-		private static float GetFirstBuffTimer(CharacterBody body, BuffDef buffDef)
-		{
-			for (int i = 0; i < body.timedBuffs.Count; i++)
-			{
-				CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
-				if (timedBuff.buffIndex == buffDef.buffIndex)
-				{
-					return timedBuff.timer;
-				}
-			}
-
-			return 0f;
-		}
 
 		private static void ApplyCloak(CharacterBody self, DamageInfo damageInfo, float duration)
 		{
@@ -2258,6 +2231,16 @@ namespace TPDespair.ZetAspects
 
 					return;
 				}
+
+				buffIndex = RoR2Content.Buffs.Cloak.buffIndex;
+				if (buffDef.buffIndex == buffIndex)
+				{
+					if (self.GetBuffCount(buffIndex) < 1)
+					{
+						self.ClearTimedBuffs(buffIndex);
+						self.SetBuffCount(buffIndex, 0);
+					}
+				}
 			}
 
 			orig(self, buffDef, duration);
@@ -2268,7 +2251,9 @@ namespace TPDespair.ZetAspects
 			if (NetworkServer.active)
 			{
 				BuffIndex buffIndex = DLC1Content.Buffs.BearVoidCooldown.buffIndex;
+				if (buffType == buffIndex && self.GetBuffCount(buffIndex) < 1) return;
 
+				buffIndex = RoR2Content.Buffs.Cloak.buffIndex;
 				if (buffType == buffIndex && self.GetBuffCount(buffIndex) < 1) return;
 			}
 
