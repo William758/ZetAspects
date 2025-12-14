@@ -165,6 +165,8 @@ namespace TPDespair.ZetAspects
 			if (AffixLunarAvailibilityField != null) LunarProjectileHook();
 			PreventAspectCrippleHook();
 			PreventAspectCollapseHook();
+			AdjustGoldNuggetHook();
+			AdjustGoldExplosionHook();
 			DamageTakenHook();
 			//HealMultHook();
 			HeadHunterBuffHook();
@@ -928,6 +930,114 @@ namespace TPDespair.ZetAspects
 				else
 				{
 					Logger.Warn("PreventAspectCollapseHook Failed");
+				}
+			};
+		}
+
+		private static void AdjustGoldNuggetHook()
+		{
+			On.RoR2.AffixAurelioniteBehavior.OnServerDamageDealt += (orig, self, damageReport) =>
+			{
+				if (damageReport.attackerBody != self.body || self.body.master == null || damageReport.victimBody == null || damageReport.victimMaster == null)
+				{
+					return;
+				}
+				if (damageReport.attackerBody.isPlayerControlled && !damageReport.damageInfo.damageType.IsDamageSourceSkillBased)
+				{
+					return;
+				}
+				if (damageReport.victimTeamIndex == damageReport.attackerTeamIndex)
+				{
+					return;
+				}
+
+				if (!Run.instance || Run.instance.time <= self.nuggetCooldownTimestamp)
+				{
+					return;
+				}
+
+				CharacterMaster victimMaster = damageReport.victimMaster;
+
+				int chunkValue = Run.instance.GetDifficultyScaledCost(AffixAurelioniteBehavior.stealGoldInAdjustedIncrementsOf);
+				float stealAmount = Mathf.Max(self.percentageOfGoldCopiedFromEnemy * victimMaster.money, chunkValue);
+				stealAmount -= stealAmount % chunkValue;
+
+				int throttleCount = 0;
+				bool onPlayerTeam = self.body.teamComponent.teamIndex == TeamIndex.Player;
+				if (onPlayerTeam)
+				{
+					throttleCount = self.body.GetBuffCount(BuffDefOf.ZetAurelioniteThrottle);
+				}
+
+				if (!self.isPlayer && damageReport.victimBody.isPlayerControlled && victimMaster)
+				{
+					stealAmount = Mathf.Min(self.GetTotalPossibleNuggets(damageReport.damageDealt, damageReport.victimBody) * chunkValue, victimMaster.money);
+					stealAmount -= stealAmount % chunkValue;
+
+					uint money = (uint)Mathf.Max(0f, victimMaster.money - stealAmount);
+					victimMaster.money = money;
+				}
+				else if (onPlayerTeam)
+				{
+					float throttleFactor = Mathf.Pow(0.9f, Mathf.Clamp(throttleCount - 5, 0, 10));
+					if (!Util.CheckRoll(self.procChanceOfPlayerAttackSpawningGold * damageReport.damageInfo.procCoefficient * throttleFactor, 0f, null))
+					{
+						return;
+					}
+
+					stealAmount = chunkValue;
+				}
+
+				if (stealAmount > 0f)
+				{
+					float cooldown = self.nuggetCooldownDuration;
+					if (onPlayerTeam) cooldown *= 2f;
+
+					float throttleFactor = 1f + (0.25f * Mathf.Min(16, throttleCount));
+					self.nuggetCooldownTimestamp = Run.instance.time + (self.nuggetCooldownDuration * throttleFactor);
+
+					self.body.AddTimedBuff(BuffDefOf.ZetAurelioniteThrottle, 30f);
+					self.StealMoneyWithFX(damageReport.victimBody.transform, (int)(stealAmount / (float)chunkValue), damageReport.victimBody);
+				}
+			};
+		}
+
+		private static void AdjustGoldExplosionHook()
+		{
+			On.RoR2.Projectile.ProjectileKnockOutGold.OnProjectileExplosion += (orig, self, blastAttack, result) =>
+			{
+				bool throttled = true;
+				CharacterBody atkBody = null;
+
+				GameObject attacker = blastAttack.attacker;
+				if (attacker != null)
+				{
+					atkBody = attacker.GetComponent<CharacterBody>();
+					if (atkBody != null)
+					{
+						if (atkBody.GetBuffCount(BuffDefOf.ZetAurelioniteThrottle) < 6) throttled = false;
+					}
+				}
+
+				if (throttled)
+				{
+					self.maxNuggetsPerEnemy = 2;
+					self.maxNuggetCapForThisInstance = 3;
+				}
+				else
+				{
+					self.maxNuggetsPerEnemy = 3;
+					self.maxNuggetCapForThisInstance = 5;
+				}
+
+				orig(self, blastAttack, result);
+
+				if (atkBody)
+				{
+					for (int i = 0; i < self.totalNuggetsGenerated; i++)
+					{
+						atkBody.AddTimedBuff(BuffDefOf.ZetAurelioniteThrottle, 30f);
+					}
 				}
 			};
 		}

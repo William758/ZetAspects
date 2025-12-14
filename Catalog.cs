@@ -794,6 +794,17 @@ namespace TPDespair.ZetAspects
 			BuffDefOf.ZetPoached = ZetPoached;
 			ZetAspectsContent.buffDefs.Add(ZetPoached);
 
+			BuffDef ZetAurelioniteThrottle = ScriptableObject.CreateInstance<BuffDef>();
+			ZetAurelioniteThrottle.name = "ZetAurelioniteThrottle";
+			ZetAurelioniteThrottle.buffColor = Color.white;
+			ZetAurelioniteThrottle.canStack = true;
+			ZetAurelioniteThrottle.isDebuff = false;
+			ZetAurelioniteThrottle.isHidden = true;
+			ZetAurelioniteThrottle.iconSprite = null;
+			//ZetAurelioniteThrottle.iconSprite = LegacyResourcesAPI.Load<BuffDef>("BuffDefs/Slow80").iconSprite;
+			BuffDefOf.ZetAurelioniteThrottle = ZetAurelioniteThrottle;
+			ZetAspectsContent.buffDefs.Add(ZetAurelioniteThrottle);
+
 			if (AspectPackDefOf.Bubbet.Enabled)
 			{
 				BuffDef ZetSepiaBlind = ScriptableObject.CreateInstance<BuffDef>();
@@ -836,7 +847,7 @@ namespace TPDespair.ZetAspects
 				ZetEchoPrimer.canStack = false;
 				ZetEchoPrimer.isDebuff = false;
 				ZetEchoPrimer.isHidden = true;
-				ZetEchoPrimer.iconSprite = Sprites.ZetElusive;
+				ZetEchoPrimer.iconSprite = null;
 				BuffDefOf.ZetEchoPrimer = ZetEchoPrimer;
 				ZetAspectsContent.buffDefs.Add(ZetEchoPrimer);
 			}
@@ -1299,8 +1310,6 @@ namespace TPDespair.ZetAspects
 				EffectHooks.LateSetup();
 				DropHooks.LateSetup();
 				//DisplayHooks.LateSetup();
-
-				BuffDefOf.ZetElusive.stackingDisplayMethod = BuffDef.StackingDisplayMethod.Percentage;
 			}
 
 			// TODO should actually check and see if settings are enabled - 0 is EliteVariety setting rate on recalc stats

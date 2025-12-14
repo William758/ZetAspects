@@ -92,6 +92,7 @@ namespace TPDespair.ZetAspects
 		public static BuffDef ZetSapped;
 		public static BuffDef ZetShredded;
 		public static BuffDef ZetPoached;
+		public static BuffDef ZetAurelioniteThrottle;
 		public static BuffDef ZetSepiaBlind;
 		public static BuffDef ZetElusive;
 		public static BuffDef ZetWarped;

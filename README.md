@@ -148,6 +148,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.4 - Limit rate of GoldChunks produced by AffixAurelionite.
+
 v2.10.3 - Fixed SpikeStrip AffixVeiled buff handling.
 
 v2.10.2 - Fixed for latest patch.
