@@ -36,6 +36,10 @@ Monster leech multiplier : x5
 
 Monster Bead critical damage multiplier : x1.35 - Only applies if critical chance below 40%
 
+## Alloyed Collective:
+
+![effects](https://i.imgur.com/3xu3ekO.png)
+
 ## SpikeStrip:
 
 ![effects](https://i.imgur.com/c35yqIh.png)
@@ -147,6 +151,8 @@ Chinese translation by BTP-G and MushroomEl.
 Japanese translation by WakefulSpect.
 
 ## Changelog:
+
+v2.10.5 - Alloyed Collective support.
 
 v2.10.4 - Limit rate of GoldChunks produced by AffixAurelionite.
 

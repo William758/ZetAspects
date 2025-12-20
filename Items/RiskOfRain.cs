@@ -1057,4 +1057,99 @@ namespace TPDespair.ZetAspects.Items
 			return output;
 		}
 	}
+
+
+
+	public static class ZetAspectCollective
+	{
+		public static string identifier = "ZetAspectCollective";
+
+		internal static ItemDef DefineItem()
+		{
+			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
+			if (AspectWorldUnique.Value)
+			{
+				Array.Resize(ref tags, 3);
+				tags[2] = ItemTag.WorldUnique;
+			}
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef._itemTierDef = Catalog.AspectItemTier;
+			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
+			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static void SetupTokens()
+		{
+			string locToken = identifier.ToUpperInvariant();
+			string affix = "COLLECTIVE";
+
+			foreach (string language in fragments.Keys)
+			{
+				targetLanguage = language;
+
+				RegisterToken("ITEM_" + locToken + "_NAME", TextFragment("AFFIX_" + affix + "_NAME"));
+				RegisterToken("ITEM_" + locToken + "_PICKUP", TextFragment("AFFIX_" + affix + "_PICKUP"));
+				string desc = BuildDescription(false);
+				RegisterToken("ITEM_" + locToken + "_DESC", desc);
+				if (!DropHooks.CanObtainItem()) desc = BuildDescription(true);
+
+				EquipmentDef equipDef = EquipDefOf.AffixCollective;
+				if (equipDef)
+				{
+					RegisterToken(equipDef.nameToken, TextFragment("AFFIX_" + affix + "_NAME"));
+					RegisterToken(equipDef.pickupToken, TextFragment("AFFIX_" + affix + "_PICKUP"));
+					RegisterToken(equipDef.descriptionToken, EquipmentDescription(desc, TextFragment("AFFIX_" + affix + "_ACTIVE")));
+				}
+			}
+
+			targetLanguage = "";
+		}
+
+		public static string BuildDescription(bool combine)
+		{
+			string output = TextFragment("ASPECT_OF_THE_COLLECTIVE");
+			output += TextFragment("COLLECTIVE_BUBBLE");
+
+			if (AspectCollectiveAllyCooldownGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("ANGRY_COOLDOWN"),
+					ScalingText(AspectCollectiveAllyCooldownGain.Value, "percent", "cIsUtility")
+				);
+			}
+
+			if (AspectCollectiveBaseCooldownGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_COOLDOWN"),
+					ScalingText(AspectCollectiveBaseCooldownGain.Value, AspectCollectiveStackCooldownGain.Value, "percent", "cIsUtility", combine)
+				);
+			}
+
+			if (AspectCollectiveBaseMinionDamageGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_DAMAGE_DRONE"),
+					ScalingText(AspectCollectiveBaseMinionDamageGain.Value, AspectCollectiveStackMinionDamageGain.Value, "percent", "cIsDamage", combine)
+				);
+			}
+
+			if (AspectCollectiveBaseMinionDamageResistGain.Value > 0f)
+			{
+				output += String.Format(
+					TextFragment("STAT_DAMAGE_TAKEN_DRONE"),
+					ScalingText(AspectCollectiveBaseMinionDamageResistGain.Value, AspectCollectiveStackMinionDamageResistGain.Value, "percent", "cIsHealing", combine)
+				);
+			}
+
+			return output;
+		}
+	}
 }

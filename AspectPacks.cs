@@ -139,6 +139,23 @@ namespace TPDespair.ZetAspects
 						SetupTokens = Items.ZetAspectBead.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixBead = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixBead = buffDef
+					},
+					new AspectDef()
+					{
+						identifier = "ZetAspectCollective",
+						FindEquipmentDef = () => { return DLC3Content.Equipment.EliteCollectiveEquipment; },
+						itemName = "ZetAspectCollective",
+						displayPriority = 1,
+						BaseIcon = () => 
+						{
+							Sprite sprite = Catalog.TryUseSprite(DLC3Content.Equipment.EliteCollectiveEquipment.pickupIconSprite);
+
+							return Catalog.TrimSpriteEdge(sprite, 8, 24);
+						},
+						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						SetupTokens = Items.ZetAspectCollective.SetupTokens,
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixCollective = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixCollective = buffDef
 					}
 				},
 				PostInit = () =>

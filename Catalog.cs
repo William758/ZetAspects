@@ -380,17 +380,51 @@ namespace TPDespair.ZetAspects
 			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
 		}
 
+		public static Sprite TrimSpriteEdge(Sprite baseSprite, int trim, int brCorner)
+		{
+			int width = baseSprite.texture.width;
+			int height = baseSprite.texture.height;
+
+			Color32 trans = new Color32(0,0,0,0);
+			Color32[] basePixels = baseSprite.texture.GetPixels32();
+
+			for (var i = 0; i < basePixels.Length; ++i)
+			{
+				int xPos = i % width;
+				int yPos = i / width;
+
+				if (xPos < trim || xPos > (width - trim) || yPos < trim || yPos > (height - trim))
+				{
+					basePixels[i] = trans;
+				}
+				else if (((width - 1 - xPos) + yPos) <= brCorner)
+				{
+					basePixels[i] = trans;
+				}
+			}
+
+			Texture2D newTexture = new Texture2D(128, 128, TextureFormat.RGBA32, false);
+
+			newTexture.SetPixels32(basePixels);
+			newTexture.Apply();
+
+			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+		}
+
 		public static Sprite TryUseSprite(Sprite sprite)
 		{
-			if (sprite.texture.isReadable) return sprite;
+			if (!sprite.texture.isReadable || sprite.textureRect.width != 128 || sprite.texture.height != 128)
+			{
+				Texture2D newTexture = DuplicateTexture(sprite.texture);
+				return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+			}
 
-			Texture2D newTexture = DuplicateTexture(sprite.texture);
-			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+			return sprite;
 		}
 
 		public static Texture2D DuplicateTexture(Texture2D source)
 		{
-			RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+			RenderTexture renderTex = RenderTexture.GetTemporary(128, 128, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
 			Graphics.Blit(source, renderTex);
 
 			RenderTexture previous = RenderTexture.active;
@@ -398,9 +432,9 @@ namespace TPDespair.ZetAspects
 
 
 
-			Texture2D readableText = new Texture2D(source.width, source.height);
+			Texture2D readableText = new Texture2D(128, 128);
 
-			readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+			readableText.ReadPixels(new Rect(0, 0, 128, 128), 0, 0);
 			readableText.Apply();
 
 			RenderTexture.active = previous;
@@ -921,6 +955,11 @@ namespace TPDespair.ZetAspects
 			ItemDefOf.ZetAspectBead = ZetAspectBead;
 			ZetAspectsContent.itemDefs.Add(ZetAspectBead);
 			transformableAspectItemDefs.Add(ZetAspectBead);
+
+			ItemDef ZetAspectCollective = Items.ZetAspectCollective.DefineItem();
+			ItemDefOf.ZetAspectCollective = ZetAspectCollective;
+			ZetAspectsContent.itemDefs.Add(ZetAspectCollective);
+			transformableAspectItemDefs.Add(ZetAspectCollective);
 
 			if (AspectPackDefOf.SpikeStrip.Enabled)
 			{
@@ -1450,9 +1489,10 @@ namespace TPDespair.ZetAspects
 
 					if (aspectPack.Enabled) aspectPack.PostInit?.Invoke();
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
-					Logger.Error(ex);
+					Logger.Error("Failed SetupIntermediate - AspectPack: " + aspectPack.identifier);
+					Logger.Error(e);
 				}
 			}
 			

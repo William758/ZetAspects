@@ -1140,26 +1140,27 @@ namespace TPDespair.ZetAspects
 								}
 							}
 
+							bool collectiveEnabled = Configuration.AspectCollectiveBaseMinionDamageResistGain.Value > 0f;
 							bool echoEnabled = AspectPackDefOf.MoreElites.Enabled && Configuration.AspectEchoBaseMinionDamageResistGain.Value > 0f;
 							bool tinkerEnabled = AspectPackDefOf.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageResistGain.Value > 0f;
 
 							// should we check minion owners for damage reduction sources?
-							if (echoEnabled || tinkerEnabled)
+							if (collectiveEnabled || echoEnabled || tinkerEnabled)
 							{
 								CharacterMaster master = vicBody.master;
 								if (master)
 								{
 									// echo will check all minions , if tinker only ; only check drones
-									bool isDrone = tinkerEnabled && IsValidDrone(master);
+									bool isDrone = (collectiveEnabled || tinkerEnabled) && IsValidDrone(master);
 									if (echoEnabled || isDrone)
 									{
 										CharacterBody ownerBody = GetMinionOwnerBody(master);
 										if (ownerBody)
 										{
-											if (ownerBody.HasBuff(BuffDefOf.AffixEcho))
+											if (isDrone && ownerBody.HasBuff(BuffDefOf.AffixCollective))
 											{
-												float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixEcho);
-												float effectValue = Configuration.AspectEchoBaseMinionDamageResistGain.Value + Configuration.AspectEchoStackMinionDamageResistGain.Value * (count - 1f);
+												float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixCollective);
+												float effectValue = Configuration.AspectCollectiveBaseMinionDamageResistGain.Value + Configuration.AspectCollectiveStackMinionDamageResistGain.Value * (count - 1f);
 
 												reduction += effectValue;
 											}
@@ -1168,6 +1169,14 @@ namespace TPDespair.ZetAspects
 											{
 												float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixTinkerer);
 												float effectValue = Configuration.AspectTinkerBaseMinionDamageResistGain.Value + Configuration.AspectTinkerStackMinionDamageResistGain.Value * (count - 1f);
+
+												reduction += effectValue;
+											}
+
+											if (ownerBody.HasBuff(BuffDefOf.AffixEcho))
+											{
+												float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixEcho);
+												float effectValue = Configuration.AspectEchoBaseMinionDamageResistGain.Value + Configuration.AspectEchoStackMinionDamageResistGain.Value * (count - 1f);
 
 												reduction += effectValue;
 											}

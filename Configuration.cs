@@ -156,6 +156,14 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<float> AspectBeadStackCrit { get; set; }
 		public static ConfigEntry<float> AspectBeadMonsterLowCritMult { get; set; }
 
+		public static ConfigEntry<float> AspectCollectiveBaseCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveStackCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveAllyCooldownGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveBaseMinionDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveStackMinionDamageResistGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveBaseMinionDamageGain { get; set; }
+		public static ConfigEntry<float> AspectCollectiveStackMinionDamageGain { get; set; }
+
 		public static ConfigEntry<float> AspectPlatedStifleMult { get; set; }
 		public static ConfigEntry<float> AspectPlatedStifleExponent { get; set; }
 		public static ConfigEntry<float> AspectPlatedPlayerPlateCountMult { get; set; }
@@ -1018,6 +1026,37 @@ namespace TPDespair.ZetAspects
 			AspectBeadMonsterLowCritMult = Config.Bind(
 				"2aj-Bead Aspect", "beadMonsterLowCritMult", -0.65f,
 				"Offset on critical damage multiplier for monsters with low crit."
+			);
+
+
+
+			AspectCollectiveBaseCooldownGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveBaseCooldown", 0.2f,
+				"Cooldown reduction gained. Set to 0 to disable."
+			);
+			AspectCollectiveStackCooldownGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveAddedCooldown", 0.1f,
+				"Cooldown reduction gained per stack."
+			);
+			AspectCollectiveAllyCooldownGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveAllyCooldown", 0.2f,
+				"Cooldown reduction granted to nearby allies. Effect only applies to allies without aspect and does not stack. Set to 0 to disable."
+			);
+			AspectCollectiveBaseMinionDamageResistGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveBaseDroneDamageResist", 0.20f,
+				"Drone damage taken reduction. Hyperbolic. Set to 0 to disable."
+			);
+			AspectCollectiveStackMinionDamageResistGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveAddedDroneDamageResist", 0.10f,
+				"Drone damage taken reduction per stack. Hyperbolic."
+			);
+			AspectCollectiveBaseMinionDamageGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveBaseDroneDamageGain", 0.20f,
+				"Drone damage gained. Set to 0 to disable."
+			);
+			AspectCollectiveStackMinionDamageGain = Config.Bind(
+				"2ak-AspectCollective", "collectiveAddedDroneDamageGain", 0.10f,
+				"Drone damage gained per stack."
 			);
 		}
 

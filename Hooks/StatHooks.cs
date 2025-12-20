@@ -373,16 +373,25 @@ namespace TPDespair.ZetAspects
 							value += Configuration.AspectBannerBaseDamageGain.Value + Configuration.AspectBannerStackDamageGain.Value * (count - 1f);
 						}
 
-						if (AspectPackDefOf.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f)
+						if (Configuration.AspectCollectiveBaseMinionDamageGain.Value > 0f || (AspectPackDefOf.EliteVariety.Enabled && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f))
 						{
 							CharacterMaster master = self.master;
 							if (master && EffectHooks.IsValidDrone(master))
 							{
 								CharacterBody ownerBody = EffectHooks.GetMinionOwnerBody(master);
-								if (ownerBody && ownerBody.HasBuff(BuffDefOf.AffixTinkerer))
+								if (ownerBody)
 								{
-									float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixTinkerer);
-									value += Configuration.AspectTinkerBaseMinionDamageGain.Value + Configuration.AspectTinkerStackMinionDamageGain.Value * (count - 1f);
+									if (ownerBody.HasBuff(BuffDefOf.AffixCollective) && Configuration.AspectCollectiveBaseMinionDamageGain.Value > 0f)
+									{
+										float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixCollective);
+										value += Configuration.AspectCollectiveBaseMinionDamageGain.Value + Configuration.AspectCollectiveStackMinionDamageGain.Value * (count - 1f);
+									}
+
+									if (ownerBody.HasBuff(BuffDefOf.AffixTinkerer) && Configuration.AspectTinkerBaseMinionDamageGain.Value > 0f)
+									{
+										float count = Catalog.GetStackMagnitude(ownerBody, BuffDefOf.AffixTinkerer);
+										value += Configuration.AspectTinkerBaseMinionDamageGain.Value + Configuration.AspectTinkerStackMinionDamageGain.Value * (count - 1f);
+									}
 								}
 							}
 						}
@@ -1231,6 +1240,31 @@ namespace TPDespair.ZetAspects
 		{
 			float mult = 1f;
 			float additiveReduction = 0f;
+
+
+
+			if (self.HasBuff(BuffDefOf.AffixCollective) || self.HasBuff(DLC3Content.Buffs.CollectiveShareBuff))
+			{
+				mult *= 1.3f;
+
+				if (self.HasBuff(BuffDefOf.AffixCollective))
+				{
+					if (Configuration.AspectCollectiveBaseCooldownGain.Value > 0f)
+					{
+						float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixCollective);
+						additiveReduction += Configuration.AspectCollectiveBaseCooldownGain.Value + Configuration.AspectCollectiveStackCooldownGain.Value * (count - 1f);
+					}
+				}
+				else if (self.HasBuff(DLC3Content.Buffs.CollectiveShareBuff))
+				{
+					if (Configuration.AspectCollectiveAllyCooldownGain.Value > 0f)
+					{
+						additiveReduction += Configuration.AspectCollectiveAllyCooldownGain.Value;
+					}
+				}
+			}
+
+
 
 			if (self.HasBuff(BuffDefOf.AffixWarped) && Configuration.AspectWarpedBaseCooldownGain.Value > 0f)
 			{

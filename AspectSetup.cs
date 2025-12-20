@@ -82,14 +82,17 @@ namespace TPDespair.ZetAspects
 		public List<string> bodyBlacklist = new List<string>();
 		public List<BodyIndex> blacklistedIndexes = new List<BodyIndex>();
 
-		/// <summary>Custom function that must return true to allow elite buff on CharacterBody.</summary>
+		/// <summary>Custom function that must return true to allow elite buff on CharacterBody. Inventory can be null.</summary>
 		public Func<CharacterBody, Inventory, bool> AllowAffix;
 
-		/// <summary>Called before elite buff is granted from : OnEquipmentGained and OnInventoryChanged. Return true to grant the elite buff.</summary>
+		/// <summary>Called when body does not have elite buff, before it is granted from : OnEquipmentGained and OnInventoryChanged. Return true to grant the elite buff.</summary>
 		public Func<CharacterBody, Inventory, bool> PreBuffGrant;
 
 		/// <summary>Allows EliteBuffManager to refresh other buffs.</summary>
 		public Func<CharacterBody, IEnumerable<BuffIndex>> Promoter;
+
+		/// <summary>Called whenever buff is first applied.</summary>
+		public Action<CharacterBody> OnApplied;
 
 		/// <summary>Called whenever EliteBuffManager refreshes buff duration.</summary>
 		public Action<CharacterBody> OnRefresh;
@@ -757,8 +760,30 @@ namespace TPDespair.ZetAspects
 
 		private static void SetupIcons(AspectDef aspectDef)
 		{
-			Sprite baseSprite = aspectDef.BaseIcon != null ? aspectDef.BaseIcon() : null;
+			Sprite baseSprite = null;
 			Sprite outlineSprite = aspectDef.OutlineIcon != null ? aspectDef.OutlineIcon() : null;
+
+			if (aspectDef.BaseIcon != null)
+			{
+				try
+				{
+					baseSprite = aspectDef.BaseIcon();
+				}
+				catch (Exception e)
+				{
+					Logger.Error("Failed getting BaseIcon for: " + aspectDef.identifier);
+					Logger.Error(e);
+
+					baseSprite = Catalog.Sprites.AffixUnknown;
+				}
+			}
+
+			if (baseSprite != null && (baseSprite.texture.width != 128 || baseSprite.texture.height != 128))
+			{
+				Logger.Warn("BaseIcon MUST be 128x128, Resizing BaseIcon for " + aspectDef.identifier);
+
+				baseSprite = Catalog.TryUseSprite(baseSprite);
+			}
 
 			if (baseSprite && outlineSprite)
 			{

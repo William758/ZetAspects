@@ -2,6 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -80,7 +81,7 @@ namespace TPDespair.ZetAspects
 							{
 								bool proceed = true;
 
-								if (aspectDef.PreBuffGrant != null)
+								if (!self.HasBuff(buffDef) && aspectDef.PreBuffGrant != null)
 								{
 									proceed = aspectDef.PreBuffGrant(self, self.inventory);
 								}
@@ -155,52 +156,75 @@ namespace TPDespair.ZetAspects
 		{
 			orig(self, buffDef);
 
-			if (!self || buffDef.buffIndex == BuffIndex.None || !NetworkServer.active || !Run.instance) return;
+			if (!NetworkServer.active || !Run.instance) return;
+			if (!self || !buffDef) return;
+
+			BuffIndex buffIndex = buffDef.buffIndex;
+			if (buffIndex == BuffIndex.None) return;
 
 			HandleEliteBuffManager(self);
+
+			if (!EffectHooks.DestroyedBodies.ContainsKey(self.netId))
+			{
+				if (Catalog.aspectBuffIndexes.Contains(buffIndex))
+				{
+					AspectDef aspectDef = Catalog.GetAspectDef(buffIndex);
+					if (aspectDef != null)
+					{
+						if (aspectDef.OnApplied != null)
+						{
+							aspectDef.OnApplied(self);
+						}
+					}
+				}
+			}
 		}
 
 		private static void UpdateOnBuffLostHook(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, CharacterBody self, BuffDef buffDef)
 		{
 			orig(self, buffDef);
 
-			if (!self || buffDef.buffIndex == BuffIndex.None || !NetworkServer.active || !Run.instance) return;
+			if (!NetworkServer.active || !Run.instance) return;
+			if (!self || !buffDef) return;
+
+			BuffIndex buffIndex = buffDef.buffIndex;
+			if (buffIndex == BuffIndex.None) return;
+			if (buffIndex == Catalog.lampBuff) return;
 
 			HandleEliteBuffManager(self);
 
 			if (!EffectHooks.DestroyedBodies.ContainsKey(self.netId))
 			{
-				if (buffDef.buffIndex == Catalog.lampBuff) return;
-
 				Inventory inventory = self.inventory;
-				if (inventory)
+				
+				bool aspectBuff = false;
+				BuffDef buffToCheck = buffDef;
+
+				if (BuffDefOf.ZetEchoPrimer && buffDef == BuffDefOf.ZetEchoPrimer) buffToCheck = BuffDefOf.AffixEcho;
+
+				if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex))
 				{
-					bool aspectBuff = false;
-					BuffDef buffToCheck = buffDef;
+					aspectBuff = true;
 
-					if (BuffDefOf.ZetEchoPrimer && buffDef == BuffDefOf.ZetEchoPrimer) buffToCheck = BuffDefOf.AffixEcho;
-
-					if (Catalog.aspectBuffIndexes.Contains(buffToCheck.buffIndex))
+					if (Catalog.BodyAllowedAffix(self, buffToCheck) && ((inventory && Catalog.HasAspectItemOrEquipment(inventory, buffToCheck)) || Catalog.HasAspectFromProviders(self, buffToCheck)))
 					{
-						aspectBuff = true;
-
-						if (Catalog.BodyAllowedAffix(self, buffToCheck) && (Catalog.HasAspectItemOrEquipment(inventory, buffToCheck) || Catalog.HasAspectFromProviders(self, buffToCheck)))
+						self.AddTimedBuff(buffToCheck, BuffCycleDuration);
+					}
+					else
+					{
+						AspectDef aspectDef = Catalog.GetAspectDef(buffToCheck.buffIndex);
+						if (aspectDef != null)
 						{
-							self.AddTimedBuff(buffToCheck, BuffCycleDuration);
-						}
-						else
-						{
-							AspectDef aspectDef = Catalog.GetAspectDef(buffToCheck.buffIndex);
-							if (aspectDef != null)
+							if (aspectDef.OnExpire != null)
 							{
-								if (aspectDef.OnExpire != null)
-								{
-									aspectDef.OnExpire(self);
-								}
+								aspectDef.OnExpire(self);
 							}
 						}
 					}
+				}
 
+				if (inventory)
+				{
 					// update itemBehaviors and itemDisplays
 					int updateMode = Configuration.UpdateInventoryFromBuff.Value;
 					if (updateMode > 0 && (updateMode > 1 || aspectBuff))

@@ -37,7 +37,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.10.4";
+		public const string ModVer = "2.10.5";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -110,24 +110,33 @@ namespace TPDespair.ZetAspects
 
 
 		/*
+		private static Vector3 DropletOffset(int slot)
+		{
+			float pirad = (slot % 6) * Mathf.PI / 3;
+			float mult = 5f * (1f + (slot / 6));
+			return new Vector3(Mathf.Cos(pirad) * mult, 7.5f, Mathf.Sin(pirad) * mult);
+		}
+		
 		private static void DebugDrops()
 		{
 			if (Input.GetKeyDown(KeyCode.F2))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
 
-				CreateDroplet(EquipDefOf.AffixWhite, transform.position + new Vector3(-5f, 5f, 5f));
-				CreateDroplet(EquipDefOf.AffixBlue, transform.position + new Vector3(0f, 5f, 7.5f));
-				CreateDroplet(EquipDefOf.AffixRed, transform.position + new Vector3(5f, 5f, 5f));
-				CreateDroplet(EquipDefOf.AffixHaunted, transform.position + new Vector3(-5f, 5f, -5f));
-				CreateDroplet(EquipDefOf.AffixPoison, transform.position + new Vector3(0f, 5f, -7.5f));
-				CreateDroplet(EquipDefOf.AffixLunar, transform.position + new Vector3(5f, 5f, -5f));
+				CreateDroplet(EquipDefOf.AffixWhite, transform.position + DropletOffset(0));
+				CreateDroplet(EquipDefOf.AffixBlue, transform.position + DropletOffset(1));
+				CreateDroplet(EquipDefOf.AffixRed, transform.position + DropletOffset(2));
+				CreateDroplet(EquipDefOf.AffixHaunted, transform.position + DropletOffset(3));
+				CreateDroplet(EquipDefOf.AffixPoison, transform.position + DropletOffset(4));
+				CreateDroplet(EquipDefOf.AffixLunar, transform.position + DropletOffset(5));
 
-				CreateDroplet(EquipDefOf.AffixEarth, transform.position + new Vector3(-10f, 10f, 10f));
-				CreateDroplet(EquipDefOf.AffixVoid, transform.position + new Vector3(0f, 10f, 15f));
+				CreateDroplet(EquipDefOf.AffixEarth, transform.position + DropletOffset(6));
+				CreateDroplet(EquipDefOf.AffixVoid, transform.position + DropletOffset(7));
 
-				CreateDroplet(EquipDefOf.AffixAurelionite, transform.position + new Vector3(10f, 10f, 10f));
-				CreateDroplet(EquipDefOf.AffixBead, transform.position + new Vector3(-10f, 10f, -10f));
+				CreateDroplet(EquipDefOf.AffixAurelionite, transform.position + DropletOffset(8));
+				CreateDroplet(EquipDefOf.AffixBead, transform.position + DropletOffset(9));
+
+				CreateDroplet(EquipDefOf.AffixCollective, transform.position + DropletOffset(10));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F3))

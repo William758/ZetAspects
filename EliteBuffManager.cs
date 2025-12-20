@@ -79,68 +79,66 @@ namespace TPDespair.ZetAspects
 			refreshTimer = refreshInterval;
 
 			Inventory inventory = body.inventory;
-			if (inventory)
+			
+			// aspectsWithPromoters should only contain valid aspects
+			foreach (AspectDef aspectDef in Catalog.aspectsWithPromoters)
 			{
-				// aspectsWithPromoters should only contain valid aspects
-				foreach (AspectDef aspectDef in Catalog.aspectsWithPromoters)
+				if (body.HasBuff(aspectDef.buffDef))
 				{
-					if (body.HasBuff(aspectDef.buffDef))
+					IEnumerable<BuffIndex> susBuffs = aspectDef.Promoter(body);
+					if (susBuffs != null && susBuffs.Any())
 					{
-						IEnumerable<BuffIndex> susBuffs = aspectDef.Promoter(body);
-						if (susBuffs != null && susBuffs.Any())
+						foreach (BuffIndex buffIndex in susBuffs)
 						{
-							foreach (BuffIndex buffIndex in susBuffs)
+							if (!promotedBuffs.Contains(buffIndex))
 							{
-								if (!promotedBuffs.Contains(buffIndex))
-								{
-									promotedBuffs.Add(buffIndex);
-								}
+								promotedBuffs.Add(buffIndex);
 							}
 						}
 					}
 				}
+			}
 
-				for (int i = body.timedBuffs.Count - 1; i >= 0; i--)
+			for (int i = body.timedBuffs.Count - 1; i >= 0; i--)
+			{
+				CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
+				BuffIndex buffIndex = timedBuff.buffIndex;
+
+				if (timedBuff.timer <= refreshThreshold)
 				{
-					CharacterBody.TimedBuff timedBuff = body.timedBuffs[i];
-					BuffIndex buffIndex = timedBuff.buffIndex;
-
-					if (timedBuff.timer <= refreshThreshold)
+					if (Monitored.Contains(buffIndex))
 					{
-						if (Monitored.Contains(buffIndex))
+						Action<EliteBuffManager, BuffIndex> action = MonitorTriggered;
+						if (action != null)
 						{
-							Action<EliteBuffManager, BuffIndex> action = MonitorTriggered;
-							if (action != null)
-							{
-								action(this, buffIndex);
-							}
+							action(this, buffIndex);
 						}
+					}
 
-						if (Catalog.aspectBuffIndexes.Contains(buffIndex) || promotedBuffs.Contains(buffIndex))
+					if (Catalog.aspectBuffIndexes.Contains(buffIndex) || promotedBuffs.Contains(buffIndex))
+					{
+						if (!buffsToRefresh.Contains(buffIndex))
 						{
-							if (!buffsToRefresh.Contains(buffIndex))
-							{
-								buffsToRefresh.Add(buffIndex);
-							}
+							buffsToRefresh.Add(buffIndex);
 						}
 					}
 				}
+			}
 
-				foreach (BuffIndex buffIndex in buffsToRefresh)
+			foreach (BuffIndex buffIndex in buffsToRefresh)
+			{
+				if ((inventory && Catalog.HasAspectItemOrEquipment(inventory, buffIndex)) || Catalog.HasAspectFromProviders(body, buffIndex) || promotedBuffs.Contains(buffIndex))
 				{
-					if (Catalog.HasAspectItemOrEquipment(inventory, buffIndex) || Catalog.HasAspectFromProviders(body, buffIndex) || promotedBuffs.Contains(buffIndex))
+					AspectDef aspectDef = Catalog.GetAspectDef(buffIndex);
+					if (aspectDef != null)
 					{
-						AspectDef aspectDef = Catalog.GetAspectDef(buffIndex);
-						if (aspectDef != null)
+						if (aspectDef.OnRefresh != null)
 						{
-							if (aspectDef.OnRefresh != null)
-							{
-								aspectDef.OnRefresh(body);
-							}
+							aspectDef.OnRefresh(body);
 						}
-
-						body.AddTimedBuff(buffIndex, refreshDuration);
 					}
+
+					body.AddTimedBuff(buffIndex, refreshDuration);
 				}
 			}
 

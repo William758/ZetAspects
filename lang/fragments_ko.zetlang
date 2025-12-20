@@ -128,7 +128,13 @@
 		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
 		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
 		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
-
+		
+		"AFFIX_COLLECTIVE_NAME": "Of One Mind",
+		"AFFIX_COLLECTIVE_PICKUP": "Become an aspect of the collective.",
+		"AFFIX_COLLECTIVE_ACTIVE": "<style=cStack>(???)</style>",
+		"ASPECT_OF_THE_COLLECTIVE": "<style=cDeath>Aspect of the Collective</style> :",
+		"COLLECTIVE_BUBBLE": "\nGain a protective dome that blocks all outside attacks.",
+		
 		"AFFIX_PLATED_NAME": "복종의 합금",
 		"AFFIX_PLATED_PICKUP": "인내의 한 형태가  됩니다.",
 		"AFFIX_PLATED_ACTIVE": "<style=cStack>(???)</style>",
