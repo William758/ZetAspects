@@ -115,26 +115,26 @@
 		"COLLAPSE_DOT": "\n攻撃がヒットすると<style=cIsDamage>卒倒</style>を与え、{2} {0} {1}与える。",
 		"COLLAPSE_DEFAULT": "\n<style=cIsDamage>100%</style> の確率で敵に<style=cIsDamage>卒倒</style>を与え、 <style=cIsDamage>400%</style> の基本ダメージを与える。",
 		"CORRUPT_ASPECT_ITEM": "\n<style=cIsVoid>全ての相を破損する</style>。",
-		
-		"AFFIX_AURELIONITE_NAME": "Aurelionite's Blessing",
-		"AFFIX_AURELIONITE_PICKUP": "Become an aspect of radiance.",
-		"AFFIX_AURELIONITE_ACTIVE": "Deploy an exploding gold cluster.",
-		"ASPECT_OF_RADIANCE": "<style=cDeath>Aspect of Radiance</style> :",
-		"GOLDCHUNK_ON_HIT": "\nAttacks drop a golden nugget on hit.",
-		
-		"AFFIX_BEAD_NAME": "His Spiteful Boon",
-		"AFFIX_BEAD_PICKUP": "Become an aspect of spite.",
+
+		"AFFIX_AURELIONITE_NAME": "オーレリオナイトの祝福",
+		"AFFIX_AURELIONITE_PICKUP": "輝きの相になる。",
+		"AFFIX_AURELIONITE_ACTIVE": "爆発する金塊を展開する。",
+		"ASPECT_OF_RADIANCE": "<style=cDeath>輝きの相</style> :",
+		"GOLDCHUNK_ON_HIT": "\n攻撃がヒットすると金塊をドロップする。",
+
+		"AFFIX_BEAD_NAME": "彼の悪意ある恩恵",
+		"AFFIX_BEAD_PICKUP": "悪意の相になる。",
 		"AFFIX_BEAD_ACTIVE": "<style=cStack>(???)</style>",
-		"ASPECT_OF_SPITE": "<style=cDeath>Aspect of Spite</style> :",
-		"BEAD_TETHER": "\nTether to nearby allies, granting them {0} additional <style=cIsHealing>armor</style>.",
-		"BEAD_RETALIATION": "\nRetaliate against enemies hitting tethered allies with a homing projectile that inflicts <style=cIsDamage>lunar ruin</style>, increasing <style=cIsDamage>damage taken</style> by <style=cIsDamage>10%</style> and reducing <style=cIsHealth>healing</style> by <style=cIsHealth>20%</style>.",
-		
-		"AFFIX_COLLECTIVE_NAME": "Of One Mind",
-		"AFFIX_COLLECTIVE_PICKUP": "Become an aspect of the collective.",
+		"ASPECT_OF_SPITE": "<style=cDeath>悪意の相</style> :",
+		"BEAD_TETHER": "\n近くの味方と繋がり、{0} の追加 <style=cIsHealing>アーマー</style> を与える。",
+		"BEAD_RETALIATION": "\n繋がれた味方を攻撃する敵に対して、誘導弾で反撃し<style=cIsDamage>ルナルイン</style>を付与する。<style=cIsDamage>受けるダメージ</style>を <style=cIsDamage>10%</style> 増やし、<style=cIsHealth>回復量</style>を <style=cIsHealth>20%</style> 減らす。",
+
+		"AFFIX_COLLECTIVE_NAME": "オブ ワン マインド",
+		"AFFIX_COLLECTIVE_PICKUP": "コレクティブの相となる。.",
 		"AFFIX_COLLECTIVE_ACTIVE": "<style=cStack>(???)</style>",
-		"ASPECT_OF_THE_COLLECTIVE": "<style=cDeath>Aspect of the Collective</style> :",
-		"COLLECTIVE_BUBBLE": "\nGain a protective dome that blocks all outside attacks.",
-		
+		"ASPECT_OF_THE_COLLECTIVE": "<style=cDeath>コレクティブの相</style> :",
+		"COLLECTIVE_BUBBLE": "\n外からの全てのダメージをブロックする保護ドームを得る。",
+
 		"AFFIX_PLATED_NAME": "服従の合金",
 		"AFFIX_PLATED_PICKUP": "忍耐の相になる。",
 		"AFFIX_PLATED_ACTIVE": "<style=cStack>(???)</style>",
@@ -379,12 +379,11 @@
 		"PASSIVE_OSMIUM_DRAWBACK": "\n遠くの敵から受けるダメージを減衰するが、近くの敵から受けるダメージを増幅する。",
 		"OSMIUM_DAMAGE_DETAIL": "\n<style=cStack>(被ダメージ係数: {0})</style>",
 
-		"AFFIX_EMPYREAN_NAME": "Harmony",
-		"AFFIX_EMPYREAN_PICKUP": "Become an aspect of existence.",
+		"AFFIX_EMPYREAN_NAME": "調和",
+		"AFFIX_EMPYREAN_PICKUP": "存在の相になる。",
 		"AFFIX_EMPYREAN_ACTIVE": "<style=cStack>(???)</style>",
-		"ASPECT_OF_EXISTENCE": "<style=cDeath>Aspect of Existence</style> :",
-		"PASSIVE_EMPYREAN": "\nGain various Elite Affixes.",
-
+		"ASPECT_OF_EXISTENCE": "<style=cDeath>存在の相</style> :",
+		"PASSIVE_EMPYREAN": "\n様々なエリート接頭辞を得る。",
 
 
 		"NEARBY_ARMOR": "\n近くの味方に追加の<style=cIsHealing>アーマー</style>を {0} 与える。",
@@ -436,12 +435,12 @@
 		"FORCE_REDUCTION": "\nノックバックを {0} 減らす。",
 		"FORCE_IMMUNE": "\nノックバックを無効化する。",
 
-		"STUN_IMMUNE": "\nImmune to stuns.",
+		"STUN_IMMUNE": "\nスタンを無効化する。",
 
 
 
 		"PASSIVE_UNKNOWN_AURA": "\n<style=cStack>(???)</style>のオーラを放つ。",
 
-		"HEADHUNTER": "倒したエリート モンスターの<style=cIsDamage>パワー</style>を {0}手に入れられる。",
+		"HEADHUNTER": "倒したエリート モンスターの<style=cIsDamage>パワー</style>を {0}手に入れられる。"
     }
 }
