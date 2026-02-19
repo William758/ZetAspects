@@ -144,13 +144,17 @@ Use r2modman or place inside of Risk of Rain 2/Bepinex/Plugins/
 
 Brazilian Portuguese translation by SpookyGabe#9476.
 
-Korean translation by 깽비#8221.
+Korean translation by 깽비#8221 and Dice-001.
 
 Chinese translation by BTP-G and MushroomEl.
 
 Japanese translation by WakefulSpect.
 
 ## Changelog:
+
+v2.10.7 - Updated Korean translation.
+
+v2.10.6 - Updated Japanese translation.
 
 v2.10.5 - Alloyed Collective support.
 
