@@ -501,30 +501,27 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchStloc(7)
+					x => x.MatchCallOrCallvirt<HealthComponent>("TakeDamage")
 				);
 
 				if (found)
 				{
-					c.Index += 1;
-
-					c.Emit(OpCodes.Ldloc, 6);
 					c.Emit(OpCodes.Ldarg, 1);
-					c.EmitDelegate<Func<float, CharacterBody, float>>((damage, body) =>
+					c.EmitDelegate<Func<DamageInfo, CharacterBody, DamageInfo>>((damageInfo, body) =>
 					{
 						if (body.HasBuff(BuffDefOf.AffixWarped) && Configuration.AspectWarpedBaseFallReductionGain.Value > 0f)
 						{
 							float effect = Catalog.GetStackMagnitude(body, BuffDefOf.AffixWarped);
 							effect = Configuration.AspectWarpedBaseFallReductionGain.Value + Configuration.AspectWarpedStackFallReductionGain.Value * (effect - 1f);
+
 							effect = 1f - (0.01f * Util.ConvertAmplificationPercentageIntoReductionPercentage(100f * effect));
 							if (effect <= 0.001f) effect /= body.maxHealth;
 
-							damage *= effect;
+							damageInfo.damage *= effect;
 						}
 
-						return damage;
+						return damageInfo;
 					});
-					c.Emit(OpCodes.Stloc, 6);
 				}
 				else
 				{
@@ -548,6 +545,7 @@ namespace TPDespair.ZetAspects
 							{
 								float effect = Catalog.GetStackMagnitude(body, BuffDefOf.AffixWarped);
 								effect = Configuration.AspectWarpedBaseForceResistGain.Value + Configuration.AspectWarpedStackForceResistGain.Value * (effect - 1f);
+
 								effect = 1f - (0.01f * Util.ConvertAmplificationPercentageIntoReductionPercentage(100f * effect));
 								if (effect <= 0.001f) effect = 0f;
 
@@ -570,19 +568,11 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdarg(0),
-					x => x.MatchLdcR4(2f),
-					x => x.MatchLdloc(1),
-					x => x.MatchLdfld<DamageInfo>("procCoefficient"),
-					x => x.MatchMul()
+					x => x.MatchCallOrCallvirt<HealthComponent>("get_isInFrozenState")
 				);
 
 				if (found)
 				{
-					// Move to after default freeze check
-					c.Index += 8;
-
-					// Handle freeze chance
 					c.Emit(OpCodes.Ldarg, 1);
 					c.Emit(OpCodes.Ldarg, 0);
 					c.EmitDelegate<Action<DamageReport, SetStateOnHurt>>((damageReport, state) =>
@@ -1439,7 +1429,7 @@ namespace TPDespair.ZetAspects
 		*/
 		private static void ModifyDot()
 		{
-			On.RoR2.DotController.InflictDot_GameObject_GameObject_DotIndex_float_float_Nullable1 += (orig, attacker, victim, index, duration, damage, wat) =>
+			On.RoR2.DotController.InflictDot_GameObject_GameObject_HurtBox_ProcChainMask_DotIndex_float_float_Nullable1 += (orig, attacker, victim, hurt, mask, index, duration, damage, wat) =>
 			{
 				DotController.DotIndex dotIndex = Catalog.impaleDotIndex;
 				if (dotIndex != DotController.DotIndex.None && index == dotIndex)
@@ -1467,7 +1457,7 @@ namespace TPDespair.ZetAspects
 					}
 				}
 
-				orig(attacker, victim, index, duration, damage, wat);
+				orig(attacker, victim, hurt, mask, index, duration, damage, wat);
 			};
 		}
 
@@ -1786,7 +1776,7 @@ namespace TPDespair.ZetAspects
 
 				//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Burning : " + damage + " - " + "duration : " + duration);
 
-				InflictDotPrecise(victim.gameObject, damageInfo.attacker, dotIndex, duration, damage);
+				InflictDotPrecise(victim.gameObject, damageInfo.attacker, damageInfo.procChainMask, dotIndex, duration, damage);
 			}
 		}
 
@@ -1947,7 +1937,7 @@ namespace TPDespair.ZetAspects
 
 				//Logger.Warn("Damage : " + damageInfo.damage + " - " + "Fracture : " + damage);
 
-				InflictFracturePrecise(victim.gameObject, damageInfo.attacker, damage);
+				InflictFracturePrecise(victim.gameObject, damageInfo.attacker, damageInfo.procChainMask, damage);
 			}
 		}
 
@@ -1966,7 +1956,7 @@ namespace TPDespair.ZetAspects
 
 				if (self.teamComponent.teamIndex != TeamIndex.Player) damage *= Configuration.AspectSanguineMonsterDamageMult.Value;
 
-				InflictDotPrecise(victim.gameObject, damageInfo.attacker, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
+				InflictDotPrecise(victim.gameObject, damageInfo.attacker, damageInfo.procChainMask, DotController.DotIndex.Bleed, Configuration.AspectSanguineBleedDuration.Value, self.damage * damage);
 			}
 		}
 
@@ -2096,7 +2086,7 @@ namespace TPDespair.ZetAspects
 
 
 
-		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, DotController.DotIndex dotIndex, float duration, float damage)
+		internal static void InflictDotPrecise(GameObject victim, GameObject attacker, ProcChainMask mask, DotController.DotIndex dotIndex, float duration, float damage)
 		{
 			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
 
@@ -2132,6 +2122,7 @@ namespace TPDespair.ZetAspects
 					{
 						attackerObject = attacker,
 						victimObject = victim,
+						procChainMask = mask,
 						totalDamage = null,
 						duration = tickedDuration,
 						damageMultiplier = damageMult,
@@ -2142,12 +2133,12 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					DotController.InflictDot(victim, attacker, null, dotIndex, tickedDuration, damageMult);
+					DotController.InflictDot(victim, attacker, null, mask, dotIndex, tickedDuration, damageMult);
 				}
 			}
 		}
 
-		internal static void InflictFracturePrecise(GameObject victim, GameObject attacker, float damage)
+		internal static void InflictFracturePrecise(GameObject victim, GameObject attacker, ProcChainMask mask, float damage)
 		{
 			DotController.DotIndex dotIndex = DotController.DotIndex.Fracture;
 			DotController.DotDef dotDef = DotController.dotDefs[(int)dotIndex];
@@ -2159,7 +2150,7 @@ namespace TPDespair.ZetAspects
 
 			float damageMult = targetDPS / dotBaseDPS;
 
-			DotController.InflictDot(victim, attacker, null, dotIndex, dotDef.interval, damageMult);
+			DotController.InflictDot(victim, attacker, null, mask, dotIndex, dotDef.interval, damageMult);
 		}
 
 
@@ -2171,33 +2162,35 @@ namespace TPDespair.ZetAspects
 				ILCursor c = new ILCursor(il);
 
 				bool found = c.TryGotoNext(
-					x => x.MatchStloc(2)
+					x => x.MatchCallOrCallvirt<DeathRewards>("get_goldReward")
 				);
 
 				if (found)
 				{
 					c.Index += 1;
 
-					c.Emit(OpCodes.Ldloc, 0);
-					c.Emit(OpCodes.Ldloc, 2);
-					c.EmitDelegate<Func<CharacterBody, uint, uint>>((atkBody, reward) =>
+					c.Emit(OpCodes.Ldarg, 0);
+					c.EmitDelegate<Func<uint, DamageReport, uint>>((reward, damageReport) =>
 					{
-						float mult = 1f;
-
-						if (atkBody.HasBuff(BuffDefOf.AffixMoney) && Configuration.AspectMoneyStackGoldMult.Value > 0f)
+						CharacterBody atkBody = damageReport.attackerBody;
+						if (reward > 0U && atkBody)
 						{
-							float count = Catalog.GetStackMagnitude(atkBody, BuffDefOf.AffixMoney);
-							mult += Configuration.AspectMoneyBaseGoldMult.Value + Configuration.AspectMoneyStackGoldMult.Value * (count - 1);
-						}
+							float mult = 1f;
 
-						if (mult > 1f)
-						{
-							return (uint)(reward * mult);
+							if (atkBody.HasBuff(BuffDefOf.AffixMoney) && Configuration.AspectMoneyStackGoldMult.Value > 0f)
+							{
+								float count = Catalog.GetStackMagnitude(atkBody, BuffDefOf.AffixMoney);
+								mult += Configuration.AspectMoneyBaseGoldMult.Value + Configuration.AspectMoneyStackGoldMult.Value * (count - 1);
+							}
+
+							if (mult > 1f)
+							{
+								return (uint)(reward * mult);
+							}
 						}
 
 						return reward;
 					});
-					c.Emit(OpCodes.Stloc, 2);
 				}
 				else
 				{

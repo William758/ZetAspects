@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using RoR2;
+using RoR2.UI;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RoR2;
-using RoR2.UI;
-using HarmonyLib;
 
 namespace TPDespair.ZetAspects
 {
@@ -151,7 +150,8 @@ namespace TPDespair.ZetAspects
 
 		private static void PickupDropletController_CreateCommandCube(On.RoR2.PickupDropletController.orig_CreateCommandCube orig, PickupDropletController self)
 		{
-			PickupIndex pickupIndex = self.createPickupInfo.pickupIndex;
+			UniquePickup pickup = self.createPickupInfo.pickup;
+			PickupIndex pickupIndex = pickup.pickupIndex;
 			if (pickupIndex != PickupIndex.none)
 			{
 				PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
@@ -185,19 +185,24 @@ namespace TPDespair.ZetAspects
 		private static void AspectCommandDroplet(PickupDef pickupDef, GenericPickupController.CreatePickupInfo createPickupInfo)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate(Catalog.CommandCubePrefab, createPickupInfo.position, createPickupInfo.rotation);
-			//gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupDef.pickupIndex;
 			gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupState = createPickupInfo.pickup;
 
 			PickupPickerController controller = gameObject.GetComponent<PickupPickerController>();
-			SetPickupPickerControllerAspectOptions(controller, pickupDef);
+			SetPickupPickerControllerAspectOptions(controller, pickupDef, createPickupInfo.pickup);
 			controller.chestGeneratedFrom = createPickupInfo.chest;
+			controller.pickupThatGeneratedOptions = new UniquePickup?(createPickupInfo.pickup);
+
+			if (createPickupInfo.maxOptionCount != null)
+			{
+				controller.SetMaxOptionCount(createPickupInfo.maxOptionCount.Value);
+			}
 
 			NetworkServer.Spawn(gameObject);
 
-			createPickupInfo.pickupIndex = PickupIndex.none;
+			createPickupInfo.pickup = new UniquePickup { pickupIndex = PickupIndex.none };
 		}
 
-		private static void SetPickupPickerControllerAspectOptions(PickupPickerController controller, PickupDef pickupDef)
+		private static void SetPickupPickerControllerAspectOptions(PickupPickerController controller, PickupDef pickupDef, UniquePickup pickupState)
 		{
 			List<PickupPickerController.Option> options = new List<PickupPickerController.Option>();
 
@@ -211,7 +216,7 @@ namespace TPDespair.ZetAspects
 					if (valid && available)
 					{
 						PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(itemIndex);
-						options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupIndex });
+						options.Add(new PickupPickerController.Option { available = true, pickup = pickupState.WithPickupIndex(pickupIndex) });
 					}
 				}
 			}
@@ -231,13 +236,13 @@ namespace TPDespair.ZetAspects
 					if (valid && available)
 					{
 						PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(equipIndex);
-						options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupIndex });
+						options.Add(new PickupPickerController.Option { available = true, pickup = pickupState.WithPickupIndex(pickupIndex) });
 					}
 				}
 			}
 			else
 			{
-				options.Add(new PickupPickerController.Option { available = true, pickupIndex = pickupDef.pickupIndex });
+				options.Add(new PickupPickerController.Option { available = true, pickup = pickupState });
 			}
 
 			controller.SetOptionsServer(options.ToArray());
@@ -375,27 +380,47 @@ namespace TPDespair.ZetAspects
 				{
 					CharacterMaster atkMaster = damageReport.attackerMaster;
 					CharacterBody vicBody = damageReport.victimBody;
-					EquipmentDef equipDef = null;
 
-					if (vicBody)
+					EquipmentDef equipDef = null;
+					EquipmentIndex equipIndex = EquipmentIndex.None;
+
+					if (vicBody && vicBody.isElite)
 					{
 						if (vicBody.equipmentSlot)
 						{
 							// some bodies return null equipDef even though they have an elite aspect
-							equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+							equipIndex = vicBody.equipmentSlot.equipmentIndex;
+							if (equipIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipIndex))
+							{
+								equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+							}
 						}
 
-						if (!equipDef && vicBody.isElite)
+						Inventory inventory = vicBody.inventory;
+						if (inventory)
 						{
-							if (Configuration.AspectDropVerboseLogging.Value)
+							if (!equipDef)
 							{
-								Logger.Warn("EarlyDropChanceHook - Victim is elite but equipment from slot is null, checking inventory!");
+								if (Configuration.AspectDropVerboseLogging.Value)
+								{
+									Logger.Warn("EarlyDropChanceHook - Elite Victim equipment from slot is null, checking currentEquipmentIndex!");
+								}
+
+								equipIndex = inventory.currentEquipmentIndex;
+								if (equipIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipIndex))
+								{
+									equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+								}
 							}
 
-							Inventory inventory = vicBody.inventory;
-							if (inventory)
+							if (!equipDef)
 							{
-								equipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
+								if (Configuration.AspectDropVerboseLogging.Value)
+								{
+									Logger.Warn("EarlyDropChanceHook - Elite Victim currentEquipmentIndex is none, checking Equipment!");
+								}
+
+								equipDef = FirstEliteEquipment(inventory);
 							}
 						}
 					}
@@ -422,13 +447,32 @@ namespace TPDespair.ZetAspects
 							if (vicBody) inputBankTest = vicBody.inputBank;
 							Ray aimRay = inputBankTest ? inputBankTest.GetAimRay() : new Ray(position, rotation * Vector3.forward);
 
-							PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex), position + Vector3.up * 1.5f, Vector3.up * 20f + aimRay.direction * 2f);
+							UniquePickup pickup = new UniquePickup { pickupIndex = PickupCatalog.FindPickupIndex(equipDef.equipmentIndex) };
+							PickupDropletController.CreatePickupDroplet(pickup, position + Vector3.up * 1.5f, Vector3.up * 20f + aimRay.direction * 2f, false);
 						}
 					}
 				}
 
 				orig(self, damageReport);
 			};
+		}
+
+		private static EquipmentDef FirstEliteEquipment(Inventory inventory)
+		{
+			for (uint i = 0U; i < (uint)inventory.equipmentSlotCount; i += 1U)
+			{
+				for (uint j = 0U; j < (uint)inventory.equipmentSetCount; j += 1U)
+				{
+					EquipmentLocation equipmentLocation = new EquipmentLocation { slot = i, set = j };
+					EquipmentState equipment = inventory.GetEquipment(equipmentLocation);
+					if (equipment.equipmentIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipment.equipmentIndex))
+					{
+						return equipment.equipmentDef;
+					}
+				}
+			}
+
+			return null;
 		}
 
 		private static bool AttemptDrop(CharacterMaster atkMaster, EquipmentDef equipDef, CharacterBody vicBody)
@@ -519,21 +563,26 @@ namespace TPDespair.ZetAspects
 
 		private static void InterceptAspectDropHook()
 		{
-			On.RoR2.PickupDropletController.CreatePickupDroplet_PickupIndex_Vector3_Vector3 += (orig, pickupIndex, position, velocity) =>
+			On.RoR2.PickupDropletController.CreatePickupDroplet_CreatePickupInfo_Vector3_Vector3 += (orig, pickupInfo, position, velocity) =>
 			{
 				if (!DropAsEquipment())
 				{
-					EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
+					UniquePickup pickup = pickupInfo.pickup;
+					EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickup.pickupIndex).equipmentIndex;
 
 					if (equipIndex != EquipmentIndex.None)
 					{
 						ItemIndex newIndex = Catalog.ItemizeEliteEquipment(equipIndex);
 
-						if (newIndex != ItemIndex.None) pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+						if (newIndex != ItemIndex.None)
+						{
+							PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+							pickupInfo.pickup = pickup.WithPickupIndex(pickupIndex);
+						}
 					}
 				}
 
-				orig(pickupIndex, position, velocity);
+				orig(pickupInfo, position, velocity);
 			};
 		}
 
@@ -594,8 +643,10 @@ namespace TPDespair.ZetAspects
 
 								if (newIndex != ItemIndex.None)
 								{
-									controller.pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
-									return PickupCatalog.GetPickupDef(controller.pickupIndex);
+									PickupIndex pickupIndex = PickupCatalog.FindPickupIndex(newIndex);
+									controller.pickup = controller.pickup.WithPickupIndex(pickupIndex);
+
+									return PickupCatalog.GetPickupDef(pickupIndex);
 								}
 							}
 						}
@@ -668,11 +719,16 @@ namespace TPDespair.ZetAspects
 				return;
 			}
 
-			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex);
+			EquipmentLocation activeEquipLoc = inventory.activeEquipmentLocation;
+			EquipmentState equipState = inventory.GetEquipment(activeEquipLoc);
+
+			EquipmentIndex equipIndex = equipState.equipmentIndex;
+			ItemIndex itemIndex = Catalog.ItemizeEliteEquipment(equipIndex);
+
 			if (itemIndex != ItemIndex.None)
 			{
 				inventory.GiveItemPermanent(itemIndex);
-				inventory.SetEquipmentIndex(EquipmentIndex.None, true);
+				inventory.SetEquipmentIndex(EquipmentIndex.None, activeEquipLoc);
 			}
 			else
 			{
@@ -696,7 +752,18 @@ namespace TPDespair.ZetAspects
 
 			ZetAspectsConvertHandler handler = icon.transform.gameObject.AddComponent<ZetAspectsConvertHandler>();
 			handler.GetInventory = () => icon.targetInventory;
-			handler.GetPCMC = () => icon.playerCharacterMasterController;
+			handler.GetPCMC = () => 
+			{
+				Inventory inventory = icon.targetInventory;
+				if (inventory)
+				{
+					inventory.TryGetComponent(out PlayerCharacterMasterController playerCharacterMasterController);
+
+					return playerCharacterMasterController;
+				}
+
+				return null;
+			};
 		}
 
 		internal static void HandleConvertPointerClick(ZetAspectsConvertHandler handler)

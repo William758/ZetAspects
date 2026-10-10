@@ -411,6 +411,21 @@ namespace TPDespair.ZetAspects
 			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
 		}
 
+		public static AspectDef currentIconTarget;
+
+		public static Sprite TryUseOwnSprite()
+		{
+			if (currentIconTarget == null) return null;
+
+			EquipmentDef equipDef = currentIconTarget.equipmentDef;
+			if (equipDef != null)
+			{
+				return TryUseSprite(equipDef.pickupIconSprite);
+			}
+
+			return null;
+		}
+
 		public static Sprite TryUseSprite(Sprite sprite)
 		{
 			if (!sprite.texture.isReadable || sprite.textureRect.width != 128 || sprite.texture.height != 128)
@@ -648,8 +663,23 @@ namespace TPDespair.ZetAspects
 			{
 				EquipmentIndex equipIndex = equipDef.equipmentIndex;
 
+				for (uint i = 0U; i < (uint)inventory.equipmentSlotCount; i += 1U)
+				{
+					for (uint j = 0U; j < (uint)inventory.equipmentSetCount; j += 1U)
+					{
+						EquipmentLocation equipmentLocation = new EquipmentLocation { slot = i, set = j };
+						EquipmentState equipment = inventory.GetEquipment(equipmentLocation);
+						if (equipment.equipmentIndex == equipIndex)
+						{
+							return true;
+						}
+					}
+				}
+
+				/*
 				if (inventory.currentEquipmentIndex == equipIndex) return true;
 				if (inventory.alternateEquipmentIndex == equipIndex) return true;
+				*/
 			}
 
 			return false;
@@ -668,8 +698,41 @@ namespace TPDespair.ZetAspects
 
 			int count = 0;
 
+			for (uint i = 0U; i < (uint)inventory.equipmentSlotCount; i += 1U)
+			{
+				for (uint j = 0U; j < (uint)inventory.equipmentSetCount; j += 1U)
+				{
+					EquipmentLocation equipmentLocation = new EquipmentLocation { slot = i, set = j };
+					EquipmentState equipment = inventory.GetEquipment(equipmentLocation);
+					if (equipment.equipmentIndex == equipIndex)
+					{
+						count++;
+					}
+				}
+			}
+			/*
 			if (inventory.currentEquipmentIndex == equipIndex) count++;
 			if (inventory.alternateEquipmentIndex == equipIndex) count++;
+			*/
+			return count;
+		}
+
+		public static int CountCarriedAspectEquipment(Inventory inventory)
+		{
+			int count = 0;
+
+			for (uint i = 0U; i < (uint)inventory.equipmentSlotCount; i += 1U)
+			{
+				for (uint j = 0U; j < (uint)inventory.equipmentSetCount; j += 1U)
+				{
+					EquipmentLocation equipmentLocation = new EquipmentLocation { slot = i, set = j };
+					EquipmentState equipment = inventory.GetEquipment(equipmentLocation);
+					if (equipment.equipmentIndex != EquipmentIndex.None && aspectEquipIndexes.Contains(equipment.equipmentIndex))
+					{
+						count++;
+					}
+				}
+			}
 
 			return count;
 		}
@@ -766,6 +829,26 @@ namespace TPDespair.ZetAspects
 
 			CreateBuffs();
 			CreateItems();
+
+			foreach (AspectPack aspectPack in aspectPacks)
+			{
+				try
+				{
+					if (aspectPack.Enabled)
+					{
+						Language.targetLanguage = "default";
+
+						aspectPack.ContentLoad?.Invoke();
+
+						Language.targetLanguage = "";
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.Error("Failed ContentLoad - AspectPack: " + aspectPack.identifier);
+					Logger.Error(e);
+				}
+			}
 		}
 
 		private static void LoadAssets()
@@ -885,6 +968,52 @@ namespace TPDespair.ZetAspects
 				BuffDefOf.ZetEchoPrimer = ZetEchoPrimer;
 				ZetAspectsContent.buffDefs.Add(ZetEchoPrimer);
 			}
+		}
+
+		public static ItemDef CreateItemTemplate(string identifier, bool offense, bool defence)
+		{
+			List <ItemTag> tags = new List <ItemTag>(){ ItemTag.Utility };
+
+			if (offense) tags.Add(ItemTag.Damage);
+			if (defence) tags.Add(ItemTag.Healing);
+
+			if (Configuration.AspectWorldUnique.Value)
+			{
+				tags.Add(ItemTag.WorldUnique);
+			}
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags.ToArray();
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
+			//itemDef.pickupModelPrefab = WhiteAspectPrefab;
+			//itemDef.pickupIconSprite = Sprites.AffixUnknown;
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
+		}
+
+		public static ItemDef CreateItemTemplate(string identifier, ItemTag[] tags)
+		{
+			if (Configuration.AspectWorldUnique.Value)
+			{
+				int tagSize = tags.Length;
+
+				Array.Resize(ref tags, tagSize + 1);
+				tags[tagSize] = ItemTag.WorldUnique;
+			}
+
+			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
+			itemDef.name = identifier;
+			itemDef.tags = tags;
+			itemDef._itemTierDef = Configuration.AspectRedTier.Value ? RedItemTier : BossItemTier;
+			//itemDef.pickupModelPrefab = WhiteAspectPrefab;
+			//itemDef.pickupIconSprite = Sprites.AffixUnknown;
+
+			itemDef.AutoPopulateTokens();
+
+			return itemDef;
 		}
 
 		private static void CreateItems()
@@ -1168,6 +1297,65 @@ namespace TPDespair.ZetAspects
 			#pragma warning disable CS0618 // Type or member is obsolete
 			itemDef.deprecatedTier = itemTier;
 			#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+
+
+		public static AspectDef currentTokenTarget;
+		public static string currentTokenAffix = "";
+
+		public static void SetupTokenBase(string identifier, string affix)
+		{
+			string locToken = identifier.ToUpperInvariant();
+			currentTokenAffix = affix.ToUpperInvariant();
+
+			foreach (string language in Language.fragments.Keys)
+			{
+				Language.targetLanguage = language;
+
+				Language.RegisterToken("ITEM_" + locToken + "_NAME", Language.TextFragment("AFFIX_" + currentTokenAffix + "_NAME"));
+				Language.RegisterToken("ITEM_" + locToken + "_PICKUP", Language.TextFragment("AFFIX_" + currentTokenAffix + "_PICKUP"));
+
+				if (currentTokenTarget != null)
+				{
+					EquipmentDef equipDef = currentTokenTarget.equipmentDef;
+					if (equipDef)
+					{
+						Language.RegisterToken(equipDef.nameToken, Language.TextFragment("AFFIX_" + currentTokenAffix + "_NAME"));
+						Language.RegisterToken(equipDef.pickupToken, Language.TextFragment("AFFIX_" + currentTokenAffix + "_PICKUP"));
+					}
+				}
+			}
+
+			Language.targetLanguage = "";
+		}
+
+		public static void AspectDescriptionBuilder(Func<bool, string> describer)
+		{
+			if (currentTokenTarget == null) return;
+
+			foreach (string language in Language.fragments.Keys)
+			{
+				Language.targetLanguage = language;
+
+				string desc = describer.Invoke(false);
+
+				ItemDef itemDef = currentTokenTarget.itemDef;
+				if (itemDef)
+				{
+					Language.RegisterToken(itemDef.descriptionToken, desc);
+				}
+
+				if (!DropHooks.CanObtainItem()) desc = describer.Invoke(true);
+
+				EquipmentDef equipDef = currentTokenTarget.equipmentDef;
+				if (equipDef)
+				{
+					Language.RegisterToken(equipDef.descriptionToken, Language.EquipmentDescription(desc, Language.TextFragment("AFFIX_" + currentTokenAffix + "_ACTIVE")));
+				}
+			}
+
+			Language.targetLanguage = "";
 		}
 
 

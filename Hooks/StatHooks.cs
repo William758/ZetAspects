@@ -1039,8 +1039,11 @@ namespace TPDespair.ZetAspects
 			}
 
 			float equipmentEffect = 9f * Mathf.Max(1f, Configuration.AspectEquipmentEffect.Value);
-			if (Catalog.ItemizeEliteEquipment(inventory.currentEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
-			if (Catalog.ItemizeEliteEquipment(inventory.alternateEquipmentIndex) != ItemIndex.None) itemScore += equipmentEffect;
+			int aspectEquip = Catalog.CountCarriedAspectEquipment(inventory);
+			if (aspectEquip > 0)
+			{
+				itemScore += equipmentEffect * aspectEquip;
+			}
 
 			return itemScore;
 		}

@@ -37,7 +37,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.10.5";
+		public const string ModVer = "2.10.8";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -192,6 +192,7 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(EquipDefOf.AffixMotivator, transform.position + new Vector3(10f, 10f, 10f));
 				CreateDroplet(EquipDefOf.AffixOsmium, transform.position + new Vector3(-10f, 10f, -10f));
 				CreateDroplet(EquipDefOf.AffixEmpyrean, transform.position + new Vector3(0f, 10f, -15f));
+				CreateDroplet(EquipDefOf.AffixNuclear, transform.position + new Vector3(10f, 10f, -10f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F6))
@@ -230,14 +231,16 @@ namespace TPDespair.ZetAspects
 		{
 			if (!def) return;
 
-			PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(def.equipmentIndex), pos, Vector3.zero);
+			UniquePickup pickup = new UniquePickup { pickupIndex = PickupCatalog.FindPickupIndex(def.equipmentIndex) };
+			PickupDropletController.CreatePickupDroplet(pickup, pos, Vector3.zero, false);
 		}
 
 		private static void CreateDroplet(ItemDef def, Vector3 pos)
 		{
 			if (!def) return;
 
-			PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(def.itemIndex), pos, Vector3.zero);
+			UniquePickup pickup = new UniquePickup { pickupIndex = PickupCatalog.FindPickupIndex(def.itemIndex) };
+			PickupDropletController.CreatePickupDroplet(pickup, pos, Vector3.zero, false);
 		}
 		//*/
 	}

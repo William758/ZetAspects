@@ -123,7 +123,7 @@ namespace TPDespair.ZetAspects
 						itemName = "ZetAspectAurelionite",
 						displayPriority = 3750,
 						BaseIcon = () => Sprites.AffixAurelionite,
-						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = Items.ZetAspectAurelionite.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixAurelionite = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixAurelionite = buffDef
@@ -135,7 +135,7 @@ namespace TPDespair.ZetAspects
 						itemName = "ZetAspectBead",
 						displayPriority = 7560,
 						BaseIcon = () => Sprites.AffixBead,
-						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = Items.ZetAspectBead.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixBead = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixBead = buffDef
@@ -145,14 +145,14 @@ namespace TPDespair.ZetAspects
 						identifier = "ZetAspectCollective",
 						FindEquipmentDef = () => { return DLC3Content.Equipment.EliteCollectiveEquipment; },
 						itemName = "ZetAspectCollective",
-						displayPriority = 1,
+						displayPriority = 3600,
 						BaseIcon = () => 
 						{
-							Sprite sprite = Catalog.TryUseSprite(DLC3Content.Equipment.EliteCollectiveEquipment.pickupIconSprite);
+							Sprite sprite = Catalog.TryUseOwnSprite();
 
 							return Catalog.TrimSpriteEdge(sprite, 8, 24);
 						},
-						OutlineIcon = () => Catalog.AspectVoidContagious ? Sprites.OutlineVoid : Sprites.OutlineStandard,
+						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = Items.ZetAspectCollective.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixCollective = equipmentDef,
 						RefBuffDef = (buffDef) => BuffDefOf.AffixCollective = buffDef
@@ -927,6 +927,64 @@ namespace TPDespair.ZetAspects
 					{
 						Compat.Starstorm.LateSetup();
 					}
+				}
+			}.Register();
+
+
+
+			AspectPackDefOf.Meltdown = new AspectPack
+			{
+				identifier = "Meltdown",
+				dependency = "com.pittabread.Meltdown",
+				aspectDefs = new List<AspectDef>()
+				{
+					new AspectDef()
+					{
+						identifier = "ZetAspectNuclear",
+						equipmentName = "ELITE_EQUIPMENT_NUCLEAR",
+						itemName = "ZetAspectNuclear",
+						displayPriority = 235,
+						BaseIcon = () => 
+						{
+							Sprite sprite = Catalog.TryUseOwnSprite();
+
+							return Catalog.TrimSpriteEdge(sprite, 8, 24);
+						},
+						OutlineIcon = () => Sprites.OutlineStandard,
+						SetupTokens = () =>
+						{
+							Catalog.SetupTokenBase("ZetAspectNuclear", "Nuclear");
+							Catalog.AspectDescriptionBuilder((combine) =>
+							{
+								string output = Language.TextFragment("ASPECT_OF_RADIATION");
+								output += Language.TextFragment("SLOWBLAST_NEARBY");
+								output += String.Format(
+									Language.TextFragment("IRRADIATE_DOT"),
+									Language.ScalingText(0.5f, 0f, "percent", "cIsDamage", combine),
+									Language.TextFragment("TOTAL_DAMAGE"),
+									Language.SecondText(4f, "over")
+								);
+
+								return output;
+							});
+						},
+						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixNuclear = equipmentDef,
+						RefBuffDef = (buffDef) => BuffDefOf.AffixNuclear = buffDef
+					}
+				},
+				ContentLoad = () =>
+				{
+					Language.RegisterFragmentNoOverwrite("AFFIX_NUCLEAR_NAME", "Elephant's Foot");
+					Language.RegisterFragmentNoOverwrite("AFFIX_NUCLEAR_PICKUP", "Become an aspect of radiation.");
+					Language.RegisterFragmentNoOverwrite("ASPECT_OF_RADIATION", "<style=cDeath>Aspect of Radiation</style> :");
+					Language.RegisterFragmentNoOverwrite("SLOWBLAST_NEARBY", "\nPeriodically blast nearby enemies, slowing them.");
+					Language.RegisterFragmentNoOverwrite("IRRADIATE_DOT", "\nAttacks <style=cIsDamage>irradiate</style> on hit for {0} {1} damage {2}.");
+
+					ItemDef ZetAspectNuclear = Catalog.CreateItemTemplate("ZetAspectNuclear", true, false);
+					ItemDefOf.ZetAspectNuclear = ZetAspectNuclear;
+
+					ZetAspectsContent.itemDefs.Add(ZetAspectNuclear);
+					transformableAspectItemDefs.Add(ZetAspectNuclear);
 				}
 			}.Register();
 		}

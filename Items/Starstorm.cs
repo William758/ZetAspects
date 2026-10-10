@@ -13,23 +13,7 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Damage, ItemTag.Healing, ItemTag.Utility };
-			if (AspectWorldUnique.Value)
-			{
-				Array.Resize(ref tags, 4);
-				tags[3] = ItemTag.WorldUnique;
-			}
-
-			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
-			itemDef.name = identifier;
-			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
-			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
-
-			itemDef.AutoPopulateTokens();
-
-			return itemDef;
+			return Catalog.CreateItemTemplate(identifier, true, true);
 		}
 
 		public static void SetupTokens()

@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using BepInEx.Configuration;
 using RoR2;
+using RoR2.ContentManagement;
 using System;
 using System.Collections.Generic;
-using BepInEx.Configuration;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace TPDespair.ZetAspects
 {
@@ -156,6 +159,10 @@ namespace TPDespair.ZetAspects
 		/// <summary>Used when target plugin has dependency on current plugin. AspectPack will always go through validation steps.</summary>
 		public bool alwaysValidate = false;
 
+		/// <summary>Called When LoadStaticContentAsync from ZetAspects ContentPackProvider is called.</summary>
+		public Action ContentLoad;
+
+		/// <summary>Called when all Game Catalogs have been initialized.</summary>
 		public Action PostInit;
 
 
@@ -568,7 +575,11 @@ namespace TPDespair.ZetAspects
 
 			foreach (AspectDef aspectDef in aspectDefs)
 			{
+				Catalog.currentIconTarget = aspectDef;
+
 				SetupIcons(aspectDef);
+
+				Catalog.currentIconTarget = null;
 			}
 
 			PopState.SetFlag(PopState.Replace);
@@ -589,7 +600,13 @@ namespace TPDespair.ZetAspects
 		{
 			foreach (AspectDef aspectDef in aspectDefs)
 			{
+				Catalog.currentTokenTarget = aspectDef;
+				Catalog.currentTokenAffix = "";
+
 				aspectDef.SetupTokens?.Invoke();
+
+				Catalog.currentTokenTarget = null;
+				Catalog.currentTokenAffix = "";
 			}
 		}
 

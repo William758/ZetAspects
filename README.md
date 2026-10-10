@@ -152,6 +152,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.8 - Updated for latest game version. Aspect items dont have models...
+
 v2.10.7 - Updated Korean translation.
 
 v2.10.6 - Updated Japanese translation.
@@ -202,87 +204,4 @@ v2.8.2 - Support for GoldenCoastPlusRevived.
 
 v2.8.1 - Made T2 Elites less spooky (Fixed audio issue).
 
-v2.8.0 - Fixed for SotV.
-
-v2.7.38 - Update Chinese translation with more mod support by MushroomEl.
-
-v2.7.37 - Fixed for latest update.
-
-v2.7.36 - Added support for MoreElites. Some bugfixes.
-
-v2.7.35 - Fixed possible NRE is mod setup. Added configs to hide aspect items and equipment from the logbook.
-
-v2.7.34 - Fixed equipment conversion without username in chat message. Simplify shield conversion for improved mod compatibility. Updated Korean translation.
-
-v2.7.33 - Fixed Equipment not applying elite displays.
-
-v2.7.32 - Fixed NemRisingTides Aspects not being disabled if the mod isn't installed.
-
-v2.7.31 - Update Chinese translation. Added support for NemRisingTides.
-
-v2.7.30 - Added support for NemSpikeStrip, NemRisingTides support will be done later. 
-          Added extra configs for some SpikeStrip Elites.
-		  Config for WarpedElite : liftforce , alternate debuff that slows movement, acceleration and reduces jump power.
-		  Config for PlatedElite : multiplier for plating count, effect of stifle stacks on damage reduction.
-		  Config for VeiledElite : disable cloak on spawn.
-		  Fixed Disabled aspects not getting their deprecated tier assigned.
-
-v2.7.29 - Added Chinese translation by BTP-G.
-
-v2.7.28 - Added support for Realgar elites from RisingTides.
-
-v2.7.27 - Added support for elites from RisingTides.
-
-v2.7.26 - Prevent frost blades from procing themselves in certain situations.
-
-v2.7.25 - Added support for elites from GOTCE and Thalassophobia.
-
-v2.7.24 - Added Korean translation by 깽비#8221.
-
-v2.7.23 - Fix NRE when handling buffs.
-
-v2.7.22 - Fixed BlightedStateManager NRE.
-
-v2.7.21 - Added BlightedElites support.
-
-v2.7.20 - Update Brazilian Portuguese translation.
-
-v2.7.19 - Added Brazilian Portuguese translation by SpookyGabe#9476.
-
-v2.7.18 - WarframeWispMod Nullifier support. Updated SpikeStrip descriptions. BuffCycle tweaks and some bug fixes.
-
-v2.7.17 - Updated SpikeStrip support.
-
-v2.7.16 - Rewrite leech formula again, heal amount should scale more linearly with stacks. Reduce monster level flat health regeneration scaling from aspect effects.
-
-v2.7.15 - Droplet machine broke. (it's fixed now)
-
-v2.7.14 - Fixed drop chance not rolling on some bodies. Added support for AffixSepia from BubbetsItems.
-
-v2.7.13 - Fixed flat health regeneration level scaling. Dodge chance configs for AffixHaunted. Use Shred when EliteReworks armor reduction is disabled.
-
-v2.7.12 - Re-enabled Aetherium AffixSanguine support.
-
-v2.7.11 - Fixed AspectAbilities compatibility and updated equipment effect descriptions.
-
-v2.7.10 - Choose any aspect from an aspect command essence. Fixed VoidBearCooldown buff counter.
-
-v2.7.9 - GoldenCoastPlus support. Reduced leech effectiveness from AffixEarth. Config to turn AffixVoid into a void item that converts other aspects.
-
-v2.7.8 - Override AffixBlue damage in EliteReworks. Prevent HealOrb from gaining AffixEarth.
-
-v2.7.7 - Overhaul internal description builder. Adjust description for latest EliteReworks. Basic SpikeStrip support.
-
-v2.7.6 - Finally fixed item tiers?
-
-v2.7.5 - Fixed for latest update.
-
-v2.7.4 - Added Voidtouched Elite Support. Renamed burn damage configs. Fixed voidbearcooldown buff and made it stack. Drop weight multiplier configs for each elite type.
-
-v2.7.3 - Re-enabled EliteReworks support and health bar color tweaks.
-
-v2.7.2 - Added Mending Elite support. Fixed aspect burn damage to match description.
-
-v2.7.1 - Fixed missing aspect item models. Logbook hides aspect item/equip if unobtainable.
-
-v2.7.0 - Updated for latest game version. Still need to do new elite types.
+v2.8.0 - Fixed for SotS.

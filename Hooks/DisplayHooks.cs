@@ -112,7 +112,7 @@ namespace TPDespair.ZetAspects
 
 		internal static void OnBodyDeath(CharacterBody body)
 		{
-			if (GetBodyEliteDisplay(body) == EquipDefOf.AffixVoid)
+			if (Run.instance && GetBodyEliteDisplay(body) == EquipDefOf.AffixVoid)
 			{
 				ModelLocator locator = body.GetComponent<ModelLocator>();
 				if (locator && locator.modelTransform)
@@ -185,8 +185,7 @@ namespace TPDespair.ZetAspects
 
 		private static EquipmentDef GetEliteDisplayFromInventory(Inventory inventory, bool isDead = false)
 		{
-			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
-			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
+			List<EquipmentDef> aspects = AspectEquipment(inventory);
 
 			foreach (KeyValuePair<EquipmentDef, ItemDef> kvp in AspectRenders)
 			{
@@ -195,8 +194,7 @@ namespace TPDespair.ZetAspects
 				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
 				if (inventory.GetItemCountEffective(kvp.Value) > 0) return targetEquipDef;
-				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
-				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+				if (aspects.Contains(targetEquipDef)) return targetEquipDef;
 			}
 
 			return null;
@@ -204,8 +202,7 @@ namespace TPDespair.ZetAspects
 
 		private static EquipmentDef GetEliteDisplayFromEquipment(Inventory inventory, bool isDead = false)
 		{
-			EquipmentDef currentEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.currentEquipmentIndex);
-			EquipmentDef alternateEquipDef = EquipmentCatalog.GetEquipmentDef(inventory.alternateEquipmentIndex);
+			List<EquipmentDef> aspects = AspectEquipment(inventory);
 
 			foreach (KeyValuePair<EquipmentDef, ItemDef> kvp in AspectRenders)
 			{
@@ -213,11 +210,33 @@ namespace TPDespair.ZetAspects
 
 				if (isDead && targetEquipDef == EquipDefOf.AffixVoid) continue;
 
-				if (currentEquipDef && currentEquipDef == targetEquipDef) return targetEquipDef;
-				if (alternateEquipDef && alternateEquipDef == targetEquipDef) return targetEquipDef;
+				if (aspects.Contains(targetEquipDef)) return targetEquipDef;
 			}
 
 			return null;
+		}
+
+		private static List<EquipmentDef> AspectEquipment(Inventory inventory)
+		{
+			List<EquipmentDef> aspects = new List <EquipmentDef>();
+
+			for (uint i = 0U; i < (uint)inventory.equipmentSlotCount; i += 1U)
+			{
+				for (uint j = 0U; j < (uint)inventory.equipmentSetCount; j += 1U)
+				{
+					EquipmentLocation equipmentLocation = new EquipmentLocation { slot = i, set = j };
+					EquipmentState equipment = inventory.GetEquipment(equipmentLocation);
+					if (equipment.equipmentIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipment.equipmentIndex))
+					{
+						if (!aspects.Contains(equipment.equipmentDef))
+						{
+							aspects.Add(equipment.equipmentDef);
+						}
+					}
+				}
+			}
+
+			return aspects;
 		}
 
 		private static EquipmentDef GetEliteDisplayFromItem(Inventory inventory, bool isDead = false)
@@ -366,7 +385,7 @@ namespace TPDespair.ZetAspects
 				{
 					list.Add(index);
 					DisplayRuleGroup drg = model.itemDisplayRuleSet.GetEquipmentDisplayRuleGroup(target.equipmentIndex);
-					model.InstantiateDisplayRuleGroup(drg, index, EquipmentIndex.None);
+					model.InstantiateDisplayRuleGroup(drg, index, EquipmentIndex.None, KeyItemIndex.None);
 				}
 			}
 			else

@@ -20,6 +20,8 @@ namespace TPDespair.ZetAspects
 		public static AspectPack Augmentum;
 		public static AspectPack Sandswept;
 		public static AspectPack Starstorm;
+		public static AspectPack Meltdown;
+		public static AspectPack Reaper;
 	}
 
 	public static class EquipDefOf
@@ -86,6 +88,10 @@ namespace TPDespair.ZetAspects
 		public static EquipmentDef AffixOsmium;
 
 		public static EquipmentDef AffixEmpyrean;
+
+		public static EquipmentDef AffixNuclear;
+
+		public static EquipmentDef AffixMortem;
 	}
 
 	public static class BuffDefOf
@@ -169,6 +175,10 @@ namespace TPDespair.ZetAspects
 		public static BuffDef AffixOsmium;
 
 		public static BuffDef AffixEmpyrean;
+
+		public static BuffDef AffixNuclear;
+
+		public static BuffDef AffixMortem;
 	}
 
 	public static class ItemDefOf
@@ -240,5 +250,9 @@ namespace TPDespair.ZetAspects
 		public static ItemDef ZetAspectOsmium;
 
 		public static ItemDef ZetAspectEmpyrean;
+
+		public static ItemDef ZetAspectNuclear;
+
+		public static ItemDef ZetAspectMortem;
 	}
 }

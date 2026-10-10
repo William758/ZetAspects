@@ -47,7 +47,7 @@ namespace TPDespair.ZetAspects.Compat
 		{
 			Type type;
 
-			type = Type.GetType("Aetherium.Equipment.EliteEquipment.AffixSanguine, " + PluginAssembly.FullName, false);
+			type = Type.GetType("Aetherium.EliteEquipment.AffixSanguine, " + PluginAssembly.FullName, false);
 			if (type != null)
 			{
 				ApplyBleedMethod = type.GetMethod("BleedOnHit", Flags);
@@ -55,7 +55,7 @@ namespace TPDespair.ZetAspects.Compat
 			}
 			else
 			{
-				Logger.Warn("[AetheriumCompat] - Could Not Find Type : Aetherium.Equipment.EliteEquipment.AffixSanguine");
+				Logger.Warn("[AetheriumCompat] - Could Not Find Type : Aetherium.EliteEquipment.AffixSanguine");
 			}
 		}
 

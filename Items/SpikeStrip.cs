@@ -13,23 +13,7 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (AspectWorldUnique.Value)
-			{
-				Array.Resize(ref tags, 3);
-				tags[2] = ItemTag.WorldUnique;
-			}
-
-			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
-			itemDef.name = identifier;
-			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
-			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
-
-			itemDef.AutoPopulateTokens();
-
-			return itemDef;
+			return Catalog.CreateItemTemplate(identifier, false, true);
 		}
 
 		public static void SetupTokens()
@@ -122,23 +106,7 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (AspectWorldUnique.Value)
-			{
-				Array.Resize(ref tags, 3);
-				tags[2] = ItemTag.WorldUnique;
-			}
-
-			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
-			itemDef.name = identifier;
-			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
-			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
-
-			itemDef.AutoPopulateTokens();
-
-			return itemDef;
+			return Catalog.CreateItemTemplate(identifier, false, true);
 		}
 
 		public static void SetupTokens()
@@ -240,23 +208,7 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Healing, ItemTag.Utility };
-			if (AspectWorldUnique.Value)
-			{
-				Array.Resize(ref tags, 3);
-				tags[2] = ItemTag.WorldUnique;
-			}
-
-			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
-			itemDef.name = identifier;
-			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
-			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
-
-			itemDef.AutoPopulateTokens();
-
-			return itemDef;
+			return Catalog.CreateItemTemplate(identifier, false, true);
 		}
 
 		public static void SetupTokens()
@@ -410,23 +362,7 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			ItemTag[] tags = { ItemTag.Damage, ItemTag.Utility };
-			if (AspectWorldUnique.Value)
-			{
-				Array.Resize(ref tags, 3);
-				tags[2] = ItemTag.WorldUnique;
-			}
-
-			ItemDef itemDef = ScriptableObject.CreateInstance<ItemDef>();
-			itemDef.name = identifier;
-			itemDef.tags = tags;
-			itemDef._itemTierDef = AspectRedTier.Value ? Catalog.RedItemTier : Catalog.BossItemTier;
-			itemDef.pickupModelPrefab = Catalog.WhiteAspectPrefab;
-			itemDef.pickupIconSprite = Catalog.Sprites.AffixUnknown;
-
-			itemDef.AutoPopulateTokens();
-
-			return itemDef;
+			return Catalog.CreateItemTemplate(identifier, true, false);
 		}
 
 		public static void SetupTokens()

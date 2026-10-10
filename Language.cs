@@ -151,9 +151,28 @@ namespace TPDespair.ZetAspects
 				langDict[token] = text;
 			}
 		}
-		
 
-		
+		public static void RegisterFragmentNoOverwrite(string token, string text)
+		{
+			string language = (targetLanguage != "") ? targetLanguage : "default";
+
+			if (!fragments.ContainsKey(language))
+			{
+				if (verboseSetup) Logger.Info("Creating (" + language + ") fragment language.");
+				fragments.Add(language, new Dictionary<string, string>());
+			}
+
+			var langDict = fragments[language];
+
+			if (!langDict.ContainsKey(token))
+			{
+				if (verboseSetup) Logger.Info("Creating fragment (" + token + ") in (" + language + ") fragment language.");
+				langDict.Add(token, text);
+			}
+		}
+
+
+
 		// moved to actual files - dont remember if this is hooked by another mod
 		internal static void SetupFragments()
 		{
