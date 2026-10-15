@@ -152,6 +152,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.9 - Fixed Item Models, Fixed bug related to DeathRewards.
+
 v2.10.8 - Updated for latest game version. Aspect items dont have models...
 
 v2.10.7 - Updated Korean translation.

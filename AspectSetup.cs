@@ -763,15 +763,40 @@ namespace TPDespair.ZetAspects
 
 		private static void CopyEquipmentPrefab(ItemDef itemDef, EquipmentDef equipDef)
 		{
-			itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
-			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
-			pickupDef.displayPrefab = equipDef.pickupModelPrefab;
+			bool isAsync = equipDef.pickupModelReference != null;
+
+			if (isAsync)
+			{
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
+
+				itemDef.pickupModelReference = equipDef.pickupModelReference;
+				pickupDef.displayPrefabReference = equipDef.pickupModelReference;
+
+				equipDef.pickupModelReference.LoadAssetAsync().Completed += (AsyncOperationHandle<GameObject> handle) =>
+				{
+					if (handle.Status == AsyncOperationStatus.Succeeded)
+					{
+						GameObject prefab = handle.Result;
+
+						itemDef.pickupModelPrefab = prefab;
+						pickupDef.displayPrefab = prefab;
+					}
+				};
+			}
+			else
+			{
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
+
+				itemDef.pickupModelPrefab = equipDef.pickupModelPrefab;
+				pickupDef.displayPrefab = equipDef.pickupModelPrefab;
+			}
 		}
 
 		private static void CopyItemPrefab(ItemDef itemDef, EquipmentDef equipDef)
 		{
-			equipDef.pickupModelPrefab = itemDef.pickupModelPrefab;
 			PickupDef pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
+
+			equipDef.pickupModelPrefab = itemDef.pickupModelPrefab;
 			pickupDef.displayPrefab = itemDef.pickupModelPrefab;
 		}
 

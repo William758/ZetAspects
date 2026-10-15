@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using RoR2;
+﻿using RoR2;
 using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace TPDespair.ZetAspects
 {
@@ -420,7 +421,14 @@ namespace TPDespair.ZetAspects
 			EquipmentDef equipDef = currentIconTarget.equipmentDef;
 			if (equipDef != null)
 			{
-				return TryUseSprite(equipDef.pickupIconSprite);
+				Sprite sprite = equipDef.pickupIconSprite;
+
+				if (equipDef.pickupIconSpriteReference != null)
+				{
+					sprite = equipDef.pickupIconSpriteReference.LoadAssetAsync<Sprite>().WaitForCompletion();
+				}
+
+				return TryUseSprite(sprite);
 			}
 
 			return null;

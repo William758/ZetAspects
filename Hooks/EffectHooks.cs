@@ -2169,7 +2169,7 @@ namespace TPDespair.ZetAspects
 				{
 					c.Index += 1;
 
-					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldarg, 1);
 					c.EmitDelegate<Func<uint, DamageReport, uint>>((reward, damageReport) =>
 					{
 						CharacterBody atkBody = damageReport.attackerBody;
