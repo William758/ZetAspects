@@ -409,7 +409,7 @@ namespace TPDespair.ZetAspects
 								equipIndex = inventory.currentEquipmentIndex;
 								if (equipIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipIndex))
 								{
-									equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+									equipDef = EquipmentCatalog.GetEquipmentDef(equipIndex);
 								}
 							}
 
