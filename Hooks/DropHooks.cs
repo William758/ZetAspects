@@ -409,7 +409,7 @@ namespace TPDespair.ZetAspects
 								equipIndex = inventory.currentEquipmentIndex;
 								if (equipIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipIndex))
 								{
-									equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+									equipDef = EquipmentCatalog.GetEquipmentDef(equipIndex);
 								}
 							}
 
@@ -568,7 +568,8 @@ namespace TPDespair.ZetAspects
 				if (!DropAsEquipment())
 				{
 					UniquePickup pickup = pickupInfo.pickup;
-					EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickup.pickupIndex).equipmentIndex;
+					PickupDef pickupDef = PickupCatalog.GetPickupDef(pickup.pickupIndex);
+					EquipmentIndex equipIndex = pickupDef != null ? pickupDef.equipmentIndex : EquipmentIndex.None;
 
 					if (equipIndex != EquipmentIndex.None)
 					{

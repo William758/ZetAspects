@@ -792,108 +792,52 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
-				int findIndex = -1;
-
-				if (c.TryGotoNext(
-					x => x.MatchLdfld<CharacterBody>("baseRegen"),
-					x => x.MatchLdarg(0),
-					x => x.MatchLdfld<CharacterBody>("levelRegen")
-				))
-				{
-					if (!c.TryGotoNext(x => x.MatchStloc(out BaseRegenLocIndex)))
-					{
-						Logger.Warn("RegenHook Failed - Could not find BaseRegenLocIndex");
-						return;
-					}
-				}
-
-				findIndex = c.Index;
-
-
-
-				c.Index = 0;
-
-				int KnurlCountLocIndex = -1;
+				int LevelLocIndex = -1;
 
 				if (!c.TryGotoNext(
-					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Knurl")),
-					x => x.MatchCallOrCallvirt<Inventory>("GetItemCountEffective"),
-					x => x.MatchStloc(out KnurlCountLocIndex)
+					x => x.MatchLdfld<CharacterBody>("baseRegen"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelRegen"),
+					x => x.MatchLdloc(out LevelLocIndex)
 				))
 				{
-					Logger.Warn("RegenHook Failed - Cound not find KnurlCountLocIndex");
+					Logger.Warn("RegenHook Failed - Could not find BaseRegen region!");
 					return;
 				}
 
+				if (!c.TryGotoNext(x => x.MatchStloc(out BaseRegenLocIndex)))
+				{
+					Logger.Warn("RegenHook Failed - Could not find BaseRegenLocIndex");
+					return;
+				}
+
+				int findIndex = c.Index;
 
 
-				c.Index = findIndex;
 
-				int KnurlRegenLocIndex = -1;
+				// found through level scaling rather than an item, since other mods replace the items that vanilla regen counts
 				int LevelRegenScaleLocIndex = -1;
+				int ScaledRegenLocIndex = -1;
 
 				bool found = c.TryGotoNext(
-					x => x.MatchLdloc(KnurlCountLocIndex),
-					x => x.MatchConvR4(),
-					x => x.MatchLdcR4(out _),
-					x => x.MatchMul(),
-					x => x.MatchLdloc(out LevelRegenScaleLocIndex),
-					x => x.MatchMul(),
-					x => x.MatchStloc(out KnurlRegenLocIndex)
-				);
-
-				if (!found)
-				{
-					Logger.Warn("RegenHook - Could not find KnurlRegen region! , assuming indexes...");
-					LevelRegenScaleLocIndex = BaseRegenLocIndex + 1;
-					KnurlRegenLocIndex = -1;
-				}
-				else
-				{
-					Logger.Info("RegenHook - KnurlRegenLocIndex: " + KnurlRegenLocIndex + ", LevelRegenScaleLocIndex: " + LevelRegenScaleLocIndex);
-
-					if (KnurlRegenLocIndex - LevelRegenScaleLocIndex > 1)
-					{
-						Logger.Warn("RegenHook - These indexes probably shouldnt be this far apart?");
-					}
-
-				}
-
-
-
-				int CrocoRegenLocIndex = -1;
-
-				found = c.TryGotoNext(
-					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("CrocoRegen")),
-					x => x.MatchCallOrCallvirt<CharacterBody>("GetBuffCount")
-				) && c.TryGotoNext(
-					x => x.MatchStloc(out CrocoRegenLocIndex));
-
-				if (!found)
-				{
-					Logger.Warn("RegenHook Failed - Could not find CrocoRegen Region!");
-					return;
-				}
-
-
-
-				if (KnurlRegenLocIndex == -1)
-				{
-					KnurlRegenLocIndex = CrocoRegenLocIndex + 1;
-				}
-
-
-
-				found = c.TryGotoNext(
 					x => x.MatchLdcR4(1f),
-					x => x.MatchStloc(out _)
+					x => x.MatchLdloc(LevelLocIndex)
+				) && c.TryGotoNext(
+					x => x.MatchStloc(out LevelRegenScaleLocIndex)
+				) && c.TryGotoNext(
+					x => x.MatchLdloc(LevelRegenScaleLocIndex),
+					x => x.MatchMul()
+				) && c.TryGotoNext(MoveType.After,
+					x => x.MatchStloc(out ScaledRegenLocIndex)
 				);
 
 				if (found)
 				{
+					Logger.Info("RegenHook - ScaledRegenLocIndex: " + ScaledRegenLocIndex + ", LevelRegenScaleLocIndex: " + LevelRegenScaleLocIndex);
+
 					// add (affected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, KnurlRegenLocIndex);
+					c.Emit(OpCodes.Ldloc, ScaledRegenLocIndex);
 					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
 					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, value, scaling) =>
 					{
@@ -989,8 +933,27 @@ namespace TPDespair.ZetAspects
 
 						return value;
 					});
-					c.Emit(OpCodes.Stloc, KnurlRegenLocIndex);
+					c.Emit(OpCodes.Stloc, ScaledRegenLocIndex);
+				}
+				else
+				{
+					Logger.Warn("RegenHook Failed - Could not find LevelRegenScale region!");
+				}
 
+
+
+				c.Index = findIndex;
+
+				int CrocoRegenLocIndex = -1;
+
+				found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("CrocoRegen"))
+				) && c.TryGotoNext(MoveType.After,
+					x => x.MatchStloc(out CrocoRegenLocIndex)
+				);
+
+				if (found)
+				{
 					// add percent (unaffected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
@@ -1014,7 +977,7 @@ namespace TPDespair.ZetAspects
 				}
 				else
 				{
-					Logger.Warn("RegenHook Failed");
+					Logger.Warn("RegenHook Failed - Could not find CrocoRegen Region!");
 				}
 			};
 		}
