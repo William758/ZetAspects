@@ -21,7 +21,17 @@ namespace TPDespair.ZetAspects
 			ShieldHook();
 			HealthHook();
 			AttackSpeedHook();
+
+
+
 			RegenHook();
+
+			if (BaseRegenLocIndex != -1)
+			{
+				FallbackRegenHook();
+			}
+
+
 
 			DirectStatHook();
 
@@ -785,7 +795,7 @@ namespace TPDespair.ZetAspects
 				}
 			};
 		}
-		
+
 		private static void RegenHook()
 		{
 			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
@@ -839,100 +849,7 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, ScaledRegenLocIndex);
 					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
-					c.EmitDelegate<Func<CharacterBody, float, float, float>>((self, value, scaling) =>
-					{
-						float amount = 0f;
-
-						Inventory inventory = self.inventory;
-						if (inventory)
-						{
-							bool aurelioniteEnabled = self.HasBuff(BuffDefOf.AffixAurelionite) && Configuration.AspectAurelioniteBaseScoredRegenGain.Value > 0f;
-							bool goldEnabled = self.HasBuff(BuffDefOf.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
-							bool pillageEnabled = self.HasBuff(BuffDefOf.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
-
-							if (aurelioniteEnabled || goldEnabled || pillageEnabled)
-							{
-								float itemScore = GetItemScore(inventory);
-
-								if (aurelioniteEnabled)
-								{
-									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAurelionite);
-
-									float scoredRegen = itemScore * Configuration.AspectAurelioniteItemScoreFactor.Value;
-									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectAurelioniteItemScoreExponent.Value);
-									scoredRegen *= Configuration.AspectAurelioniteBaseScoredRegenGain.Value + Configuration.AspectAurelioniteStackScoredRegenGain.Value * (count - 1f);
-
-									// itemscore regen does not benefit from lvl scaling
-									value += scoredRegen * (1f + (Configuration.AspectAurelioniteItemScoreLevelScaling.Value * (self.level - 1f)));
-								}
-
-								if (goldEnabled)
-								{
-									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixGold);
-
-									float scoredRegen = itemScore * Configuration.AspectGoldItemScoreFactor.Value;
-									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldItemScoreExponent.Value);
-									scoredRegen *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
-
-									// itemscore regen does not benefit from lvl scaling
-									value += scoredRegen * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
-								}
-
-								if (pillageEnabled)
-								{
-									float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPillaging);
-
-									float scoredRegen = itemScore * Configuration.AspectGoldenItemScoreFactor.Value;
-									scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldenItemScoreExponent.Value);
-									scoredRegen *= Configuration.AspectGoldenBaseScoredRegenGain.Value + Configuration.AspectGoldenStackScoredRegenGain.Value * (count - 1f);
-
-									// itemscore regen does not benefit from lvl scaling
-									value += scoredRegen * (1f + (Configuration.AspectGoldenItemScoreLevelScaling.Value * (self.level - 1f)));
-								}
-							}
-						}
-
-						if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
-						{
-							amount += 1.6f;
-						}
-
-						if (self.HasBuff(BuffDefOf.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
-						{
-							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSepia);
-							amount += Configuration.AspectSepiaBaseRegenGain.Value + Configuration.AspectSepiaStackRegenGain.Value * (count - 1f);
-						}
-
-						if (self.HasBuff(BuffDefOf.AffixPurity) && Configuration.AspectPurityBaseRegenGain.Value > 0f)
-						{
-							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPurity);
-							amount += Configuration.AspectPurityBaseRegenGain.Value + Configuration.AspectPurityStackRegenGain.Value * (count - 1f);
-						}
-
-						if (self.HasBuff(BuffDefOf.AffixMoney) && Configuration.AspectMoneyBaseRegenGain.Value > 0f)
-						{
-							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixMoney);
-							amount += Configuration.AspectMoneyBaseRegenGain.Value + Configuration.AspectMoneyStackRegenGain.Value * (count - 1f);
-						}
-
-						if (amount != 0f)
-						{
-							if (!self.isPlayerControlled)
-							{
-								float bonusLevelValue = self.level - 1f;
-								if (bonusLevelValue > 0f)
-								{
-									float increasedRegenPerLevel = (scaling - 1f) / bonusLevelValue;
-
-									scaling = 1f + Mathf.Pow(bonusLevelValue, Configuration.MonsterRegenExponent.Value) * increasedRegenPerLevel;
-								}
-							}
-
-							value += amount * scaling;
-						}
-
-						return value;
-					});
+					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("AddedRegenEffect"));
 					c.Emit(OpCodes.Stloc, ScaledRegenLocIndex);
 				}
 				else
@@ -957,22 +874,7 @@ namespace TPDespair.ZetAspects
 					// add percent (unaffected by lvl regen scaling and ignites)
 					c.Emit(OpCodes.Ldarg, 0);
 					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
-					c.EmitDelegate<Func<CharacterBody, float, float>>((self, value) =>
-					{
-						float amount = 0f;
-
-						if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
-						{
-							amount += Configuration.AspectEarthRegeneration.Value;
-						}
-
-						if (amount > 0f && AllowPercentHealthRegen(self))
-						{
-							value += self.maxHealth * amount;
-						}
-
-						return value;
-					});
+					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("PercentRegenEffect"));
 					c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
 				}
 				else
@@ -980,6 +882,243 @@ namespace TPDespair.ZetAspects
 					Logger.Warn("RegenHook Failed - Could not find CrocoRegen Region!");
 				}
 			};
+		}
+
+		private static void FallbackRegenHook()
+		{
+			IL.RoR2.CharacterBody.RecalculateStats += (il) =>
+			{
+				ILCursor c = new ILCursor(il);
+
+				int findIndex = -1;
+
+				if (c.TryGotoNext(
+					x => x.MatchLdfld<CharacterBody>("baseRegen"),
+					x => x.MatchLdarg(0),
+					x => x.MatchLdfld<CharacterBody>("levelRegen")
+				))
+				{
+					if (!c.TryGotoNext(x => x.MatchStloc(out BaseRegenLocIndex)))
+					{
+						Logger.Warn("FallbackRegenHook Failed - Could not find BaseRegenLocIndex");
+						return;
+					}
+				}
+
+				findIndex = c.Index;
+
+
+
+				c.Index = 0;
+
+				int KnurlCountLocIndex = -1;
+
+				if (!c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Knurl")),
+					x => x.MatchCallOrCallvirt<Inventory>("GetItemCountEffective"),
+					x => x.MatchStloc(out KnurlCountLocIndex)
+				))
+				{
+					Logger.Warn("FallbackRegenHook Failed - Cound not find KnurlCountLocIndex");
+					return;
+				}
+
+
+
+				c.Index = findIndex;
+
+				int KnurlRegenLocIndex = -1;
+				int LevelRegenScaleLocIndex = -1;
+
+				bool found = c.TryGotoNext(
+					x => x.MatchLdloc(KnurlCountLocIndex),
+					x => x.MatchConvR4(),
+					x => x.MatchLdcR4(out _),
+					x => x.MatchMul(),
+					x => x.MatchLdloc(out LevelRegenScaleLocIndex),
+					x => x.MatchMul(),
+					x => x.MatchStloc(out KnurlRegenLocIndex)
+				);
+
+				if (!found)
+				{
+					Logger.Warn("FallbackRegenHook - Could not find KnurlRegen region! , assuming indexes...");
+					LevelRegenScaleLocIndex = BaseRegenLocIndex + 2;
+					KnurlRegenLocIndex = -1;
+				}
+				else
+				{
+					Logger.Info("FallbackRegenHook - KnurlRegenLocIndex: " + KnurlRegenLocIndex + ", LevelRegenScaleLocIndex: " + LevelRegenScaleLocIndex);
+
+					if (KnurlRegenLocIndex - LevelRegenScaleLocIndex > 1)
+					{
+						Logger.Warn("FallbackRegenHook - These indexes probably shouldnt be this far apart?");
+					}
+
+				}
+
+
+
+				int CrocoRegenLocIndex = -1;
+
+				found = c.TryGotoNext(
+					x => x.MatchLdsfld(typeof(RoR2Content.Buffs).GetField("CrocoRegen")),
+					x => x.MatchCallOrCallvirt<CharacterBody>("GetBuffCount")
+				) && c.TryGotoNext(
+					x => x.MatchStloc(out CrocoRegenLocIndex));
+
+				if (!found)
+				{
+					Logger.Warn("FallbackRegenHook Failed - Could not find CrocoRegen Region!");
+					return;
+				}
+
+
+
+				if (KnurlRegenLocIndex == -1)
+				{
+					KnurlRegenLocIndex = CrocoRegenLocIndex + 1;
+				}
+
+
+
+				found = c.TryGotoNext(
+					x => x.MatchLdcR4(1f),
+					x => x.MatchStloc(out _)
+				);
+
+				if (found)
+				{
+					// add (affected by lvl regen scaling and ignites)
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, KnurlRegenLocIndex);
+					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
+					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("AddedRegenEffect"));
+					c.Emit(OpCodes.Stloc, KnurlRegenLocIndex);
+
+					// add percent (unaffected by lvl regen scaling and ignites)
+					c.Emit(OpCodes.Ldarg, 0);
+					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
+					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("PercentRegenEffect"));
+					c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
+				}
+				else
+				{
+					Logger.Warn("FallbackRegenHook Failed");
+				}
+			};
+		}
+
+		public static float AddedRegenEffect(CharacterBody self, float value, float scaling)
+		{
+			float amount = 0f;
+
+			Inventory inventory = self.inventory;
+			if (inventory)
+			{
+				bool aurelioniteEnabled = self.HasBuff(BuffDefOf.AffixAurelionite) && Configuration.AspectAurelioniteBaseScoredRegenGain.Value > 0f;
+				bool goldEnabled = self.HasBuff(BuffDefOf.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
+				bool pillageEnabled = self.HasBuff(BuffDefOf.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
+
+				if (aurelioniteEnabled || goldEnabled || pillageEnabled)
+				{
+					float itemScore = GetItemScore(inventory);
+
+					if (aurelioniteEnabled)
+					{
+						float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixAurelionite);
+
+						float scoredRegen = itemScore * Configuration.AspectAurelioniteItemScoreFactor.Value;
+						scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectAurelioniteItemScoreExponent.Value);
+						scoredRegen *= Configuration.AspectAurelioniteBaseScoredRegenGain.Value + Configuration.AspectAurelioniteStackScoredRegenGain.Value * (count - 1f);
+
+						// itemscore regen does not benefit from lvl scaling
+						value += scoredRegen * (1f + (Configuration.AspectAurelioniteItemScoreLevelScaling.Value * (self.level - 1f)));
+					}
+
+					if (goldEnabled)
+					{
+						float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixGold);
+
+						float scoredRegen = itemScore * Configuration.AspectGoldItemScoreFactor.Value;
+						scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldItemScoreExponent.Value);
+						scoredRegen *= Configuration.AspectGoldBaseScoredRegenGain.Value + Configuration.AspectGoldStackScoredRegenGain.Value * (count - 1f);
+
+						// itemscore regen does not benefit from lvl scaling
+						value += scoredRegen * (1f + (Configuration.AspectGoldItemScoreLevelScaling.Value * (self.level - 1f)));
+					}
+
+					if (pillageEnabled)
+					{
+						float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPillaging);
+
+						float scoredRegen = itemScore * Configuration.AspectGoldenItemScoreFactor.Value;
+						scoredRegen = Mathf.Pow(scoredRegen, Configuration.AspectGoldenItemScoreExponent.Value);
+						scoredRegen *= Configuration.AspectGoldenBaseScoredRegenGain.Value + Configuration.AspectGoldenStackScoredRegenGain.Value * (count - 1f);
+
+						// itemscore regen does not benefit from lvl scaling
+						value += scoredRegen * (1f + (Configuration.AspectGoldenItemScoreLevelScaling.Value * (self.level - 1f)));
+					}
+				}
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+			{
+				amount += 1.6f;
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixSepia) && Configuration.AspectSepiaBaseRegenGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSepia);
+				amount += Configuration.AspectSepiaBaseRegenGain.Value + Configuration.AspectSepiaStackRegenGain.Value * (count - 1f);
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixPurity) && Configuration.AspectPurityBaseRegenGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixPurity);
+				amount += Configuration.AspectPurityBaseRegenGain.Value + Configuration.AspectPurityStackRegenGain.Value * (count - 1f);
+			}
+
+			if (self.HasBuff(BuffDefOf.AffixMoney) && Configuration.AspectMoneyBaseRegenGain.Value > 0f)
+			{
+				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixMoney);
+				amount += Configuration.AspectMoneyBaseRegenGain.Value + Configuration.AspectMoneyStackRegenGain.Value * (count - 1f);
+			}
+
+			if (amount != 0f)
+			{
+				if (!self.isPlayerControlled)
+				{
+					float bonusLevelValue = self.level - 1f;
+					if (bonusLevelValue > 0f)
+					{
+						float increasedRegenPerLevel = (scaling - 1f) / bonusLevelValue;
+
+						scaling = 1f + Mathf.Pow(bonusLevelValue, Configuration.MonsterRegenExponent.Value) * increasedRegenPerLevel;
+					}
+				}
+
+				value += amount * scaling;
+			}
+
+			return value;
+		}
+
+		public static float PercentRegenEffect(CharacterBody self, float value)
+		{
+			float amount = 0f;
+
+			if (self.HasBuff(BuffDefOf.AffixEarth) && Configuration.AspectEarthRegeneration.Value > 0f)
+			{
+				amount += Configuration.AspectEarthRegeneration.Value;
+			}
+
+			if (amount > 0f && AllowPercentHealthRegen(self))
+			{
+				value += self.maxHealth * amount;
+			}
+
+			return value;
 		}
 
 		public static float GetItemScore(Inventory inventory)

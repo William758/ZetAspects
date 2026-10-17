@@ -152,6 +152,8 @@ Japanese translation by WakefulSpect.
 
 ## Changelog:
 
+v2.10.10 - Fix more NRE related to death
+
 v2.10.9 - Fixed Item Models, Fixed bug related to DeathRewards.
 
 v2.10.8 - Updated for latest game version. Aspect items dont have models...

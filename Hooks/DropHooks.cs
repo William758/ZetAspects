@@ -392,7 +392,7 @@ namespace TPDespair.ZetAspects
 							equipIndex = vicBody.equipmentSlot.equipmentIndex;
 							if (equipIndex != EquipmentIndex.None && Catalog.aspectEquipIndexes.Contains(equipIndex))
 							{
-								equipDef = EquipmentCatalog.GetEquipmentDef(vicBody.equipmentSlot.equipmentIndex);
+								equipDef = EquipmentCatalog.GetEquipmentDef(equipIndex);
 							}
 						}
 
@@ -634,7 +634,7 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, pickupDefLocIndex);
 					c.EmitDelegate<Func<GenericPickupController, CharacterBody, PickupDef, PickupDef>>((controller, body, pickupDef) =>
 					{
-						if (Configuration.AspectEquipmentAbsorb.Value)
+						if (Configuration.AspectEquipmentAbsorb.Value && pickupDef != null)
 						{
 							EquipmentIndex pickupEquip = pickupDef.equipmentIndex;
 
@@ -669,7 +669,8 @@ namespace TPDespair.ZetAspects
 			{
 				orig(self, pickupIndex);
 
-				EquipmentIndex equipIndex = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
+				PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
+				EquipmentIndex equipIndex = pickupDef != null ? pickupDef.equipmentIndex : EquipmentIndex.None;
 
 				if (equipIndex != EquipmentIndex.None)
 				{
