@@ -72,9 +72,14 @@ namespace TPDespair.ZetAspects.Compat
 
 
 
-			AdaptiveCompatUpdateMethod = Reflector.GetMethod("Augmentum.Modules.Pickups.EliteEquipments.ZetAdaptiveDrop", "CharacterBody_FixedUpdate");
+			// newer Augmentum versions removed their own ZetAspects compat, so these are optional
+			if (Reflector.PluginAssembly.GetType("Augmentum.Modules.Pickups.EliteEquipments.ZetAdaptiveDrop", false) != null)
+			{
+				AdaptiveCompatUpdateMethod = Reflector.GetMethod("Augmentum.Modules.Pickups.EliteEquipments.ZetAdaptiveDrop", "CharacterBody_FixedUpdate");
+			}
 
-			type = Reflector.GetType("Augmentum.Modules.Compatability.ModCompatability", "ZetAspectsCompat");
+			type = Reflector.PluginAssembly.GetType("Augmentum.Modules.Compatability.ModCompatability", false);
+			type = type != null ? type.GetNestedType("ZetAspectsCompat", ReflectionUtility.Reflector.Flags) : null;
 			if (type != null)
 			{
 				AdaptiveCompatDropletInterceptMethod = Reflector.GetMatchingMethod(Reflector.GetType(type, "<>c"), new Type[] { null, typeof(PickupIndex), typeof(Vector3), typeof(Vector3) });

@@ -383,6 +383,8 @@ namespace TPDespair.ZetAspects
 
 		public static Sprite TrimSpriteEdge(Sprite baseSprite, int trim, int brCorner)
 		{
+			if (baseSprite == null) return Sprites.AffixUnknown;
+
 			int width = baseSprite.texture.width;
 			int height = baseSprite.texture.height;
 
@@ -436,6 +438,8 @@ namespace TPDespair.ZetAspects
 
 		public static Sprite TryUseSprite(Sprite sprite)
 		{
+			if (sprite == null || sprite.texture == null) return null;
+
 			if (!sprite.texture.isReadable || sprite.textureRect.width != 128 || sprite.texture.height != 128)
 			{
 				Texture2D newTexture = DuplicateTexture(sprite.texture);
@@ -464,6 +468,315 @@ namespace TPDespair.ZetAspects
 			RenderTexture.ReleaseTemporary(renderTex);
 
 			return readableText;
+		}
+
+		private static readonly string[] placeholderSpriteNames = { "texMysteryIcon", "texWIPIcon", "texNullIcon", "texUnidentifiedKillerIcon" };
+
+		public static bool IsPlaceholderSprite(Sprite sprite)
+		{
+			if (sprite == null || sprite.texture == null) return true;
+
+			foreach (string name in placeholderSpriteNames)
+			{
+				if (sprite.name.Contains(name) || sprite.texture.name.Contains(name)) return true;
+			}
+
+			return false;
+		}
+
+		// returns null if the equipment has no icon or only a placeholder icon
+		public static Sprite GetOwnSprite()
+		{
+			if (currentIconTarget == null) return null;
+
+			EquipmentDef equipDef = currentIconTarget.equipmentDef;
+			if (equipDef == null) return null;
+
+			Sprite sprite = equipDef.pickupIconSprite;
+
+			if (equipDef.pickupIconSpriteReference != null && equipDef.pickupIconSpriteReference.RuntimeKeyIsValid())
+			{
+				Sprite refSprite = equipDef.pickupIconSpriteReference.LoadAssetAsync<Sprite>().WaitForCompletion();
+				if (refSprite != null) sprite = refSprite;
+			}
+
+			if (IsPlaceholderSprite(sprite)) return null;
+
+			return TryUseSprite(sprite);
+		}
+
+		public enum IconMode
+		{
+			/// <summary>Use the equipment icon, recolor the fallback if there is none.</summary>
+			OwnOrRecolor,
+			/// <summary>Recolor the equipment icon (or the fallback if there is none). Keeps the icon design while making it distinct.</summary>
+			RecolorOwn,
+			/// <summary>Always recolor the fallback sprite.</summary>
+			AlwaysRecolor
+		}
+
+		/// <summary>Use the equipment icon if it has one, otherwise recolor the fallback sprite to the elite color.</summary>
+		public static Sprite OwnSpriteOrRecolor(Func<Sprite> fallback, Color? tint = null, IconMode mode = IconMode.OwnOrRecolor)
+		{
+			Sprite sprite = mode == IconMode.AlwaysRecolor ? null : GetOwnSprite();
+			if (sprite != null)
+			{
+				sprite = TrimSpriteEdge(sprite, 8, 24);
+
+				if (mode == IconMode.OwnOrRecolor) return sprite;
+
+				if (currentIconTarget != null) Logger.Info("Recoloring own icon for : " + currentIconTarget.identifier);
+
+				return RecolorSprite(sprite, tint ?? GetEliteColor(currentIconTarget));
+			}
+
+			Sprite baseSprite = fallback != null ? fallback() : null;
+			if (baseSprite == null) baseSprite = Sprites.AffixUnknown;
+
+			Color color = tint ?? GetEliteColor(currentIconTarget);
+
+			if (currentIconTarget != null) Logger.Info("Creating recolored icon for : " + currentIconTarget.identifier);
+
+			return RecolorSprite(baseSprite, color);
+		}
+
+		public static Color GetEliteColor(AspectDef aspectDef)
+		{
+			EquipmentDef equipDef = aspectDef != null ? aspectDef.equipmentDef : null;
+			if (equipDef != null)
+			{
+				EliteDef eliteDef = GetEquipmentEliteDef(equipDef);
+
+				if (eliteDef == null)
+				{
+					foreach (EliteDef def in EliteCatalog.eliteDefs)
+					{
+						if (def && def.eliteEquipmentDef == equipDef)
+						{
+							eliteDef = def;
+							break;
+						}
+					}
+				}
+
+				if (eliteDef != null && eliteDef.color.a > 0) return eliteDef.color;
+
+				BuffDef buffDef = equipDef.passiveBuffDef;
+				if (buffDef != null && buffDef.buffColor.a > 0f) return buffDef.buffColor;
+			}
+
+			return Color.white;
+		}
+
+		/// <summary>Shift the hue of every colored pixel to the target color. Greyscale pixels are left mostly untouched.</summary>
+		public static Sprite RecolorSprite(Sprite baseSprite, Color target)
+		{
+			return AdjustSprite(baseSprite, target, 1f);
+		}
+
+		/// <summary>Optionally shift the hue of colored pixels to the target color, and multiply brightness.</summary>
+		public static Sprite AdjustSprite(Sprite baseSprite, Color? target, float brightness)
+		{
+			float targetHue = 0f, targetSat = 0f;
+			if (target.HasValue) Color.RGBToHSV(target.Value, out targetHue, out targetSat, out _);
+
+			return ModifyPixels(baseSprite, (float hue, float sat, float val, out float newHue, out float newSat, out float newVal) =>
+			{
+				newHue = hue;
+				newSat = sat;
+
+				if (target.HasValue && sat > 0.08f)
+				{
+					newHue = targetHue;
+					newSat = Mathf.Clamp01(Mathf.Lerp(sat, targetSat, 0.5f));
+				}
+
+				newVal = Mathf.Clamp01(val * brightness);
+			});
+		}
+
+		/// <summary>Move the hue of colored pixels within [minHue, maxHue] to newHue. Used to change outline colors.</summary>
+		public static Sprite ReplaceHue(Sprite baseSprite, float minHue, float maxHue, float newHue)
+		{
+			return ModifyPixels(baseSprite, (float hue, float sat, float val, out float outHue, out float outSat, out float outVal) =>
+			{
+				outHue = (sat > 0.25f && hue >= minHue && hue <= maxHue) ? newHue : hue;
+				outSat = sat;
+				outVal = val;
+			});
+		}
+
+		/// <summary>Like ReplaceHue, but only for pixels within edgeWidth of transparency, so only the outline of the icon changes.</summary>
+		public static Sprite ReplaceEdgeHue(Sprite baseSprite, float minHue, float maxHue, float newHue, int edgeWidth)
+		{
+			Sprite readable = TryUseSprite(baseSprite) ?? Sprites.AffixUnknown;
+			Color32[] pixels = readable.texture.GetPixels32();
+
+			const int size = 128;
+			const byte transparent = 16;
+
+			for (int i = 0; i < pixels.Length; i++)
+			{
+				if (pixels[i].a <= transparent) continue;
+
+				Color.RGBToHSV(pixels[i], out float hue, out float sat, out float val);
+				if (sat <= 0.25f || hue < minHue || hue > maxHue) continue;
+
+				int x = i % size;
+				int y = i / size;
+				bool nearEdge = false;
+
+				for (int dy = -edgeWidth; dy <= edgeWidth && !nearEdge; dy++)
+				{
+					for (int dx = -edgeWidth; dx <= edgeWidth; dx++)
+					{
+						int nx = x + dx;
+						int ny = y + dy;
+
+						if (nx < 0 || ny < 0 || nx >= size || ny >= size || pixels[ny * size + nx].a <= transparent)
+						{
+							nearEdge = true;
+							break;
+						}
+					}
+				}
+
+				if (!nearEdge) continue;
+
+				Color modified = Color.HSVToRGB(newHue, sat, val);
+				modified.a = pixels[i].a / 255f;
+				pixels[i] = modified;
+			}
+
+			Texture2D newTexture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+
+			newTexture.SetPixels32(pixels);
+			newTexture.Apply();
+
+			return Sprite.Create(newTexture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 25.0f);
+		}
+
+		private delegate void HSVModifier(float hue, float sat, float val, out float newHue, out float newSat, out float newVal);
+
+		private static Sprite ModifyPixels(Sprite baseSprite, HSVModifier modifier)
+		{
+			Sprite readable = TryUseSprite(baseSprite) ?? Sprites.AffixUnknown;
+			Color32[] pixels = readable.texture.GetPixels32();
+
+			for (int i = 0; i < pixels.Length; i++)
+			{
+				Color pixel = pixels[i];
+				if (pixel.a <= 0f) continue;
+
+				Color.RGBToHSV(pixel, out float hue, out float sat, out float val);
+				modifier(hue, sat, val, out hue, out sat, out val);
+
+				Color modified = Color.HSVToRGB(hue, sat, val);
+				modified.a = pixel.a;
+
+				pixels[i] = modified;
+			}
+
+			Texture2D newTexture = new Texture2D(128, 128, TextureFormat.RGBA32, false);
+
+			newTexture.SetPixels32(pixels);
+			newTexture.Apply();
+
+			return Sprite.Create(newTexture, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f), 25.0f);
+		}
+
+		/// <summary>The trimmed icon of an equipment, the same way ZetAspects builds icons from equipment sprites.</summary>
+		public static Sprite EquipmentIcon(EquipmentDef equipDef)
+		{
+			AspectDef lastTarget = currentIconTarget;
+			currentIconTarget = new AspectDef() { equipmentDef = equipDef };
+
+			Sprite sprite = GetOwnSprite();
+
+			currentIconTarget = lastTarget;
+
+			return sprite != null ? TrimSpriteEdge(sprite, 8, 24) : null;
+		}
+
+		/// <summary>Read a config value from another plugin, returning fallback if the plugin or entry is missing.</summary>
+		public static T ModConfig<T>(string guid, string section, string key, T fallback)
+		{
+			try
+			{
+				if (BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(guid, out BepInEx.PluginInfo info) && info.Instance != null)
+				{
+					if (info.Instance.Config.TryGetEntry(section, key, out BepInEx.Configuration.ConfigEntry<T> entry))
+					{
+						return entry.Value;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("ModConfig - Failed to read [" + section + "] " + key + " from " + guid);
+				Logger.Warn(ex);
+			}
+
+			return fallback;
+		}
+
+		/// <summary>Read a static field from another plugin's assembly. Works for both ConfigEntry fields and plain values.</summary>
+		public static T ModStaticField<T>(string guid, string typeName, string fieldName, T fallback)
+		{
+			try
+			{
+				if (BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(guid, out BepInEx.PluginInfo info) && info.Instance != null)
+				{
+					Type type = info.Instance.GetType().Assembly.GetType(typeName, false);
+					FieldInfo field = type != null ? type.GetField(fieldName, Flags) : null;
+					object value = field != null ? field.GetValue(null) : null;
+
+					if (value is BepInEx.Configuration.ConfigEntryBase entry) value = entry.BoxedValue;
+					if (value is T result) return result;
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Warn("ModStaticField - Failed to read " + typeName + "." + fieldName + " from " + guid);
+				Logger.Warn(ex);
+			}
+
+			return fallback;
+		}
+
+		public static EquipmentDef FindEquipmentDefByNames(params string[] names)
+		{
+			foreach (string name in names)
+			{
+				EquipmentIndex index = EquipmentCatalog.FindEquipmentIndex(name);
+				if (index != EquipmentIndex.None) return EquipmentCatalog.GetEquipmentDef(index);
+			}
+
+			return null;
+		}
+
+		/// <summary>For equipment whose registered name can't be relied on.</summary>
+		public static EquipmentDef FindEquipmentDefByTokenOrBuff(string nameToken, string buffName)
+		{
+			foreach (EquipmentDef equipDef in EquipmentCatalog.equipmentDefs)
+			{
+				if (!equipDef) continue;
+
+				if (nameToken != null && equipDef.nameToken == nameToken) return equipDef;
+				if (buffName != null && equipDef.passiveBuffDef && equipDef.passiveBuffDef.name == buffName) return equipDef;
+			}
+
+			return null;
+		}
+
+		public static bool AnyPluginLoaded(params string[] keys)
+		{
+			foreach (string key in keys)
+			{
+				if (PluginLoaded(key)) return true;
+			}
+
+			return false;
 		}
 
 
@@ -1693,6 +2006,8 @@ namespace TPDespair.ZetAspects
 			}
 			
 			Language.ChangeText();
+
+			if (Compat.LookingGlassCompat.Active) Compat.LookingGlassCompat.RegisterHeadHunter();
 
 			RuleCatalogExcludeItemChoices();
 		}

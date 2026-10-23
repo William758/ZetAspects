@@ -206,6 +206,8 @@ namespace TPDespair.ZetAspects
 							value += Configuration.AspectCycloneBaseMovementGain.Value + Configuration.AspectCycloneStackMovementGain.Value * (count - 1f);
 						}
 
+						value += SimpleAspect.StatTotal(self, AspectStatType.MoveSpeed);
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, MultSpeedLocIndex);
@@ -421,6 +423,8 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						value += SimpleAspect.StatTotal(self, AspectStatType.Damage);
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, MultDamageLocIndex);
@@ -634,6 +638,8 @@ namespace TPDespair.ZetAspects
 							}
 						}
 
+						value += SimpleAspect.StatTotal(self, AspectStatType.Health);
+
 						return value;
 					});
 					c.Emit(OpCodes.Stloc, MultHealthLocIndex);
@@ -767,6 +773,8 @@ namespace TPDespair.ZetAspects
 							float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixSandstorm);
 							value += Configuration.AspectCycloneBaseAtkSpdGain.Value + Configuration.AspectCycloneStackAtkSpdGain.Value * (count - 1f);
 						}
+
+						value += SimpleAspect.StatTotal(self, AspectStatType.AttackSpeed);
 
 						return value;
 					});
@@ -1020,9 +1028,13 @@ namespace TPDespair.ZetAspects
 				bool goldEnabled = self.HasBuff(BuffDefOf.AffixGold) && Configuration.AspectGoldBaseScoredRegenGain.Value > 0f;
 				bool pillageEnabled = self.HasBuff(BuffDefOf.AffixPillaging) && Configuration.AspectGoldenBaseScoredRegenGain.Value > 0f;
 
-				if (aurelioniteEnabled || goldEnabled || pillageEnabled)
+				bool playerTeam = self.teamComponent && self.teamComponent.teamIndex == TeamIndex.Player;
+				float monsterMult = playerTeam ? 1f : Mathf.Max(0f, Configuration.MonsterItemScoreRegenMult.Value);
+
+				if ((aurelioniteEnabled || goldEnabled || pillageEnabled) && monsterMult > 0f)
 				{
 					float itemScore = GetItemScore(inventory);
+					float startValue = value;
 
 					if (aurelioniteEnabled)
 					{
@@ -1059,6 +1071,8 @@ namespace TPDespair.ZetAspects
 						// itemscore regen does not benefit from lvl scaling
 						value += scoredRegen * (1f + (Configuration.AspectGoldenItemScoreLevelScaling.Value * (self.level - 1f)));
 					}
+
+					value = startValue + (value - startValue) * monsterMult;
 				}
 			}
 
@@ -1084,6 +1098,8 @@ namespace TPDespair.ZetAspects
 				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixMoney);
 				amount += Configuration.AspectMoneyBaseRegenGain.Value + Configuration.AspectMoneyStackRegenGain.Value * (count - 1f);
 			}
+
+			amount += SimpleAspect.StatTotal(self, AspectStatType.Regen);
 
 			if (amount != 0f)
 			{
@@ -1298,6 +1314,8 @@ namespace TPDespair.ZetAspects
 				addedArmor += Configuration.AspectBeadTetherArmor.Value - 300f;
 			}
 
+			addedArmor += SimpleAspect.StatTotal(self, AspectStatType.Armor);
+
 			return addedArmor;
 		}
 
@@ -1315,6 +1333,8 @@ namespace TPDespair.ZetAspects
 				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixBead);
 				addedCrit += Configuration.AspectBeadBaseCrit.Value + Configuration.AspectBeadStackCrit.Value * (count - 1f);
 			}
+
+			addedCrit += SimpleAspect.StatTotal(self, AspectStatType.Crit);
 
 			if (addedCrit > 0f)
 			{
@@ -1442,6 +1462,8 @@ namespace TPDespair.ZetAspects
 				float count = Catalog.GetStackMagnitude(self, BuffDefOf.AffixEmpyrean);
 				additiveReduction += Configuration.AspectEmpyreanBaseCooldownGain.Value + Configuration.AspectEmpyreanStackCooldownGain.Value * (count - 1f);
 			}
+
+			additiveReduction += SimpleAspect.StatTotal(self, AspectStatType.Cooldown);
 
 			if (additiveReduction > 0f)
 			{

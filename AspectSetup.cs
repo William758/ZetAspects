@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using RoR2;
 using RoR2.ContentManagement;
 using System;
@@ -67,6 +67,8 @@ namespace TPDespair.ZetAspects
 		public Func<Sprite> BaseIcon;
 		public Func<Sprite> OutlineIcon;
 
+		/// <summary>Draw the aspect outline over the base icon. Disable for icons that already have their own outline.</summary>
+		public bool useOutline = true;
 		/// <summary>Whether to copy the pickup prefab of the assoiciated equipment. Otherwise apply the pickup prefab of the item to the associated equipment.</summary>
 		public bool copyEquipmentPrefab = true;
 
@@ -78,6 +80,9 @@ namespace TPDespair.ZetAspects
 
 		/// <summary>Called during setup or when associated configs are changed.</summary>
 		public Action SetupTokens;
+
+		/// <summary>Values shown in the item description, recorded during SetupTokens.</summary>
+		public List<Language.RecordedStat> recordedStats = new List<Language.RecordedStat>();
 
 		//public Action<AspectDef> PostInit;
 
@@ -603,10 +608,20 @@ namespace TPDespair.ZetAspects
 				Catalog.currentTokenTarget = aspectDef;
 				Catalog.currentTokenAffix = "";
 
-				aspectDef.SetupTokens?.Invoke();
+				Language.StartRecording();
+				try
+				{
+					aspectDef.SetupTokens?.Invoke();
+				}
+				finally
+				{
+					aspectDef.recordedStats = Language.StopRecording();
+				}
 
 				Catalog.currentTokenTarget = null;
 				Catalog.currentTokenAffix = "";
+
+				if (Compat.LookingGlassCompat.Active) Compat.LookingGlassCompat.RegisterAspect(aspectDef);
 			}
 		}
 
@@ -827,13 +842,16 @@ namespace TPDespair.ZetAspects
 				baseSprite = Catalog.TryUseSprite(baseSprite);
 			}
 
-			if (baseSprite && outlineSprite)
+			if (baseSprite && !aspectDef.useOutline)
+			{
+				ApplyIcon(aspectDef, baseSprite);
+			}
+			else if (baseSprite && outlineSprite)
 			{
 				EquipmentDef equipDef = aspectDef.equipmentDef;
 				if (equipDef)
 				{
-					Color32 outlineColor = aspectDef.equipmentDef.isLunar ? new Color32(100, 225, 250, 255) : new Color32(250, 150, 50, 255);
-					equipDef.pickupIconSprite = Catalog.CreateAspectSprite(baseSprite, outlineSprite, outlineColor);
+					Color32 outlineColor = aspectDef.equipmentDef.isLunar ? new Color32(100, 225, 250, 255) : new Color32(250, 150, 50, 255);					equipDef.pickupIconSprite = Catalog.CreateAspectSprite(baseSprite, outlineSprite, outlineColor);
 
 					PickupDef equipPickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
 					equipPickupDef.iconSprite = equipDef.pickupIconSprite;
@@ -866,6 +884,29 @@ namespace TPDespair.ZetAspects
 				{
 					Logger.Warn("---- OutlineSprite is null!");
 				}
+			}
+		}
+
+		private static void ApplyIcon(AspectDef aspectDef, Sprite sprite)
+		{
+			EquipmentDef equipDef = aspectDef.equipmentDef;
+			if (equipDef)
+			{
+				equipDef.pickupIconSprite = sprite;
+
+				PickupDef equipPickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(equipDef.equipmentIndex));
+				equipPickupDef.iconSprite = sprite;
+				equipPickupDef.iconTexture = sprite.texture;
+			}
+
+			ItemDef itemDef = aspectDef.itemDef;
+			if (itemDef)
+			{
+				itemDef.pickupIconSprite = sprite;
+
+				PickupDef itemPickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(itemDef.itemIndex));
+				itemPickupDef.iconSprite = sprite;
+				itemPickupDef.iconTexture = sprite.texture;
 			}
 		}
 

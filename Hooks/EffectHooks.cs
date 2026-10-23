@@ -1527,13 +1527,13 @@ namespace TPDespair.ZetAspects
 		{
 			On.RoR2.GlobalEventManager.OnHitAll += (orig, self, damageInfo, hitObject) =>
 			{
-				ApplyAspectOnHitAllEffects(damageInfo);
+				ApplyAspectOnHitAllEffects(damageInfo, hitObject);
 
 				orig(self, damageInfo, hitObject);
 			};
 		}
 
-		private static void ApplyAspectOnHitAllEffects(DamageInfo damageInfo)
+		private static void ApplyAspectOnHitAllEffects(DamageInfo damageInfo, GameObject hitObject)
 		{
 			if (!NetworkServer.active) return;
 			if (damageInfo.procCoefficient <= 0f || damageInfo.rejected) return;
@@ -1544,6 +1544,9 @@ namespace TPDespair.ZetAspects
 
 				if (attacker)
 				{
+					CharacterBody hitBody = hitObject ? hitObject.GetComponent<CharacterBody>() : null;
+					if (hitBody && (hitBody == attacker || (IsSameTeam(attacker, hitBody) && !FriendlyFireActive()))) return;
+
 					FireOverloadingBomb(attacker, damageInfo);
 				}
 			}
@@ -1603,6 +1606,9 @@ namespace TPDespair.ZetAspects
 
 				if (attacker && victim)
 				{
+					// some skills (like Operator CHIRP) raise hit events on allies
+					if (attacker == victim || (IsSameTeam(attacker, victim) && !FriendlyFireActive())) return;
+
 					CreateFrostBlade(attacker, victim, damageInfo);
 					ApplyChill(attacker, victim, damageInfo);
 					ApplySapped(attacker, victim, damageInfo);
@@ -1618,6 +1624,16 @@ namespace TPDespair.ZetAspects
 					ApplyWarped(attacker, victim, damageInfo);
 				}
 			}
+		}
+
+		private static bool IsSameTeam(CharacterBody attacker, CharacterBody victim)
+		{
+			return attacker.teamComponent && victim.teamComponent && attacker.teamComponent.teamIndex == victim.teamComponent.teamIndex;
+		}
+
+		private static bool FriendlyFireActive()
+		{
+			return RunArtifactManager.instance && RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.FriendlyFire);
 		}
 
 		private static void CreateFrostBlade(CharacterBody self, CharacterBody victim, DamageInfo damageInfo)

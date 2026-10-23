@@ -13,7 +13,10 @@ namespace TPDespair.ZetAspects.Items
 
 		internal static ItemDef DefineItem()
 		{
-			return Catalog.CreateItemTemplate(identifier, false, true);
+			ItemDef itemDef = Catalog.CreateItemTemplate(identifier, false, true);
+			itemDef.pickupModelPrefab = Catalog.Prefabs.AffixGold;
+
+			return itemDef;
 		}
 
 		public static void SetupTokens()
