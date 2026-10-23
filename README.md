@@ -134,6 +134,34 @@ tinkerTweaks (disabled by default) : Disable scrap stealing. Reduce drone counts
 
 ![effects](https://i.imgur.com/1D5WESl.png)
 
+## Other Supported Elites:
+
+These aspects provide the effects of the elite from their own mod, ZetAspects does not change them. On top of that, each one grants a themed stat bonus that scales with stacks, configurable in the "2za-Aspect..." config sections.
+
+Base Game : Stygian
+
+Starstorm2 : Ethereal, Toxic, Tectonic, Infernal, Boreal, Supercharged (the last four also grant the power of their vanilla counterpart)
+
+RisingTides : Phenakite
+
+NullifyingElite : Nullifying (uses the Thalassophobia Purity aspect)
+
+Meltdown : Nuclear
+
+RecoveredAndReformed : Speedy
+
+Expedition : Primal, Unstable
+
+LostInTransitLegacy : Frenzying, Leeching, Volatile
+
+SivsContentPack : Obscuring, Tar Symbiont, Prototype
+
+EnemiesReturns : Aeonian
+
+SwanSongExtended : Hallowed, Volatile, Mirrored, Surging, Howling
+
+DeltaruneMod : N.E.O.
+
 ## Installation:
 
 Requires Bepinex and HookGenPatcher.
@@ -151,6 +179,8 @@ Chinese translation by BTP-G and MushroomEl.
 Japanese translation by WakefulSpect.
 
 ## Changelog:
+
+Unreleased - Support for elites from DLC4, Starstorm2, RisingTides, NullifyingElite, RecoveredAndReformed, Expedition, LostInTransitLegacy, SivsContentPack, EnemiesReturns, SwanSongExtended and DeltaruneMod. Fixed Starstorm2 and GoldenCoastPlus not being detected. Fixed missing models for Sepia, Gold and Purity aspects.
 
 v2.10.10 - Fix more NRE related to death
 

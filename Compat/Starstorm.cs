@@ -19,8 +19,21 @@ namespace TPDespair.ZetAspects.Compat
 	internal static class Starstorm
 	{
 		internal static Reflector Reflector;
-		private static readonly string GUID = "com.TeamMoonstorm";
+		internal static readonly string[] GUIDs = { "com.TeamMoonstorm.Starstorm2", "com.TeamMoonstorm.Starstorm2-Nightly", "com.TeamMoonstorm" };
 		private static readonly string identifier = "[StarstormCompat]";
+
+		private static string GUID
+		{
+			get
+			{
+				foreach (string guid in GUIDs)
+				{
+					if (Catalog.PluginLoaded(guid)) return guid;
+				}
+
+				return GUIDs[0];
+			}
+		}
 
 		internal static Reflector MSU_Reflector;
 		private static readonly string MSU_GUID = "com.TeamMoonstorm.MSU";

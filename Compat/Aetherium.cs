@@ -73,6 +73,7 @@ namespace TPDespair.ZetAspects.Compat
 		{
 			ILCursor c = new ILCursor(il);
 
+			// older versions : if (flag)
 			bool found = c.TryGotoNext(
 				x => x.MatchLdloc(0),
 				x => x.MatchBrfalse(out _)
@@ -80,9 +81,24 @@ namespace TPDespair.ZetAspects.Compat
 
 			if (found)
 			{
-				bleedHook = true;
-
 				c.Index += 1;
+			}
+			else
+			{
+				// SotS versions : if (body && body.inventory && ...)
+				c.Index = 0;
+				found = c.TryGotoNext(
+					x => x.MatchLdloc(0),
+					x => x.MatchCall<UnityEngine.Object>("op_Implicit"),
+					x => x.MatchBrfalse(out _)
+				);
+
+				if (found) c.Index += 2;
+			}
+
+			if (found)
+			{
+				bleedHook = true;
 
 				c.Emit(OpCodes.Pop);
 				c.Emit(OpCodes.Ldc_I4, 0);

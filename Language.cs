@@ -181,8 +181,57 @@ namespace TPDespair.ZetAspects
 
 
 
+		/// <summary>A value shown in an item description, recorded so other mods (LookingGlass) can display it as a stat.</summary>
+		public struct RecordedStat
+		{
+			public string fragmentKey;
+			public float baseValue;
+			public float stackValue;
+			public string modifier;
+			public string style;
+		}
+
+		private static List<RecordedStat> recordedStats;
+		private static string lastFragmentKey = "";
+		private static int scalingDepth = 0;
+
+		/// <summary>Record every ScalingText used while building default language item descriptions, until StopRecording.</summary>
+		internal static void StartRecording()
+		{
+			recordedStats = new List<RecordedStat>();
+			lastFragmentKey = "";
+			scalingDepth = 0;
+		}
+
+		internal static List<RecordedStat> StopRecording()
+		{
+			List<RecordedStat> result = recordedStats ?? new List<RecordedStat>();
+			recordedStats = null;
+
+			return result;
+		}
+
+		private static void Record(float baseValue, float stackValue, string modifier, string style)
+		{
+			if (recordedStats == null || scalingDepth > 0 || targetLanguage != "default") return;
+
+			RecordedStat stat = new RecordedStat
+			{
+				fragmentKey = lastFragmentKey,
+				baseValue = baseValue,
+				stackValue = stackValue,
+				modifier = modifier,
+				style = style
+			};
+
+			// combined descriptions repeat the same values
+			if (!recordedStats.Contains(stat)) recordedStats.Add(stat);
+		}
+
 		public static string TextFragment(string key, bool trim = false)
 		{
+			if (recordedStats != null && scalingDepth == 0) lastFragmentKey = key;
+
 			if (targetLanguage != "" || targetLanguage != "default")
 			{
 				if (fragments.ContainsKey(targetLanguage))
@@ -215,6 +264,22 @@ namespace TPDespair.ZetAspects
 
 
 		public static string ScalingText(float baseValue, float stackValue, string modifier = "", string style = "", bool combine = false)
+		{
+			// only the item description (not combined into the equipment) has per stack values
+			if (!combine) Record(baseValue, stackValue, modifier, style);
+
+			scalingDepth++;
+			try
+			{
+				return ScalingTextInternal(baseValue, stackValue, modifier, style, combine);
+			}
+			finally
+			{
+				scalingDepth--;
+			}
+		}
+
+		private static string ScalingTextInternal(float baseValue, float stackValue, string modifier, string style, bool combine)
 		{
 			if (stackValue == 0f)
 			{
@@ -278,6 +343,21 @@ namespace TPDespair.ZetAspects
 
 		public static string ScalingText(float value, string modifier = "", string style = "")
 		{
+			Record(value, 0f, modifier, style);
+
+			scalingDepth++;
+			try
+			{
+				return ScalingTextInternal(value, modifier, style);
+			}
+			finally
+			{
+				scalingDepth--;
+			}
+		}
+
+		private static string ScalingTextInternal(float value, string modifier, string style)
+		{
 			if (modifier == "percent" || modifier == "percentregen") value *= 100f;
 
 			string baseString;
@@ -297,6 +377,8 @@ namespace TPDespair.ZetAspects
 		
 		public static string SecondText(float sec, string modifier = "", string style = "")
 		{
+			Record(sec, 0f, "duration", style);
+
 			string secText = sec.ToString();
 
 			string targetString;
@@ -310,7 +392,16 @@ namespace TPDespair.ZetAspects
 
 			if (style != "") secText = ApplyStyle(secText, style);
 
-			return String.Format(TextFragment(targetString), secText);
+			// don't let the format fragment replace the label of the recorded stat
+			scalingDepth++;
+			try
+			{
+				return String.Format(TextFragment(targetString), secText);
+			}
+			finally
+			{
+				scalingDepth--;
+			}
 		}
 
 		public static string ApplyStyle(string text, string style)

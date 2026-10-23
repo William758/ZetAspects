@@ -25,6 +25,16 @@ namespace TPDespair.ZetAspects
 	//[BepInDependency("com.Moffein.BlightedElites", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	[BepInDependency("com.TheBestAssociatedLargelyLudicrousSillyheadGroup.GOTCE", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("Phreel.NullifyingElite", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.TechDebtCollector.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("prodzpod.RecoveredAndReformed", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("ExpeditionCrew.EXPEDITION", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("Phreelosu.LostInTransitLegacy", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("Sivelos.SivsContentPack", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.Viliger.EnemiesReturns", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.RiskOfBrainrot.SwanSongExtended", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("AGU.DeltaruneMod", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("droppod.lookingglass", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
 	//[BepInDependency("prodzpod.NemesisRisingTides", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF

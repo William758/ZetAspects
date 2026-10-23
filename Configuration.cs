@@ -33,6 +33,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AspectEquipmentConversion { get; set; }
 
 		public static ConfigEntry<float> MonsterRegenExponent { get; set; }
+		public static ConfigEntry<float> MonsterItemScoreRegenMult { get; set; }
 		public static ConfigEntry<float> TranscendenceRegen { get; set; }
 		public static ConfigEntry<float> ShieldRegenBreakDelay { get; set; }
 		public static ConfigEntry<float> NearbyPlayerDodgeBypass { get; set; }
@@ -64,6 +65,7 @@ namespace TPDespair.ZetAspects
 		public static ConfigEntry<bool> AugmentumHooks { get; set; }
 		public static ConfigEntry<bool> SandsweptHooks { get; set; }
 		public static ConfigEntry<bool> StarstormHooks { get; set; }
+		public static ConfigEntry<bool> LookingGlassStats { get; set; }
 
 		public static ConfigEntry<float> AspectWhiteBaseFreezeChance { get; set; }
 		public static ConfigEntry<float> AspectWhiteStackFreezeChance { get; set; }
@@ -531,6 +533,10 @@ namespace TPDespair.ZetAspects
 				"0d-Tweaks", "monsterRegenExponent", 0.75f,
 				"Health regeneration scaling exponent on monsters. Value is an exponent on monster level used to apply level regeneration scaling. Applies to flat health regeneration only."
 			);
+			MonsterItemScoreRegenMult = Config.Bind(
+				"0d-Tweaks", "monsterItemScoreRegenMult", 0f,
+				"Multiplier for itemscore regeneration (Aurelionite, Gold and Pillaging aspects) on non-player characters. Monsters can hold a lot of items, which made these elites nearly unkillable. Set to 0 to disable."
+			);
 			TranscendenceRegen = Config.Bind(
 				"0d-Tweaks", "transcendenceShieldRegen", 0.50f,
 				"Health regeneration gained as shield regeneration. Set to 0 to disable."
@@ -655,6 +661,10 @@ namespace TPDespair.ZetAspects
 				"21-Mod Compatibility", "starstormHooks", true,
 				"Allows for the reading and modification of functions and values within the Starstorm mod."
 			);
+			LookingGlassStats = Config.Bind(
+				"21-Mod Compatibility", "lookingGlassStats", true,
+				"Add aspect and Wake of Vultures stats to LookingGlass item descriptions (if installed)."
+			);
 
 			RiskOfRainConfigs(Config);
 			SpikeStripConfigs(Config);
@@ -672,6 +682,8 @@ namespace TPDespair.ZetAspects
 
 			SandsweptConfigs(Config);
 			StarstormConfigs(Config);
+
+			SimpleAspect.BindStatConfigs(Config);
 		}
 
 		private static void RiskOfRainConfigs(ConfigFile Config)

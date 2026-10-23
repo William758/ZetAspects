@@ -22,6 +22,13 @@ namespace TPDespair.ZetAspects
 		public static AspectPack Starstorm;
 		public static AspectPack Meltdown;
 		public static AspectPack Reaper;
+		public static AspectPack RecoveredAndReformed;
+		public static AspectPack Expedition;
+		public static AspectPack LostInTransitLegacy;
+		public static AspectPack SivsContentPack;
+		public static AspectPack EnemiesReturns;
+		public static AspectPack SwanSong;
+		public static AspectPack Deltarune;
 	}
 
 	public static class EquipDefOf

@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -171,7 +171,20 @@ namespace TPDespair.ZetAspects
 					buffDef.buffColor = Color.white;
 					buffDef.iconSprite = Sprites.HauntCloak;
 				}
-			}.Register();
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectStygian",
+					stats = new[] { new AspectStat(AspectStatType.Armor, 20f, 10f) },
+					affix = "STYGIAN",
+					FindEquipmentDef = () => { return DLC4Content.Equipment.EliteDeathEquipment; },
+					displayPriority = 7600,
+					// brighter N'kuhana's Retort
+					icon = () => AdjustSprite(Sprites.AffixPoison, null, 1.3f),
+					aspectOf = "<style=cDeath>Aspect of Death</style> :",
+					passive = "\nCharacters that die near you <style=cIsUtility>rise again as ghosts</style> that fight for you for a short time."
+				}
+			).Register();
 
 
 
@@ -288,7 +301,7 @@ namespace TPDespair.ZetAspects
 			AspectPackDefOf.GoldenCoastPlus = new AspectPack
 			{
 				identifier = "GoldenCoastPlus",
-				CustomDependency = () => { return PluginLoaded("com.Skell.GoldenCoastPlus") || PluginLoaded("com.Phreel.GoldenCoastPlusRevived"); },
+				CustomDependency = () => { return AnyPluginLoaded("com.Skell.GoldenCoastPlus", "com.Phreel.GoldenCoastPlusRevived", "com.TechDebtCollector.GoldenCoastPlus"); },
 				aspectDefs = new List<AspectDef>()
 				{
 					new AspectDef()
@@ -457,14 +470,21 @@ namespace TPDespair.ZetAspects
 
 			AspectPackDefOf.Thalasso = new AspectPack
 			{
+				// Nullifying elites were split out of Thalassophobia into their own mod
 				identifier = "Thalasso",
-				dependency = "com.jt_hehe.Thalassophobia",
+				CustomDependency = () => { return AnyPluginLoaded("Phreel.NullifyingElite", "com.jt_hehe.Thalassophobia"); },
 				aspectDefs = new List<AspectDef>()
 				{
 					new AspectDef()
 					{
 						identifier = "ZetAspectPurity",
-						equipmentName = "THALASSOPHOBIA_ELITE_EQUIPMENT_AFFIX_PURE",
+						FindEquipmentDef = () =>
+						{
+							EquipmentIndex index = EquipmentCatalog.FindEquipmentIndex("EliteNullifyingEquipment");
+							if (index == EquipmentIndex.None) index = EquipmentCatalog.FindEquipmentIndex("THALASSOPHOBIA_ELITE_EQUIPMENT_AFFIX_PURE");
+
+							return EquipmentCatalog.GetEquipmentDef(index);
+						},
 						itemName = "ZetAspectPurity",
 						displayPriority = 3500,
 						copyEquipmentPrefab = false,
@@ -566,7 +586,25 @@ namespace TPDespair.ZetAspects
 					index = BuffCatalog.FindBuffIndex("RisingTides_NightReducedVision");
 					if (index != BuffIndex.None) BuffDefOf.NightBlind = BuffCatalog.GetBuffDef(index);
 				}
-			}.Register();
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectPhenakite",
+					stats = new[] { new AspectStat(AspectStatType.MoveSpeed, 0.15f, 0.10f) },
+					affix = "PHENAKITE",
+					equipmentName = "RisingTides_AffixMirror",
+					displayPriority = 10003,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "Hall of Mirrors",
+					pickup = "Become an aspect of illusion.",
+					aspectOf = "<style=cDeath>Aspect of Illusion</style> :",
+					passive = "\nSpawn with <style=cIsUtility>{0} illusory clones</style> of yourself.\nAttacks have a <style=cIsUtility>{1}%</style> chance to <style=cIsUtility>steal an item</style> from enemies you hit.",
+					passiveArgs = () => new object[] {
+						ModConfig("com.themysticsword.risingtides", "Elites: Phenakite", "Clone Count", 3),
+						ModConfig("com.themysticsword.risingtides", "Elites: Phenakite", "Item Steal Chance", 100f)
+					}
+				}
+			).Register();
 
 
 
@@ -727,7 +765,7 @@ namespace TPDespair.ZetAspects
 						equipmentName = "EliteVariety_AffixBuffing",
 						itemName = "ZetAspectBanner",
 						displayPriority = 5100,
-						BaseIcon = () => Sprites.AffixBuffing,
+						BaseIcon = () => Sprites.AffixBuffing_EV,
 						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = Items.ZetAspectBanner.SetupTokens,
 						RefEquipmentDef = (equipmentDef) => EquipDefOf.AffixBuffing = equipmentDef,
@@ -904,7 +942,7 @@ namespace TPDespair.ZetAspects
 			AspectPackDefOf.Starstorm = new AspectPack
 			{
 				identifier = "Starstorm",
-				dependency = "com.TeamMoonstorm",
+				CustomDependency = () => { return AnyPluginLoaded(Compat.Starstorm.GUIDs); },
 				alwaysValidate = true,
 				aspectDefs = new List<AspectDef>()
 				{
@@ -928,7 +966,95 @@ namespace TPDespair.ZetAspects
 						Compat.Starstorm.LateSetup();
 					}
 				}
-			}.Register();
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectEthereal",
+					stats = new[] { new AspectStat(AspectStatType.Health, 0.15f, 0.10f) },
+					affix = "SS2ETHEREAL",
+					equipmentName = "AffixEthereal",
+					displayPriority = 17000,
+					icon = () => AdjustSprite(Sprites.AffixHaunted, new Color(0.2f, 0.8f, 0.3f), 0.5f),
+					name = "Unstable Remnant",
+					pickup = "Become an aspect of the unknown.",
+					aspectOf = "<style=cDeath>Aspect of the Unknown</style> :",
+					passive = "\nPeriodically create <style=cIsDamage>ethereal circles</style> nearby that detonate on enemies."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectToxic",
+					stats = new[] { new AspectStat(AspectStatType.Damage, 0.12f, 0.08f) },
+					affix = "SS2TOXIC",
+					equipmentName = "ElitePurpleEquipment",
+					displayPriority = 7502,
+					fallbackIcon = () => Sprites.AffixPoison,
+					name = "Malignant Resolve",
+					pickup = "Become an aspect of toxicity.",
+					aspectOf = "<style=cDeath>Aspect of Toxicity</style> :",
+					passive = "\nAttacks <style=cIsDamage>explode</style> into a toxic cloud that <style=cIsDamage>poisons</style> enemies, dealing more damage the healthier they are.\nPeriodically lob <style=cIsDamage>toxic bombs</style> at nearby enemies."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectTectonic",
+					stats = new[] { new AspectStat(AspectStatType.Armor, 25f, 15f) },
+					affix = "SS2TECTONIC",
+					equipmentName = "EliteSuperEarthEquipment",
+					displayPriority = 16000,
+					defence = true,
+					// far darker His Reassurance
+					icon = () => AdjustSprite(Sprites.AffixEarth, null, 0.45f),
+					name = "His Radiant Passion",
+					pickup = "Become a harbinger of earth.",
+					aspectOf = "<style=cDeath>Harbinger of Earth</style> :",
+					passive = "\nGain the power of <style=cIsHealing>Mending</style> elites.\nEvery <style=cIsDamage>8 seconds</style>, send out <style=cIsDamage>3 sundering waves</style> for <style=cIsDamage>100%</style> damage.",
+					configure = (aspectDef) => aspectDef.GrantsBuffs(() => DLC1Content.Buffs.EliteEarth)
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectInfernal",
+					stats = new[] { new AspectStat(AspectStatType.Damage, 0.20f, 0.10f) },
+					affix = "SS2INFERNAL",
+					equipmentName = "EliteSuperFireEquipment",
+					displayPriority = 16001,
+					// darker Ifrit's Distinction
+					icon = () => AdjustSprite(Sprites.AffixRed, null, 0.8f),
+					name = "Royal Flame",
+					pickup = "Become a harbinger of fire.",
+					aspectOf = "<style=cDeath>Harbinger of Fire</style> :",
+					passive = "\nGain the power of <style=cIsDamage>Blazing</style> elites.\nEvery <style=cIsDamage>8 seconds</style>, launch a <style=cIsDamage>giant fireball</style> for <style=cIsDamage>200%</style> damage.",
+					configure = (aspectDef) => aspectDef.GrantsBuffs(() => RoR2Content.Buffs.AffixRed)
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectBoreal",
+					stats = new[] { new AspectStat(AspectStatType.Health, 0.20f, 0.10f) },
+					affix = "SS2BOREAL",
+					equipmentName = "EliteSuperIceEquipment",
+					displayPriority = 16002,
+					// similar to Of One Mind
+					icon = () => EquipmentIcon(DLC3Content.Equipment.EliteCollectiveEquipment) ?? Sprites.AffixHaunted,
+					name = "Her Cosmic Brilliance",
+					pickup = "Become a harbinger of ice.",
+					aspectOf = "<style=cDeath>Harbinger of Ice</style> :",
+					passive = "\nGain the power of <style=cIsUtility>Glacial</style> elites.\nEvery <style=cIsDamage>4 seconds</style>, call down an <style=cIsDamage>ice meteor</style> nearby for <style=cIsDamage>100%</style> damage.",
+					configure = (aspectDef) => aspectDef.GrantsBuffs(() => RoR2Content.Buffs.AffixWhite)
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectSupercharged",
+					stats = new[] { new AspectStat(AspectStatType.AttackSpeed, 0.20f, 0.10f) },
+					affix = "SS2SUPERCHARGED",
+					equipmentName = "EliteSuperLightningEquipment",
+					displayPriority = 16003,
+					// slightly darker His Spiteful Boon
+					icon = () => AdjustSprite(Sprites.AffixBead, null, 0.9f),
+					name = "Eye of the Storm",
+					pickup = "Become a harbinger of lightning.",
+					aspectOf = "<style=cDeath>Harbinger of Lightning</style> :",
+					passive = "\nGain the power of <style=cIsDamage>Overloading</style> elites.\nEvery <style=cIsUtility>4 seconds</style>, supercharge a nearby ally <style=cStack>(or yourself)</style>, granting <style=cIsDamage>+100% attack speed</style>, <style=cIsUtility>+100% movement speed</style> and <style=cIsUtility>greatly reduced cooldowns</style> for <style=cIsUtility>13 seconds</style>.",
+					configure = (aspectDef) => aspectDef.GrantsBuffs(() => RoR2Content.Buffs.AffixBlue)
+				}
+			).Register();
 
 
 
@@ -944,12 +1070,8 @@ namespace TPDespair.ZetAspects
 						equipmentName = "ELITE_EQUIPMENT_NUCLEAR",
 						itemName = "ZetAspectNuclear",
 						displayPriority = 235,
-						BaseIcon = () => 
-						{
-							Sprite sprite = Catalog.TryUseOwnSprite();
-
-							return Catalog.TrimSpriteEdge(sprite, 8, 24);
-						},
+						// Meltdown's icon is a recolored N'kuhana's Retort
+						BaseIcon = () => Catalog.OwnSpriteOrRecolor(() => Sprites.AffixEarth, new Color(0.8f, 0.95f, 0.5f)),
 						OutlineIcon = () => Sprites.OutlineStandard,
 						SetupTokens = () =>
 						{
@@ -976,6 +1098,7 @@ namespace TPDespair.ZetAspects
 				{
 					Language.RegisterFragmentNoOverwrite("AFFIX_NUCLEAR_NAME", "Elephant's Foot");
 					Language.RegisterFragmentNoOverwrite("AFFIX_NUCLEAR_PICKUP", "Become an aspect of radiation.");
+					Language.RegisterFragmentNoOverwrite("AFFIX_NUCLEAR_ACTIVE", "<style=cStack>(???)</style>");
 					Language.RegisterFragmentNoOverwrite("ASPECT_OF_RADIATION", "<style=cDeath>Aspect of Radiation</style> :");
 					Language.RegisterFragmentNoOverwrite("SLOWBLAST_NEARBY", "\nPeriodically blast nearby enemies, slowing them.");
 					Language.RegisterFragmentNoOverwrite("IRRADIATE_DOT", "\nAttacks <style=cIsDamage>irradiate</style> on hit for {0} {1} damage {2}.");
@@ -987,6 +1110,335 @@ namespace TPDespair.ZetAspects
 					transformableAspectItemDefs.Add(ZetAspectNuclear);
 				}
 			}.Register();
+
+
+
+			AspectPackDefOf.RecoveredAndReformed = new AspectPack
+			{
+				identifier = "RecoveredAndReformed",
+				dependency = "prodzpod.RecoveredAndReformed"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectSpeedy",
+					stats = new[] { new AspectStat(AspectStatType.AttackSpeed, 0.15f, 0.10f) },
+					affix = "SECRETSPEED",
+					equipmentName = "EliteSecretSpeedEquipment",
+					displayPriority = 2510,
+					// keep the bunny headband from the vanilla icon, but make its orange outline yellow
+					icon = () => ReplaceEdgeHue(GetOwnSprite() ?? Sprites.AffixRed, 0.03f, 0.12f, 0.15f, 6),
+					configure = (aspectDef) => aspectDef.useOutline = false,
+					name = "Beyond the Limits",
+					pickup = "Become an aspect of speed.",
+					aspectOf = "<style=cDeath>Aspect of Speed</style> :",
+					passive = "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>{0}%</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>{1}%</style>.",
+					passiveArgs = () => new object[] {
+						100f * ModStaticField("prodzpod.RecoveredAndReformed", "RecoveredAndReformed.Recovered", "SecretSpeedMoveSpeed", 1f),
+						100f * ModStaticField("prodzpod.RecoveredAndReformed", "RecoveredAndReformed.Recovered", "SecretSpeedAttackSpeed", 0.5f)
+					}
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.Expedition = new AspectPack
+			{
+				identifier = "Expedition",
+				dependency = "ExpeditionCrew.EXPEDITION"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectPrimal",
+					stats = new[] { new AspectStat(AspectStatType.AttackSpeed, 0.15f, 0.10f) },
+					affix = "INSTINCT",
+					equipmentName = "ELITE_EQUIPMENT_INSTINCT_NAME",
+					displayPriority = 2520,
+					fallbackIcon = () => Sprites.AffixRed,
+					name = "Primal Call",
+					pickup = "Become an aspect of wildness.",
+					aspectOf = "<style=cDeath>Aspect of Wildness</style> :",
+					passive = "\nAttacks <style=cIsUtility>injure</style> enemies, preventing them from sprinting for <style=cIsUtility>2 seconds</style>.\nWhile below <style=cIsHealth>50% health</style>, gain <style=cIsDamage>+50% attack speed</style>, <style=cIsUtility>+50% movement speed</style> and become <style=cIsUtility>immune to stuns</style>."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectUnstable",
+					stats = new[] { new AspectStat(AspectStatType.Armor, 20f, 10f) },
+					affix = "EXPUNSTABLE",
+					equipmentName = "ELITE_EQUIPMENT_UNSTABLE_NAME",
+					displayPriority = 14000,
+					offense = false,
+					defence = true,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "Localized Anomaly",
+					pickup = "Become an aspect of chaos.",
+					aspectOf = "<style=cDeath>Aspect of Chaos</style> :",
+					passive = "\nPeriodically <style=cIsUtility>teleport</style> a nearby ally to your target."
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.LostInTransitLegacy = new AspectPack
+			{
+				identifier = "LostInTransitLegacy",
+				dependency = "Phreelosu.LostInTransitLegacy"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectFrenzying",
+					stats = new[] { new AspectStat(AspectStatType.MoveSpeed, 0.15f, 0.10f) },
+					affix = "LITFRENZIED",
+					equipmentName = "LITLegacyAffixFRENZIED",
+					displayPriority = 1550,
+					fallbackIcon = () => Sprites.AffixRed,
+					name = "Primordial Rage",
+					pickup = "Become an aspect of seething.",
+					aspectOf = "<style=cDeath>Aspect of Seething</style> :",
+					passive = "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>{0}%</style> and <style=cIsDamage>attack speed</style> by <style=cIsDamage>{1}%</style>.\nReduces <style=cIsUtility>skill cooldowns</style> by <style=cIsUtility>{2}%</style>.\nEvery <style=cIsUtility>{3} seconds</style>, press <style=cIsUtility>{4}</style> to <style=cIsUtility>blink</style> forward.",
+					passiveArgs = () => new object[] {
+						100f * ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Frenzying", "Movement Speed Bonus", 1f),
+						100f * ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Frenzying", "Attack Speed Bonus", 1f),
+						100f * ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Frenzying", "Cooldown Reduction", 0.5f),
+						ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Frenzying", "Blink Cooldown", 10f),
+						ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Frenzying", "Player Blink Key", KeyCode.F)
+					}
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectLeeching",
+					stats = new[] { new AspectStat(AspectStatType.Regen, 4f, 2f) },
+					affix = "LITLEECHING",
+					equipmentName = "LITLegacyAffixLEECHING",
+					displayPriority = 1551,
+					defence = true,
+					fallbackIcon = () => Sprites.AffixPoison,
+					name = "Guttural Whimpers",
+					pickup = "Become an aspect of parasitism.",
+					aspectOf = "<style=cDeath>Aspect of Parasitism</style> :",
+					passive = "\n<style=cIsHealing>Heal</style> for <style=cIsHealing>{0}%</style> of the damage you deal.\nEvery <style=cIsUtility>{1} seconds</style>, charge a burst that <style=cIsHealing>regenerates</style> up to <style=cIsHealing>{2}%</style> of the maximum health of injured allies within <style=cIsUtility>{3}m</style>.",
+					passiveArgs = () => new object[] {
+						100f * ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Leeching", "Player Lifesteal", 0.5f),
+						ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Leeching", "Time Between Bursts", 10f),
+						ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Leeching", "Burst Heal Percentage", 10f),
+						ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Leeching", "Burst Radius", 25f)
+					}
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectLITVolatile",
+					stats = new[] { new AspectStat(AspectStatType.Damage, 0.15f, 0.10f) },
+					affix = "LITVOLATILE",
+					equipmentName = "LITLegacyAffixVOLATILE",
+					displayPriority = 1552,
+					fallbackIcon = () => Sprites.AffixRed,
+					name = "Lingering Torment",
+					pickup = "Become an aspect of instability.",
+					aspectOf = "<style=cDeath>Aspect of Instability</style> :",
+					passive = "\nAttacks <style=cIsDamage>explode</style> on hit for <style=cIsDamage>{0}%</style> of the damage dealt.\nTaking heavy damage drops <style=cIsDamage>spite bombs</style> around you.",
+					passiveArgs = () => new object[] {
+						100f * ModConfig("Phreelosu.LostInTransitLegacy", "Elite: Volatile", "Explosion Damage", 0.3f)
+					}
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.SivsContentPack = new AspectPack
+			{
+				identifier = "SivsContentPack",
+				dependency = "Sivelos.SivsContentPack"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectObscuring",
+					stats = new[] { new AspectStat(AspectStatType.MoveSpeed, 0.15f, 0.10f) },
+					affix = "SIVSHADOW",
+					equipmentName = "eqEliteShadow",
+					displayPriority = 7700,
+					offense = false,
+					defence = true,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "What Waits In The Shadows",
+					pickup = "Become an aspect of darkness.",
+					aspectOf = "<style=cDeath>Aspect of Darkness</style> :",
+					passive = "\nAttacks <style=cIsUtility>blind</style> enemies for <style=cIsUtility>{0} seconds</style>.\nWhile out of combat, <style=cIsUtility>turn invisible</style>.",
+					passiveArgs = () => new object[] {
+						ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Obscuring", "blindnessDuration", 10f)
+					}
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectTarSymbiont",
+					stats = new[] { new AspectStat(AspectStatType.Health, 0.15f, 0.10f) },
+					affix = "SIVTAR",
+					equipmentName = "eqEliteTar",
+					displayPriority = 7701,
+					defence = true,
+					fallbackIcon = () => Sprites.AffixPoison,
+					name = "Aphelian Sin",
+					pickup = "Become an aspect of tar.",
+					aspectOf = "<style=cDeath>Aspect of Tar</style> :",
+					passive = "\nAttacks cover enemies in <style=cIsUtility>tar</style> for <style=cIsUtility>{0} seconds</style>.\n<style=cIsHealing>Heal</style> for <style=cIsHealing>{1}%</style> of the damage you deal.",
+					passiveArgs = () => new object[] {
+						ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Tar", "tarDuration", 5f),
+						100f * ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Tar", "lifeStealCoefficient", 1f)
+					}
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectPrototype",
+					stats = new[] { new AspectStat(AspectStatType.Damage, 0.20f, 0.10f) },
+					affix = "SIVPROTOTYPE",
+					equipmentName = "eqEliteUnstable",
+					displayPriority = 7702,
+					// darker Shared Design
+					icon = () => AdjustSprite(Sprites.AffixLunar, null, 0.65f),
+					name = "Unfinished Design",
+					pickup = "Become an aspect of design.",
+					aspectOf = "<style=cDeath>Aspect of Design</style> :",
+					passive = "\nIncreases <style=cIsDamage>damage</style> by <style=cIsDamage>{0}%</style>, but <style=cDeath>reduces maximum health by {1}%</style>.\nEvery <style=cIsUtility>{2} seconds</style>, launch <style=cIsDamage>{3}</style> fireballs for <style=cIsDamage>{4}%</style> damage each.",
+					passiveArgs = () => new object[] {
+						100f * ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Unstable", "damageMult", 1f),
+						// curse divides max health by (1 + curse)
+						Mathf.Round(100f * (1f - 1f / (1f + ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Unstable", "healthMult", 0.5f)))),
+						ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Unstable", "fireballInterval", 5f),
+						ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Unstable", "fireBallCount", 3),
+						100f * ModStaticField("Sivelos.SivsContentPack", "SivsContentPack.Config.Configuration+Elites+Unstable", "fireBallDamageCoefficient", 1.5f)
+					}
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.EnemiesReturns = new AspectPack
+			{
+				identifier = "EnemiesReturns",
+				dependency = "com.Viliger.EnemiesReturns"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectAeonian",
+					stats = new[] { new AspectStat(AspectStatType.Armor, 30f, 15f) },
+					affix = "AEONIAN",
+					// EnemiesReturns prefixes its content names with ER_
+					FindEquipmentDef = () => FindEquipmentDefByNames("ER_EliteAeonianEquipment", "EliteAeonianEquipment"),
+					displayPriority = 19000,
+					defence = true,
+					icon = () => Sprites.AffixWhite,
+					name = "Arraign's Decree",
+					pickup = "Become an aspect of judgement.",
+					aspectOf = "<style=cDeath>Aspect of Judgement</style> :",
+					passive = "\nBecome <style=cIsUtility>immune</style> to <style=cIsDamage>attack speed</style> and <style=cIsUtility>movement speed</style> reductions.\nReduces the duration of <style=cIsUtility>stuns</style> and <style=cIsUtility>freezes</style> on you by <style=cIsUtility>{0}%</style>.",
+					passiveArgs = () => new object[] {
+						100f * Mathf.Clamp01(ModStaticField("com.Viliger.EnemiesReturns", "EnemiesReturns.Configuration.Judgement.Judgement", "AeonianEliteStunAndFreezeReduction", 0.5f))
+					}
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.SwanSong = new AspectPack
+			{
+				identifier = "SwanSong",
+				dependency = "com.RiskOfBrainrot.SwanSongExtended"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectHallowed",
+					stats = new[] { new AspectStat(AspectStatType.Cooldown, 0.15f, 0.10f) },
+					affix = "SSHALLOWED",
+					equipmentName = "BORBO_ELITE_EQUIPMENT_AFFIX_SPEED",
+					displayPriority = 2530,
+					fallbackIcon = () => Sprites.AffixBlue,
+					name = "Chir's Tempo",
+					pickup = "Become an aspect of velocity.",
+					aspectOf = "<style=cDeath>Aspect of Velocity</style> :",
+					passive = "\nIncreases <style=cIsUtility>movement speed</style> by <style=cIsUtility>{0}%</style> and <style=cIsDamage>base attack speed</style> by <style=cIsDamage>{1}</style>.\nReduces <style=cIsUtility>skill cooldowns</style> by <style=cIsUtility>{2}%</style>.",
+					passiveArgs = () => new object[] {
+						100f * ModStaticField("com.RiskOfBrainrot.SwanSongExtended", "SwanSongExtended.Elites.FrenziedAspect", "moveSpeedBonus", 1.2f),
+						ModStaticField("com.RiskOfBrainrot.SwanSongExtended", "SwanSongExtended.Elites.FrenziedAspect", "atkSpeedBonus", 1.8f),
+						100f * ModStaticField("com.RiskOfBrainrot.SwanSongExtended", "SwanSongExtended.Elites.FrenziedAspect", "cooldownReduction", 0.4f)
+					}
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectSSVolatile",
+					stats = new[] { new AspectStat(AspectStatType.Damage, 0.15f, 0.10f) },
+					affix = "SSVOLATILE",
+					equipmentName = "BORBO_ELITE_EQUIPMENT_AFFIX_EXPLOSIVE",
+					displayPriority = 2531,
+					fallbackIcon = () => Sprites.AffixRed,
+					name = "Bava's Refrain",
+					pickup = "Become an aspect of force.",
+					aspectOf = "<style=cDeath>Aspect of Force</style> :",
+					passive = "\nAttacks <style=cIsDamage>explode</style> on hit, <style=cIsUtility>knocking back</style> enemies.\nPeriodically fire a <style=cIsDamage>mortar</style>."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectMirrored",
+					stats = new[] { new AspectStat(AspectStatType.Crit, 10f, 5f) },
+					affix = "SSMIRRORED",
+					equipmentName = "BORBO_ELITE_EQUIPMENT_MIRRORED",
+					displayPriority = 7800,
+					offense = false,
+					defence = true,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "Fractured Belief",
+					pickup = "Become an aspect of vanity.",
+					aspectOf = "<style=cDeath>Aspect of Vanity</style> :",
+					passive = "\nBecome <style=cIsUtility>immune to hitstun</style>, but <style=cDeath>greatly reduces maximum health</style>.\nGain extra <style=cIsHealing>health gates</style>. Triggering one makes you briefly <style=cIsUtility>invulnerable</style> and <style=cIsDamage>shattered</style>, increasing <style=cIsUtility>speed</style> and reducing <style=cIsUtility>cooldowns</style>."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectSurging",
+					stats = new[] { new AspectStat(AspectStatType.MoveSpeed, 0.20f, 0.10f) },
+					affix = "SSSURGING",
+					equipmentName = "BORBO_ELITE_EQUIPMENT_AFFIX_FLOOD",
+					displayPriority = 15500,
+					fallbackIcon = () => Sprites.AffixBlue,
+					name = "A Dormant Force",
+					pickup = "Become an aspect of flood.",
+					aspectOf = "<style=cDeath>Aspect of Flood</style> :",
+					passive = "\nPeriodically <style=cIsUtility>surge</style> toward enemies, releasing <style=cIsDamage>waves</style> that drag them in a <style=cIsUtility>riptide</style>."
+				},
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectHowling",
+					stats = new[] { new AspectStat(AspectStatType.AttackSpeed, 0.20f, 0.10f) },
+					affix = "SSHOWLING",
+					equipmentName = "BORBO_ELITE_EQUIPMENT_AFFIX_SQUALL",
+					displayPriority = 15501,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "Twisted Stare",
+					pickup = "Become an aspect of squall.",
+					aspectOf = "<style=cDeath>Aspect of Squall</style> :",
+					passive = "\nAttacks <style=cIsDamage>strip armor</style> from enemies.\nPeriodically fire <style=cIsDamage>wind missiles</style> and a <style=cIsDamage>squall beam</style>."
+				}
+			).Register();
+
+
+
+			AspectPackDefOf.Deltarune = new AspectPack
+			{
+				identifier = "Deltarune",
+				dependency = "AGU.DeltaruneMod"
+			}.With(
+				new SimpleAspect()
+				{
+					identifier = "ZetAspectNEO",
+					affix = "DRNEO",
+					FindEquipmentDef = () => FindEquipmentDefByNames("AffixN.E.O.") ?? FindEquipmentDefByTokenOrBuff("Armor of N.E.O.", "N.E.O. Armor"),
+					displayPriority = 2540,
+					fallbackIcon = () => Sprites.AffixHaunted,
+					name = "Armor of N.E.O.",
+					pickup = "Become an aspect of N.E.O.",
+					aspectOf = "<style=cDeath>Aspect of N.E.O.</style> :",
+					passive = "\nIncreases <style=cIsDamage>damage</style>, but <style=cDeath>reduces health and armor</style>.\nGain <style=cIsUtility>{0} random buffs</style> while active.",
+					passiveArgs = () => new object[] {
+						ModStaticField("AGU.DeltaruneMod", "DeltaruneMod.Elites.NeoElite", "maxBuffs", 2)
+					}
+				}
+			).Register();
 		}
 	}
 }

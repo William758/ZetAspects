@@ -81,10 +81,12 @@ namespace TPDespair.ZetAspects
 
 		public static Type GetType(this Reflector reflector, Type type, string nestedTypeName)
 		{
-			type = type.GetNestedType(nestedTypeName, Reflector.Flags);
-			if (type != null)
+			if (type == null) return null;
+
+			Type nestedType = type.GetNestedType(nestedTypeName, Reflector.Flags);
+			if (nestedType != null)
 			{
-				return type;
+				return nestedType;
 			}
 			else
 			{
