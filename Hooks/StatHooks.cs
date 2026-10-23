@@ -11,6 +11,9 @@ namespace TPDespair.ZetAspects
 		public static int BaseShieldLocIndex = -1;
 		public static int BaseRegenLocIndex = -1;
 
+		private static bool addedRegenApplied = false;
+		private static bool percentRegenApplied = false;
+
 
 
 		internal static void Init()
@@ -26,10 +29,14 @@ namespace TPDespair.ZetAspects
 
 			RegenHook();
 
-			if (BaseRegenLocIndex != -1)
+			// only fill in what RegenHook could not apply, both hooks applying would double aspect regen
+			if (BaseRegenLocIndex != -1 && (!addedRegenApplied || !percentRegenApplied))
 			{
 				FallbackRegenHook();
 			}
+
+			if (!addedRegenApplied) Logger.Warn("Aspect flat regeneration could not be hooked!");
+			if (!percentRegenApplied) Logger.Warn("Aspect percent regeneration could not be hooked!");
 
 
 
@@ -810,6 +817,10 @@ namespace TPDespair.ZetAspects
 			{
 				ILCursor c = new ILCursor(il);
 
+				// manipulators rerun whenever RecalculateStats is hooked again, the fallback runs after this one
+				addedRegenApplied = false;
+				percentRegenApplied = false;
+
 				int LevelLocIndex = -1;
 
 				if (!c.TryGotoNext(
@@ -859,6 +870,8 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
 					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("AddedRegenEffect"));
 					c.Emit(OpCodes.Stloc, ScaledRegenLocIndex);
+
+					addedRegenApplied = true;
 				}
 				else
 				{
@@ -884,6 +897,8 @@ namespace TPDespair.ZetAspects
 					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
 					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("PercentRegenEffect"));
 					c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
+
+					percentRegenApplied = true;
 				}
 				else
 				{
@@ -997,18 +1012,28 @@ namespace TPDespair.ZetAspects
 
 				if (found)
 				{
-					// add (affected by lvl regen scaling and ignites)
-					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, KnurlRegenLocIndex);
-					c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
-					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("AddedRegenEffect"));
-					c.Emit(OpCodes.Stloc, KnurlRegenLocIndex);
+					if (!addedRegenApplied)
+					{
+						// add (affected by lvl regen scaling and ignites)
+						c.Emit(OpCodes.Ldarg, 0);
+						c.Emit(OpCodes.Ldloc, KnurlRegenLocIndex);
+						c.Emit(OpCodes.Ldloc, LevelRegenScaleLocIndex);
+						c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("AddedRegenEffect"));
+						c.Emit(OpCodes.Stloc, KnurlRegenLocIndex);
 
-					// add percent (unaffected by lvl regen scaling and ignites)
-					c.Emit(OpCodes.Ldarg, 0);
-					c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
-					c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("PercentRegenEffect"));
-					c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
+						addedRegenApplied = true;
+					}
+
+					if (!percentRegenApplied)
+					{
+						// add percent (unaffected by lvl regen scaling and ignites)
+						c.Emit(OpCodes.Ldarg, 0);
+						c.Emit(OpCodes.Ldloc, CrocoRegenLocIndex);
+						c.Emit(OpCodes.Call, typeof(StatHooks).GetMethod("PercentRegenEffect"));
+						c.Emit(OpCodes.Stloc, CrocoRegenLocIndex);
+
+						percentRegenApplied = true;
+					}
 				}
 				else
 				{
