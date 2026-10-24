@@ -47,7 +47,7 @@ namespace TPDespair.ZetAspects
 
 	public class ZetAspectsPlugin : BaseUnityPlugin
 	{
-		public const string ModVer = "2.10.10";
+		public const string ModVer = "2.11.0";
 		public const string ModName = "ZetAspects";
 		public const string ModGuid = "com.TPDespair.ZetAspects";
 
@@ -221,19 +221,30 @@ namespace TPDespair.ZetAspects
 				CreateDroplet(RoR2Content.Items.Infusion, transform.position + new Vector3(10f, 10f, 10f));
 				CreateDroplet(DLC1Content.Items.ExtraLifeVoid, transform.position + new Vector3(-10f, 10f, -10f));
 				CreateDroplet(DLC1Content.Items.VoidMegaCrabItem, transform.position + new Vector3(0f, 10f, -15f));
+
+				CreateDroplet(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite")), transform.position + new Vector3(-15f, 15f, 15f));
+				CreateDroplet(ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE")), transform.position + new Vector3(0f, 15f, 22.5f));
 			}
 
 			if (Input.GetKeyDown(KeyCode.F7))
 			{
 				var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
+				int slot = 0;
 
-				CreateDroplet(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex("EquipmentDefSepiaElite")), transform.position + new Vector3(-5f, 5f, 5f));
-				CreateDroplet(ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("ITEM_ZETAFFIX_ADAPTIVE")), transform.position + new Vector3(0f, 5f, 7.5f));
-			}
+				foreach (SimpleAspect aspect in SimpleAspect.All)
+				{
+					AspectDef aspectDef = aspect.aspectDef;
+					if (aspectDef != null)
+					{
+						EquipmentDef equipDef = aspectDef.equipmentDef;
+						if (equipDef != null)
+						{
+							CreateDroplet(equipDef, transform.position + DropletOffset(slot));
 
-			if (Input.GetKeyDown(KeyCode.F8))
-			{
-				PlayerCharacterMasterController.instances[0].master.GetBody().AddTimedBuff(BuffDefOf.AffixVeiled, 20f);
+							slot++;
+						}
+					}
+				}
 			}
 		}
 
