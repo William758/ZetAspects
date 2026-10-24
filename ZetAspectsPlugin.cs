@@ -27,13 +27,13 @@ namespace TPDespair.ZetAspects
 	[BepInDependency("com.jt_hehe.Thalassophobia", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("Phreel.NullifyingElite", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.TechDebtCollector.GoldenCoastPlus", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("prodzpod.RecoveredAndReformed", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("ExpeditionCrew.EXPEDITION", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("Phreelosu.LostInTransitLegacy", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("Sivelos.SivsContentPack", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("com.Viliger.EnemiesReturns", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("com.RiskOfBrainrot.SwanSongExtended", BepInDependency.DependencyFlags.SoftDependency)]
-	[BepInDependency("AGU.DeltaruneMod", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("prodzpod.RecoveredAndReformed", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
+	//[BepInDependency("ExpeditionCrew.EXPEDITION", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
+	//[BepInDependency("Phreelosu.LostInTransitLegacy", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
+	//[BepInDependency("Sivelos.SivsContentPack", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
+	//[BepInDependency("com.Viliger.EnemiesReturns", BepInDependency.DependencyFlags.SoftDependency)] ### CYCLE VIA EliteReworks2
+	//[BepInDependency("com.RiskOfBrainrot.SwanSongExtended", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
+	//[BepInDependency("AGU.DeltaruneMod", BepInDependency.DependencyFlags.SoftDependency)] ### LATE LOOKUP ONLY
 	[BepInDependency("droppod.lookingglass", BepInDependency.DependencyFlags.SoftDependency)]
 	[BepInDependency("com.themysticsword.risingtides", BepInDependency.DependencyFlags.SoftDependency)]
 	//[BepInDependency("prodzpod.NemesisSpikestrip", BepInDependency.DependencyFlags.SoftDependency)] ### DEPENDENCY OF
