@@ -778,7 +778,8 @@ namespace TPDespair.ZetAspects
 
 		private static void CopyEquipmentPrefab(ItemDef itemDef, EquipmentDef equipDef)
 		{
-			bool isAsync = equipDef.pickupModelReference != null;
+			// mods that assign pickupModelPrefab directly can leave an empty (non-null) reference behind
+			bool isAsync = equipDef.pickupModelReference != null && equipDef.pickupModelReference.RuntimeKeyIsValid() && !equipDef.pickupModelPrefab;
 
 			if (isAsync)
 			{
